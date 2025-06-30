@@ -1,0 +1,36 @@
+﻿ @inherits LayoutComponentBase
+@inject IJSRuntime JsRuntime
+
+<div class="relative overflow-x-hidden text-sm antialiased font-normal text-black font-cerebri dark:text-white vertical detached detached-simple">
+
+    <div class="bg-[#f9fbfd] dark:bg-dark">
+@*          
+        <div class="bg-black min-h-[220px] sm:min-h-[250px] bg-bottom fixed hidden w-full -z-50 detached-img" style="background-image: url('assets/images/bg-main.png');></div>
+
+        <div x-cloak class="fixed inset-0 bg-black/60 dark:bg-dark/90 z-[999] lg:hidden" :class="{'hidden' : !$store.app.sidebar}" @click="ToggleSidebar">
+        </div> *@
+
+
+        <div class="flex mx-auto main-container">
+            <Sidebar></Sidebar>
+
+            <div class="flex-1 main-content">
+
+                <Topbar></Topbar>
+                <div class="h-[calc(100vh-60px)]  relative overflow-y-auto overflow-x-hidden p-4 space-y-4 detached-content">
+
+
+                    @Body
+
+
+                    <Footer></Footer>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+

@@ -1,0 +1,56 @@
+@using CoreAdminWeb.Model
+
+
+
+
+<ul style="list-style:none;">
+    @foreach (var folder in Folders)
+    {
+        <li class="@(folder.id == Guid.Empty ? "" : "px-4")">
+            <span class="p-1"  @onclick="() => OnSelectFolder(folder)" style="border-radius:4px;cursor:pointer;display:flex;align-items:center;@(folder.isSelected ? "background:#e5f0ff;" : "")">
+                <span style="margin-right:4px;">
+                    <span class="material-symbols-outlined block">folder</span>
+                </span>
+                <span>@folder.name</span>
+                @if (folder.sub_folders != null && folder.sub_folders.Any())
+                {
+                    <span @onclick:stopPropagation="true" @onclick="() => Toggle(folder)" style="margin-top: 5px;margin-left: 5px;">
+                        @if (folder.isOpen)
+                        {
+                            <span class="material-symbols-outlined" style="font-size:16px;">expand_more</span>
+                        }
+                        else
+                        {
+                            <span class="material-symbols-outlined" style="font-size:16px;">chevron_right</span>
+                        }
+                    </span>
+                }
+            </span>
+            @if (folder.isOpen && folder.sub_folders != null && folder.sub_folders.Any())
+            {
+                <FolderTree Folders="folder.sub_folders" OnSelect="OnSelect" />
+            }
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter]
+    public List<FolderModel> Folders { get; set; }
+
+    [Parameter]
+    public EventCallback<FolderModel> OnSelect { get; set; }
+
+    // Toggle trạng thái mở/đóng
+    void Toggle(FolderModel folder)
+    {
+        if (folder.sub_folders != null && folder.sub_folders.Any())
+            folder.isOpen = !folder.isOpen;
+    }
+
+    async void OnSelectFolder(FolderModel folder)
+    {
+        if (OnSelect.HasDelegate)
+            await OnSelect.InvokeAsync(folder);
+    }
+}

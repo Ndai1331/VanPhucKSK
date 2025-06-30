@@ -1,0 +1,112 @@
+﻿@page "/carousel"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="Components" pTitle="Carousel"></PageHeader>
+
+
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">Basic Carousel</MudText>
+            <div class="swiper SwiperDefault" dir="ltr">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-1.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-2.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-3.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-4.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-5.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h2 class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">Basic Carousel With Arrow</h2>
+            <div class="swiper SwiperwithArrows" dir="ltr">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-6.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-7.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-2.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-4.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-5.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                </div>
+                <div class="text-white swiper-button-next"></div>
+                <div class="text-white swiper-button-prev"></div>
+            </div>
+        </div>
+        <div class="card">
+            <h2 class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">Basic Carousel With pagination</h2>
+            <div class="swiper SwiperwithPagination" dir="ltr">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-5.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-4.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-2.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-6.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-7.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+        <div class="card">
+            <h2 class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">Basic Carousel With progress</h2>
+            <div class="swiper SwiperwithProgress" dir="ltr">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-4.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-3.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-2.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-6.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-7.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                </div>
+                <div class="text-white swiper-button-next"></div>
+                <div class="text-white swiper-button-prev"></div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+        <div class="card">
+            <h2 class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">Basic Carousel With Multiple slides</h2>
+            <div class="swiper SwiperMultiple" dir="ltr">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-7.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-6.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-2.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-4.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                    <div class="swiper-slide"><MudImage Src="assets/images/images-3.jpg" alt="slider" Class="object-cover w-full max-h-96" /></div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Card -->
+
+@code {
+    private IJSObjectReference? _module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Load Swiper JavaScript module
+                _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/swiper-bundle.min.js");
+
+                // Call JavaScript function to initialize Swiper
+                await JsRuntime.InvokeVoidAsync("Swiperload");
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors that may occur during JavaScript interop
+                Console.WriteLine($"Error loading Swiper: {ex.Message}");
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // Cleanup logic to dispose of JavaScript module reference
+        if (_module != null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}

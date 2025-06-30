@@ -1,0 +1,125 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
+    <PackageReference Include="EPPlus" Version="8.0.5" />
+    <PackageReference Include="MudBlazor" Version="8.6.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Pages\LoaiHinhCanhTac\LoaiHinhCanhTac.razor" />
+    <AdditionalFiles Include="Pages\LoaiHinhSanXuat\LoaiHinhSanXuat.razor" />
+    <AdditionalFiles Include="Pages\QuanLyCoSoSanXuatPhanBon\QuanLyCoSoSanXuatPhanBon.razor" />
+    <AdditionalFiles Include="Pages\ViPhamSanXuatKinhDoanhThuocBVTV\ViPhamSanXuatKinhDoanhThuocBVTV.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="postcss.config.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="package-libs-config.json" />
+    <Content Remove="package-lock.json" />
+    <Content Remove="Package.json" />
+    <Content Include="Pages\Folder\Folder.razor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\ViSinhVatGayHai\" />
+  </ItemGroup>
+
+  <!-- <ItemGroup>
+    <Compile Remove="Pages\Apps\**" />
+    <Compile Remove="Pages\Chart\**" />
+    <Compile Remove="Pages\DragAndDrop\**" />
+    <Compile Remove="Pages\FontIcons\**" />
+    <Compile Remove="Pages\Forms\**" />
+    <Compile Remove="Pages\Layouts\**" />
+    <Compile Remove="Pages\Tables\**" />
+    <Compile Remove="Pages\UiElements\**" />
+  </ItemGroup> -->
+<!-- 
+  <ItemGroup>
+    <EmbeddedResource Remove="Pages\Apps\**" />
+    <EmbeddedResource Remove="Pages\Chart\**" />
+    <EmbeddedResource Remove="Pages\DragAndDrop\**" />
+    <EmbeddedResource Remove="Pages\FontIcons\**" />
+    <EmbeddedResource Remove="Pages\Forms\**" />
+    <EmbeddedResource Remove="Pages\Layouts\**" />
+    <EmbeddedResource Remove="Pages\Tables\**" />
+    <EmbeddedResource Remove="Pages\UiElements\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Pages\Apps\**" />
+    <None Remove="Pages\Chart\**" />
+    <None Remove="Pages\DragAndDrop\**" />
+    <None Remove="Pages\FontIcons\**" />
+    <None Remove="Pages\Forms\**" />
+    <None Remove="Pages\Layouts\**" />
+    <None Remove="Pages\Tables\**" />
+    <None Remove="Pages\UiElements\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Apps\Calender.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Apps\Chat.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Apps\Contact.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Apps\EmailPage.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Apps\Gallery.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Apps\Invoice.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Apps\Kanban.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Chart\Index.razor" />
+    <_ContentIncludedByDefault Remove="Pages\DragAndDrop\Index.razor" />
+    <_ContentIncludedByDefault Remove="Pages\FontIcons\Index.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Forms\Basic.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Forms\Checkbox.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Forms\Editors.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Forms\InputGroup.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Forms\Radio.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Forms\Switches.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Forms\Validation.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Layouts\Creative.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Layouts\Detached.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Tables\Basic.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Tables\Datatables.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Tables\Editable.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Accordions.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Alerts.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Avatar.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Badge.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Breadcrumb.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Buttons.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\ButtonsGroup.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Carousel.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Clipboard.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Countdown\Countdown.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Countdown\Down.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Counter.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Dropdowns.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Flatpickr.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Images.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Lightbox.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Loader.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Modals.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Notification.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Pagination.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Pricing.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\ProgressBar.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Tabs.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Tooltips.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Typography.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UiElements\Videos.razor" />
+    <_ContentIncludedByDefault Remove="Pages\ Components\Alert.razor" />
+  </ItemGroup> -->
+
+</Project>

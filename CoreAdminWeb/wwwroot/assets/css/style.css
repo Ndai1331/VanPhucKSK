@@ -1,0 +1,73 @@
+[data-mode="dark"] .apexcharts-bar-series path {
+    stroke: #1F1F1F;
+}
+
+.apexcharts-radar-series polygon:is([data-mode="dark"] *), .apexcharts-radar-series line:is([data-mode="dark"] *) {
+    fill: #151515;
+    stroke: #343331;
+}
+
+.apexcharts-pie-series path:is([data-mode="dark"] *), .apexcharts-bar-series path:is([data-mode="dark"] *) {
+    stroke: #1F1F1F;
+}
+
+.apexcharts-grid-borders line:is([data-mode="dark"] *) {
+    stroke: #343331;
+}
+
+.apexcharts-yaxis text, .apexcharts-xaxis text {
+    fill: #64748b;
+}
+
+.apexcharts-gridline:is([data-mode="dark"] *) {
+    stroke: #1F1F1F;
+}
+
+.apexcharts-tooltip.apexcharts-theme-light {
+    border: 1px solid #e3e3e3;
+    background: rgba(255, 255, 255, .96);
+}
+
+    .apexcharts-tooltip.apexcharts-theme-light:is([data-mode="dark"] *) {
+        --tw-border-opacity: 1;
+        border-color: rgb(52 51 49);
+        --tw-bg-opacity: 1;
+        background-color: rgb(31 31 31);
+        color: rgb(255 255 255 / 0.8);
+    }
+
+.apexcharts-radialbar .apexcharts-datalabels-group text:is([data-mode="dark"] *) {
+    fill: rgb(255 255 255 / 0.5);
+}
+
+.apexcharts-radialbar-track path:is([data-mode="dark"] *) {
+    stroke: #343331;
+}
+
+.apexcharts-tooltip.apexcharts-theme-light .apexcharts-tooltip-title:is([data-mode="dark"] *) {
+    border-color: rgb(52 51 49 / 1);
+    background-color: rgb(31 31 31 / 1) !important;
+}
+
+.apexcharts-legend-text {
+    color: rgb(148 152 154 / 1 ) !important;
+}
+
+/* Custom Style for design fixes 
+.dropdown .mud-button-label {
+    display: contents;
+}
+*/
+
+.mud-button-label{
+    display:contents;
+}
+.light-logo {
+    height: 3rem !important;
+    border-radius:10px;
+}
+
+.dark-logo {
+    height: 3rem !important;
+    border-radius: 10px;
+}

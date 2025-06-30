@@ -1,0 +1,61 @@
+﻿@page "/lightbox"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="Components" pTitle="Lightbox"></PageHeader>
+
+
+<link rel="stylesheet" href="assets/css/fancybox.css" /> 
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">Example</MudText>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                <MudLink Href="assets/images/images-1.jpg" data-fancybox="gallery">
+                    <MudImage Src="assets/images/images-1.jpg" Class="rounded-xl" />
+                </MudLink>
+                <MudLink Href="assets/images/images-2.jpg" data-fancybox="gallery">
+                    <MudImage Src="assets/images/images-2.jpg" Class="rounded-xl" />
+                </MudLink>
+                <MudLink Href="assets/images/images-3.jpg" data-fancybox="gallery">
+                    <MudImage Src="assets/images/images-3.jpg" Class="rounded-xl" />
+                </MudLink>
+                <MudLink Href="assets/images/images-4.jpg" data-fancybox="gallery">
+                    <MudImage Src="assets/images/images-4.jpg" Class="rounded-xl" />
+                </MudLink>
+                <MudLink Href="assets/images/images-6.jpg" data-fancybox="gallery">
+                    <MudImage Src="assets/images/images-6.jpg" Class="rounded-xl" />
+                </MudLink>
+                <MudLink Href="assets/images/images-7.jpg" data-fancybox="gallery">
+                    <MudImage Src="assets/images/images-7.jpg" Class="rounded-xl" />
+                </MudLink>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Card -->
+
+@code {
+    [Inject]
+    private IJSRuntime? JSRuntime { get; set; }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         // Load Dashboard JavaScript module
+    //         await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/lightbox.init.js");
+    //     }
+    // }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeFancybox");
+        }
+    }
+
+    
+}

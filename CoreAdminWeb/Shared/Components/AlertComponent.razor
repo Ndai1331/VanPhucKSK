@@ -1,0 +1,46 @@
+@using CoreAdminWeb.Model.Alert
+@using CoreAdminWeb.Services
+@inject AlertService AlertService
+@implements IDisposable
+
+<div class="fixed top-4 right-4 z-[99999] flex flex-col gap-2">
+    @foreach (var alert in _alerts)
+    {
+        <div class="flex items-center gap-2 p-3 border rounded transition-all duration-300 @alert.BorderColor @alert.BgColor text-white @alert.AnimationClass" style="display: @(alert.Visible ? "flex" : "none")">
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
+                    <path d="@alert.Icon" fill="currentColor"></path>
+                </svg>
+            </span>
+            <span class="flex-1">@alert.Message</span>
+            <button type="button" @onclick="() => AlertService.RemoveAlert(alert.Id)" class="transition-all duration-300 rotate-0 ltr:ml-auto rtl:mr-auto hover:opacity-80 hover:rotate-180">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
+                    <path d="M12.0007 10.5865L16.9504 5.63672L18.3646 7.05093L13.4149 12.0007L18.3646 16.9504L16.9504 18.3646L12.0007 13.4149L7.05093 18.3646L5.63672 16.9504L10.5865 12.0007L5.63672 7.05093L7.05093 5.63672L12.0007 10.5865Z" fill="currentColor"></path>
+                </svg>
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private List<AlertModel> _alerts = new List<AlertModel>();
+
+    protected override void OnInitialized()
+    {
+        AlertService.OnAlertChange += HandleAlertChange;
+    }
+
+    private async void HandleAlertChange(List<AlertModel> alerts)
+    {
+        await InvokeAsync(() =>
+        {
+            _alerts = alerts;
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        AlertService.OnAlertChange -= HandleAlertChange;
+    }
+} 

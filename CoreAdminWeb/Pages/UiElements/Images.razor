@@ -1,0 +1,39 @@
+﻿@page "/images"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="Elements" pTitle="Images"></PageHeader>
+
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Images Responsive</MudText>
+            <div>
+                <MudImage Src="assets/images/images-6.jpg" Class="object-cover w-full md:h-72" alt=""/>
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class ="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Images Rounded</MudText>
+            <div>
+                <MudImage Src="assets/images/images-2.jpg" Class="object-cover w-full rounded-md md:h-72" alt=""/>
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class ="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Images Circle</MudText>
+            <div>
+                <MudImage Src="assets/images/images-3.jpg" Class="mx-auto rounded-full h-44 w-44" alt=""/>
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class ="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Images With Ring</MudText>
+            <div>
+                <MudImage Src="assets/images/images-4.jpg" Class="object-cover w-full rounded ring-offset-4 ring-2 ring-light dark:ring-darkborder md:h-72" alt=""/>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Card -->
+
+@code {
+
+}

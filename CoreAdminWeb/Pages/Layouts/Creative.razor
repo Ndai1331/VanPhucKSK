@@ -1,0 +1,25 @@
+﻿@page "/creative"
+@layout CoreAdminWeb.Shared.Layout.CreativeLayout
+@inject IJSRuntime JsRuntime
+<PageHeader Title="Layout" pTitle="creative"></PageHeader>
+
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)] detache-card-area">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder md:col-span-2 xl:col-span-2 border-black/10">
+            <MudText Typo="Typo.h2" Class="mb-4 text-base font-semibold text-black dark:text-white/80">Card Title</MudText>
+            <div class="grid grid-cols-1 gap-4">
+                <div>
+                    <MudImage Src="assets/images/logo-dark.svg" Class="mx-auto h-11 dark:hidden " alt=""/>
+                    <MudImage Src="assets/images/logo-light.svg" Class="hidden mx-auto h-11 dark:block" alt=""/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Card -->
+
+@code {
+
+}

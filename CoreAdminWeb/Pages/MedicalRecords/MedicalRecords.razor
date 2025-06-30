@@ -1,0 +1,337 @@
+@page "/"
+@using CoreAdminWeb.Services
+@using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Providers
+@using CoreAdminWeb.Shared.Base
+@using MudBlazor
+@layout CoreAdminWeb.Shared.MainLayout
+@inherits BlazorCoreBase
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
+
+<!-- Start Main Content -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <!-- Page Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
+                <i class="fas fa-file-medical me-2 text-primary"></i>
+                Hồ sơ khám sức khỏe
+            </h2>
+            <p class="text-slate-600 dark:text-slate-400 mb-0">Tổng quan sức khỏe và lịch sử khám bệnh của bạn</p>
+        </div>
+        <div class="flex gap-2">
+            <button class="px-4 py-2 bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 dark:bg-darklight dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20" @onclick="PrintAllRecords">
+                <i class="fas fa-print me-1"></i>In tất cả
+            </button>
+            <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" @onclick="ExportAllPDF">
+                <i class="fas fa-file-pdf me-1"></i>Xuất PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Statistics -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
+        <div class="p-5 rounded shadow-sm bg-purple text-white">
+            <div class="text-center">
+                <i class="fas fa-file-medical fa-2x mb-2"></i>
+                <h4 class="text-2xl font-semibold mb-1">@TotalExams</h4>
+                <p class="mb-0">Tổng số lần khám</p>
+            </div>
+        </div>
+        <div class="p-5 rounded shadow-sm bg-success text-white">
+            <div class="text-center">
+                <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                <h4 class="text-2xl font-semibold mb-1">@LastExamDate</h4>
+                <p class="mb-0">Lần khám gần nhất</p>
+            </div>
+        </div>
+        <div class="p-5 rounded shadow-sm bg-info text-white">
+            <div class="text-center">
+                <i class="fas fa-heartbeat fa-2x mb-2"></i>
+                <h4 class="text-2xl font-semibold mb-1">@HealthStatus</h4>
+                <p class="mb-0">Tình trạng sức khỏe</p>
+            </div>
+        </div>
+        <div class="p-5 rounded shadow-sm bg-warning text-white">
+            <div class="text-center">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h4 class="text-2xl font-semibold mb-1">@NextExamIn</h4>
+                <p class="mb-0">Đến lần khám tiếp theo</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Summary -->
+    <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder mb-6">
+        <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
+            <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
+                <i class="fas fa-user-circle me-2"></i>Thông tin bệnh nhân
+            </h5>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="md:col-span-1">
+                <strong>Họ và tên:</strong> <span>@PatientInfo.FullName</span>
+            </div>
+            <div class="md:col-span-1">
+                <strong>Mã BN:</strong> <span>@PatientInfo.PatientId</span>
+            </div>
+            <div class="md:col-span-1">
+                <strong>Ngày sinh:</strong> <span>@PatientInfo.BirthDate?.ToString("dd/MM/yyyy")</span>
+            </div>
+            <div class="md:col-span-1">
+                <strong>Giới tính:</strong> <span>@PatientInfo.Gender</span>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+            <div class="md:col-span-2">
+                <strong>Địa chỉ:</strong> <span>@PatientInfo.Address</span>
+            </div>
+            <div class="md:col-span-1"> 
+                <strong>SĐT:</strong> <span>@PatientInfo.Phone</span>
+            </div>
+            <div class="md:col-span-1">
+                <strong>Công ty:</strong> <span>@PatientInfo.Company</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical Records List -->
+    <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
+        <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
+            <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
+                <i class="fas fa-list me-2"></i>Danh sách khám sức khỏe
+            </h5>
+        </div>
+        <div class="overflow-auto">
+            <MudTable Class="min-w-[640px] text-left w-full" Items="@medicalRecords" Hover="true" Breakpoint="Breakpoint.None" LoadingProgressColor="Color.Info">
+                <HeaderContent>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày khám</MudTh>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Loại khám</MudTh>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Bác sĩ khám</MudTh>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Kết luận</MudTh>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Trạng thái</MudTh>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Thao tác</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="STT">@(medicalRecords.IndexOf(context) + 1)</MudTd>
+                    <MudTd DataLabel="Ngày khám">@context.ExamDate.ToString("dd/MM/yyyy")</MudTd>
+                    <MudTd DataLabel="Loại khám">@context.ExamType</MudTd>
+                    <MudTd DataLabel="Bác sĩ khám">@context.DoctorName</MudTd>
+                    <MudTd DataLabel="Kết luận">@context.Conclusion</MudTd>
+                    <MudTd DataLabel="Trạng thái">
+                        <span class="inline-flex items-center rounded shadow-sm text-xs justify-center px-2 py-1 @GetStatusBadgeClass(context.Status)">
+                            @context.Status
+                        </span>
+                    </MudTd>
+                    <MudTd DataLabel="Thao tác">
+                        <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context.Id))">
+                            <i class="fas fa-eye me-1"></i>Xem chi tiết
+                        </button>
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <div class="text-center py-8">
+                        <p class="text-slate-500 dark:text-slate-400">Chưa có hồ sơ khám bệnh nào</p>
+                    </div>
+                </NoRecordsContent>
+            </MudTable>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="text-center mt-6">
+        <a href="/profile" class="px-6 py-3 text-white bg-purple rounded shadow hover:bg-purple transition-colors inline-flex items-center">
+            <i class="fas fa-user-edit me-2"></i>Cập nhật thông tin cá nhân
+        </a>
+    </div>
+</div>
+
+@code {
+    [Inject] AlertService AlertService { get; set; }
+    [Inject] IUserService UserService { get; set; }
+
+    // Patient Info
+    private string PatientName = "Nguyễn Văn A";
+    private PatientInfoModel PatientInfo = new PatientInfoModel();
+    
+    // Dashboard Statistics
+    private int TotalExams = 5;
+    private string LastExamDate = "15/12/2024";
+    private string HealthStatus = "Tốt";
+    private string NextExamIn = "3 tháng";
+    
+    // Medical Records
+    private List<MedicalRecordModel> medicalRecords = new List<MedicalRecordModel>();
+
+    public class PatientInfoModel
+    {
+        public string FullName { get; set; } = "Nguyễn Văn A";
+        public string PatientId { get; set; } = "BN001";
+        public DateTime? BirthDate { get; set; } = new DateTime(1990, 3, 15);
+        public string Gender { get; set; } = "Nam";
+        public string Address { get; set; } = "123 Đường ABC, Quận 1, TP.HCM";
+        public string Phone { get; set; } = "0901234567";
+        public string Company { get; set; } = "Công ty ABC";
+    }
+
+    public class MedicalRecordModel
+    {
+        public int Id { get; set; }
+        public DateTime ExamDate { get; set; }
+        public string ExamType { get; set; } = string.Empty;
+        public string DoctorName { get; set; } = string.Empty;
+        public string Conclusion { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPatientInfo();
+        await LoadMedicalRecords();
+        StateHasChanged();
+    }
+
+    private async Task LoadPatientInfo()
+    {
+        try
+        {
+            PatientInfo = new PatientInfoModel
+            {
+                FullName = "Nguyễn Văn A",
+                PatientId = "BN001",
+                BirthDate = new DateTime(1990, 3, 15),
+                Gender = "Nam",
+                Address = "123 Đường ABC, Quận 1, TP.HCM",
+                Phone = "0901234567",
+                Company = "Công ty ABC"
+            };
+            
+            PatientName = PatientInfo.FullName;
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải thông tin bệnh nhân: " + ex.Message, "danger");
+        }
+    }
+
+    private async Task LoadMedicalRecords()
+    {
+        try
+        {
+            medicalRecords = new List<MedicalRecordModel>
+            {
+                new MedicalRecordModel
+                {
+                    Id = 1,
+                    ExamDate = new DateTime(2024, 12, 15),
+                    ExamType = "Khám sức khỏe định kỳ",
+                    DoctorName = "BS. Trần Thị B",
+                    Conclusion = "Sức khỏe tốt",
+                    Status = "Hoàn thành"
+                },
+                new MedicalRecordModel
+                {
+                    Id = 2,
+                    ExamDate = new DateTime(2024, 12, 10),
+                    ExamType = "Khám sức khỏe lao động",
+                    DoctorName = "BS. Lê Văn C",
+                    Conclusion = "Đủ điều kiện lao động",
+                    Status = "Hoàn thành"
+                },
+                new MedicalRecordModel
+                {
+                    Id = 3,
+                    ExamDate = new DateTime(2024, 12, 5),
+                    ExamType = "Khám sức khỏe trước khi nhận việc",
+                    DoctorName = "BS. Phạm Thị D",
+                    Conclusion = "Đủ điều kiện",
+                    Status = "Hoàn thành"
+                },
+                new MedicalRecordModel
+                {
+                    Id = 4,
+                    ExamDate = new DateTime(2024, 12, 1),
+                    ExamType = "Khám sức khỏe tổng quát",
+                    DoctorName = "BS. Nguyễn Văn E",
+                    Conclusion = "Sức khỏe bình thường",
+                    Status = "Hoàn thành"
+                },
+                new MedicalRecordModel
+                {
+                    Id = 5,
+                    ExamDate = new DateTime(2024, 11, 25),
+                    ExamType = "Khám sức khỏe định kỳ",
+                    DoctorName = "BS. Hoàng Thị F",
+                    Conclusion = "Sức khỏe tốt",
+                    Status = "Hoàn thành"
+                }
+            };
+
+            TotalExams = medicalRecords.Count;
+            if (medicalRecords.Any())
+            {
+                LastExamDate = medicalRecords.OrderByDescending(x => x.ExamDate).First().ExamDate.ToString("dd/MM/yyyy");
+            }
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải hồ sơ khám bệnh: " + ex.Message, "danger");
+        }
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Hoàn thành" => "bg-green-500 text-white",
+            "Đang xử lý" => "bg-yellow-500 text-black",
+            "Hủy bỏ" => "bg-red-500 text-white",
+            _ => "bg-gray-500 text-white"
+        };
+    }
+
+    private void ViewRecordDetail(int recordId)
+    {
+        Navigation.NavigateTo($"/record-detail/{recordId}");
+    }
+
+    private async Task PrintAllRecords()
+    {
+        await JsRuntime.InvokeVoidAsync("window.print");
+    }
+
+    private async Task ExportAllPDF()
+    {
+        await JsRuntime.InvokeVoidAsync("alert", "Tính năng xuất PDF tất cả hồ sơ sẽ được phát triển trong phiên bản tiếp theo!");
+    }
+
+    private void ShowProfile()
+    {
+        Navigation.NavigateTo("/profile");
+    }
+
+    private async Task Logout()
+    {
+        try
+        {
+            var refreshToken = UserService.GetRefreshTokenAsync();
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                await UserService.LogoutAsync(refreshToken);
+            }
+            
+            await JsRuntime.InvokeVoidAsync("localStorage.clear");
+            
+            AlertService.ShowAlert("Đăng xuất thành công!", "success");
+            Navigation.NavigateTo("/", true);
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi đăng xuất: " + ex.Message, "danger");
+            Navigation.NavigateTo("/", true);
+        }
+    }
+} 

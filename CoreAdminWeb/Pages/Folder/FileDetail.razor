@@ -1,0 +1,167 @@
+﻿@page "/file/{FileId}"
+
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Shared.Base
+@using CoreAdminWeb.Shared.Components
+@inherits BlazorCoreBase
+@layout MainLayout
+
+<PageHeader Title="Chi tiết file" pTitle="Chi tiết file"></PageHeader>
+
+<div class="relative w-full p-0 my-8 bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder">
+    <div class="p-5">
+        <EditForm Model="@UploadFileCRUD" OnValidSubmit="OnUploadFile">
+            <div class="grid sm:grid-cols-1 md:grid-cols-2 mb-2 gap-4 py-4">
+               <div class="space-y-2 sm:col-span-1 md:col-span-2">
+                   @if(!string.IsNullOrEmpty(UploadFileCRUD.icon_file))
+                    {
+                      <span class="material-symbols-outlined block" style="position: relative;
+                            z-index: 1;
+                            display: flex !important;
+                            align-items: center;
+                            justify-content: center;
+                            width: 100%;
+                            overflow: hidden;
+                            border-radius: 10px;
+                            font-size: 48px;
+                            border: none;
+                            min-height: 100px;">@UploadFileCRUD.icon_file</span>
+                    }else
+                    {
+                        <MudImage Src="@UploadFileCRUD.filename_disk" Class="object-cover" style="position: relative;
+                        z-index: 1;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: auto;
+                        overflow: hidden;
+                        max-height:160px;
+                        border-radius: 10px;
+                        border:none;" alt=""/>
+                    }
+                </div>
+
+                <div class="space-y-2 sm:col-span-1 md:col-span-1">
+                    <label>Tên file:</label>
+                    <input type="text" class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
+                        placeholder="Nhập tên file" 
+                        value="@UploadFileCRUD.title" />
+                </div>
+
+                <div class="space-y-2 sm:col-span-1 md:col-span-1">
+                    <label>Tên file đã tải lên:</label>
+                    <input type="text" disabled class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
+                        value="@UploadFileCRUD.filename_disk" />
+                </div>
+                
+
+                <div class="space-y-2 sm:col-span-1 md:col-span-1">
+                    <label>Phân loại:</label>
+                    <BlazoredTypeahead EnableDropDown="true"
+                                    ShowDropDownOnFocus="true"
+                                    MinimumLength="0"
+                                    TItem="PhanLoaiVanBanModel"
+                                    TValue="PhanLoaiVanBanModel"
+                                    SearchMethod="LoadPhanLoaiVanBanData"
+                                    Value="_selectedPhanLoaiVanBan"
+                                    ValueExpression="@(() => _selectedPhanLoaiVanBan)"
+                                    ValueChanged="OnPhanLoaiVanBanChanged"
+                                    placeholder="Chọn phân loại"
+                                    Class="form-select">
+                        <SelectedTemplate Context="item">
+                            @item.name
+                        </SelectedTemplate>
+                        <ResultTemplate Context="item">
+                            @item.name
+                        </ResultTemplate>
+                        <NotFoundTemplate Context="item">
+                            Không tìm thấy dữ liệu
+                        </NotFoundTemplate>
+                    </BlazoredTypeahead>
+                </div>
+
+                    <div class="space-y-2 sm:col-span-1 md:col-span-1">
+                    <label>Lĩnh vực:</label>
+                    <BlazoredTypeahead EnableDropDown="true"
+                                    ShowDropDownOnFocus="true"
+                                    MinimumLength="0"
+                                    TItem="LinhVucVanBanModel"
+                                    TValue="LinhVucVanBanModel"
+                                    SearchMethod="LoadLinhVucVanBanData"
+                                    Value="_selectedLinhVucVanBan"
+                                    ValueExpression="@(() => _selectedLinhVucVanBan)"
+                                    ValueChanged="OnLinhVucVanBanChanged"
+                                    placeholder="Chọn lĩnh vực"
+                                    Class="form-select">
+                        <SelectedTemplate Context="item">
+                            @item.name
+                        </SelectedTemplate>
+                        <ResultTemplate Context="item">
+                            @item.name
+                        </ResultTemplate>
+                        <NotFoundTemplate Context="item">
+                            Không tìm thấy dữ liệu
+                        </NotFoundTemplate>
+                    </BlazoredTypeahead>
+                </div>
+                
+                <div space-y-2 sm:col-span-1 md:col-span-1>
+                    <label>Thời gian ban hành:</label>
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <input type="text"
+                            class="form-input date-picker w-1/2"
+                            placeholder="Chọn ngày ban hành"
+                            value="@(UploadFileCRUD.ngay_ban_hanh?.ToString("dd/MM/yyyy"))"
+                            @onchange="@(e => OnDateChanged(e, nameof(UploadFileCRUD.ngay_ban_hanh)))" />
+                    </div>
+                </div>
+
+                <div space-y-2 sm:col-span-1 md:col-span-1>
+                    <label>Thời gian hiệu lực:</label>
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <input type="text"
+                            class="form-input date-picker w-1/2"
+                            placeholder="Chọn ngày hiệu lực"
+                            value="@(UploadFileCRUD.ngay_hieu_luc?.ToString("dd/MM/yyyy"))"
+                            @onchange="@(e => OnDateChanged(e, nameof(UploadFileCRUD.ngay_hieu_luc)))" />
+                    </div>
+                </div>
+
+                <div class="space-y-2 sm:col-span-1 md:col-span-1">
+                    <label>Cơ quan ban hành:</label>
+                    <input type="text" class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
+                        placeholder="Nhập tên cơ quan ban hành" 
+                        @bind-value="@UploadFileCRUD.co_quan_ban_hanh" />
+                </div>
+
+                    <div class="space-y-2 sm:col-span-1 md:col-span-1">
+                    <label>Số văn bản:</label>
+                    <input type="text" class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
+                        placeholder="Nhập số văn bản" 
+                        @bind-value="@UploadFileCRUD.so_van_ban" />
+                </div>
+
+                <div class="space-y-2 sm:col-span-1 md:col-span-1">
+                    <label>Số ký hiệu:</label>
+                    <input type="text" class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
+                        placeholder="Nhập số ký hiệu" 
+                        @bind-value="@UploadFileCRUD.so_ky_hieu" />
+                </div>
+
+                    <div class="space-y-2 sm:col-span-1 md:col-span-1">
+                    <label>Số lưu trữ:</label>
+                    <input type="text" class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
+                        placeholder="Nhập số lưu trữ" 
+                        @bind-value="@UploadFileCRUD.so_luu_tru" />
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-end gap-2 py-4">
+                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="OnBack">Trở về</MudButton>
+                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                        OnClick="OnUploadFile">Lưu</MudButton>
+            </div>
+        </EditForm>
+    </div>
+</div>
+    

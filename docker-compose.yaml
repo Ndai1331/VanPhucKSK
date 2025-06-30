@@ -1,0 +1,15 @@
+services:
+  drcore-admin-qlcl-web:
+    image: longnguyen1331/drcore-admin-qlcl-web:latest
+    ports:
+      - "8056:8056"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8056
+      - DrCoreApi__BaseUrl=https://core.hpte.vn/
+    restart: unless-stopped
+    networks:
+      - drcore-network
+networks:
+  drcore-network:
+    driver: bridge

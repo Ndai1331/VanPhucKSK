@@ -1,0 +1,40 @@
+﻿@page "/flatpickr"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="CoreAdminWeb" pTitle="flatpickr"></PageHeader>
+
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="card">
+            <MudText Typo="Typo.h2" Class ="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Basic Example</MudText>
+            <form class="space-y-4">
+                <input type="text" class="form-input" placeholder="Select Date" id="basicExample">
+            </form>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class ="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Example</MudText>
+            <form class="space-y-4">
+                <input type="text" class="form-input" placeholder="Select Date" id="basicExample">
+            </form>
+        </div>
+
+                                    <input type="text" class="form-input date-picker" id="ngayXuLy"/>
+
+    </div>
+</div>
+<!-- End All Card -->
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Load Dashboard JavaScript module
+            await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
+        }
+    }
+   
+
+}

@@ -1,0 +1,116 @@
+﻿@page "/editabletable"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="Table" pTitle="Basic Table"></PageHeader>
+
+
+<h2>Table Editable</h2>
+
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">Table Editable</MudText>
+            <div class="overflow-auto">
+                <caption class="caption-top">
+                    <span class="text-muted">Text&nbsp;Double&nbsp;Click&nbsp;To&nbsp;EditTable.</span>
+                </caption>
+
+
+                <MudTable Class="min-w-[640px] w-full mt-4 text-left table-hover" Items="@items">
+                    <HeaderContent>
+                        <MudTh>#</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Title</MudTh>
+                        <MudTh>Phone No.</MudTh>
+                        <MudTh>Role</MudTh>
+                        <MudTh>Action</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                            <MudTd>@context.Id</MudTd>
+                            <MudTd>
+                                @if (!context.Editing)
+                                {
+                                    <span @ondblclick="() => StartEditing(context)">@context.Name</span>
+                                }
+                                else
+                                {
+                                    <MudTextField @bind-Value="context.Name" Class="w-full" Immediate="true" />
+                                }
+                            </MudTd>
+                            <MudTd>
+                                @if (!context.Editing)
+                                {
+                                    <span @ondblclick="() => StartEditing(context)">@context.Title</span>
+                                }
+                                else
+                                {
+                                    <MudTextField @bind-Value="context.Title" Class="w-full" Immediate="true" />
+                                }
+                            </MudTd>
+                            <MudTd>@context.Phone</MudTd>
+                            <MudTd>
+                                @if (!context.Editing)
+                                {
+                                    <span @ondblclick="() => StartEditing(context)">@context.Role</span>
+                                }
+                                else
+                                {
+                                    <select class="form-select" @bind="context.Role" @onkeydown="@(e => HandleKeyDown(e, context))">
+                                        <option>Admin</option>
+                                        <option>Owner</option>
+                                    </select>
+
+                                }
+                            </MudTd>
+                            <MudTd>
+                                <MudButton OnClick="() => Delete(context)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="inline-block w-5 h-5" style="color:red">
+                                        <path fill="currentColor" d="M17 6H22V8H20V21C20 21.5523 19.5523 22 19 22H5C4.44772 22 4 21.5523 4 21V8H2V6H7V3C7 2.44772 7.44772 2 8 2H16C16.5523 2 17 2.44772 17 3V6ZM18 8H6V20H18V8ZM9 11H11V17H9V11ZM13 11H15V17H13V11ZM9 4V6H15V4H9Z"></path>
+                                    </svg>
+                                </MudButton>
+                            </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Item> items = new List<Item>
+    {
+        new Item { Id = 1, Name = "Lindsay Walton", Title = "Front-end Developer", Phone = "832-333-0011", Role = "Admin" },
+        new Item { Id = 2, Name = "Courtney Henry", Title = "Designer", Phone = "551-697-3625", Role = "Owner" },
+        new Item { Id = 3, Name = "Tom Cook", Title = "Director of Product", Phone = "208-628-0572", Role = "Admin" },
+        new Item { Id = 4, Name = "Whitney Francis", Title = "Copywriter", Phone = "903-342-3348", Role = "Owner" },
+        new Item { Id = 5, Name = "Leonard Krasner", Title = "Senior Designer", Phone = "602-690-7009", Role = "Admin" }
+    };
+
+    private void StartEditing(Item item)
+    {
+        item.Editing = true;
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e, Item item)
+    {
+        if (e.Key == "Enter")
+        {
+            item.Editing = false;
+        }
+    }
+
+    private void Delete(Item item)
+    {
+        items.Remove(item);
+    }
+
+    public class Item
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Title { get; set; }
+        public string? Phone { get; set; }
+        public string? Role { get; set; }
+        public bool Editing { get; set; }
+    }
+
+}

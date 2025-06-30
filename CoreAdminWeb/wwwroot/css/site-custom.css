@@ -1,0 +1,148 @@
+.btn-crud {padding: 5px 10px !important;}
+
+.form-input, .form-select, .form-multiselect
+{
+    height:40px !important;
+}
+
+.form-textarea
+{
+    height:unset !important;
+}
+
+.top-4 {
+    top: 1rem;
+}
+.right-4{
+    right: 1rem;
+}
+
+.bg-white{
+    background-color: #fff;
+}
+
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-fade-out {
+    animation: fadeOut 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+
+@keyframes progress {
+    0% {
+        background-position: 1rem 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+.animate-progress {
+    animation: progress 1s linear infinite;
+}
+
+.blazored-typeahead ,   .blazored-typeahead input, .blazored-typeahead__controls {
+    border-radius: 5px !important;
+    border-color: #323a461a !important;
+    background-color: rgb(249 251 253 / var(--tw-bg-opacity)) !important;
+}
+
+
+.block {
+    display: block !important;
+}
+
+.pb-2{
+    padding-bottom: 0.5rem !important;
+}
+
+@media (min-width: 420px) {
+    .min-420-flex {
+        display: flex !important;
+    }
+}
+
+
+
+@media (min-width: 420px) {
+    .xs\:col-span-4 {
+        grid-column: span 4 / span 4;
+    }
+}
+
+
+@media (min-width: 640px) {
+    .sm\:col-span-4 {
+        grid-column: span 4 / span 4;
+    }
+}
+
+
+
+@media (min-width: 1280px) {
+    .md\:col-span-4 {
+        grid-column: span 4 / span 4;
+    }
+}
+
+
+@media (min-width: 1280px) {
+    .md\:col-span-2 {
+        grid-column: span 2 / span 2;
+    }
+}
+
+
+@media (min-width: 1280px) {
+    .md\:col-span-3 {
+        grid-column: span 3 / span 3;
+    }
+}
+
+
+@media (min-width: 1280px) {
+    .md\:col-span-1 {
+        grid-column: span 1 / span 1;
+    }
+}
+
+
+.col-span-4 {
+    grid-column: span 4 / span 4;
+}
+
+.text-sky-500 {
+    color: #0ea5e9;
+}
+
+@media (min-width: 1024px) {
+    .main-container .main-content {
+        -webkit-margin-start: 0px !important;
+        margin-inline-start: 0 !important;
+    }
+}

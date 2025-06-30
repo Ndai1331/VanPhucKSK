@@ -1,0 +1,17 @@
+﻿<!-- Start Breadcrumb -->
+<div>
+    <nav class="w-full">
+        <ul class="space-y-2 detached-breadcrumb">
+            <li class="text-xs dark:text-white/80">@Title</li>
+            <li class="text-xl font-semibold text-black dark:text-white">@pTitle</li>
+        </ul>
+    </nav>
+</div>
+<!-- End Breadcrumb -->
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? pTitle { get; set; }
+}

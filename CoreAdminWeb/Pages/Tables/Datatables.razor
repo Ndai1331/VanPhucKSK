@@ -1,0 +1,134 @@
+﻿@page "/datatables"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="Table" pTitle="Data Tables"></PageHeader>
+
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            <table id="example" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Office</th>
+                        <th>Age</th>
+                        <th>Start Date</th>
+                        <th>Salary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var employee in Employees)
+                    {
+                        <tr>
+                            <td>@employee.Name</td>
+                            <td>@employee.Position</td>
+                            <td>@employee.Office</td>
+                            <td>@employee.Age</td>
+                            <td>@employee.StartDate.ToShortDateString()</td>
+                            <td>@employee.Salary</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Office</th>
+                        <th>Age</th>
+                        <th>Start Date</th>
+                        <th>Salary</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- End All Card -->
+
+@code {
+    private IJSObjectReference _module;
+
+    private List<Employee> Employees { get; set; } = new List<Employee>
+{
+    new Employee { Name = "Tiger Nixon", Position = "System Architect", Office = "Edinburgh", Age = 61, StartDate = new DateTime(2011, 4, 25), Salary = "$320,800" },
+    new Employee { Name = "Garrett Winters", Position = "Accountant", Office = "Tokyo", Age = 63, StartDate = new DateTime(2011, 7, 25), Salary = "$170,750" },
+    new Employee { Name = "Ashton Cox", Position = "Junior Technical Author", Office = "San Francisco", Age = 66, StartDate = new DateTime(2009, 1, 12), Salary = "$86,000" },
+    new Employee { Name = "Cedric Kelly", Position = "Senior Javascript Developer", Office = "Edinburgh", Age = 22, StartDate = new DateTime(2012, 3, 29), Salary = "$433,060" },
+    new Employee { Name = "Airi Satou", Position = "Accountant", Office = "Tokyo", Age = 33, StartDate = new DateTime(2008, 11, 28), Salary = "$162,700" },
+    new Employee { Name = "Brielle Williamson", Position = "Integration Specialist", Office = "New York", Age = 61, StartDate = new DateTime(2012, 12, 2), Salary = "$372,000" },
+    new Employee { Name = "Herrod Chandler", Position = "Sales Assistant", Office = "San Francisco", Age = 59, StartDate = new DateTime(2012, 8, 6), Salary = "$137,500" },
+    new Employee { Name = "Rhona Davidson", Position = "Integration Specialist", Office = "Tokyo", Age = 55, StartDate = new DateTime(2010, 10, 14), Salary = "$327,900" },
+    new Employee { Name = "Colleen Hurst", Position = "Javascript Developer", Office = "San Francisco", Age = 39, StartDate = new DateTime(2009, 9, 15), Salary = "$205,500" },
+    new Employee { Name = "Sonya Frost", Position = "Software Engineer", Office = "Edinburgh", Age = 23, StartDate = new DateTime(2008, 12, 13), Salary = "$103,600" },
+    new Employee { Name = "Jena Gaines", Position = "Office Manager", Office = "London", Age = 30, StartDate = new DateTime(2008, 12, 19), Salary = "$90,560" },
+    new Employee { Name = "Quinn Flynn", Position = "Support Lead", Office = "Edinburgh", Age = 22, StartDate = new DateTime(2013, 3, 3), Salary = "$342,000" },
+    new Employee { Name = "Charde Marshall", Position = "Regional Director", Office = "San Francisco", Age = 36, StartDate = new DateTime(2008, 10, 16), Salary = "$470,600" },
+    new Employee { Name = "Haley Kennedy", Position = "Senior Marketing Designer", Office = "London", Age = 43, StartDate = new DateTime(2012, 12, 18), Salary = "$313,500" },
+    new Employee { Name = "Tatyana Fitzpatrick", Position = "Regional Director", Office = "London", Age = 19, StartDate = new DateTime(2010, 3, 17), Salary = "$385,750" },
+    new Employee { Name = "Michael Silva", Position = "Marketing Designer", Office = "London", Age = 66, StartDate = new DateTime(2012, 11, 27), Salary = "$198,500" },
+    new Employee { Name = "Paul Byrd", Position = "Chief Financial Officer (CFO)", Office = "New York", Age = 64, StartDate = new DateTime(2010, 6, 9), Salary = "$725,000" },
+    new Employee { Name = "Gloria Little", Position = "Systems Administrator", Office = "New York", Age = 59, StartDate = new DateTime(2009, 4, 10), Salary = "$237,500" },
+    new Employee { Name = "Bradley Greer", Position = "Software Engineer", Office = "London", Age = 41, StartDate = new DateTime(2012, 10, 13), Salary = "$132,000" },
+    new Employee { Name = "Dai Rios", Position = "Personnel Lead", Office = "Edinburgh", Age = 35, StartDate = new DateTime(2012, 9, 26), Salary = "$217,500" }
+};
+
+
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+
+    {
+
+        if (firstRender)
+
+        {
+
+            // Load the JS module only once during the first render
+
+            _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/datatables.init.js");
+
+            await _module.InvokeVoidAsync("initializeDataTable");
+
+        }
+
+    }
+
+
+
+    public async ValueTask DisposeAsync()
+
+    {
+
+        if (_module != null)
+
+        {
+
+            await _module.DisposeAsync();
+
+        }
+
+    }
+
+
+
+    public class Employee
+
+    {
+
+        public string Name { get; set; }
+
+        public string Position { get; set; }
+
+        public string Office { get; set; }
+
+        public int Age { get; set; }
+
+        public DateTime StartDate { get; set; }
+
+        public string Salary { get; set; }
+
+    }
+}

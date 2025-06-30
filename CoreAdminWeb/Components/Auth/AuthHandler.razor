@@ -1,0 +1,20 @@
+@using CoreAdminWeb.RequestHttp
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+@code {
+    protected override void OnInitialized()
+    {
+        RequestClient.OnLogoutRequired += HandleLogoutRequired;
+    }
+
+    private void HandleLogoutRequired(object? sender, EventArgs e)
+    {
+        NavigationManager.NavigateTo("/signin", true);
+    }
+
+    public void Dispose()
+    {
+        RequestClient.OnLogoutRequired -= HandleLogoutRequired;
+    }
+} 

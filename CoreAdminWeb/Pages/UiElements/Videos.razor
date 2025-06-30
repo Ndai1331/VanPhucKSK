@@ -1,0 +1,32 @@
+﻿@page "/videos"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="Elements" pTitle="Videos"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Aspect Auto Videos</MudText>
+            <div>
+                <iframe class="w-full md:aspect-video lg:aspect-auto" src="https://www.youtube.com/embed/-GfNEDs3ERw"></iframe>
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Aspect Videos</MudText>
+            <div>
+                <iframe class="w-full md:aspect-square lg:aspect-video" src="https://www.youtube.com/embed/-GfNEDs3ERw"></iframe>
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Aspect Square Videos</MudText>
+            <div>
+                <iframe class="w-full aspect-square" src="https://www.youtube.com/embed/-GfNEDs3ERw"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Card -->
+
+@code {
+
+}

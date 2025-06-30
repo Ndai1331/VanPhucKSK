@@ -1,0 +1,55 @@
+﻿@page "/tooltips"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="Elements" pTitle="Tooltips"></PageHeader>
+
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tooltip Basic</MudText>
+            <div class="flex flex-wrap gap-4">
+                <MudButton type="button" data-tippy-content="Tooltip on top" data-tippy-arrow="true" data-tippy-placement="top" Class="transition-all duration-300 border rounded-md tippy-tooltip btn text-purple border-purple hover:bg-purple hover:text-white">Tooltip on top</MudButton>
+                <MudButton type="button" data-tippy-content="Tooltip on right" data-tippy-arrow="true" data-tippy-placement="right" Class="transition-all duration-300 border rounded-md tippy-tooltip btn text-purple border-purple hover:bg-purple hover:text-white">Tooltip on right</MudButton>
+                <MudButton type="button" data-tippy-content="Tooltip on bottom" data-tippy-arrow="true" data-tippy-placement="bottom" Class="transition-all duration-300 border rounded-md tippy-tooltip btn text-purple border-purple hover:bg-purple hover:text-white">Tooltip on bottom</MudButton>
+                <MudButton type="button" data-tippy-content="Tooltip on left" data-tippy-arrow="true" data-tippy-placement="left" Class="transition-all duration-300 border rounded-md tippy-tooltip btn text-purple border-purple hover:bg-purple hover:text-white">Tooltip on left</MudButton>
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tooltip animation</MudText>
+            <div class="flex flex-wrap gap-4">
+                <MudButton type="button" data-tippy-content="Tooltip animation" data-tippy-arrow="true" data-tippy-animation="scale" Class="text-black transition-all duration-300 border rounded-md tippy-tooltip btn border-light hover:bg-light hover:text-black dark:text-white dark:hover:text-black">Tooltip animation</MudButton>
+                <MudButton type="button" data-tippy-content="Tooltip animation" data-tippy-arrow="true" data-tippy-animation="shift-toward" Class="text-black transition-all duration-300 border rounded-md tippy-tooltip btn border-light hover:bg-light hover:text-black dark:text-white dark:hover:text-black">Tooltip animation</MudButton>
+                <MudButton type="button" data-tippy-content="Tooltip animation" data-tippy-arrow="true" data-tippy-animation="perspective" Class="text-black transition-all duration-300 border rounded-md tippy-tooltip btn border-light hover:bg-light hover:text-black dark:text-white dark:hover:text-black">Tooltip animation</MudButton>
+                <MudButton type="button" data-tippy-content="Tooltip animation" data-tippy-arrow="true" data-tippy-animation="shift-away" Class="text-black transition-all duration-300 border rounded-md tippy-tooltip btn border-light hover:bg-light hover:text-black dark:text-white dark:hover:text-black">Tooltip animation</MudButton>
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tooltip On Click</MudText>
+            <div class="flex flex-wrap gap-4">
+                <MudButton type="button" data-tippy-content="Tooltip on top" data-tippy-arrow="true" data-tippy-placement="top" data-tippy-trigger="click" Class="transition-all duration-300 border rounded-md tippy-tooltip btn text-purple border-purple hover:bg-purple hover:text-white">Tooltip on top</MudButton>
+                <MudButton type="button" data-tippy-content="Tooltip on right" data-tippy-arrow="true" data-tippy-placement="right" data-tippy-trigger="click" Class="transition-all duration-300 border rounded-md tippy-tooltip btn text-purple border-purple hover:bg-purple hover:text-white">Tooltip on right</MudButton>
+                <MudButton type="button" data-tippy-content="Tooltip on bottom" data-tippy-arrow="true" data-tippy-placement="bottom" data-tippy-trigger="click" Class="transition-all duration-300 border rounded-md tippy-tooltip btn text-purple border-purple hover:bg-purple hover:text-white">Tooltip on bottom</MudButton>
+                <MudButton type="button" data-tippy-content="Tooltip on left" data-tippy-arrow="true" data-tippy-placement="left" data-tippy-trigger="click" Class="transition-all duration-300 border rounded-md tippy-tooltip btn text-purple border-purple hover:bg-purple hover:text-white">Tooltip on left</MudButton>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Card -->
+
+
+@code {
+    private IJSObjectReference? _module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Load Dashboard JavaScript module
+            _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/tooltips.init.js");
+
+            // Call JavaScript function to initialize dashboard
+            //await JsRuntime.InvokeVoidAsync("initChart");
+        }
+    }
+}

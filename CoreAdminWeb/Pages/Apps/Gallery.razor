@@ -1,0 +1,59 @@
+﻿@page "/gallery"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="apps" pTitle="Gallery"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card p-0">
+            <div class="card-header p-5 border-b border-black/10 dark:border-darkborder">
+                <MudText Typo="Typo.h2" Class="text-base font-semibold capitalize text-slate-800 dark:text-slate-100">New Photos</MudText>
+            </div>
+            <div class="card-body p-5 max-w-7xl mx-auto grid gap-2 grid-cols-4 grid-rows-5 zoom-gallery">
+                <MudLink Class="block rounded-lg relative w-full h-72">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-1.png"/>
+                </MudLink>
+                <MudLink Class="block rounded-lg relative row-span-2">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-2.png"/>
+                </MudLink>
+                <MudLink Class="block rounded-lg relative col-span-2 row-span-2">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-3.png"/>
+                </MudLink>
+                <MudLink Class="block rounded-lg relative row-span-2">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-4.png"/>
+                </MudLink>
+                <MudLink Class="block rounded-lg relative">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-5.png"/>
+                </MudLink>
+                <MudLink Class="block rounded-lg relative h-72">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-6.png"/>
+                </MudLink>
+                <MudLink Class="block rounded-lg relative row-span-2">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-7.png"/>
+                </MudLink>
+                <MudLink Class="block rounded-lg relative col-span-2 row-span-2">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-8.png"/>
+                </MudLink>
+                <MudLink Class="block rounded-lg relative row-span-2">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-9.png"/>
+                </MudLink>
+                <MudLink Class="block rounded-lg relative">
+                    <MudImage Class="absolute inset-0 w-full h-full object-cover object-center rounded-lg" Src="assets/images/gallery/img-10.png"/>
+                </MudLink>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Card -->
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Load Dashboard JavaScript module
+            await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/magnific-popp.js");
+        }
+    }
+}

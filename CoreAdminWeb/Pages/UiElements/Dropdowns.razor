@@ -1,0 +1,1554 @@
+﻿@page "/dropdowns"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="Elements" pTitle="Dropdowns"></PageHeader>
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Dropdowns Default</MudText>
+            <div class="flex flex-wrap gap-4">
+               
+                <div class="dropdown">
+                    <MudButton Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85] flex items-center justify-center"
+                               OnClick="TogglePrimaryDropdown" @onkeydown=CloseDropdown>
+                        Primary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (primaryDropdown)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85] flex items-center justify-center"
+                               OnClick="ToggleInfoDropdown" @onkeydown=CloseDropdown>
+                        Info
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (infoDropdown)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn bg-success border-success text-white hover:bg-success/[0.85] hover:border-success/[0.85] flex items-center justify-center"
+                               OnClick="ToggleSuccessDropdown" @onkeydown=CloseDropdown>
+                        Success
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (successDropDown)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85] flex items-center justify-center"
+                               OnClick="ToggleWarningDropDown" @onkeydown=CloseDropdown>
+                        Warning
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (WarningDropDown)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton Class="btn bg-danger border-danger text-white hover:bg-danger/[0.85] hover:border-danger/[0.85] flex items-center justify-center"
+                               OnClick="ToggleDangerDropDown" @onkeydown=CloseDropdown>
+                        Danger
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DangerDropDown)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn bg-black border-black text-white hover:bg-danger/[0.85] hover:border-danger/[0.85] flex items-center justify-center"
+                               OnClick="ToggleblackDropDown" @onkeydown=CloseDropdown>
+                        black
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (blackDropDown)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn bg-muted border-muted text-white hover:bg-muted/[0.85] hover:border-muted/[0.85] flex items-center justify-center dark:bg-darkmuted dark:border-darkmuted dark:hover:bg-darkmuted/90 dark:hover:border-darkmuted/90"
+                               OnClick="ToggleSecondaryDropDown" @onkeydown=CloseDropdown>
+                        Secondary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (SecondaryDropDown)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn bg-light border-light text-black hover:bg-muted/[0.85] hover:border-muted/[0.85] flex items-center justify-center dark:bg-darkmuted dark:border-darkmuted dark:hover:bg-darkmuted/90 dark:hover:border-darkmuted/90"
+                               OnClick="ToggleLightDropDown" @onkeydown=CloseDropdown>
+                        Light
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (LightDropDown)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Dropdowns Rounded</MudText>
+            <div class="flex flex-wrap gap-4">
+        
+                <div class="dropdown">
+                    <MudButton Class="btn rounded-full bg-purple  border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85] flex items-center justify-center"
+                               OnClick="TogglePrimaryDropdownR" @onkeydown=CloseDropdown>
+                       Primary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (primaryDropdownR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn rounded-full bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85] flex items-center justify-center"
+                               OnClick="ToggleInfoDropdownR" @onkeydown=CloseDropdown>
+                        Info
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (infoDropdownR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn rounded-full bg-success border-success text-white hover:bg-info/[0.85] hover:border-info/[0.85] flex items-center justify-center"
+                               OnClick="ToggleSuccessDropdownR" @onkeydown=CloseDropdown>
+                        Success
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (successDropDownR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn rounded-full bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85] flex items-center justify-center"
+                               OnClick="ToggleWarningDropDownR" @onkeydown=CloseDropdown>
+                        Warning
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (WarningDropDownR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton Class="btn rounded-full bg-danger border-danger text-white hover:bg-danger/[0.85] hover:border-danger/[0.85] flex items-center justify-center"
+                               OnClick="ToggleDangerDropDownR" @onkeydown=CloseDropdown>
+                        Danger
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DangerDropDownR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn rounded-full bg-black border-black text-white hover:bg-danger/[0.85] hover:border-danger/[0.85] flex items-center justify-center"
+                               OnClick="ToggleblackDropDownR" @onkeydown=CloseDropdown>
+                        black
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (blackDropDownR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn rounded-full bg-muted border-muted text-white hover:bg-muted/[0.85] hover:border-muted/[0.85] flex items-center justify-center dark:bg-darkmuted dark:border-darkmuted dark:hover:bg-darkmuted/90 dark:hover:border-darkmuted/90"
+                               OnClick="ToggleSecondaryDropDownR" @onkeydown=CloseDropdown>
+                        Secondary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (SecondaryDropDownR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn rounded-full bg-light border-light text-black hover:bg-muted/[0.85] hover:border-muted/[0.85] flex items-center justify-center dark:bg-darkmuted dark:border-darkmuted dark:hover:bg-darkmuted/90 dark:hover:border-darkmuted/90"
+                               OnClick="ToggleLightDropDownR" @onkeydown=CloseDropdown>
+                        Light
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (LightDropDownR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+            
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Dropdowns Outline Default</MudText>
+            <div class="flex flex-wrap gap-4">
+                <div class="dropdown">
+                    <MudButton Class="flex items-center justify-center btn text-purple border-purple hover:text-white hover:bg-purple"
+                               OnClick="TogglePrimaryDropdownOD" @onkeydown=CloseDropdown>
+                        Primary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (primaryDropdownOD)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center btn text-info border-info hover:text-white hover:bg-info"
+                               OnClick="ToggleInfoDropdownOD" @onkeydown=CloseDropdown>
+                        Info
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (infoDropdownOD)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center btn text-success border-success hover:text-white hover:bg-success"
+                               OnClick="ToggleSuccessDropdownOD" @onkeydown=CloseDropdown>
+                        Success
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (successDropDownOD)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center btn text-warning border-warning hover:text-white hover:bg-warning"
+                               OnClick="ToggleWarningDropDownOD" @onkeydown=CloseDropdown>
+                        Warning
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (WarningDropDownOD)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton Class="flex items-center justify-center btn text-danger border-danger hover:text-white hover:bg-danger"
+                               OnClick="ToggleDangerDropDownOD" @onkeydown=CloseDropdown>
+                        Danger
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DangerDropDownOD)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center text-black border-black btn hover:text-white hover:bg-black dark:text-white dark:hover:text-white dark:border-darkborder dark:hover:border-black"
+                               OnClick="ToggleblackDropDownOD" @onkeydown=CloseDropdown>
+                        black
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (blackDropDownOD)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center btn text-muted border-muted hover:text-white hover:bg-muted dark:text-darkmuted dark:border-darkmuted dark:hover:text-white"
+                               OnClick="ToggleSecondaryDropDownOD" @onkeydown=CloseDropdown>
+                        Secondary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (SecondaryDropDownOD)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center text-black btn border-light hover:text-black hover:bg-light dark:text-white dark:hover:text-black"
+                               OnClick="ToggleLightDropDownOD" @onkeydown=CloseDropdown>
+                        Light
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (LightDropDownOD)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Dropdowns Outline Rounded</MudText>
+            <div class="flex flex-wrap gap-4">
+                <div class="dropdown">
+                    <MudButton Class="flex items-center justify-center rounded-full btn text-purple border-purple hover:text-white hover:bg-purple"
+                               OnClick="TogglePrimaryDropdownOR" @onkeydown=CloseDropdown>
+                        Primary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (primaryDropdownOR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center rounded-full btn text-info border-info hover:text-white hover:bg-info"
+                               OnClick="ToggleInfoDropdownOR" @onkeydown=CloseDropdown>
+                        Info
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (infoDropdownOR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center rounded-full btn text-success border-success hover:text-white hover:bg-success"
+                               OnClick="ToggleSuccessDropdownOR" @onkeydown=CloseDropdown>
+                        Success
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (successDropDownOR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center rounded-full btn text-warning border-warning hover:text-white hover:bg-warning"
+                               OnClick="ToggleWarningDropDownOR" @onkeydown=CloseDropdown>
+                        Warning
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (WarningDropDownOR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton Class="flex items-center justify-center rounded-full btn text-danger border-danger hover:text-white hover:bg-danger"
+                               OnClick="ToggleDangerDropDownOR" @onkeydown=CloseDropdown>
+                        Danger
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DangerDropDownOR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center text-black border-black rounded-full btn hover:text-white hover:bg-black dark:text-white dark:hover:text-white dark:border-darkborder dark:hover:border-black"
+                               OnClick="ToggleblackDropDownOR"  @onkeydown=CloseDropdown>
+                        black
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (blackDropDownOR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center rounded-full btn text-muted border-muted hover:text-white hover:bg-muted dark:text-darkmuted dark:border-darkmuted dark:hover:text-white"
+                               OnClick="ToggleSecondaryDropDownOR"  @onkeydown=CloseDropdown>
+                        Secondary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (SecondaryDropDownOR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="flex items-center justify-center text-black rounded-full btn border-light hover:text-black hover:bg-light dark:text-white dark:hover:text-black"
+                               OnClick="ToggleLightDropDownOR" @onkeydown=CloseDropdown>
+                        Light
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (LightDropDownOR)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Dropdowns</MudText>
+            <div class="flex flex-wrap justify-center gap-3">
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85] flex items-center justify-center"
+                               OnClick="ToggleDropDownMenu" @onkeydown=CloseDropdown>
+                        Dropdown Menu
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropDownMenu)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn bg-black border-black text-white hover:bg-black/[0.85] hover:border-black/[0.85] flex items-center justify-center"
+                               OnClick="ToggleDropDownMenu1" @onkeydown=CloseDropdown>
+                        Dropdown Menu
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropDownMenu1)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+            
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Dropdowns Split Button</MudText>
+            <div class="flex flex-wrap justify-center gap-4">
+           
+                <div class="dropdown">
+                    <MudButton type="button" Class="inline-flex align-middle bg-purple border border-purple rounded-md text-white transition-all duration-300 hover:bg-purple/[0.85] hover:border-purple/[0.85]"
+                               OnClick="TogglePrimaryDropdown1" @onkeydown=CloseDropdown>
+                        <span class="px-2.5 leading-[2.8]">Primary</span>
+                        <MudText Class="w-10 h-10 py-3 align-middle bg-white rounded-r bg-opacity-20" >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mx-auto">
+                                <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                            </svg>
+                        </MudText>
+                    </MudButton>
+                    @if (primaryDropdown1)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="inline-flex align-middle bg-success border border-success rounded-md text-white transition-all duration-300 hover:bg-success/[0.85] hover:border-success/[0.85]"
+                               OnClick="TogglePrimaryDropdown2" @onkeydown=CloseDropdown>
+                        <span class="px-2.5 leading-[2.8]">Primary</span>
+                        <MudText Class="w-10 h-10 py-3 align-middle bg-white rounded-r bg-opacity-20">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mx-auto">
+                                <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                            </svg>
+                        </MudText>
+                    </MudButton>
+                    @if (primaryDropdown2)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                
+                <div class="dropdown">
+                    <MudButton type="button" Class="inline-flex align-middle bg-black border border-black rounded-md text-white transition-all duration-300 hover:bg-black/[0.85] hover:border-black/[0.85]"
+                               OnClick="TogglePrimaryDropdown3" @onkeydown=CloseDropdown>
+                        <span class="px-2.5 leading-[2.8]">Primary</span>
+                        <MudText Class="w-10 h-10 py-3 align-middle bg-white rounded-r bg-opacity-20">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mx-auto">
+                                <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                            </svg>
+                        </MudText>
+                    </MudButton>
+                    @if (primaryDropdown3)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="inline-flex align-middle bg-light border border-light rounded-md text-white transition-all duration-300 hover:bg-light/[0.85] hover:border-light/[0.85]"
+                               OnClick="TogglePrimaryDropdown4" @onkeydown=CloseDropdown>
+                        <span class="px-2.5 leading-[2.8]">Primary</span>
+                        <MudText Class="w-10 h-10 py-3 align-middle bg-white rounded-r bg-opacity-20">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mx-auto">
+                                <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                            </svg>
+                        </MudText>
+                    </MudButton>
+                    @if (primaryDropdown4)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+      
+              
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Dropdown With Icons</MudText>
+            <div class="flex flex-wrap justify-center gap-4">
+                <div class="dropdown">
+                    <MudButton type="button" Class="p-3 bg-purple border border-purple rounded-md text-white transition-all duration-300 hover:bg-purple/[0.85] hover:border-purple/[0.85]"
+                               OnClick="ToggleDropdownWithIcons1" @onkeydown=CloseDropdown>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mx-auto">
+                            <path d="M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10ZM19 10C17.9 10 17 10.9 17 12C17 13.1 17.9 14 19 14C20.1 14 21 13.1 21 12C21 10.9 20.1 10 19 10ZM12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropdownWithIcons1)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="p-3 bg-success border border-success rounded-md text-white transition-all duration-300 hover:bg-success/[0.85] hover:border-success/[0.85]"
+                               OnClick="ToggleDropdownWithIcons2" @onkeydown=CloseDropdown>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mx-auto">
+                            <path d="M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10ZM19 10C17.9 10 17 10.9 17 12C17 13.1 17.9 14 19 14C20.1 14 21 13.1 21 12C21 10.9 20.1 10 19 10ZM12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropdownWithIcons2)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="p-3 bg-black border border-black rounded-md text-white transition-all duration-300 hover:bg-black/[0.85] hover:border-black/[0.85]"
+                               OnClick="ToggleDropdownWithIcons3" @onkeydown=CloseDropdown>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mx-auto">
+                            <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 15H13V17H11V15ZM11 7H13V13H11V7Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropdownWithIcons3)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+                <div class="dropdown">
+                    <MudButton type="button" Class="p-3 bg-light border border-light rounded-md text-black transition-all duration-300 hover:bg-light/[0.85] hover:border-light/[0.85]"
+                               OnClick="ToggleDropdownWithIcons4" @onkeydown=CloseDropdown>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mx-auto">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropdownWithIcons4)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+          
+            </div>
+        </div>
+        <div class="card">
+            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Dropdown With Icons</MudText>
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85] flex items-center justify-center"
+                               OnClick="ToggleDropdownWithIcons5" @onkeydown=CloseDropdown>
+                        Primary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropdownWithIcons5)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn py-2 px-5 text-[15px] bg-success border-success text-white hover:bg-success/[0.85] hover:border-success/[0.85] flex items-center justify-center"
+                               OnClick="ToggleDropdownWithIcons6" @onkeydown=CloseDropdown>
+                        Primary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropdownWithIcons6)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                          <div class="dropdown">
+                    <MudButton type="button" Class="btn py-1.5 px-4 text-sm bg-black border-black text-white hover:bg-black/[0.85] hover:border-black/[0.85] flex items-center justify-center"
+                               OnClick="ToggleDropdownWithIcons7" @onkeydown=CloseDropdown>
+                        Primary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropdownWithIcons7)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+                <div class="dropdown">
+                    <MudButton type="button" Class="btn py-1 px-3.5 text-[13px] bg-light border-light text-black hover:bg-light/[0.85] hover:border-light/[0.85] flex items-center justify-center"
+                               OnClick="ToggleDropdownWithIcons8" @onkeydown=CloseDropdown>
+                        Primary
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 ltr:ml-1 rtl:mr-1">
+                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                    @if (DropdownWithIcons8)
+                    {
+                        <ul class="whitespace-nowrap" @onclick="CloseDropdown">
+                            <li><a href="javascript:;">Action</a></li>
+                            <li><a href="javascript:;">Another action</a></li>
+                            <li><a href="javascript:;">Something else here</a></li>
+                        </ul>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Card -->
+@code {
+    // Dropdowns Default
+    private bool primaryDropdown = false;
+    private bool infoDropdown = false;
+    private bool successDropDown = false;
+    private bool WarningDropDown = false;
+    private bool DangerDropDown = false;
+    private bool blackDropDown = false;
+    private bool SecondaryDropDown = false;
+    private bool LightDropDown = false;
+
+    // Dropdowns Rounded
+    private bool primaryDropdownR = false;
+    private bool infoDropdownR = false;
+    private bool successDropDownR = false;
+    private bool WarningDropDownR = false;
+    private bool DangerDropDownR = false;
+    private bool blackDropDownR = false;
+    private bool SecondaryDropDownR = false;
+    private bool LightDropDownR = false;
+
+    // Dropdowns Outline Default
+      private bool primaryDropdownOD = false;
+    private bool infoDropdownOD = false;
+    private bool successDropDownOD = false;
+    private bool WarningDropDownOD = false;
+    private bool DangerDropDownOD = false;
+    private bool blackDropDownOD = false;
+    private bool SecondaryDropDownOD = false;
+    private bool LightDropDownOD = false;
+
+    // Dropdowns Outline Rounded
+    private bool primaryDropdownOR = false;
+    private bool infoDropdownOR = false;
+    private bool successDropDownOR = false;
+    private bool WarningDropDownOR = false;
+    private bool DangerDropDownOR = false;
+    private bool blackDropDownOR = false;
+    private bool SecondaryDropDownOR = false;
+    private bool LightDropDownOR = false;
+
+    // Dropdowns
+    private bool DropDownMenu = false;
+    private bool DropDownMenu1 = false;
+
+    // Dropdowns Split Button
+        private bool primaryDropdown1 = false;
+        private bool primaryDropdown2 = false;
+        private bool primaryDropdown3 = false;
+        private bool primaryDropdown4 = false;
+
+    //Dropdown With Icons
+    private bool DropdownWithIcons1 = false;
+    private bool DropdownWithIcons2 = false;
+    private bool DropdownWithIcons3 = false;
+    private bool DropdownWithIcons4 = false;
+
+    private bool DropdownWithIcons5 = false;
+    private bool DropdownWithIcons6 = false;
+    private bool DropdownWithIcons7 = false;
+    private bool DropdownWithIcons8 = false;
+
+
+    private void ToggleDropdownWithIcons5()
+    {
+        // Close the info dropdown when opening primary dropdown
+        DropdownWithIcons6 = false;
+        DropdownWithIcons7 = false;
+        DropdownWithIcons8 = false;
+
+        DropdownWithIcons5 = !DropdownWithIcons5;
+    }
+    private void ToggleDropdownWithIcons6()
+    {
+        // Close the info dropdown when opening primary dropdown
+        DropdownWithIcons5 = false;
+        DropdownWithIcons7 = false;
+        DropdownWithIcons8 = false;
+
+        DropdownWithIcons6 = !DropdownWithIcons6;
+    }
+    private void ToggleDropdownWithIcons7()
+    {
+        // Close the info dropdown when opening primary dropdown
+        DropdownWithIcons5 = false;
+        DropdownWithIcons6 = false;
+        DropdownWithIcons8 = false;
+
+        DropdownWithIcons7 = !DropdownWithIcons7;
+    }
+    private void ToggleDropdownWithIcons8()
+    {
+        // Close the info dropdown when opening primary dropdown
+        DropdownWithIcons5 = false;
+        DropdownWithIcons7 = false;
+        DropdownWithIcons6 = false;
+
+        DropdownWithIcons8 = !DropdownWithIcons8;
+    }
+
+    private void ToggleDropdownWithIcons1()
+    {
+        // Close the info dropdown when opening primary dropdown
+        DropdownWithIcons2 = false;
+        DropdownWithIcons3 = false;
+        DropdownWithIcons4 = false;
+
+        DropdownWithIcons1 = !DropdownWithIcons1;
+    }
+    private void ToggleDropdownWithIcons2()
+    {
+        // Close the info dropdown when opening primary dropdown
+        DropdownWithIcons1 = false;
+        DropdownWithIcons3 = false;
+        DropdownWithIcons4 = false;
+
+        DropdownWithIcons2 = !DropdownWithIcons2;
+    }
+    private void ToggleDropdownWithIcons3()
+    {
+        // Close the info dropdown when opening primary dropdown
+        DropdownWithIcons2 = false;
+        DropdownWithIcons1 = false;
+        DropdownWithIcons4 = false;
+
+        DropdownWithIcons3 = !DropdownWithIcons3;
+    }
+    private void ToggleDropdownWithIcons4()
+    {
+        // Close the info dropdown when opening primary dropdown
+        DropdownWithIcons2 = false;
+        DropdownWithIcons3 = false;
+        DropdownWithIcons1 = false;
+
+        DropdownWithIcons4 = !DropdownWithIcons4;
+    }
+
+
+
+    private void TogglePrimaryDropdown1()
+    {
+        // Close the info dropdown when opening primary dropdown
+        primaryDropdown2 = false;
+        primaryDropdown3 = false;
+        primaryDropdown4 = false;
+        
+        primaryDropdown1 = !primaryDropdown1;
+    }
+    private void TogglePrimaryDropdown2()
+    {
+        // Close the info dropdown when opening primary dropdown
+        primaryDropdown1 = false;
+        primaryDropdown3 = false;
+        primaryDropdown4 = false;
+
+        primaryDropdown2 = !primaryDropdown2;
+    }
+    private void TogglePrimaryDropdown3()
+    {
+        // Close the info dropdown when opening primary dropdown
+        primaryDropdown1 = false;
+        primaryDropdown2 = false;
+        primaryDropdown4 = false;
+
+        primaryDropdown3 = !primaryDropdown3;
+    }
+    private void TogglePrimaryDropdown4()
+    {
+        // Close the info dropdown when opening primary dropdown
+        primaryDropdown1 = false;
+        primaryDropdown2 = false;
+        primaryDropdown3 = false;
+
+        primaryDropdown4 = !primaryDropdown4;
+    }
+
+
+    private void ToggleDropDownMenu()
+    {
+        // Close the info dropdown when opening primary dropdown
+        
+        DropDownMenu1 = false;
+        DropDownMenu = !DropDownMenu;
+    }
+    private void ToggleDropDownMenu1()
+    {
+        // Close the info dropdown when opening primary dropdown
+        
+        DropDownMenu = false;
+        DropDownMenu1 = !DropDownMenu1;
+    }
+
+
+    private void TogglePrimaryDropdown()
+    {
+        // Close the info dropdown when opening primary dropdown
+        infoDropdown = false;
+        successDropDown = false;
+        WarningDropDown = false;
+        DangerDropDown = false;
+        blackDropDown = false;
+        SecondaryDropDown = false;
+        LightDropDown = false;
+        primaryDropdown = !primaryDropdown;
+    }
+    private void TogglePrimaryDropdownR()
+    {
+        // Close the info dropdown when opening primary dropdown
+        infoDropdownR = false;
+        successDropDownR = false;
+        WarningDropDownR = false;
+        DangerDropDownR = false;
+        blackDropDownR = false;
+        SecondaryDropDownR = false;
+        LightDropDownR = false;
+        primaryDropdownR = !primaryDropdownR;
+    }
+    private void TogglePrimaryDropdownOD()
+    {
+        // Close the info dropdown when opening primary dropdown
+        infoDropdownOD = false;
+        successDropDownOD = false;
+        WarningDropDownOD = false;
+        DangerDropDownOD = false;
+        blackDropDownOD = false;
+        SecondaryDropDownOD = false;
+        LightDropDownOD = false;
+        primaryDropdownOD = !primaryDropdownOD;
+    }
+    private void TogglePrimaryDropdownOR()
+    {
+        // Close the info dropdown when opening primary dropdown
+        infoDropdownOR = false;
+        successDropDownOR = false;
+        WarningDropDownOR = false;
+        DangerDropDownOR = false;
+        blackDropDownOR = false;
+        SecondaryDropDownOR = false;
+        LightDropDownOR = false;
+        primaryDropdownOR = !primaryDropdownOR;
+    }
+
+    private void ToggleInfoDropdown()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdown = false;
+        successDropDown = false;
+        WarningDropDown = false;
+        DangerDropDown = false;
+        blackDropDown = false;
+        SecondaryDropDown = false;
+        LightDropDown = false;
+
+        infoDropdown = !infoDropdown;
+    }
+    private void ToggleInfoDropdownR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownR = false;
+        successDropDownR = false;
+        WarningDropDownR = false;
+        DangerDropDownR = false;
+        blackDropDownR = false;
+        SecondaryDropDownR = false;
+        LightDropDownR = false;
+
+        infoDropdownR = !infoDropdownR;
+    }
+    private void ToggleInfoDropdownOD()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOD = false;
+        successDropDownOD = false;
+        WarningDropDownOD = false;
+        DangerDropDownOD = false;
+        blackDropDownOD = false;
+        SecondaryDropDownOD = false;
+        LightDropDownOD = false;
+
+        infoDropdownOD = !infoDropdownOD;
+    }
+    private void ToggleInfoDropdownOR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOR = false;
+        successDropDownOR = false;
+        WarningDropDownOR = false;
+        DangerDropDownOR = false;
+        blackDropDownOR = false;
+        SecondaryDropDownOR = false;
+        LightDropDownOR = false;
+
+        infoDropdownOR = !infoDropdownOR;
+    }
+
+    private void ToggleSuccessDropdown()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdown = false;
+        infoDropdown = false;
+        WarningDropDown = false;
+        DangerDropDown = false;
+        blackDropDown = false;
+        SecondaryDropDown = false;
+        LightDropDown = false;
+
+        successDropDown = !successDropDown;
+    }
+    private void ToggleSuccessDropdownR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownR = false;
+        infoDropdownR = false;
+        WarningDropDownR = false;
+        DangerDropDownR = false;
+        blackDropDownR = false;
+        SecondaryDropDownR = false;
+        LightDropDownR = false;
+
+        successDropDownR = !successDropDownR;
+    }
+    private void ToggleSuccessDropdownOD()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOD = false;
+        infoDropdownOD = false;
+        WarningDropDownOD = false;
+        DangerDropDownOD = false;
+        blackDropDownOD = false;
+        SecondaryDropDownOD = false;
+        LightDropDownOD = false;
+
+        successDropDownOD = !successDropDownOD;
+    }
+    private void ToggleSuccessDropdownOR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOR = false;
+        infoDropdownOR = false;
+        WarningDropDownOR = false;
+        DangerDropDownOR = false;
+        blackDropDownOR = false;
+        SecondaryDropDownOR = false;
+        LightDropDownOR = false;
+
+        successDropDownOR = !successDropDownOR;
+    }
+
+    private void ToggleWarningDropDown()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdown = false;
+        infoDropdown = false;
+        successDropDown = false;
+        DangerDropDown = false;
+        blackDropDown = false;
+        SecondaryDropDown = false;
+        LightDropDown = false;
+
+        WarningDropDown = !WarningDropDown;
+    }
+    private void ToggleWarningDropDownR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownR = false;
+        infoDropdownR = false;
+        successDropDownR = false;
+        DangerDropDownR = false;
+        blackDropDownR = false;
+        SecondaryDropDownR = false;
+        LightDropDownR = false;
+
+        WarningDropDownR = !WarningDropDownR;
+    }
+    private void ToggleWarningDropDownOD()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOD = false;
+        infoDropdownOD = false;
+        successDropDownOD = false;
+        DangerDropDownOD = false;
+        blackDropDownOD = false;
+        SecondaryDropDownOD = false;
+        LightDropDownOD = false;
+
+        WarningDropDownOD = !WarningDropDownOD;
+    }
+    private void ToggleWarningDropDownOR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOR = false;
+        infoDropdownOR = false;
+        successDropDownOR = false;
+        DangerDropDownOR = false;
+        blackDropDownOR = false;
+        SecondaryDropDownOR = false;
+        LightDropDownOR = false;
+
+        WarningDropDownOR = !WarningDropDownOR;
+    }
+
+    private void ToggleDangerDropDown()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdown = false;
+        infoDropdown = false;
+        successDropDown = false;
+        WarningDropDown = false;
+        blackDropDown = false;
+        SecondaryDropDown = false;
+        LightDropDown = false;
+
+        DangerDropDown = !DangerDropDown;
+    }
+    private void ToggleDangerDropDownR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownR= false;
+        infoDropdownR = false;
+        successDropDownR = false;
+        WarningDropDownR = false;
+        blackDropDownR = false;
+        SecondaryDropDownR = false;
+        LightDropDownR = false;
+
+        DangerDropDownR = !DangerDropDownR;
+    }
+    private void ToggleDangerDropDownOD()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOD = false;
+        infoDropdownOD = false;
+        successDropDownOD = false;
+        WarningDropDownOD = false;
+        blackDropDownOD = false;
+        SecondaryDropDownOD = false;
+        LightDropDownOD = false;
+
+        DangerDropDownOD = !DangerDropDownOD;
+    }
+    private void ToggleDangerDropDownOR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOR = false;
+        infoDropdownOR = false;
+        successDropDownOR = false;
+        WarningDropDownOR = false;
+        blackDropDownOR = false;
+        SecondaryDropDownOR = false;
+        LightDropDownOR = false;
+
+        DangerDropDownOR = !DangerDropDownOR;
+    }
+
+    private void ToggleblackDropDown()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdown = false;
+        infoDropdown = false;
+        successDropDown = false;
+        DangerDropDown = false;
+        WarningDropDown = false;
+        SecondaryDropDown = false;
+        LightDropDown = false;
+
+
+        blackDropDown = !blackDropDown;
+    }
+    private void ToggleblackDropDownR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownR = false;
+        infoDropdownR = false;
+        successDropDownR = false;
+        DangerDropDownR = false;
+        WarningDropDownR = false;
+        SecondaryDropDownR = false;
+        LightDropDownR = false;
+
+
+        blackDropDownR = !blackDropDownR;
+    }
+    private void ToggleblackDropDownOD()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOD = false;
+        infoDropdownOD = false;
+        successDropDownOD = false;
+        DangerDropDownOD = false;
+        WarningDropDownOD = false;
+        SecondaryDropDownOD = false;
+        LightDropDownOD = false;
+
+
+        blackDropDownOD = !blackDropDownOD;
+    }
+    private void ToggleblackDropDownOR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOR = false;
+        infoDropdownOR = false;
+        successDropDownOR = false;
+        DangerDropDownOR = false;
+        WarningDropDownOR = false;
+        SecondaryDropDownOR = false;
+        LightDropDownOR = false;
+
+
+        blackDropDownOR = !blackDropDownOR;
+    }
+
+    private void ToggleSecondaryDropDown()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdown = false;
+        infoDropdown = false;
+        successDropDown = false;
+        DangerDropDown = false;
+        WarningDropDown = false;
+        blackDropDown = false;
+        LightDropDown = false;
+
+
+        SecondaryDropDown = !SecondaryDropDown;
+    }
+    private void ToggleSecondaryDropDownR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownR = false;
+        infoDropdownR = false;
+        successDropDownR = false;
+        DangerDropDownR = false;
+        WarningDropDownR = false;
+        blackDropDownR = false;
+        LightDropDownR = false;
+
+
+        SecondaryDropDownR = !SecondaryDropDownR;
+    }
+    private void ToggleSecondaryDropDownOD()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOD = false;
+        infoDropdownOD = false;
+        successDropDownOD = false;
+        DangerDropDownOD = false;
+        WarningDropDownOD = false;
+        blackDropDownOD = false;
+        LightDropDownOD = false;
+
+
+        SecondaryDropDownOD = !SecondaryDropDownOD;
+    }
+    private void ToggleSecondaryDropDownOR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOR = false;
+        infoDropdownOR = false;
+        successDropDownOR = false;
+        DangerDropDownOR = false;
+        WarningDropDownOR = false;
+        blackDropDownOR = false;
+        LightDropDownOR = false;
+
+
+        SecondaryDropDownOR = !SecondaryDropDownOR;
+    }
+
+    private void ToggleLightDropDown()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdown = false;
+        infoDropdown = false;
+        successDropDown = false;
+        DangerDropDown = false;
+        WarningDropDown = false;
+        blackDropDown = false;
+        SecondaryDropDown = false;
+
+        LightDropDown = !LightDropDown;
+    }
+    private void ToggleLightDropDownR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownR = false;
+        infoDropdownR = false;
+        successDropDownR = false;
+        DangerDropDownR = false;
+        WarningDropDownR = false;
+        blackDropDownR = false;
+        SecondaryDropDownR = false;
+
+        LightDropDownR = !LightDropDownR;
+    }
+    private void ToggleLightDropDownOD()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOD = false;
+        infoDropdownOD = false;
+        successDropDownOD = false;
+        DangerDropDownOD = false;
+        WarningDropDownOD = false;
+        blackDropDownOD = false;
+        SecondaryDropDownOD = false;
+
+        LightDropDownOD = !LightDropDownOD;
+    }
+    private void ToggleLightDropDownOR()
+    {
+        // Close the primary dropdown when opening info dropdown
+        primaryDropdownOR = false;
+        infoDropdownOR = false;
+        successDropDownOR = false;
+        DangerDropDownOR = false;
+        WarningDropDownOR = false;
+        blackDropDownOR = false;
+        SecondaryDropDownOR = false;
+
+        LightDropDownOR = !LightDropDownOR;
+    }
+
+    private void CloseDropdown()
+    {
+        // Close both dropdowns
+        primaryDropdown = false;
+        infoDropdown = false;
+        successDropDown = false;
+        WarningDropDown = false;
+        DangerDropDown = false;
+        blackDropDown = false;
+        SecondaryDropDown = false;
+        LightDropDown = false;
+
+        primaryDropdownR = false;
+        infoDropdownR = false;
+        successDropDownR = false;
+        WarningDropDownR = false;
+        DangerDropDownR = false;
+        blackDropDownR = false;
+        SecondaryDropDownR = false;
+        LightDropDownR = false;
+
+        primaryDropdownOD = false;
+        infoDropdownOD = false;
+        successDropDownOD = false;
+        WarningDropDownOD = false;
+        DangerDropDownOD = false;
+        blackDropDownOD = false;
+        SecondaryDropDownOD = false;
+        LightDropDownOD = false;
+
+         primaryDropdownOR = false;
+         infoDropdownOR = false;
+         successDropDownOR = false;
+         WarningDropDownOR = false;
+         DangerDropDownOR = false;
+         blackDropDownOR = false;
+         SecondaryDropDownOR = false;
+         LightDropDownOR = false;
+
+        DropDownMenu = false;
+        DropDownMenu1 = false;
+
+
+        primaryDropdown1 = false;
+        primaryDropdown2 = false;
+        primaryDropdown3 = false;
+        primaryDropdown4 = false;
+
+        DropdownWithIcons1 = false;
+        DropdownWithIcons2 = false;
+        DropdownWithIcons3 = false;
+        DropdownWithIcons4 = false;
+
+
+        DropdownWithIcons5 = false;
+        DropdownWithIcons6 = false;
+        DropdownWithIcons7 = false;
+        DropdownWithIcons8 = false;
+    }
+}

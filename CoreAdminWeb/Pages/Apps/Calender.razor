@@ -1,0 +1,15 @@
+﻿@page "/calender"
+@inject IJSRuntime JsRuntime
+<PageHeader Title="apps" pTitle="Calender"></PageHeader>
+
+<div id='calendar'></div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JsRuntime.InvokeVoidAsync("initializeFullCalendar");
+        }
+    }
+}
