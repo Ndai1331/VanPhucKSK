@@ -10,8 +10,8 @@ namespace CoreAdminWeb.Commons.Utils
             string description = trangThai.GetDescription();
             string strClass = trangThai switch
             {
-                Status.active => "text-success",
-                Status.deactive => "text-danger",
+                Status.published => "text-success",
+                Status.draft => "text-danger",
                 _ => ""
             };
             return $"<span class=\"{strClass}\">{description}</span>";

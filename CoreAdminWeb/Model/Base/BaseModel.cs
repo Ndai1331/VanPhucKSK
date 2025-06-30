@@ -7,9 +7,9 @@ namespace CoreAdminWeb.Model.Base
     public enum Status
     {
         [Description("Đang hoạt động")]
-        active,
+        draft,
         [Description("Ngưng hoạt động")]
-        deactive,
+        published,
         [Description("Đã xóa")]
         removed
     }
@@ -28,7 +28,7 @@ namespace CoreAdminWeb.Model.Base
         public string? name { get; set; }
         public bool? deleted { get; set; } = false;
         public string? description { get; set; }
-        public Status status { get; set; } = Status.active;
+        public Status status { get; set; } = Status.published;
         public int? sort { get; set; } = 0;
     }
 }   

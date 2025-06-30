@@ -13,7 +13,7 @@ namespace CoreAdminWeb.Model
     }
     public class LinhVucVanBanCRUDModel : BaseDetailModel
     {
-        public new string status { set; get; } = Status.active.ToString();
+        public new string status { set; get; } = Status.published.ToString();
         public int system { set; get; } = 2;
     }
 
@@ -23,7 +23,7 @@ namespace CoreAdminWeb.Model
     }
     public class PhanLoaiVanBanCRUDModel : BaseDetailModel
     {
-        public new string status { set; get; } = Status.active.ToString();
+        public new string status { set; get; } = Status.published.ToString();
         public int system { set; get; } = 2;
     }
 

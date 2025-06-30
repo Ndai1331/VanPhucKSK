@@ -41,8 +41,8 @@ namespace CoreAdminWeb.Shared.Base
         public string AcceptFileTypes { get; set; } = "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/pdf,application/zip, application/x-7z-compressed, application/x-rar-compressed, application/x-tar, application/x-gzip, application/x-bzip2, application/x-compressed, application/x-compressed-tar, application/x-compressed-zip, application/x-compressed-rar, application/x-compressed-7z";
 
         public static List<Model.Base.Status> StatusList = new List<
-        Model.Base.Status> { Model.Base.Status.active,
-         Model.Base.Status.deactive };
+        Model.Base.Status> { Model.Base.Status.draft,
+         Model.Base.Status.published };
         protected List<MenuResponse> Menus { get; set; } = new List<MenuResponse>();
 
         protected override async Task OnInitializedAsync()
