@@ -19,6 +19,9 @@ namespace CoreAdminWeb.Model.User
         [JsonPropertyName("email")]
         public string email { get; set; }
 
+        [JsonPropertyName("so_dien_thoai")]
+        public string so_dien_thoai { get; set; }
+
         [JsonPropertyName("password")]
         public string password { get; set; }
         

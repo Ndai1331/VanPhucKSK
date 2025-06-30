@@ -19,10 +19,10 @@
                 
                 <div class="space-y-4">
                     <div class="mb-3">
-                        <label for="patientId" class="form-label">Mã bệnh nhân</label>
+                        <label for="patientId" class="form-label">Số điện thoại</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                            <InputText @bind-Value="_email" class="form-control" id="patientId" placeholder="Nhập mã bệnh nhân" />
+                            <InputText @bind-Value="_phone" class="form-control" id="patientId" placeholder="Nhập số điện thoại" />
                         </div>
                     </div>
                     
@@ -95,18 +95,18 @@
 
     [Inject] AlertService AlertService { get; set; }
     [Inject] IUserService UserService { get; set; }
-    private string _email, _password;
+    private string _phone, _password;
     private bool _rememberMe = false;
     private bool isLoading = false;
 
     private async Task HandleSignIn()
     {
-        if (string.IsNullOrEmpty(_password) || string.IsNullOrEmpty(_email))
+        if (string.IsNullOrEmpty(_password) || string.IsNullOrEmpty(_phone))
             return;
 
         isLoading = true;
         StateHasChanged();
-        var response = await UserService.LoginAsync(_email, _password);
+        var response = await UserService.LoginAsync(_phone, _password);
         if (response.IsSuccess)
         {
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();

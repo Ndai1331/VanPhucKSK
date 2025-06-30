@@ -36,11 +36,29 @@ namespace CoreAdminWeb.Services.Users
             _localStorage = localStorage;
             _authenticationStateProvider = authenticationStateProvider;
         }
-        public async Task<RequestHttpResponse<LoginResponse>> LoginAsync(string email, string password)
+
+        private async Task<string> GetEmailFromPhone(string phone)
+        {
+            var response = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?filter[_and][0][_and][0][so_dien_thoai][_eq]={phone}");
+            if(response.IsSuccess && response.Data != null && response.Data.Data != null && response.Data.Data.Count > 0)
+            {
+                return response.Data.Data[0].email; 
+            }
+            return string.Empty;
+        }
+
+        public async Task<RequestHttpResponse<LoginResponse>> LoginAsync(string phone, string password)
         {
             var response = new RequestHttpResponse<LoginResponse>();
             try
             {
+                var email = await GetEmailFromPhone(phone);
+                if(string.IsNullOrEmpty(email))
+                {
+                    response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = "Không tìm thấy user" } };
+                    return response;
+                }
+
                 var result = await PublicRequestClient.PostAPIAsync<RequestHttpResponse<LoginResponse>>("auth/login", new LoginRequest { email = email, password = password });
                 if (result.IsSuccess)
                 {

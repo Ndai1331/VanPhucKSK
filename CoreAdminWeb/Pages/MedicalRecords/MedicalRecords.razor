@@ -128,7 +128,7 @@
                     </MudTd>
                     <MudTd DataLabel="Thao tác">
                         <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context.Id))">
-                            <i class="fas fa-eye me-1"></i>Xem chi tiết
+                            <i class="ri-eye-line me-1"></i>Xem chi tiết
                         </button>
                     </MudTd>
                 </RowTemplate>
@@ -143,8 +143,8 @@
 
     <!-- Action Buttons -->
     <div class="text-center mt-6">
-        <a href="/profile" class="px-6 py-3 text-white bg-purple rounded shadow hover:bg-purple transition-colors inline-flex items-center">
-            <i class="fas fa-user-edit me-2"></i>Cập nhật thông tin cá nhân
+        <a href="/profile" class="px-6 p-3 text-white bg-purple rounded shadow hover:bg-purple transition-colors inline-flex items-center">
+            <i class="ri-account-box-line me-1 "></i>Cập nhật thông tin cá nhân
         </a>
     </div>
 </div>
@@ -295,7 +295,7 @@
 
     private void ViewRecordDetail(int recordId)
     {
-        Navigation.NavigateTo($"/record-detail/{recordId}");
+        Navigation.NavigateTo($"/record-detail-page/{recordId}");
     }
 
     private async Task PrintAllRecords()
@@ -326,12 +326,12 @@
             await JsRuntime.InvokeVoidAsync("localStorage.clear");
             
             AlertService.ShowAlert("Đăng xuất thành công!", "success");
-            Navigation.NavigateTo("/", true);
+            Navigation.NavigateTo("/signin", true);
         }
         catch (Exception ex)
         {
             AlertService.ShowAlert("Lỗi khi đăng xuất: " + ex.Message, "danger");
-            Navigation.NavigateTo("/", true);
+            Navigation.NavigateTo("/signin", true);
         }
     }
 } 

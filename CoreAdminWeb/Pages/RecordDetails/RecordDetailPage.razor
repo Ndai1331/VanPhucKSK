@@ -1,0 +1,1033 @@
+@page "/record-detail-page/{recordId}"
+@using CoreAdminWeb.Services
+@using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Providers
+@using CoreAdminWeb.Shared.Base
+@using MudBlazor
+@layout CoreAdminWeb.Shared.MainLayout
+@inherits BlazorCoreBase
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
+
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
+            <i class="fas fa-file-medical me-2 text-primary"></i>
+          Sổ Khám sức khỏe
+        </h2>
+        <p class="text-slate-600 dark:text-slate-400 mb-0">Chi tiết lần khám sức khỏe của bạn</p>
+    </div>
+    <div class="flex gap-2">
+        <button class="px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToList">
+            <i class="ri-arrow-left-line me-1"></i>Quay lại danh sách
+        </button>
+        <button class="px-4 py-2 bg-info text-white rounded hover:bg-info-dark transition-colors" @onclick="PrintRecord">
+            <i class="ri-printer-line me-1"></i>In
+        </button>
+        <button class="px-4 py-2 bg-success text-white rounded hover:bg-success-dark transition-colors" @onclick="ExportPDF">
+            <i class="ri-file-pdf-line me-1"></i>Xuất PDF
+        </button>
+    </div>
+</div>
+
+<!-- Medical Form Header -->
+<div class="ksk-header" style="margin-bottom:0;">
+    <div class="mau-so">Mẫu số 03</div>
+    <div>MẪU SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+    <div class="quochoa">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+    <div class="doclap">Độc lập - Tự do - Hạnh phúc</div>
+    <div>-------------</div>
+</div>
+
+<div class="ksk-title">SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+
+<!-- Main Medical Form -->
+<div class="ksk-form">
+    <!-- Patient Information Section -->
+    <div class="ksk-row">
+        <!-- Photo Section -->
+        <div>
+            <div class="ksk-photo" id="profilePhotoContainer">
+                <img id="profilePhoto" src="@profileImageUrl" alt="Ảnh đại diện" style="width: 100%; height: 100%; object-fit: cover; @(string.IsNullOrEmpty(profileImageUrl) ? "display:none" : "")" />
+                <span style="@(string.IsNullOrEmpty(profileImageUrl) ? "" : "display:none")">Ảnh 4x6 cm</span>
+            </div>
+            <div class="ksk-photo-label">(dán ảnh hoặc scan ảnh)</div>
+        </div>
+        
+        <!-- Patient Info -->
+        <div class="ksk-info">
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">1. Họ và tên:</div>
+                <div class="ksk-info-value">@patientInfo.FullName</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">2. Giới tính:</div>
+                <div class="ksk-info-value">@patientInfo.Gender</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">3. Sinh ngày:</div>
+                <div class="ksk-info-value">@(patientInfo.BirthDate?.Day.ToString("00"))</div>
+                <span style="margin: 0 4px;">tháng</span>
+                <div class="ksk-info-value">@(patientInfo.BirthDate?.Month.ToString("00"))</div>
+                <span style="margin: 0 4px;">năm</span>
+                <div class="ksk-info-value">@patientInfo.BirthDate?.Year</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">4. Số CCCD/CMND:</div>
+                <div class="ksk-info-value">@patientInfo.IdNumber</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">5. Cấp ngày:</div>
+                <div class="ksk-info-value">@patientInfo.IdIssueDate</div>
+                <span style="margin: 0 4px;">tại</span>
+                <div class="ksk-info-value">@patientInfo.IdIssuePlace</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">6. Chỗ ở hiện tại:</div>
+                <div class="ksk-info-value">@patientInfo.Address</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">7. Số điện thoại:</div>
+                <div class="ksk-info-value">@patientInfo.Phone</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">8. Nghề nghiệp:</div>
+                <div class="ksk-info-value">@patientInfo.Occupation</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">9. Nơi công tác:</div>
+                <div class="ksk-info-value">@patientInfo.Workplace</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">10. Ngày vào làm:</div>
+                <div class="ksk-info-value">@patientInfo.StartWorkDate</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">11. Nghề, công việc trước đây:</div>
+                <div class="ksk-info-value">@patientInfo.PreviousJob</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">12. Thời gian làm nghề:</div>
+                <div class="ksk-info-value">@patientInfo.WorkDuration</div>
+                <span style="margin: 0 4px;">tháng, từ ngày</span>
+                <div class="ksk-info-value">@patientInfo.WorkFromDate</div>
+                <span style="margin: 0 4px;">đến ngày</span>
+                <div class="ksk-info-value">@patientInfo.WorkToDate</div>
+            </div>
+            <div class="ksk-info-row">
+                <div class="ksk-info-label">13. Tiền sử bệnh, tật của gia đình:</div>
+                <div class="ksk-info-value">@patientInfo.FamilyMedicalHistory</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note -->
+    <div class="ksk-note">
+        <strong>* Lưu ý:</strong> Trường hợp đối tượng KSK có CCCD gắn chip hoặc có số định danh công dân đã thực hiện kết nối với cơ sở dữ liệu quốc gia, phần HÀNH CHÍNH nếu trên chỉ cần ghi mục (1) Họ và tên, (3) Ngày tháng năm sinh, (4) Số định danh công dân.
+    </div>
+
+    <!-- Disease History Table -->
+    <div class="ksk-table-wrap">
+        <table class="ksk-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">Tên bệnh</th>
+                    <th colspan="2">Phát hiện năm</th>
+                </tr>
+                <tr>
+                    <th>Bệnh mãn tính</th>
+                    <th>Bệnh nghề nghiệp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="ls-cell-small">@(diseaseHistory.FirstOrDefault()?.DiseaseName ?? "Không")</td>
+                    <td class="ls-cell-small">@(diseaseHistory.FirstOrDefault()?.ChronicYear ?? "-")</td>
+                    <td class="ls-cell-small">@(diseaseHistory.FirstOrDefault()?.OccupationalYear ?? "-")</td>
+                </tr>
+                <tr>
+                    <td class="ls-cell-small">@(diseaseHistory.Skip(1).FirstOrDefault()?.DiseaseName ?? "Không")</td>
+                    <td class="ls-cell-small">@(diseaseHistory.Skip(1).FirstOrDefault()?.ChronicYear ?? "-")</td>
+                    <td class="ls-cell-small">@(diseaseHistory.Skip(1).FirstOrDefault()?.OccupationalYear ?? "-")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Signature Section -->
+    <div class="ksk-signature-row">
+        <div class="ksk-signature-box">
+            Người lao động xác nhận<br>
+            <small>(Ký và ghi rõ họ, tên)</small><br><br><br>
+            <strong>@patientInfo.FullName</strong>
+        </div>
+        <div class="ksk-signature-box">
+            ... ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year<br>
+            Người lập sổ KSK định kỳ<br>
+            <small>(Ký và ghi rõ họ, tên)</small><br><br><br>
+            <strong>@examRecord.DoctorName</strong>
+        </div>
+    </div>
+</div>
+
+<!-- Medical Examination Section -->
+<div class="ksk-form" style="margin-top: 32px;">
+    <div class="ksk-title">KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+    
+    <!-- I. Medical History -->
+    <div class="mb-6">
+        <div class="font-bold mb-2">I. TIỀN SỬ BỆNH, TẬT <span class="font-normal italic">(Bác sỹ khám sức khỏe hỏi và ghi chép)</span></div>
+        
+        @if (patientInfo.Gender == "Nữ" && gynecologyHistory != null)
+        {
+            <div class="mb-4">
+                <div class="font-bold">Tiền sử sản phụ khoa (Đối với nữ): Có</div>
+                <div class="ml-4 space-y-1 text-sm">
+                    <div>- Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi: @gynecologyHistory.MenarcheAge</div>
+                    <div>- Tính chất kinh nguyệt: @gynecologyHistory.MenstrualNature</div>
+                    <div>Chu kỳ kinh: @gynecologyHistory.MenstrualCycle ngày, Lượng kinh: @gynecologyHistory.MenstrualVolume ml</div>
+                    <div>Đau bụng kinh: @(gynecologyHistory.Dysmenorrhea ? "Có" : "Không")</div>
+                    <div>Đã lập gia đình: @(gynecologyHistory.IsMarried ? "Có" : "Chưa")</div>
+                    <div>PARA: @gynecologyHistory.Para</div>
+                    <div>Số lần mổ sản, phụ khoa: @gynecologyHistory.SurgeryCount @(string.IsNullOrEmpty(gynecologyHistory.SurgeryDetails) ? "/ Chưa" : $"Có {gynecologyHistory.SurgeryDetails}")</div>
+                    <div>Có áp dụng BPTT không: @(gynecologyHistory.UseContraception ? $"Có {gynecologyHistory.ContraceptionMethod}" : "Không")</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- II. Physical Examination -->
+    <div class="mb-6">
+        <div class="font-bold mb-2">II. KHÁM THỂ LỰC</div>
+        <div class="ml-4 space-y-1">
+            <div>Chiều cao: @examRecord.Height cm; Cân nặng: @examRecord.Weight kg; Chỉ số BMI: @examRecord.BMI</div>
+            <div>Mạch: @examRecord.HeartRate lần/phút; Huyết áp: @examRecord.BloodPressure mmHg</div>
+            <div>Phân loại thể lực: @examRecord.PhysicalClassification</div>
+        </div>
+    </div>
+
+    <!-- III. Clinical Examination -->
+    <div class="mb-6">
+        <div class="font-bold mb-2">III. KHÁM LÂM SÀNG</div>
+        <div class="text-sm mb-4">Phải khám đầy đủ các nội dung theo chuyên khoa để khẳng định có/không có bệnh, tật theo quy định tại Quyết định...</div>
+        
+        <div class="ksk-table-wrap">
+            <table class="ksk-table">
+                <thead>
+                    <tr>
+                        <th style="min-width: 140px;">Chuyên khoa</th>
+                        <th style="min-width: 140px;">Kết quả</th>
+                        <th style="min-width: 100px;">Bác sĩ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Internal Medicine -->
+                    <tr>
+                        <td colspan="3" style="font-weight: bold;">1. Nội khoa:</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-specialty">a) Tuần hoàn</td>
+                        <td class="ls-cell-small">@clinicalExam.Cardiovascular.Result</td>
+                        <td class="ls-doctor-cell">@clinicalExam.Cardiovascular.Doctor</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@clinicalExam.Cardiovascular.Classification</td>
+                        <td class="ls-doctor-cell"></td>
+                    </tr>
+                    <tr>
+                        <td class="ls-specialty">b) Hô hấp</td>
+                        <td class="ls-cell-small">@clinicalExam.Respiratory.Result</td>
+                        <td class="ls-doctor-cell">@clinicalExam.Respiratory.Doctor</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@clinicalExam.Respiratory.Classification</td>
+                        <td class="ls-doctor-cell"></td>
+                    </tr>
+                    <tr>
+                        <td class="ls-specialty">c) Tiêu hóa</td>
+                        <td class="ls-cell-small">@clinicalExam.Digestive.Result</td>
+                        <td class="ls-doctor-cell">@clinicalExam.Digestive.Doctor</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@clinicalExam.Digestive.Classification</td>
+                        <td class="ls-doctor-cell"></td>
+                    </tr>
+                    <tr>
+                        <td class="ls-specialty">d) Thận-Tiết niệu</td>
+                        <td class="ls-cell-small">@clinicalExam.Urinary.Result</td>
+                        <td class="ls-doctor-cell">@clinicalExam.Urinary.Doctor</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@clinicalExam.Urinary.Classification</td>
+                        <td class="ls-doctor-cell"></td>
+                    </tr>
+                    <tr>
+                        <td class="ls-specialty">h) Tâm thần</td>
+                        <td class="ls-cell-small">@clinicalExam.Mental.Result</td>
+                        <td class="ls-doctor-cell">@clinicalExam.Mental.Doctor</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@clinicalExam.Mental.Classification</td>
+                        <td class="ls-doctor-cell"></td>
+                    </tr>
+                    
+                    <!-- Surgery, Dermatology -->
+                    <tr>
+                        <td colspan="3" style="font-weight: bold;">2. Ngoại khoa, Da liễu:</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-specialty">- Ngoại khoa</td>
+                        <td class="ls-cell-small">@clinicalExam.Surgery.Result</td>
+                        <td class="ls-doctor-cell">@clinicalExam.Surgery.Doctor</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@clinicalExam.Surgery.Classification</td>
+                        <td class="ls-doctor-cell"></td>
+                    </tr>
+                    <tr>
+                        <td class="ls-specialty">- Da liễu</td>
+                        <td class="ls-cell-small">@clinicalExam.Dermatology.Result</td>
+                        <td class="ls-doctor-cell">@clinicalExam.Dermatology.Doctor</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@clinicalExam.Dermatology.Classification</td>
+                        <td class="ls-doctor-cell"></td>
+                    </tr>
+                    
+                    <!-- Obstetrics & Gynecology -->
+                    <tr>
+                        <td colspan="3" style="font-weight: bold;">3. Sản phụ khoa:</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-specialty">- Sản phụ khoa</td>
+                        <td class="ls-cell-small">@clinicalExam.Obstetrics.Result</td>
+                        <td class="ls-doctor-cell">@clinicalExam.Obstetrics.Doctor</td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@clinicalExam.Obstetrics.Classification</td>
+                        <td class="ls-doctor-cell"></td>
+                    </tr>
+                    
+                    <!-- Ophthalmology -->
+                    <tr>
+                        <td colspan="3" style="font-weight: bold;">4. Mắt:</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="ls-cell-small">
+                            <div class="ls-specialty">Kết quả khám thị lực:</div>
+                            <div>Không kính: Mắt phải @eyeExam.RightEyeWithoutGlasses Mắt trái @eyeExam.LeftEyeWithoutGlasses | Có kính: Mắt phải @eyeExam.RightEyeWithGlasses Mắt trái @eyeExam.LeftEyeWithGlasses</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="ls-cell-small">
+                            <div class="ls-specialty">Các bệnh về mắt (nếu có):</div>
+                            <div>@eyeExam.EyeDiseases</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@eyeExam.Classification</td>
+                        <td class="ls-doctor-cell">@eyeExam.Doctor</td>
+                    </tr>
+                    
+                    <!-- ENT -->
+                    <tr>
+                        <td colspan="3" style="font-weight: bold;">5. Tai - Mũi - Họng:</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="ls-cell-small">
+                            <div class="ls-specialty">Kết quả khám thính lực:</div>
+                            <div>Tai trái: @entExam.LeftEarHearing m; Nói thầm @entExam.LeftEarWhisper m | Tai phải: @entExam.RightEarHearing m; Nói thầm @entExam.RightEarWhisper m</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="ls-cell-small">
+                            <div class="ls-specialty">Các bệnh về tai mũi họng (nếu có):</div>
+                            <div>@entExam.EntDiseases</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@entExam.Classification</td>
+                        <td class="ls-doctor-cell">@entExam.Doctor</td>
+                    </tr>
+                    
+                    <!-- Dental -->
+                    <tr>
+                        <td colspan="3" style="font-weight: bold;">6. Răng - Hàm - Mặt:</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="ls-cell-small">
+                            <div class="ls-specialty">Kết quả khám:</div>
+                            <div>Hàm trên: @dentalExam.UpperJaw | Hàm dưới: @dentalExam.LowerJaw</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="ls-cell-small">
+                            <div class="ls-specialty">Các bệnh về răng hàm mặt (nếu có):</div>
+                            <div>@dentalExam.DentalDiseases</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="ls-label">Phân loại</td>
+                        <td class="ls-cell-small">@dentalExam.Classification</td>
+                        <td class="ls-doctor-cell">@dentalExam.Doctor</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- IV. Laboratory Tests -->
+    <div style="margin-bottom: 24px;">
+        <div style="font-weight: bold; text-align: center; margin-bottom: 8px;">IV. KHÁM CẬN LÂM SÀNG</div>
+        <div style="border: 1px solid #000; padding: 16px;">
+            <div style="margin-bottom: 8px;">* Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</div>
+            <div style="margin-left: 16px;">
+                <div style="margin-bottom: 8px;">a) Kết quả: @labTests.Results</div>
+                <div>b) Đánh giá: @labTests.Assessment</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- V. Conclusion -->
+    <div style="margin-bottom: 24px;">
+        <div style="font-weight: bold; text-align: center; margin-bottom: 8px;">V. KẾT LUẬN</div>
+        <div style="margin-bottom: 32px;">
+            <div style="margin-bottom: 8px;"><strong>1. Phân loại sức khỏe:<sup>1</sup></strong> @conclusion.HealthClassification</div>
+            <div style="margin-bottom: 8px;"><strong>2. Các bệnh, tật (nếu có):<sup>2</sup></strong> @conclusion.DiseasesAndDisorders</div>
+            <div><strong>3. Đề nghị:</strong> @conclusion.Recommendations</div>
+        </div>
+        
+        <div class="ksk-signature-row">
+            <div style="flex: 1;"></div>
+            <div class="ksk-signature-box">
+                <div><strong>NGƯỜI KẾT LUẬN</strong></div>
+                <small>(Ký, ghi rõ họ tên và đóng dấu)</small>
+                <div style="margin-bottom: 32px;">@conclusion.Date</div>
+                <div><strong>@conclusion.ConcludingDoctor</strong></div>
+            </div>
+        </div>
+        
+        <div class="ksk-note" style="border-top: 1px solid #333; padding-top: 8px;">
+            <div><sup>1</sup> Phân loại sức khỏe theo quy định của Bộ Y tế.</div>
+            <div><sup>2</sup> Ghi rõ các bệnh, tật, phương án điều trị, phục hồi chức năng hoặc giới thiệu khám chuyên khoa để khám bệnh, chữa bệnh (nếu có).</div>
+        </div>
+    </div>
+</div>
+
+<!-- Medical Record Styles -->
+<style>
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 14px;
+        background: #fff;
+    }
+    .ksk-header {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .ksk-header .quochoa {
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .ksk-header .doclap {
+        font-style: italic;
+    }
+    .ksk-header .mau-so {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .ksk-title {
+        text-align: center;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    .ksk-form {
+        max-width: 900px;
+        margin: 0 auto;
+        border: 2px solid #000;
+        padding: 24px 32px 16px 32px;
+    }
+    .ksk-row {
+        display: flex;
+        flex-direction: row;
+        gap: 32px;
+    }
+    .ksk-photo {
+        width: 120px;
+        min-width: 120px;
+        height: 160px;
+        border: 1px solid #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+    .ksk-photo-label {
+        font-size: 12px;
+        text-align: center;
+        margin-top: 4px;
+    }
+    .ksk-info {
+        flex: 1;
+    }
+    .ksk-info-row {
+        display: flex;
+        margin-bottom: 4px;
+    }
+    .ksk-info-label {
+        min-width: 140px;
+        font-weight: bold;
+    }
+    .ksk-info-value {
+        flex: 1;
+        border-bottom: 1px dotted #333;
+        min-height: 20px;
+        padding-left: 4px;
+    }
+    .ksk-note {
+        font-size: 12px;
+        margin: 8px 0 12px 0;
+    }
+    .ksk-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 13px;
+    }
+    .ksk-table th, .ksk-table td {
+        border: 1px solid #000;
+        text-align: center;
+        padding: 4px 6px;
+    }
+    .ksk-table th {
+        background: #f8f8f8;
+        font-weight: bold;
+    }
+    .ksk-signature-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 32px;
+    }
+    .ksk-signature-box {
+        width: 40%;
+        text-align: center;
+    }
+    .ksk-signature-box small {
+        font-size: 12px;
+    }
+    .ls-cell-small {
+        font-size: 12px;
+        padding: 2px 4px;
+        line-height: 1.2;
+    }
+    .ls-doctor-cell {
+        font-size: 11px;
+        text-align: center;
+        padding: 2px 2px;
+        line-height: 1.2;
+        min-width: 80px;
+    }
+    .ls-specialty {
+        font-style: italic;
+        font-weight: normal;
+    }
+    .ls-label {
+        font-size: 12px;
+        font-style: normal;
+        color: #333;
+    }
+    .ksk-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        /* Page Header Responsive */
+        .flex.justify-between {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .flex.justify-between > div:last-child {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        /* Form Responsive */
+        .ksk-form {
+            max-width: 100%;
+            margin: 0 10px;
+            padding: 16px;
+            border-width: 1px;
+        }
+        
+        .ksk-row {
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .ksk-photo {
+            width: 100px;
+            min-width: 100px;
+            height: 130px;
+            margin: 0 auto;
+        }
+        
+        .ksk-info-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .ksk-info-label {
+            min-width: auto;
+            font-size: 13px;
+        }
+        
+        .ksk-info-value {
+            min-height: 18px;
+            font-size: 13px;
+        }
+        
+        /* Table Responsive */
+        .ksk-table {
+            min-width: 600px;
+            font-size: 12px;
+        }
+        
+        .ksk-table th, .ksk-table td {
+            padding: 3px 4px;
+        }
+        
+        /* Signature Responsive */
+        .ksk-signature-row {
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .ksk-signature-box {
+            width: 100%;
+        }
+        
+        /* Typography */
+        .ksk-title {
+            font-size: 16px;
+        }
+        
+        .ksk-header {
+            font-size: 13px;
+        }
+        
+        .ksk-note {
+            font-size: 11px;
+        }
+        
+        /* Clinical Exam Table */
+        .ls-cell-small {
+            font-size: 11px;
+            padding: 2px 3px;
+        }
+        
+        .ls-doctor-cell {
+            font-size: 10px;
+            min-width: 60px;
+        }
+    }
+    
+    @@media (max-width: 576px) {
+        /* Extra small devices */
+        .ksk-form {
+            margin: 0 5px;
+            padding: 12px;
+        }
+        
+        .ksk-photo {
+            width: 80px;
+            height: 100px;
+            font-size: 11px;
+        }
+        
+        .ksk-info-label {
+            font-size: 12px;
+        }
+        
+        .ksk-info-value {
+            font-size: 12px;
+        }
+        
+        .ksk-table {
+            min-width: 500px;
+            font-size: 11px;
+        }
+        
+        .ksk-title {
+            font-size: 14px;
+        }
+        
+        .ksk-header {
+            font-size: 12px;
+        }
+    }
+    
+    /* Print styles for A4 desktop layout */
+    @@media print {
+        /* Hide non-printable elements */
+        .no-print { display: none !important; }
+        
+        /* Reset body and general layout */
+        body { 
+            font-size: 12px !important; 
+            font-family: 'Times New Roman', Times, serif !important;
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: none !important;
+        }
+        
+        /* Reset form layout to desktop */
+        .ksk-form { 
+            border: none !important; 
+            padding: 24px 32px 16px 32px !important;
+            max-width: 900px !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+        }
+        
+        /* Reset row layout to desktop */
+        .ksk-row {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 32px !important;
+        }
+        
+        /* Reset photo to desktop size */
+        .ksk-photo {
+            width: 120px !important;
+            min-width: 120px !important;
+            height: 160px !important;
+            margin-bottom: 8px !important;
+        }
+        
+        /* Reset info layout to desktop */
+        .ksk-info {
+            flex: 1 !important;
+        }
+        
+        .ksk-info-row {
+            display: flex !important;
+            margin-bottom: 4px !important;
+            flex-direction: row !important;
+            gap: 4px !important;
+        }
+        
+        .ksk-info-label {
+            min-width: 140px !important;
+            font-weight: bold !important;
+            font-size: 13px !important;
+        }
+        
+        .ksk-info-value {
+            flex: 1 !important;
+            border-bottom: 1px dotted #333 !important;
+            min-height: 20px !important;
+            padding-left: 4px !important;
+            font-size: 13px !important;
+        }
+        
+        /* Reset table layout */
+        .ksk-table-wrap {
+            overflow: visible !important;
+        }
+        
+        .ksk-table {
+            width: 100% !important;
+            min-width: auto !important;
+            font-size: 13px !important;
+            border-collapse: collapse !important;
+            margin: 12px 0 !important;
+        }
+        
+        .ksk-table th, .ksk-table td {
+            border: 1px solid #000 !important;
+            text-align: center !important;
+            padding: 4px 6px !important;
+        }
+        
+        /* Reset signature layout to desktop */
+        .ksk-signature-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            margin-top: 32px !important;
+            flex-direction: row !important;
+            gap: 0 !important;
+        }
+        
+        .ksk-signature-box {
+            width: 40% !important;
+            text-align: center !important;
+        }
+        
+        /* Reset typography to desktop */
+        .ksk-title {
+            font-size: 18px !important;
+            text-align: center !important;
+            font-weight: bold !important;
+            text-transform: uppercase !important;
+            margin-bottom: 10px !important;
+        }
+        
+        .ksk-header {
+            text-align: center !important;
+            margin-bottom: 10px !important;
+            font-size: 14px !important;
+        }
+        
+        .ksk-note {
+            font-size: 12px !important;
+            margin: 8px 0 12px 0 !important;
+        }
+        
+        /* Reset clinical exam table styles */
+        .ls-cell-small {
+            font-size: 12px !important;
+            padding: 2px 4px !important;
+            line-height: 1.2 !important;
+        }
+        
+        .ls-doctor-cell {
+            font-size: 11px !important;
+            text-align: center !important;
+            padding: 2px 2px !important;
+            line-height: 1.2 !important;
+            min-width: 80px !important;
+        }
+        
+        /* Ensure proper page breaks */
+        .ksk-form {
+            page-break-inside: avoid !important;
+        }
+        
+        /* Ensure proper margins for A4 */
+        @@page {
+            size: A4;
+            margin: 1cm;
+        }
+        
+        /* Override Tailwind classes for print */
+        .print\\:border-none { border: none !important; }
+        .print\\:p-0 { padding: 0 !important; }
+    }
+</style>
+
+@code {
+    [Parameter] public string recordId { get; set; } = "1";
+    [Inject] AlertService AlertService { get; set; }
+    [Inject] IUserService UserService { get; set; }
+
+    // Data Models
+    private PatientInfoModel patientInfo = new();
+    private ExamRecordModel examRecord = new();
+    private List<DiseaseHistoryModel> diseaseHistory = new();
+    private GynecologyHistoryModel? gynecologyHistory = null;
+    private ClinicalExamModel clinicalExam = new();
+    private EyeExamModel eyeExam = new();
+    private EntExamModel entExam = new();
+    private DentalExamModel dentalExam = new();
+    private LabTestsModel labTests = new();
+    private ConclusionModel conclusion = new();
+    private string profileImageUrl = "";
+
+    // Data Models Classes
+    public class PatientInfoModel
+    {
+        public string FullName { get; set; } = "Nguyễn Văn A";
+        public string Gender { get; set; } = "Nam";
+        public DateTime? BirthDate { get; set; } = new DateTime(1990, 3, 15);
+        public string IdNumber { get; set; } = "123456789012";
+        public string IdIssueDate { get; set; } = "01/01/2010";
+        public string IdIssuePlace { get; set; } = "TP.HCM";
+        public string Address { get; set; } = "123 Đường ABC, Quận 1, TP.HCM";
+        public string Phone { get; set; } = "0901234567";
+        public string Occupation { get; set; } = "Nhân viên";
+        public string Workplace { get; set; } = "Công ty ABC";
+        public string StartWorkDate { get; set; } = "01/01/2020";
+        public string PreviousJob { get; set; } = "Không";
+        public string WorkDuration { get; set; } = "60";
+        public string WorkFromDate { get; set; } = "01/01/2015";
+        public string WorkToDate { get; set; } = "01/01/2020";
+        public string FamilyMedicalHistory { get; set; } = "Không";
+    }
+
+    public class ExamRecordModel
+    {
+        public string Height { get; set; } = "170";
+        public string Weight { get; set; } = "70";
+        public string BMI { get; set; } = "24.2";
+        public string HeartRate { get; set; } = "72";
+        public string BloodPressure { get; set; } = "120/80";
+        public string PhysicalClassification { get; set; } = "Loại I";
+        public string DoctorName { get; set; } = "BS. Trần Thị B";
+    }
+
+    public class DiseaseHistoryModel
+    {
+        public string DiseaseName { get; set; } = "";
+        public string ChronicYear { get; set; } = "";
+        public string OccupationalYear { get; set; } = "";
+    }
+
+    public class GynecologyHistoryModel
+    {
+        public string MenarcheAge { get; set; } = "13";
+        public string MenstrualNature { get; set; } = "Bình thường";
+        public string MenstrualCycle { get; set; } = "28";
+        public string MenstrualVolume { get; set; } = "30";
+        public bool Dysmenorrhea { get; set; } = false;
+        public bool IsMarried { get; set; } = true;
+        public string Para { get; set; } = "1-0-0-1";
+        public string SurgeryCount { get; set; } = "0";
+        public string SurgeryDetails { get; set; } = "";
+        public bool UseContraception { get; set; } = false;
+        public string ContraceptionMethod { get; set; } = "";
+    }
+
+    public class SpecialtyExamModel
+    {
+        public string Result { get; set; } = "Bình thường";
+        public string Classification { get; set; } = "Loại I";
+        public string Doctor { get; set; } = "BS. A";
+    }
+
+    public class ClinicalExamModel
+    {
+        public SpecialtyExamModel Cardiovascular { get; set; } = new();
+        public SpecialtyExamModel Respiratory { get; set; } = new();
+        public SpecialtyExamModel Digestive { get; set; } = new();
+        public SpecialtyExamModel Urinary { get; set; } = new();
+        public SpecialtyExamModel Mental { get; set; } = new();
+        public SpecialtyExamModel Surgery { get; set; } = new();
+        public SpecialtyExamModel Dermatology { get; set; } = new();
+        public SpecialtyExamModel Obstetrics { get; set; } = new();
+    }
+
+    public class EyeExamModel
+    {
+        public string RightEyeWithoutGlasses { get; set; } = "10/10";
+        public string LeftEyeWithoutGlasses { get; set; } = "10/10";
+        public string RightEyeWithGlasses { get; set; } = "10/10";
+        public string LeftEyeWithGlasses { get; set; } = "10/10";
+        public string EyeDiseases { get; set; } = "Không";
+        public string Classification { get; set; } = "Loại I";
+        public string Doctor { get; set; } = "BS. Mắt";
+    }
+
+    public class EntExamModel
+    {
+        public string LeftEarHearing { get; set; } = "6";
+        public string LeftEarWhisper { get; set; } = "2";
+        public string RightEarHearing { get; set; } = "6";
+        public string RightEarWhisper { get; set; } = "2";
+        public string EntDiseases { get; set; } = "Không";
+        public string Classification { get; set; } = "Loại I";
+        public string Doctor { get; set; } = "BS. TMH";
+    }
+
+    public class DentalExamModel
+    {
+        public string UpperJaw { get; set; } = "Bình thường";
+        public string LowerJaw { get; set; } = "Bình thường";
+        public string DentalDiseases { get; set; } = "Không";
+        public string Classification { get; set; } = "Loại I";
+        public string Doctor { get; set; } = "BS. RHM";
+    }
+
+    public class LabTestsModel
+    {
+        public string Results { get; set; } = "Các chỉ số trong giới hạn bình thường";
+        public string Assessment { get; set; } = "Không có bất thường";
+    }
+
+    public class ConclusionModel
+    {
+        public string HealthClassification { get; set; } = "Loại I";
+        public string DiseasesAndDisorders { get; set; } = "Không";
+        public string Recommendations { get; set; } = "Tiếp tục duy trì sức khỏe tốt";
+        public string Date { get; set; } = DateTime.Now.ToString("dd/MM/yyyy");
+        public string ConcludingDoctor { get; set; } = "BS. Trần Thị B";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRecordData();
+    }
+
+    private async Task LoadRecordData()
+    {
+        try
+        {
+            // Load sample data - in real app, this would come from API
+            patientInfo = new PatientInfoModel();
+            examRecord = new ExamRecordModel();
+            
+            // Initialize empty disease history
+            diseaseHistory = new List<DiseaseHistoryModel>
+            {
+                new DiseaseHistoryModel { DiseaseName = "Không", ChronicYear = "-", OccupationalYear = "-" },
+                new DiseaseHistoryModel { DiseaseName = "Không", ChronicYear = "-", OccupationalYear = "-" }
+            };
+
+            // Initialize gynecology history for female patients
+            if (patientInfo.Gender == "Nữ")
+            {
+                gynecologyHistory = new GynecologyHistoryModel();
+            }
+
+            // Initialize clinical exam data
+            clinicalExam = new ClinicalExamModel();
+            eyeExam = new EyeExamModel();
+            entExam = new EntExamModel();
+            dentalExam = new DentalExamModel();
+            labTests = new LabTestsModel();
+            conclusion = new ConclusionModel();
+
+            // Set profile image placeholder
+            profileImageUrl = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải dữ liệu: " + ex.Message, "danger");
+        }
+    }
+
+    private async Task PrintRecord()
+    {
+        await JsRuntime.InvokeVoidAsync("window.print");
+    }
+
+    private async Task ExportPDF()
+    {
+        await JsRuntime.InvokeVoidAsync("alert", "Tính năng xuất PDF sẽ được phát triển trong phiên bản tiếp theo!");
+    }
+
+    private void BackToList()
+    {
+        Navigation.NavigateTo("/");
+    }
+}
