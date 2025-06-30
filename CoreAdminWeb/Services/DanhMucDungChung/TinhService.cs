@@ -12,7 +12,7 @@ namespace CoreAdminWeb.Services
     /// </summary>
     public class TinhService : IBaseService<TinhModel>
     {
-        private readonly string _collection = "Provinces";
+        private readonly string _collection = "tinh";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
 
         /// <summary>
