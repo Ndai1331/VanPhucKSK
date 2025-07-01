@@ -45,7 +45,7 @@
         <div class="p-5 rounded shadow-sm bg-success text-white">
             <div class="text-center">
                 <i class="fas fa-calendar-check fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1"></h4>
+                <h4 class="text-2xl font-semibold mb-1">@NgayKhamGanNhat?.ToString("dd/MM/yyyy")</h4>
                 <p class="mb-0">Lần khám gần nhất</p>
             </div>
         </div>
@@ -59,7 +59,7 @@
         <div class="p-5 rounded shadow-sm bg-warning text-white">
             <div class="text-center">
                 <i class="fas fa-clock fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1"></h4>
+                <h4 class="text-2xl font-semibold mb-1">@(NgayKhamGanNhat != null ? (NgayKhamGanNhat.Value.AddDays(60)).ToString("dd/MM/yyyy") : "")</h4>
                 <p class="mb-0">Đến lần khám tiếp theo</p>
             </div>
         </div>
@@ -234,6 +234,7 @@
     }
     // Medical Records
     private List<SoKhamSucKhoeModel> MainModels = new List<SoKhamSucKhoeModel>();
+    private DateTime? NgayKhamGanNhat = null;
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -252,6 +253,8 @@
             StateHasChanged();
         }
     }
+
+
     private async Task LoadMedicalRecords()
     {
         try
@@ -273,6 +276,31 @@
             else
             {
                 MainModels = new List<SoKhamSucKhoeModel>();
+            }
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải hồ sơ khám bệnh: " + ex.Message, "danger");
+        }
+    }
+
+
+    private async Task LoadFirstMedicalRecords()
+    {
+        try
+        {
+            string query = $"limit=1&offset=0&meta=filter_count";
+            query += $"&sort=-ngay_kham";
+            query += $"&filter[_and][0][deleted][_eq]=false";
+            query += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser?.ma_benh_nhan}";
+            var result = await SoKhamSucKhoeService.GetAllAsync(query);
+            if (result.IsSuccess)
+            {
+                NgayKhamGanNhat = result.Data?.FirstOrDefault()?.ngay_kham;
+            }
+            else
+            {
+                NgayKhamGanNhat = null;
             }
         }
         catch (Exception ex)
