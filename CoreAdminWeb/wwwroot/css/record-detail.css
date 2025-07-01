@@ -1,0 +1,407 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 14px;
+    background: #fff;
+}
+.ksk-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+.ksk-header .quochoa {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.ksk-header .doclap {
+    font-style: italic;
+}
+.ksk-header .mau-so {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.ksk-title {
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.ksk-form {
+    max-width: 900px;
+    margin: 0 auto;
+    border: 2px solid #000;
+    padding: 24px 32px 16px 32px;
+}
+.ksk-row {
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+}
+.ksk-photo {
+    width: 120px;
+    min-width: 120px;
+    height: 160px;
+    border: 1px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+.ksk-photo-label {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 4px;
+}
+.ksk-info {
+    flex: 1;
+}
+.ksk-info-row {
+    display: flex;
+    margin-bottom: 4px;
+}
+.ksk-info-label {
+    min-width: 140px;
+    font-weight: bold;
+}
+.ksk-info-value {
+    flex: 1;
+    border-bottom: 1px dotted #333;
+    min-height: 20px;
+    padding-left: 4px;
+}
+.ksk-note {
+    font-size: 12px;
+    margin: 8px 0 12px 0;
+}
+.ksk-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+}
+.ksk-table th, .ksk-table td {
+    border: 1px solid #000;
+    text-align: center;
+    padding: 4px 6px;
+}
+.ksk-table th {
+    background: #f8f8f8;
+    font-weight: bold;
+}
+.ksk-signature-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 32px;
+}
+.ksk-signature-box {
+    width: 40%;
+    text-align: center;
+}
+.ksk-signature-box small {
+    font-size: 12px;
+}
+.ls-cell-small {
+    font-size: 12px;
+    padding: 2px 4px;
+    line-height: 1.2;
+}
+.ls-doctor-cell {
+    font-size: 11px;
+    text-align: center;
+    padding: 2px 2px;
+    line-height: 1.2;
+    min-width: 80px;
+}
+.ls-specialty {
+    font-style: italic;
+    font-weight: normal;
+}
+.ls-label {
+    font-size: 12px;
+    font-style: normal;
+    color: #333;
+}
+.ksk-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    /* Page Header Responsive */
+    .flex.justify-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .flex.justify-between > div:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    /* Form Responsive */
+    .ksk-form {
+        max-width: 100%;
+        margin: 0 10px;
+        padding: 16px;
+        border-width: 1px;
+    }
+    
+    .ksk-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .ksk-photo {
+        width: 100px;
+        min-width: 100px;
+        height: 130px;
+        margin: 0 auto;
+    }
+    
+    .ksk-info-row {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .ksk-info-label {
+        min-width: auto;
+        font-size: 13px;
+    }
+    
+    .ksk-info-value {
+        min-height: 18px;
+        font-size: 13px;
+    }
+    
+    /* Table Responsive */
+    .ksk-table {
+        min-width: 600px;
+        font-size: 12px;
+    }
+    
+    .ksk-table th, .ksk-table td {
+        padding: 3px 4px;
+    }
+    
+    /* Signature Responsive */
+    .ksk-signature-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .ksk-signature-box {
+        width: 100%;
+    }
+    
+    /* Typography */
+    .ksk-title {
+        font-size: 16px;
+    }
+    
+    .ksk-header {
+        font-size: 13px;
+    }
+    
+    .ksk-note {
+        font-size: 11px;
+    }
+    
+    /* Clinical Exam Table */
+    .ls-cell-small {
+        font-size: 11px;
+        padding: 2px 3px;
+    }
+    
+    .ls-doctor-cell {
+        font-size: 10px;
+        min-width: 60px;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Extra small devices */
+    .ksk-form {
+        margin: 0 5px;
+        padding: 12px;
+    }
+    
+    .ksk-photo {
+        width: 80px;
+        height: 100px;
+        font-size: 11px;
+    }
+    
+    .ksk-info-label {
+        font-size: 12px;
+    }
+    
+    .ksk-info-value {
+        font-size: 12px;
+    }
+    
+    .ksk-table {
+        min-width: 500px;
+        font-size: 11px;
+    }
+    
+    .ksk-title {
+        font-size: 14px;
+    }
+    
+    .ksk-header {
+        font-size: 12px;
+    }
+}
+
+/* Print styles for A4 desktop layout */
+@media print {
+    /* Hide non-printable elements */
+    .no-print { display: none !important; }
+    
+    /* Reset body and general layout */
+    body { 
+        font-size: 12px !important; 
+        font-family: 'Times New Roman', Times, serif !important;
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+    }
+    
+    /* Reset form layout to desktop */
+    .ksk-form { 
+        border: none !important; 
+        padding: 24px 32px 16px 32px !important;
+        max-width: 900px !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+    }
+    
+    /* Reset row layout to desktop */
+    .ksk-row {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 32px !important;
+    }
+    
+    /* Reset photo to desktop size */
+    .ksk-photo {
+        width: 120px !important;
+        min-width: 120px !important;
+        height: 160px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    /* Reset info layout to desktop */
+    .ksk-info {
+        flex: 1 !important;
+    }
+    
+    .ksk-info-row {
+        display: flex !important;
+        margin-bottom: 4px !important;
+        flex-direction: row !important;
+        gap: 4px !important;
+    }
+    
+    .ksk-info-label {
+        min-width: 140px !important;
+        font-weight: bold !important;
+        font-size: 13px !important;
+    }
+    
+    .ksk-info-value {
+        flex: 1 !important;
+        border-bottom: 1px dotted #333 !important;
+        min-height: 20px !important;
+        padding-left: 4px !important;
+        font-size: 13px !important;
+    }
+    
+    /* Reset table layout */
+    .ksk-table-wrap {
+        overflow: visible !important;
+    }
+    
+    .ksk-table {
+        width: 100% !important;
+        min-width: auto !important;
+        font-size: 13px !important;
+        border-collapse: collapse !important;
+        margin: 12px 0 !important;
+    }
+    
+    .ksk-table th, .ksk-table td {
+        border: 1px solid #000 !important;
+        text-align: center !important;
+        padding: 4px 6px !important;
+    }
+    
+    /* Reset signature layout to desktop */
+    .ksk-signature-row {
+        display: flex !important;
+        justify-content: space-between !important;
+        margin-top: 32px !important;
+        flex-direction: row !important;
+        gap: 0 !important;
+    }
+    
+    .ksk-signature-box {
+        width: 40% !important;
+        text-align: center !important;
+    }
+    
+    /* Reset typography to desktop */
+    .ksk-title {
+        font-size: 18px !important;
+        text-align: center !important;
+        font-weight: bold !important;
+        text-transform: uppercase !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .ksk-header {
+        text-align: center !important;
+        margin-bottom: 10px !important;
+        font-size: 14px !important;
+    }
+    
+    .ksk-note {
+        font-size: 12px !important;
+        margin: 8px 0 12px 0 !important;
+    }
+    
+    /* Reset clinical exam table styles */
+    .ls-cell-small {
+        font-size: 12px !important;
+        padding: 2px 4px !important;
+        line-height: 1.2 !important;
+    }
+    
+    .ls-doctor-cell {
+        font-size: 11px !important;
+        text-align: center !important;
+        padding: 2px 2px !important;
+        line-height: 1.2 !important;
+        min-width: 80px !important;
+    }
+    
+    /* Ensure proper page breaks */
+    .ksk-form {
+        page-break-inside: avoid !important;
+    }
+    
+    /* Ensure proper margins for A4 */
+    @page {
+        size: A4;
+        margin: 1cm;
+    }
+    
+    /* Override Tailwind classes for print */
+    .print\:border-none { border: none !important; }
+    .print\:p-0 { padding: 0 !important; }
+} 

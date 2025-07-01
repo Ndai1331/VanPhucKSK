@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="Pages\ViPhamSanXuatKinhDoanhThuocBVTV\ViPhamSanXuatKinhDoanhThuocBVTV.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="postcss.config.js" />
   </ItemGroup>
 
@@ -28,10 +24,6 @@
     <Content Remove="package-lock.json" />
     <Content Remove="Package.json" />
     <Content Include="Pages\Folder\Folder.razor.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Pages\ViSinhVatGayHai\" />
   </ItemGroup>
 
   <!-- <ItemGroup>

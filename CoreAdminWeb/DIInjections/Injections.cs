@@ -17,6 +17,13 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<ISettingService, SettingService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IBaseGetService<SoKhamSucKhoeModel>, SoKhamSucKhoeService>();
+            services.AddScoped<IBaseGetService<KhamSucKhoeCanLamSanModel>, KhamSucKhoeCanLamSanService>();
+            services.AddScoped<IBaseGetService<KhamSucKhoeChuyenKhoaModel>, KhamSucKhoeChuyenKhoaService>();
+            services.AddScoped<IBaseGetService<KhamSucKhoeKetLuanModel>, KhamSucKhoeKetLuanService>();
+            services.AddScoped<IBaseGetService<KhamSucKhoeNgheNghiepModel>, KhamSucKhoeNgheNghiepService>();
+            services.AddScoped<IBaseGetService<KhamSucKhoeSanPhuKhoaModel>, KhamSucKhoeSanPhuKhoaService>();
+            services.AddScoped<IBaseGetService<KhamSucKhoeTheLucModel>, KhamSucKhoeTheLucService>();
+            services.AddScoped<IBaseGetService<KhamSucKhoeTienSuModel>, KhamSucKhoeTienSuService>();
             services.AddScoped<AlertService>();
         }
     }

@@ -76,12 +76,14 @@ namespace CoreAdminWeb.Model
 
 
         public string benh_tai_mui_hong { get; set; }
+        public string pl_tmh { get; set; }
         public string bs_tmh { get; set; }
         public string chu_ky_tmh { get; set; }      
 
         public string kq_rhm_ham_tren { get; set; }
         public string kq_rhm_ham_duoi { get; set; }
         public string benh_rhm { get; set; }      
+        public string pl_rhm { get; set; }      
         public string bs_rhm { get; set; }      
         public string chu_ky_rhm { get; set; }      
         public string bs_ket_luan { get; set; }      
