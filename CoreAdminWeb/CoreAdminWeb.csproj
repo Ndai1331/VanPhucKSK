@@ -16,9 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="Pages\LoaiHinhCanhTac\LoaiHinhCanhTac.razor" />
-    <AdditionalFiles Include="Pages\LoaiHinhSanXuat\LoaiHinhSanXuat.razor" />
-    <AdditionalFiles Include="Pages\QuanLyCoSoSanXuatPhanBon\QuanLyCoSoSanXuatPhanBon.razor" />
     <AdditionalFiles Include="Pages\ViPhamSanXuatKinhDoanhThuocBVTV\ViPhamSanXuatKinhDoanhThuocBVTV.razor" />
   </ItemGroup>
 

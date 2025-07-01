@@ -4,6 +4,7 @@
 @using CoreAdminWeb.Providers
 @using CoreAdminWeb.Shared.Base
 @using MudBlazor
+@using CoreAdminWeb.Model
 @layout CoreAdminWeb.Shared.MainLayout
 @inherits BlazorCoreBase
 @inject AuthenticationStateProvider AuthStateProvider
@@ -105,7 +106,7 @@
             </h5>
         </div>
         <div class="overflow-auto">
-            <MudTable Class="min-w-[640px] text-left w-full" Items="@medicalRecords" Hover="true" Breakpoint="Breakpoint.None" LoadingProgressColor="Color.Info">
+            <MudTable Class="min-w-[640px] text-left w-full" Items="@MainModels" Hover="true" Breakpoint="Breakpoint.None" LoadingProgressColor="Color.Info">
                 <HeaderContent>
                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày khám</MudTh>
@@ -116,11 +117,11 @@
                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Thao tác</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd DataLabel="STT">@(medicalRecords.IndexOf(context) + 1)</MudTd>
-                    <MudTd DataLabel="Ngày khám">@context.ExamDate.ToString("dd/MM/yyyy")</MudTd>
-                    <MudTd DataLabel="Loại khám">@context.ExamType</MudTd>
-                    <MudTd DataLabel="Bác sĩ khám">@context.DoctorName</MudTd>
-                    <MudTd DataLabel="Kết luận">@context.Conclusion</MudTd>
+                    <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
+                    <MudTd DataLabel="Ngày khám">@context.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
+                    <MudTd DataLabel="Loại khám">@context.loai_kham</MudTd>
+                    <MudTd DataLabel="Bác sĩ khám">@context.bac_si_kham</MudTd>
+                    <MudTd DataLabel="Kết luận">@context.ket_luan</MudTd>
                     <MudTd DataLabel="Trạng thái">
                         <span class="inline-flex items-center rounded shadow-sm text-xs justify-center px-2 py-1 @GetStatusBadgeClass(context.Status)">
                             @context.Status
@@ -139,6 +140,80 @@
                 </NoRecordsContent>
             </MudTable>
         </div>
+        
+        <div class="w-full grid grid-cols-1 pb-2">
+            <div class="flex items-center justify-between p-4">
+                <div class="flex items-center gap-2">
+                    <span>Hiển thị</span>
+                    <select class="form-select" @bind="PageSize" @bind:event="oninput" @onchange="async (e) => await OnPageSizeChanged(LoadMedicalRecords)">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span>mục</span>
+                </div>
+                <div class="flex items-center gap-2">
+
+                    <div>
+                        <ul class="inline-flex my-2 -space-x-px list-inside">
+                            <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-l-lg rtl:rounded-r-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await PreviousPage(LoadMedicalRecords)" disabled="@(Page <= 1)">Trước</MudLink></li>
+                            @{
+                                var startPage = Math.Max(1, Page - 1);
+                                var endPage = Math.Min(TotalPages, Page + 1);
+
+                                // Always show first page
+                                <li>
+                                    <a href="#"
+                                        class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
+                                        @onclick="async (e) => await SelectedPage(1, LoadMedicalRecords)">1</a>
+                                </li>
+
+                                // Show ellipsis if needed
+                                if (startPage > 2)
+                                {
+                                    <li><span class="px-3 py-2">...</span></li>
+                                }
+
+                                // Show pages around current page
+                                for (int i = startPage; i <= endPage; i++)
+                                {
+                                    if (i > 1 && i < TotalPages)
+                                    {   
+                                        var currentPage = i; // Local variable to avoid closure issues
+                                        <li>
+                                            <a href="#"
+                                                class="px-3 py-2 text-black  border border-black/10
+                                                hover:bg-purple hover:text-white dark:bg-transparent
+                                                dark:text-white dark:border-darkborder dark:hover:bg-purple
+                                                dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
+                                                @onclick="async (e) => await SelectedPage(currentPage, LoadMedicalRecords)">@i</a>
+                                        </li>
+                                    }
+                                }
+
+                                // Show ellipsis if needed
+                                if (endPage < TotalPages - 1)
+                                {
+                                    <li><span class="px-3 py-2">...</span></li>
+                                }
+
+                                // Always show last page if there is more than one page
+                                if (TotalPages > 1)
+                                {
+                                    <li>
+                                        <a href="#"
+                                            class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
+                                            @onclick="async (e) => await SelectedPage(TotalPages, LoadMedicalRecords)">@TotalPages</a>
+                                    </li>
+                                }
+                            }
+                            <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-r-lg rtl:rounded-l-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await NextPage(LoadMedicalRecords)" disabled="@(Page >= TotalPages)">Sau</MudLink></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Action Buttons -->
@@ -152,6 +227,7 @@
 @code {
     [Inject] AlertService AlertService { get; set; }
     [Inject] IUserService UserService { get; set; }
+    [Inject] IBaseService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; }
 
     // Patient Info
     private string PatientName = "Nguyễn Văn A";
@@ -164,7 +240,7 @@
     private string NextExamIn = "3 tháng";
     
     // Medical Records
-    private List<MedicalRecordModel> medicalRecords = new List<MedicalRecordModel>();
+    private List<SoKhamSucKhoeModel> MainModels = new List<SoKhamSucKhoeModel>();
 
     public class PatientInfoModel
     {
@@ -189,91 +265,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadPatientInfo();
         await LoadMedicalRecords();
         StateHasChanged();
     }
-
-    private async Task LoadPatientInfo()
-    {
-        try
-        {
-            PatientInfo = new PatientInfoModel
-            {
-                FullName = "Nguyễn Văn A",
-                PatientId = "BN001",
-                BirthDate = new DateTime(1990, 3, 15),
-                Gender = "Nam",
-                Address = "123 Đường ABC, Quận 1, TP.HCM",
-                Phone = "0901234567",
-                Company = "Công ty ABC"
-            };
-            
-            PatientName = PatientInfo.FullName;
-        }
-        catch (Exception ex)
-        {
-            AlertService.ShowAlert("Lỗi khi tải thông tin bệnh nhân: " + ex.Message, "danger");
-        }
-    }
-
     private async Task LoadMedicalRecords()
     {
         try
         {
-            medicalRecords = new List<MedicalRecordModel>
-            {
-                new MedicalRecordModel
-                {
-                    Id = 1,
-                    ExamDate = new DateTime(2024, 12, 15),
-                    ExamType = "Khám sức khỏe định kỳ",
-                    DoctorName = "BS. Trần Thị B",
-                    Conclusion = "Sức khỏe tốt",
-                    Status = "Hoàn thành"
-                },
-                new MedicalRecordModel
-                {
-                    Id = 2,
-                    ExamDate = new DateTime(2024, 12, 10),
-                    ExamType = "Khám sức khỏe lao động",
-                    DoctorName = "BS. Lê Văn C",
-                    Conclusion = "Đủ điều kiện lao động",
-                    Status = "Hoàn thành"
-                },
-                new MedicalRecordModel
-                {
-                    Id = 3,
-                    ExamDate = new DateTime(2024, 12, 5),
-                    ExamType = "Khám sức khỏe trước khi nhận việc",
-                    DoctorName = "BS. Phạm Thị D",
-                    Conclusion = "Đủ điều kiện",
-                    Status = "Hoàn thành"
-                },
-                new MedicalRecordModel
-                {
-                    Id = 4,
-                    ExamDate = new DateTime(2024, 12, 1),
-                    ExamType = "Khám sức khỏe tổng quát",
-                    DoctorName = "BS. Nguyễn Văn E",
-                    Conclusion = "Sức khỏe bình thường",
-                    Status = "Hoàn thành"
-                },
-                new MedicalRecordModel
-                {
-                    Id = 5,
-                    ExamDate = new DateTime(2024, 11, 25),
-                    ExamType = "Khám sức khỏe định kỳ",
-                    DoctorName = "BS. Hoàng Thị F",
-                    Conclusion = "Sức khỏe tốt",
-                    Status = "Hoàn thành"
-                }
-            };
+            BuildPaginationQuery(Page, PageSize, "ngay_kham");
+            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
+            BuilderQuery += $"&filter[_and][1][status][_eq]={Model.Base.Status.published.ToString()}";
+            BuilderQuery += $"&filter[_and][2][ma_benh_nhan][_eq]={CurrentUser?.ma_benh_nhan}";
 
-            TotalExams = medicalRecords.Count;
-            if (medicalRecords.Any())
+            var result = await SoKhamSucKhoeService.GetAllAsync(BuilderQuery);
+            if (result.IsSuccess)
             {
-                LastExamDate = medicalRecords.OrderByDescending(x => x.ExamDate).First().ExamDate.ToString("dd/MM/yyyy");
+                MainModels = result.Data ?? new List<SoKhamSucKhoeModel>();
+                if (result.Meta != null)
+                {
+                    TotalItems = result.Meta.filter_count ?? 0;
+                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                }
+            }
+            else
+            {
+                MainModels = new List<SoKhamSucKhoeModel>();
             }
         }
         catch (Exception ex)

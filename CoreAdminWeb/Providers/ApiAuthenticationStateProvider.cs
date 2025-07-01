@@ -81,6 +81,7 @@ namespace CoreAdminWeb.Providers
             NotifyAuthenticationStateChanged(authState);
         }
 
+
         public async Task MarkUserAsLoggedOut()
         {
             var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());

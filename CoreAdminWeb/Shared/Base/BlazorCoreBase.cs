@@ -49,6 +49,7 @@ namespace CoreAdminWeb.Shared.Base
         {
             await base.OnInitializedAsync();
             ResetPage();
+            CurrentUser = await GetCurrentUser();
         }
         public void ResetPage()
         {
@@ -88,6 +89,16 @@ namespace CoreAdminWeb.Shared.Base
         {
             return roleNames.Contains(CurrentUser?.role);
         }
+        protected async Task<UserModel?> GetCurrentUser()
+        {
+            var resUser = await UserService.GetCurrentUserAsync();
+            if (resUser.IsSuccess)
+            {
+                CurrentUser = resUser.Data;
+            }
+            return CurrentUser;
+        }
+
 
         public void BuildPaginationQuery(int page, int pageSize, string sort = "id", bool isAsc = false)
         {

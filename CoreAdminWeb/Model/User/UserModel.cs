@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using CoreAdminWeb.Enums;
 
 namespace CoreAdminWeb.Model.User
 {
@@ -21,6 +22,21 @@ namespace CoreAdminWeb.Model.User
 
         [JsonPropertyName("so_dien_thoai")]
         public string so_dien_thoai { get; set; }
+
+        [JsonPropertyName("ma_benh_nhan")]
+        public string ma_benh_nhan { get; set; }
+        [JsonPropertyName("gioi_tinh")]
+        public GioiTinh? gioi_tinh { get; set; }
+        [JsonPropertyName("ngay_sinh")]
+        public DateTime? ngay_sinh { get; set; }
+        [JsonPropertyName("so_dinh_danh")]
+        public string so_dinh_danh { get; set; }
+        [JsonPropertyName("ngay_cap")]
+        public DateTime? ngay_cap { get; set; }
+        [JsonPropertyName("noi_cap")]
+        public string noi_cap { get; set; }
+        [JsonPropertyName("dia_chi")]
+        public string dia_chi { get; set; }
 
         [JsonPropertyName("password")]
         public string password { get; set; }
