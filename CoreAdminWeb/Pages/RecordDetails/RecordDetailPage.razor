@@ -6,12 +6,8 @@
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Extensions
-
-@using MudBlazor
 @inherits BlazorCoreBase
-@inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
-@inject IJSRuntime JsRuntime
 
 <div class="flex justify-between items-center mb-6">
     <div>
@@ -25,14 +21,36 @@
         <button class="px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToList">
             <i class="ri-arrow-left-line me-1"></i>Quay lại danh sách
         </button>
-        <button class="px-4 py-2 bg-info text-white rounded hover:bg-info-dark transition-colors" @onclick="PrintRecord">
+        <button class="px-4 py-2 bg-info text-white rounded hover:bg-info-dark transition-colors" 
+                @onclick="PrintRecord" disabled="@isLoading">
             <i class="ri-printer-line me-1"></i>In
         </button>
-        <button class="px-4 py-2 bg-success text-white rounded hover:bg-success-dark transition-colors" @onclick="ExportPDF">
+        <button class="px-4 py-2 bg-success text-white rounded hover:bg-success-dark transition-colors" 
+                @onclick="ExportPDF" disabled="@isLoading">
             <i class="ri-file-pdf-line me-1"></i>Xuất PDF
         </button>
     </div>
 </div>
+
+@if (isLoading)
+{
+    <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
+    </div>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <strong class="font-bold">Lỗi!</strong>
+        <span class="block sm:inline"> @errorMessage</span>
+        <button class="float-right font-bold" @onclick="() => LoadDataAsync()">
+            <i class="ri-refresh-line me-1"></i>Thử lại
+        </button>
+    </div>
+}
+else
+{
 
 <!-- Medical Form Header -->
 <div class="ksk-header" style="margin-bottom:0;">
@@ -62,49 +80,49 @@
         <div class="ksk-info">
             <div class="ksk-info-row">
                 <div class="ksk-info-label">1. Họ và tên:</div>
-                <div class="ksk-info-value">@CurrentUser?.last_name @CurrentUser?.first_name</div>
+                <div class="ksk-info-value">@GetUserFullName()</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">2. Giới tính:</div>
-                <div class="ksk-info-value">@CurrentUser?.gioi_tinh.GetDescription()</div>
+                <div class="ksk-info-value">@(CurrentUser?.gioi_tinh?.GetDescription() ?? "")</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">3. Sinh ngày:</div>
-                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Day.ToString("00"))</div>
+                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Day.ToString("00") ?? "")</div>
                 <span style="margin: 0 4px;">tháng</span>
-                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Month.ToString("00"))</div>
+                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Month.ToString("00") ?? "")</div>
                 <span style="margin: 0 4px;">năm</span>
-                <div class="ksk-info-value">@CurrentUser?.ngay_sinh?.Year</div>
+                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Year.ToString() ?? "")</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">4. Số CCCD/CMND:</div>
-                <div class="ksk-info-value">@CurrentUser?.so_dinh_danh</div>
+                <div class="ksk-info-value">@GetSafeString(CurrentUser?.so_dinh_danh)</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">5. Cấp ngày:</div>
-                <div class="ksk-info-value">@CurrentUser?.ngay_cap</div>
+                <div class="ksk-info-value">@FormatDate(CurrentUser?.ngay_cap)</div>
                 <span style="margin: 0 4px;">tại</span>
-                <div class="ksk-info-value">@CurrentUser?.noi_cap</div>
+                <div class="ksk-info-value">@GetSafeString(CurrentUser?.noi_cap)</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">6. Chỗ ở hiện tại:</div>
-                <div class="ksk-info-value">@CurrentUser?.dia_chi</div>
+                <div class="ksk-info-value">@GetSafeString(CurrentUser?.dia_chi)</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">7. Số điện thoại:</div>
-                <div class="ksk-info-value">@CurrentUser?.so_dien_thoai</div>
+                <div class="ksk-info-value">@GetSafeString(CurrentUser?.so_dien_thoai)</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">8. Nghề nghiệp:</div>
-                <div class="ksk-info-value">@KhamSucKhoeNgheNghiepModel?.nghe_nghiep</div>
+                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeNgheNghiepModel?.nghe_nghiep)</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">9. Nơi công tác:</div>
-                <div class="ksk-info-value">@KhamSucKhoeNgheNghiepModel?.noi_cong_tac</div>
+                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeNgheNghiepModel?.noi_cong_tac)</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">10. Ngày vào làm:</div>
-                <div class="ksk-info-value">@KhamSucKhoeNgheNghiepModel?.ngay_vao_lam?.ToString("dd/MM/yyyy")</div>
+                <div class="ksk-info-value">@FormatDate(KhamSucKhoeNgheNghiepModel?.ngay_vao_lam)</div>
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">11. Nghề, công việc trước đây:</div>
@@ -120,7 +138,7 @@
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">13. Tiền sử bệnh, tật của gia đình:</div>
-                <div class="ksk-info-value">@KhamSucKhoeTienSuModel?.tien_su_gia_dinh</div>
+                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeTienSuModel?.tien_su_gia_dinh)</div>
             </div>
         </div>
     </div>
@@ -163,7 +181,7 @@
         <div class="ksk-signature-box">
             Người lao động xác nhận<br>
             <small>(Ký và ghi rõ họ, tên)</small><br><br><br>
-            <strong>@CurrentUser?.last_name @CurrentUser?.first_name</strong>
+            <strong>@GetUserFullName()</strong>
         </div>
         <div class="ksk-signature-box">
             ... ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year<br>
@@ -190,8 +208,8 @@
                     <div>- Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi: @KhamSucKhoeSanPhuKhoaModel?.tuoi_bat_dau_kinh</div>
                     <div>- Tính chất kinh nguyệt: @KhamSucKhoeSanPhuKhoaModel?.tinh_chat_kinh</div>
                     <div>Chu kỳ kinh: @KhamSucKhoeSanPhuKhoaModel?.chu_ky_kinh ngày, Lượng kinh: @KhamSucKhoeSanPhuKhoaModel?.luong_kinh ml</div>
-                    <div>Đau bụng kinh: @( KhamSucKhoeSanPhuKhoaModel?.dau_bung_kinh == true  ? "Có" : "Không")</div>
-                    <div>Đã lập gia đình: @(KhamSucKhoeSanPhuKhoaModel?.da_lap_gia_dinh == true ? "Có" : "Chưa")</div>
+                    <div>Đau bụng kinh: @GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.dau_bung_kinh)</div>
+                    <div>Đã lập gia đình: @GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.da_lap_gia_dinh, "Có", "Chưa")</div>
                     <div>PARA: @KhamSucKhoeSanPhuKhoaModel?.para</div>
                     <div>Số lần mổ sản, phụ khoa: @KhamSucKhoeSanPhuKhoaModel?.so_lan_mo_san_phu_khoa @(string.IsNullOrEmpty(KhamSucKhoeSanPhuKhoaModel?.mo_san_phu_khoa_ghi_ro) ? "/ Chưa" : $"Có {KhamSucKhoeSanPhuKhoaModel?.mo_san_phu_khoa_ghi_ro}")</div>
                     <div>Có áp dụng BPTT không: @(KhamSucKhoeSanPhuKhoaModel?.ap_dung_bptt == true ? $"Có {KhamSucKhoeSanPhuKhoaModel?.ap_dung_bptt}" : "Không")</div>
@@ -428,132 +446,243 @@
         </div>
     </div>
 </div>
-
+}
 
 @code {
+    #region Constants
+
+    private const string DEFAULT_PROFILE_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
+    private const string DATE_FORMAT = "dd/MM/yyyy";
+
+    #endregion
+
+    #region Parameters and Injection
+
     [Parameter] public string ma_luot_kham { get; set; } = "1";
     [Parameter] public string ma_benh_nhan { get; set; } = "1";
-    [Inject] AlertService AlertService { get; set; }
-    [Inject] IUserService UserService { get; set; }
-    [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; }
-    [Inject] IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService { get; set; }
-    [Inject] IBaseGetService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaService { get; set; }
-    [Inject] IBaseGetService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; }
-    [Inject] IBaseGetService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService { get; set; }
-    [Inject] IBaseGetService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaService { get; set; }
-    [Inject] IBaseGetService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; }
-    [Inject] IBaseGetService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; }
+    
+    [Inject] AlertService AlertService { get; set; } = null!;
+    [Inject] IUserService UserService { get; set; } = null!;
+    [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
+    [Inject] IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService { get; set; } = null!;
+    [Inject] IBaseGetService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaService { get; set; } = null!;
+    [Inject] IBaseGetService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; } = null!;
+    [Inject] IBaseGetService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService { get; set; } = null!;
+    [Inject] IBaseGetService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaService { get; set; } = null!;
+    [Inject] IBaseGetService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
+    [Inject] IBaseGetService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
 
+    #endregion
 
+    #region Private Fields
 
-    private SoKhamSucKhoeModel? SoKhamSucKhoeModel {set;get;} = new();
-    private KhamSucKhoeCanLamSanModel? KhamSucKhoeCanLamSanModel {set;get;} = new();
-    private KhamSucKhoeChuyenKhoaModel? KhamSucKhoeChuyenKhoaModel {set;get;} = new();
-    private KhamSucKhoeKetLuanModel? KhamSucKhoeKetLuanModel {set;get;} = new();
-    private KhamSucKhoeNgheNghiepModel? KhamSucKhoeNgheNghiepModel {set;get;} = new();
-    private KhamSucKhoeSanPhuKhoaModel? KhamSucKhoeSanPhuKhoaModel {set;get;} = new();
-    private KhamSucKhoeTheLucModel? KhamSucKhoeTheLucModel {set;get;} = new();
-    private KhamSucKhoeTienSuModel? KhamSucKhoeTienSuModel {set;get;} = new();
+    // Medical record data models
+    private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
+    private KhamSucKhoeCanLamSanModel? KhamSucKhoeCanLamSanModel { get; set; }
+    private KhamSucKhoeChuyenKhoaModel? KhamSucKhoeChuyenKhoaModel { get; set; }
+    private KhamSucKhoeKetLuanModel? KhamSucKhoeKetLuanModel { get; set; }
+    private KhamSucKhoeNgheNghiepModel? KhamSucKhoeNgheNghiepModel { get; set; }
+    private KhamSucKhoeSanPhuKhoaModel? KhamSucKhoeSanPhuKhoaModel { get; set; }
+    private KhamSucKhoeTheLucModel? KhamSucKhoeTheLucModel { get; set; }
+    private KhamSucKhoeTienSuModel? KhamSucKhoeTienSuModel { get; set; }
 
-    private string profileImageUrl = "";
+    private UserModel? CurrentUser { get; set; }
+    private string profileImageUrl = string.Empty;
+    private bool isLoading = true;
+    private string? errorMessage;
 
-    private UserModel? CurrentUser {set;get;}
+    #endregion
+
+    #region Lifecycle Methods
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        await LoadDataAsync();
     }
-    
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+
+    #endregion
+
+    #region Data Loading Methods
+
+
+    /// <summary>
+    /// Load all medical record data and user information asynchronously
+    /// </summary>
+    private async Task LoadDataAsync()
     {
-        if (firstRender)
+        try
         {
-            var resUser = await UserService.GetCurrentUserAsync();
-            if (resUser.IsSuccess)
-            {
-                CurrentUser = resUser.Data;
-            }
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            // Build query for medical record filter
+            var query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+
+            // Load user data and medical records in parallel for better performance
+            var userTask = LoadUserDataAsync();
+            var medicalDataTask = LoadMedicalDataAsync(query);
+
+            await Task.WhenAll(userTask, medicalDataTask);
+
+            // Set profile image placeholder
+            SetProfileImagePlaceholder();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+            AlertService?.ShowAlert(errorMessage, "danger");
+        }
+        finally
+        {
+            isLoading = false;
             StateHasChanged();
         }
     }
 
-
-    private async Task LoadRecordData()
+    /// <summary>
+    /// Load user data
+    /// </summary>
+    private async Task LoadUserDataAsync()
     {
-        try
+        var userResult = await UserService.GetCurrentUserAsync();
+        if (userResult?.IsSuccess == true)
         {
-            BuilderQuery += $"&filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
-            var resultSoKhamSucKhoe = await SoKhamSucKhoeService.GetAllAsync(BuilderQuery);
-            if (resultSoKhamSucKhoe.IsSuccess)
-            {
-                SoKhamSucKhoeModel = resultSoKhamSucKhoe.Data.FirstOrDefault();
-            }
-
-            var resultKhamSucKhoeCanLamSan = await KhamSucKhoeCanLamSanService.GetAllAsync(BuilderQuery);
-            if (resultKhamSucKhoeCanLamSan.IsSuccess)
-            {
-                KhamSucKhoeCanLamSanModel = resultKhamSucKhoeCanLamSan.Data.FirstOrDefault();
-            }
-
-            var resultKhamSucKhoeChuyenKhoa = await KhamSucKhoeChuyenKhoaService.GetAllAsync(BuilderQuery);
-            if (resultKhamSucKhoeChuyenKhoa.IsSuccess)
-            {
-                KhamSucKhoeChuyenKhoaModel = resultKhamSucKhoeChuyenKhoa.Data.FirstOrDefault();
-            }
-
-            var resultKhamSucKhoeKetLuan = await KhamSucKhoeKetLuanService.GetAllAsync(BuilderQuery);
-            if (resultKhamSucKhoeKetLuan.IsSuccess)
-            {
-                KhamSucKhoeKetLuanModel = resultKhamSucKhoeKetLuan.Data.FirstOrDefault();
-            }
-
-            var resultKhamSucKhoeNgheNghiep = await KhamSucKhoeNgheNghiepService.GetAllAsync(BuilderQuery);
-            if (resultKhamSucKhoeNgheNghiep.IsSuccess)
-            {
-                KhamSucKhoeNgheNghiepModel = resultKhamSucKhoeNgheNghiep.Data.FirstOrDefault();
-            }
-
-            var resultKhamSucKhoeSanPhuKhoa = await KhamSucKhoeSanPhuKhoaService.GetAllAsync(BuilderQuery);
-            if (resultKhamSucKhoeSanPhuKhoa.IsSuccess)
-            {
-                KhamSucKhoeSanPhuKhoaModel = resultKhamSucKhoeSanPhuKhoa.Data.FirstOrDefault();
-            }
-
-            var resultKhamSucKhoeTheLuc = await KhamSucKhoeTheLucService.GetAllAsync(BuilderQuery);
-            if (resultKhamSucKhoeTheLuc.IsSuccess)
-            {
-                KhamSucKhoeTheLucModel = resultKhamSucKhoeTheLuc.Data.FirstOrDefault();
-            }
-
-            var resultKhamSucKhoeTienSu = await KhamSucKhoeTienSuService.GetAllAsync(BuilderQuery);
-            if (resultKhamSucKhoeTienSu.IsSuccess)
-            {
-                KhamSucKhoeTienSuModel = resultKhamSucKhoeTienSu.Data.FirstOrDefault();
-            }
-            
-
-
-            // Set profile image placeholder
-            profileImageUrl = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
-        }
-        catch (Exception ex)
-        {
-            AlertService.ShowAlert("Lỗi khi tải dữ liệu: " + ex.Message, "danger");
+            CurrentUser = userResult.Data;
         }
     }
 
+    /// <summary>
+    /// Load all medical record data in parallel
+    /// </summary>
+    private async Task LoadMedicalDataAsync(string query)
+    {
+        // Execute all medical data API calls in parallel for better performance
+        var tasks = new[]
+        {
+            LoadSingleRecordAsync<SoKhamSucKhoeModel>(SoKhamSucKhoeService, query, r => SoKhamSucKhoeModel = r),
+            LoadSingleRecordAsync<KhamSucKhoeCanLamSanModel>(KhamSucKhoeCanLamSanService, query, r => KhamSucKhoeCanLamSanModel = r),
+            LoadSingleRecordAsync<KhamSucKhoeChuyenKhoaModel>(KhamSucKhoeChuyenKhoaService, query, r => KhamSucKhoeChuyenKhoaModel = r),
+            LoadSingleRecordAsync<KhamSucKhoeKetLuanModel>(KhamSucKhoeKetLuanService, query, r => KhamSucKhoeKetLuanModel = r),
+            LoadSingleRecordAsync<KhamSucKhoeNgheNghiepModel>(KhamSucKhoeNgheNghiepService, query, r => KhamSucKhoeNgheNghiepModel = r),
+            LoadSingleRecordAsync<KhamSucKhoeSanPhuKhoaModel>(KhamSucKhoeSanPhuKhoaService, query, r => KhamSucKhoeSanPhuKhoaModel = r),
+            LoadSingleRecordAsync<KhamSucKhoeTheLucModel>(KhamSucKhoeTheLucService, query, r => KhamSucKhoeTheLucModel = r),
+            LoadSingleRecordAsync<KhamSucKhoeTienSuModel>(KhamSucKhoeTienSuService, query, r => KhamSucKhoeTienSuModel = r)
+        };
+
+        await Task.WhenAll(tasks);
+    }
+
+    /// <summary>
+    /// Generic method to load single record type with proper type safety
+    /// </summary>
+    private async Task LoadSingleRecordAsync<T>(IBaseGetService<T> service, string query, Action<T?> setResult) where T : class
+    {
+        try
+        {
+            var result = await service.GetAllAsync(query);
+            if (result?.IsSuccess == true && result.Data != null)
+            {
+                setResult(result.Data.FirstOrDefault());
+            }
+            else
+            {
+                setResult(null);
+            }
+        }
+        catch
+        {
+            setResult(null);
+        }
+    }
+
+    /// <summary>
+    /// Set profile image placeholder
+    /// </summary>
+    private void SetProfileImagePlaceholder()
+    {
+        if (string.IsNullOrEmpty(profileImageUrl))
+        {
+            profileImageUrl = DEFAULT_PROFILE_IMAGE;
+        }
+    }
+
+    #endregion
+
+    #region UI Event Handlers
+
     private async Task PrintRecord()
     {
-        await JsRuntime.InvokeVoidAsync("window.print");
+        if (!isLoading)
+        {
+            await JsRuntime.InvokeVoidAsync("window.print");
+        }
     }
 
     private async Task ExportPDF()
     {
-        await JsRuntime.InvokeVoidAsync("alert", "Tính năng xuất PDF sẽ được phát triển trong phiên bản tiếp theo!");
+        if (!isLoading)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", "Tính năng xuất PDF sẽ được phát triển trong phiên bản tiếp theo!");
+        }
     }
 
     private void BackToList()
     {
         Navigation.NavigateTo("/");
     }
+
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Safe access to user full name
+    /// </summary>
+    private string GetUserFullName() => 
+        CurrentUser != null ? $"{CurrentUser.last_name} {CurrentUser.first_name}".Trim() : string.Empty;
+
+    /// <summary>
+    /// Safe access to formatted date
+    /// </summary>
+    private string FormatDate(DateTime? date, string format = DATE_FORMAT) => 
+        date?.ToString(format) ?? string.Empty;
+
+    /// <summary>
+    /// Safe access to formatted date from string or DateTime
+    /// </summary>
+    private string FormatDate(object? dateValue, string format = DATE_FORMAT)
+    {
+        if (dateValue == null) return string.Empty;
+
+        if (dateValue is DateTime dateTime)
+        {
+            return dateTime.ToString(format);
+        }
+
+        if (dateValue is string dateString && !string.IsNullOrEmpty(dateString))
+        {
+            if (DateTime.TryParse(dateString, out var parsedDate))
+            {
+                return parsedDate.ToString(format);
+            }
+            return dateString; // Return original string if can't parse
+        }
+
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// Safe access to boolean display
+    /// </summary>
+    private string GetBooleanDisplay(bool? value, string trueText = "Có", string falseText = "Không") => 
+        value.HasValue ? (value.Value ? trueText : falseText) : string.Empty;
+
+    /// <summary>
+    /// Safe access to string with default empty
+    /// </summary>
+    private string GetSafeString(string? value) => value ?? string.Empty;
+
+    #endregion
 }
