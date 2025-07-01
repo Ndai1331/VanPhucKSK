@@ -3,6 +3,8 @@ using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.Settings;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Providers;
+using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Model;
 
 namespace CoreAdminWeb.DIInjections
 {
@@ -14,6 +16,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISettingService, SettingService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IBaseGetService<SoKhamSucKhoeModel>, SoKhamSucKhoeService>();
             services.AddScoped<AlertService>();
         }
     }

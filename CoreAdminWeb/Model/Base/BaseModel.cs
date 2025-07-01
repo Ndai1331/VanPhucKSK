@@ -6,9 +6,9 @@ namespace CoreAdminWeb.Model.Base
 {
     public enum Status
     {
-        [Description("Đang hoạt động")]
+        [Description("Bản nháp")]
         draft,
-        [Description("Ngưng hoạt động")]
+        [Description("Chính thức")]
         published,
         [Description("Đã xóa")]
         removed

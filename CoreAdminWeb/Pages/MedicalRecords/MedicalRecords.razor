@@ -1,10 +1,11 @@
 @page "/"
 @using CoreAdminWeb.Services
 @using CoreAdminWeb.Services.Users
-@using CoreAdminWeb.Providers
 @using CoreAdminWeb.Shared.Base
-@using MudBlazor
 @using CoreAdminWeb.Model
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Services.BaseServices
 @layout CoreAdminWeb.Shared.MainLayout
 @inherits BlazorCoreBase
 @inject AuthenticationStateProvider AuthStateProvider
@@ -37,28 +38,28 @@
         <div class="p-5 rounded shadow-sm bg-purple text-white">
             <div class="text-center">
                 <i class="fas fa-file-medical fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1">@TotalExams</h4>
+                <h4 class="text-2xl font-semibold mb-1">@TotalItems</h4>
                 <p class="mb-0">Tổng số lần khám</p>
             </div>
         </div>
         <div class="p-5 rounded shadow-sm bg-success text-white">
             <div class="text-center">
                 <i class="fas fa-calendar-check fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1">@LastExamDate</h4>
+                <h4 class="text-2xl font-semibold mb-1"></h4>
                 <p class="mb-0">Lần khám gần nhất</p>
             </div>
         </div>
         <div class="p-5 rounded shadow-sm bg-info text-white">
             <div class="text-center">
                 <i class="fas fa-heartbeat fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1">@HealthStatus</h4>
+                <h4 class="text-2xl font-semibold mb-1">Tốt</h4>
                 <p class="mb-0">Tình trạng sức khỏe</p>
             </div>
         </div>
         <div class="p-5 rounded shadow-sm bg-warning text-white">
             <div class="text-center">
                 <i class="fas fa-clock fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1">@NextExamIn</h4>
+                <h4 class="text-2xl font-semibold mb-1"></h4>
                 <p class="mb-0">Đến lần khám tiếp theo</p>
             </div>
         </div>
@@ -73,27 +74,27 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="md:col-span-1">
-                <strong>Họ và tên:</strong> <span>@PatientInfo.FullName</span>
+                <strong>Họ và tên:</strong> <span>@CurrentUser?.last_name @CurrentUser?.first_name</span>
             </div>
             <div class="md:col-span-1">
-                <strong>Mã BN:</strong> <span>@PatientInfo.PatientId</span>
+                <strong>Mã BN:</strong> <span>@CurrentUser?.ma_benh_nhan</span>
             </div>
             <div class="md:col-span-1">
-                <strong>Ngày sinh:</strong> <span>@PatientInfo.BirthDate?.ToString("dd/MM/yyyy")</span>
+                <strong>Ngày sinh:</strong> <span>@CurrentUser?.ngay_sinh?.ToString("dd/MM/yyyy")</span>
             </div>
             <div class="md:col-span-1">
-                <strong>Giới tính:</strong> <span>@PatientInfo.Gender</span>
+                <strong>Giới tính:</strong> <span>@CurrentUser?.gioi_tinh?.GetDescription()</span>
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
             <div class="md:col-span-2">
-                <strong>Địa chỉ:</strong> <span>@PatientInfo.Address</span>
+                <strong>Địa chỉ:</strong> <span>@CurrentUser?.dia_chi</span>
             </div>
             <div class="md:col-span-1"> 
-                <strong>SĐT:</strong> <span>@PatientInfo.Phone</span>
+                <strong>SĐT:</strong> <span>@CurrentUser?.so_dien_thoai</span>
             </div>
             <div class="md:col-span-1">
-                <strong>Công ty:</strong> <span>@PatientInfo.Company</span>
+                <strong>Công ty:</strong> <span></span>
             </div>
         </div>
     </div>
@@ -110,25 +111,25 @@
                 <HeaderContent>
                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày khám</MudTh>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Loại khám</MudTh>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Bác sĩ khám</MudTh>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Kết luận</MudTh>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Lượt khám</MudTh>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày lập sổ</MudTh>
+                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Người lập</MudTh>
                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Trạng thái</MudTh>
                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Thao tác</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
                     <MudTd DataLabel="Ngày khám">@context.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
-                    <MudTd DataLabel="Loại khám">@context.loai_kham</MudTd>
-                    <MudTd DataLabel="Bác sĩ khám">@context.bac_si_kham</MudTd>
-                    <MudTd DataLabel="Kết luận">@context.ket_luan</MudTd>
+                    <MudTd DataLabel="Lượt khám">@context.ma_luot_kham</MudTd>
+                    <MudTd DataLabel="Ngày lập sổ">@context.ngay_lap_so?.ToString("dd/MM/yyyy")</MudTd>
+                    <MudTd DataLabel="Người lập">@context.nguoi_lap</MudTd>
                     <MudTd DataLabel="Trạng thái">
-                        <span class="inline-flex items-center rounded shadow-sm text-xs justify-center px-2 py-1 @GetStatusBadgeClass(context.Status)">
-                            @context.Status
+                        <span class="inline-flex items-center rounded shadow-sm text-xs justify-center px-2 py-1 @GetStatusBadgeClass(context.status.ToString())">
+                            @context.status.GetDescription()
                         </span>
                     </MudTd>
                     <MudTd DataLabel="Thao tác">
-                        <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context.Id))">
+                        <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context.id))">
                             <i class="ri-eye-line me-1"></i>Xem chi tiết
                         </button>
                     </MudTd>
@@ -213,7 +214,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> 
     </div>
 
     <!-- Action Buttons -->
@@ -227,46 +228,29 @@
 @code {
     [Inject] AlertService AlertService { get; set; }
     [Inject] IUserService UserService { get; set; }
-    [Inject] IBaseService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; }
-
-    // Patient Info
-    private string PatientName = "Nguyễn Văn A";
-    private PatientInfoModel PatientInfo = new PatientInfoModel();
-    
-    // Dashboard Statistics
-    private int TotalExams = 5;
-    private string LastExamDate = "15/12/2024";
-    private string HealthStatus = "Tốt";
-    private string NextExamIn = "3 tháng";
-    
+    [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; }
+    private UserModel? CurrentUser {set;
+        get;
+    }
     // Medical Records
     private List<SoKhamSucKhoeModel> MainModels = new List<SoKhamSucKhoeModel>();
-
-    public class PatientInfoModel
-    {
-        public string FullName { get; set; } = "Nguyễn Văn A";
-        public string PatientId { get; set; } = "BN001";
-        public DateTime? BirthDate { get; set; } = new DateTime(1990, 3, 15);
-        public string Gender { get; set; } = "Nam";
-        public string Address { get; set; } = "123 Đường ABC, Quận 1, TP.HCM";
-        public string Phone { get; set; } = "0901234567";
-        public string Company { get; set; } = "Công ty ABC";
-    }
-
-    public class MedicalRecordModel
-    {
-        public int Id { get; set; }
-        public DateTime ExamDate { get; set; }
-        public string ExamType { get; set; } = string.Empty;
-        public string DoctorName { get; set; } = string.Empty;
-        public string Conclusion { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        await LoadMedicalRecords();
-        StateHasChanged();
+        await base.OnInitializedAsync();
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var resUser = await UserService.GetCurrentUserAsync();
+            if (resUser.IsSuccess)
+            {
+                CurrentUser = resUser.Data;
+            }
+            await LoadMedicalRecords();
+            StateHasChanged();
+        }
     }
     private async Task LoadMedicalRecords()
     {
@@ -274,9 +258,8 @@
         {
             BuildPaginationQuery(Page, PageSize, "ngay_kham");
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            BuilderQuery += $"&filter[_and][1][status][_eq]={Model.Base.Status.published.ToString()}";
-            BuilderQuery += $"&filter[_and][2][ma_benh_nhan][_eq]={CurrentUser?.ma_benh_nhan}";
-
+            @* BuilderQuery += $"&filter[_and][1][status][_eq]={Model.Base.Status.published.ToString()}"; *@
+            BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser?.ma_benh_nhan}";
             var result = await SoKhamSucKhoeService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
             {
@@ -302,9 +285,9 @@
     {
         return status switch
         {
-            "Hoàn thành" => "bg-green-500 text-white",
-            "Đang xử lý" => "bg-yellow-500 text-black",
-            "Hủy bỏ" => "bg-red-500 text-white",
+            "published" => "bg-success text-white",
+            "draft" => "bg-warning text-white",
+            "deleted" => "bg-danger text-white",
             _ => "bg-gray-500 text-white"
         };
     }
@@ -322,32 +305,5 @@
     private async Task ExportAllPDF()
     {
         await JsRuntime.InvokeVoidAsync("alert", "Tính năng xuất PDF tất cả hồ sơ sẽ được phát triển trong phiên bản tiếp theo!");
-    }
-
-    private void ShowProfile()
-    {
-        Navigation.NavigateTo("/profile");
-    }
-
-    private async Task Logout()
-    {
-        try
-        {
-            var refreshToken = UserService.GetRefreshTokenAsync();
-            if (!string.IsNullOrEmpty(refreshToken))
-            {
-                await UserService.LogoutAsync(refreshToken);
-            }
-            
-            await JsRuntime.InvokeVoidAsync("localStorage.clear");
-            
-            AlertService.ShowAlert("Đăng xuất thành công!", "success");
-            Navigation.NavigateTo("/signin", true);
-        }
-        catch (Exception ex)
-        {
-            AlertService.ShowAlert("Lỗi khi đăng xuất: " + ex.Message, "danger");
-            Navigation.NavigateTo("/signin", true);
-        }
     }
 } 

@@ -16,8 +16,6 @@ namespace CoreAdminWeb.Shared.Base
         [Inject]
         protected AuthenticationStateProvider AuthStateProvider { get; set; }
 
-        [Inject]
-        protected IUserService UserService { get; set; }
 
         [Inject]
         protected NavigationManager? NavigationManager { get; set; }
@@ -28,7 +26,6 @@ namespace CoreAdminWeb.Shared.Base
         [Inject]
         protected IJSRuntime JsRuntime { get; set; }
 
-        protected UserModel? CurrentUser { get; private set; }
         protected bool IsAuthenticated { get; private set; }
         public bool IsLoading { get; set; } = false;
 
@@ -49,7 +46,6 @@ namespace CoreAdminWeb.Shared.Base
         {
             await base.OnInitializedAsync();
             ResetPage();
-            CurrentUser = await GetCurrentUser();
         }
         public void ResetPage()
         {
@@ -80,24 +76,7 @@ namespace CoreAdminWeb.Shared.Base
             }
         }
 
-        protected bool HasRole(string roleName)
-        {
-            return CurrentUser?.role == roleName;
-        }
-
-        protected bool HasAnyRole(params string[] roleNames)
-        {
-            return roleNames.Contains(CurrentUser?.role);
-        }
-        protected async Task<UserModel?> GetCurrentUser()
-        {
-            var resUser = await UserService.GetCurrentUserAsync();
-            if (resUser.IsSuccess)
-            {
-                CurrentUser = resUser.Data;
-            }
-            return CurrentUser;
-        }
+        
 
 
         public void BuildPaginationQuery(int page, int pageSize, string sort = "id", bool isAsc = false)
