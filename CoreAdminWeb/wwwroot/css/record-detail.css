@@ -353,6 +353,7 @@ body {
     .ksk-signature-box {
         width: 40% !important;
         text-align: center !important;
+        border: none !important;
     }
     
     /* Reset typography to desktop */

@@ -3,8 +3,11 @@ window.printMedicalForm = function() {
     const printContent = document.getElementById('medical-form-content');
     if (!printContent) {
         alert('Không tìm thấy nội dung để in');
+        console.log('Element not found: medical-form-content');
         return;
     }
+    
+    console.log('Found medical form content:', printContent);
     
     // Tạo window mới để in
     const printWindow = window.open('', '_blank', 'width=800,height=600');
@@ -13,54 +16,147 @@ window.printMedicalForm = function() {
         return;
     }
     
-    // Lấy tất cả CSS styles từ trang hiện tại
-    const styles = Array.from(document.styleSheets)
-        .map(styleSheet => {
-            try {
-                return Array.from(styleSheet.cssRules)
-                    .map(rule => rule.cssText)
-                    .join('');
-            } catch (e) {
-                console.log('Không thể truy cập CSS rule:', e);
-                return '';
-            }
-        })
-        .join('');
-    
-    // CSS bổ sung cho print
+    // CSS đơn giản cho print - không lấy từ stylesheet để tránh lỗi
     const printStyles = `
         body { 
-            margin: 0; 
-            padding: 10px; 
+            margin: 20px; 
+            padding: 0; 
             font-family: 'Times New Roman', serif;
             font-size: 14px;
             line-height: 1.4;
             color: #000;
+            background: #fff;
         }
         @page {
             size: A4;
             margin: 1cm;
         }
+        .ksk-header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .ksk-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
         .ksk-form {
-            page-break-inside: avoid;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .ksk-row {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .ksk-photo {
+            width: 120px;
+            height: 160px;
+            border: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .ksk-info {
+            flex: 1;
+        }
+        .ksk-info-row {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .ksk-info-label {
+            font-weight: bold;
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+        .ksk-info-value {
+            border-bottom: 1px solid #000;
+            min-width: 100px;
+            padding: 2px 4px;
+            margin-right: 4px;
+        }
+        .ksk-note {
+            font-style: italic;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #000;
+        }
+        .ksk-table-wrap {
+            margin: 20px 0;
         }
         .ksk-table {
-            page-break-inside: avoid;
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+        }
+        .ksk-table th,
+        .ksk-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .ksk-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        .ls-specialty {
+            text-align: left;
+            font-weight: bold;
+        }
+        .ls-label {
+            text-align: right;
+            padding-right: 10px;
+        }
+        .ls-cell-small {
+            text-align: left;
+            padding: 6px;
+        }
+        .ls-doctor-cell {
+            text-align: center;
+            min-width: 100px;
         }
         .ksk-signature-row {
-            page-break-inside: avoid;
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+        .ksk-signature-box {
+            text-align: center;
+            width: 45%;
+            border: none;
+            padding: 10px;
+            min-height: 100px;
+        }
+        .font-bold {
+            font-weight: bold;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mb-2, .mb-4, .mb-6 {
+            margin-bottom: 8px;
+        }
+        .ml-4 {
+            margin-left: 16px;
+        }
+        .text-sm {
+            font-size: 12px;
         }
     `;
     
     // Tạo HTML cho window in
-    printWindow.document.write(`
+    const htmlContent = `
         <!DOCTYPE html>
         <html>
         <head>
             <title>Sổ Khám Sức Khỏe</title>
             <meta charset="utf-8">
             <style>
-                ${styles}
                 ${printStyles}
             </style>
         </head>
@@ -68,15 +164,20 @@ window.printMedicalForm = function() {
             ${printContent.innerHTML}
         </body>
         </html>
-    `);
+    `;
     
+    console.log('Print HTML content length:', htmlContent.length);
+    
+    printWindow.document.write(htmlContent);
     printWindow.document.close();
     
     // In sau khi load xong
     printWindow.onload = function() {
         printWindow.focus();
-        printWindow.print();
-        printWindow.close();
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
     };
 };
 
