@@ -128,12 +128,6 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    /* Page Header Responsive */
-    .flex.justify-between {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
     .flex.justify-between > div:last-child {
         display: flex;
         flex-wrap: wrap;
