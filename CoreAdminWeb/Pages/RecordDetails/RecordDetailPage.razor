@@ -474,7 +474,6 @@ else
     [Inject] IBaseGetService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
     [Inject] IBaseGetService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
     [Inject] IPdfService PdfService { get; set; } = null!;
-    [Inject] IHtmlRenderService HtmlRenderService { get; set; } = null!;
     [Inject] IJSRuntime JsRuntime { get; set; } = null!;
 
     #endregion
@@ -649,13 +648,38 @@ else
             isLoading = true;
             StateHasChanged();
 
-            // Create PDF model from current data
-            var pdfModel = CreatePdfModel();
+            Console.WriteLine("=== Debug ExportPDF - Bắt đầu ===");
+            Console.WriteLine($"CurrentUser: {CurrentUser?.first_name} {CurrentUser?.last_name}");
 
-            // Generate HTML content
-            var htmlContent = HtmlRenderService.RenderMedicalRecordToPdf(pdfModel);
+            // Lấy HTML content từ JavaScript - giống như chức năng in
+            Console.WriteLine("Step 1: Đang lấy HTML từ JavaScript...");
+            var htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml");
+            
+            Console.WriteLine($"Step 2: HTML content length: {htmlContent?.Length ?? 0}");
+            
+            if (string.IsNullOrEmpty(htmlContent))
+            {
+                Console.WriteLine("ERROR: HTML content is null or empty!");
+                AlertService?.ShowAlert("Không thể lấy nội dung để xuất PDF - HTML content empty", "danger");
+                return;
+            }
+
+            // Log HTML content details for debugging
+            var htmlPreview = htmlContent.Length > 500 ? htmlContent.Substring(0, 500) + "..." : htmlContent;
+            Console.WriteLine($"HTML preview (first 500 chars): {htmlPreview}");
+            
+            // Check for potential problematic content
+            var hasImages = htmlContent.Contains("<img");
+            var hasSvg = htmlContent.Contains("<svg");
+            var hasLargeTable = htmlContent.Contains("ksk-table");
+            Console.WriteLine($"HTML analysis: Images={hasImages}, SVG={hasSvg}, LargeTable={hasLargeTable}");
+            
+            // Log file size in different units
+            var sizeKB = htmlContent.Length / 1024.0;
+            Console.WriteLine($"HTML size: {htmlContent.Length} chars = {sizeKB:F2} KB");
 
             // Configure PDF settings
+            Console.WriteLine("Step 3: Cấu hình PDF settings...");
             var pdfSettings = new PdfSettings
             {
                 FileName = $"So_KSK_{CurrentUser.last_name}_{CurrentUser.first_name}_{DateTime.Now:yyyyMMdd}.pdf",
@@ -666,26 +690,46 @@ else
                 MarginLeft = 10,
                 MarginRight = 10
             };
+            Console.WriteLine($"PDF filename: {pdfSettings.FileName}");
 
-            // Generate PDF
-            var pdfBytes = PdfService.GeneratePdfFromHtml(htmlContent, pdfSettings);
+            // Generate PDF từ HTML content lấy từ client
+            Console.WriteLine("Step 4: Đang tạo PDF với PuppeteerSharp...");
+            
+            byte[] pdfBytes;
+            
+            pdfBytes = PdfService.GeneratePdfFromHtml(htmlContent, pdfSettings);
 
             // Convert to base64 for download
+            Console.WriteLine("Step 6: Chuyển đổi PDF sang base64...");
             var base64 = Convert.ToBase64String(pdfBytes);
             var dataUrl = $"data:application/pdf;base64,{base64}";
+            Console.WriteLine($"Base64 length: {base64.Length}");
 
             // Trigger download via JavaScript
+            Console.WriteLine("Step 7: Trigger download...");
             await JsRuntime.InvokeVoidAsync("downloadFile", dataUrl, pdfSettings.FileName);
 
+            Console.WriteLine("Step 8: Hoàn thành thành công!");
             AlertService?.ShowAlert("Xuất PDF thành công!", "success");
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"=== ERROR in ExportPDF ===");
+            Console.WriteLine($"Error type: {ex.GetType().Name}");
+            Console.WriteLine($"Error message: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+            }
+            
             var errorMsg = $"Lỗi khi xuất PDF: {ex.Message}";
             AlertService?.ShowAlert(errorMsg, "danger");
         }
         finally
         {
+            Console.WriteLine("=== Debug ExportPDF - Kết thúc ===");
             isLoading = false;
             StateHasChanged();
         }
@@ -748,76 +792,8 @@ else
     private string GetSafeString(string? value) => value ?? string.Empty;
 
     /// <summary>
-    /// Create PDF model from current medical record data
+    /// Create simplified HTML content for large document fallback
     /// </summary>
-    private MedicalRecordPdfModel CreatePdfModel()
-    {
-        return new MedicalRecordPdfModel
-        {
-            PatientName = GetUserFullName(),
-            Gender = CurrentUser?.gioi_tinh?.GetDescription() ?? "",
-            BirthDate = FormatDate(CurrentUser?.ngay_sinh),
-            IdNumber = GetSafeString(CurrentUser?.so_dinh_danh),
-            IssuedDate = FormatDate(CurrentUser?.ngay_cap),
-            IssuedPlace = GetSafeString(CurrentUser?.noi_cap),
-            Address = GetSafeString(CurrentUser?.dia_chi),
-            Phone = GetSafeString(CurrentUser?.so_dien_thoai),
-            Occupation = GetSafeString(KhamSucKhoeNgheNghiepModel?.nghe_nghiep),
-            WorkPlace = GetSafeString(KhamSucKhoeNgheNghiepModel?.noi_cong_tac),
-            WorkStartDate = FormatDate(KhamSucKhoeNgheNghiepModel?.ngay_vao_lam),
-            ProfileImageUrl = profileImageUrl,
-
-            // Physical examination data
-            PhysicalData = KhamSucKhoeTheLucModel != null ? new PhysicalExamData
-            {
-                Height = GetSafeString(KhamSucKhoeTheLucModel.chieu_cao?.ToString()),
-                Weight = GetSafeString(KhamSucKhoeTheLucModel.can_nang?.ToString()),
-                BMI = GetSafeString(KhamSucKhoeTheLucModel.bmi?.ToString()),
-                Pulse = GetSafeString(KhamSucKhoeTheLucModel.mach?.ToString()),
-                BloodPressure = GetSafeString(KhamSucKhoeTheLucModel.huyet_ap),
-                Classification = GetSafeString(KhamSucKhoeTheLucModel.phan_loai)
-            } : null,
-
-            // Laboratory test data
-            LabData = KhamSucKhoeCanLamSanModel != null ? new LabTestData
-            {
-                Results = GetSafeString(KhamSucKhoeCanLamSanModel.ket_qua_cls),
-                Evaluation = GetSafeString(KhamSucKhoeCanLamSanModel.danh_gia_cls)
-            } : null,
-
-            // Conclusion data
-            ConclusionData = KhamSucKhoeKetLuanModel != null ? new ConclusionData
-            {
-                HealthClassification = GetSafeString(KhamSucKhoeKetLuanModel.phan_loai_suc_khoe),
-                Diseases = GetSafeString(KhamSucKhoeKetLuanModel.benh_tat_ket_luan),
-                Recommendations = GetSafeString(KhamSucKhoeKetLuanModel.de_nghi),
-                ConclusionDate = FormatDate(KhamSucKhoeKetLuanModel.ngay_ket_luan),
-                DoctorName = GetSafeString(KhamSucKhoeKetLuanModel.nguoi_ket_luan),
-                DoctorSignature = GetSafeString(KhamSucKhoeKetLuanModel.chu_ky)
-            } : null,
-
-            // Gynecology data for female patients
-            GynecoData = CurrentUser?.gioi_tinh == Enums.GioiTinh.Nu && KhamSucKhoeSanPhuKhoaModel != null ? new GynecoExamData
-            {
-                MenarcheAge = GetSafeString(KhamSucKhoeSanPhuKhoaModel.tuoi_bat_dau_kinh?.ToString()),
-                MenstrualCycle = GetSafeString(KhamSucKhoeSanPhuKhoaModel.chu_ky_kinh?.ToString()),
-                MenstrualAmount = GetSafeString(KhamSucKhoeSanPhuKhoaModel.luong_kinh?.ToString()),
-                Dysmenorrhea = GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel.dau_bung_kinh),
-                Married = GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel.da_lap_gia_dinh, "Có", "Chưa"),
-                PARA = GetSafeString(KhamSucKhoeSanPhuKhoaModel.para),
-                Surgeries = GetSafeString(KhamSucKhoeSanPhuKhoaModel.so_lan_mo_san_phu_khoa?.ToString()),
-                Contraception = GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel.ap_dung_bptt),
-                Results = GetSafeString(KhamSucKhoeSanPhuKhoaModel.ket_qua),
-                Classification = GetSafeString(KhamSucKhoeSanPhuKhoaModel.phan_loai)
-            } : null,
-
-            ExamData = new MedicalExamData
-            {
-                MedicalHistory = "Khám sức khỏe định kỳ",
-                CurrentDate = DateTime.Now.ToString(DATE_FORMAT)
-            }
-        };
-    }
-
+    
     #endregion
 }
