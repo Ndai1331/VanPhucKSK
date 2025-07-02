@@ -12,216 +12,201 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JsRuntime
 
+<PageHeader Title="Hồ sơ khám sức khỏe" pTitle="Tổng quan sức khỏe và lịch sử khám bệnh của bạn"></PageHeader>
+
 <!-- Start Main Content -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
-    <!-- Page Header -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
-                <i class="fas fa-file-medical me-2 text-primary"></i>
-                Hồ sơ khám sức khỏe
-            </h2>
-            <p class="text-slate-600 dark:text-slate-400 mb-0">Tổng quan sức khỏe và lịch sử khám bệnh của bạn</p>
-        </div>
-        <div class="flex gap-2">
-            <button class="px-4 py-2 bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 dark:bg-darklight dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20" @onclick="PrintAllRecords">
-                <i class="fas fa-print me-1"></i>In tất cả
-            </button>
-            <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" @onclick="ExportAllPDF">
-                <i class="fas fa-file-pdf me-1"></i>Xuất PDF
-            </button>
-        </div>
-    </div>
-
-    <!-- Dashboard Statistics -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
-        <div class="p-5 rounded shadow-sm bg-purple text-white">
-            <div class="text-center">
-                <i class="fas fa-file-medical fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1">@TotalItems</h4>
-                <p class="mb-0">Tổng số lần khám</p>
-            </div>
-        </div>
-        <div class="p-5 rounded shadow-sm bg-success text-white">
-            <div class="text-center">
-                <i class="fas fa-calendar-check fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1">@NgayKhamGanNhat?.ToString("dd/MM/yyyy")</h4>
-                <p class="mb-0">Lần khám gần nhất</p>
-            </div>
-        </div>
-        <div class="p-5 rounded shadow-sm bg-info text-white">
-            <div class="text-center">
-                <i class="fas fa-heartbeat fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1">Tốt</h4>
-                <p class="mb-0">Tình trạng sức khỏe</p>
-            </div>
-        </div>
-        <div class="p-5 rounded shadow-sm bg-warning text-white">
-            <div class="text-center">
-                <i class="fas fa-clock fa-2x mb-2"></i>
-                <h4 class="text-2xl font-semibold mb-1">@(NgayKhamGanNhat != null ? (NgayKhamGanNhat.Value.AddDays(60)).ToString("dd/MM/yyyy") : "")</h4>
-                <p class="mb-0">Đến lần khám tiếp theo</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Patient Summary -->
-    <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder mb-6">
-        <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
-            <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
-                <i class="fas fa-user-circle me-2"></i>Thông tin bệnh nhân
-            </h5>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="md:col-span-1">
-                <strong>Họ và tên:</strong> <span>@CurrentUser?.last_name @CurrentUser?.first_name</span>
-            </div>
-            <div class="md:col-span-1">
-                <strong>Mã BN:</strong> <span>@CurrentUser?.ma_benh_nhan</span>
-            </div>
-            <div class="md:col-span-1">
-                <strong>Ngày sinh:</strong> <span>@CurrentUser?.ngay_sinh?.ToString("dd/MM/yyyy")</span>
-            </div>
-            <div class="md:col-span-1">
-                <strong>Giới tính:</strong> <span>@CurrentUser?.gioi_tinh?.GetDescription()</span>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-            <div class="md:col-span-2">
-                <strong>Địa chỉ:</strong> <span>@CurrentUser?.dia_chi</span>
-            </div>
-            <div class="md:col-span-1"> 
-                <strong>SĐT:</strong> <span>@CurrentUser?.so_dien_thoai</span>
-            </div>
-            <div class="md:col-span-1">
-                <strong>Công ty:</strong> <span></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Medical Records List -->
-    <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
-        <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
-            <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
-                <i class="fas fa-list me-2"></i>Danh sách khám sức khỏe
-            </h5>
-        </div>
-        <div class="overflow-auto">
-            <MudTable Class="min-w-[640px] text-left w-full" Items="@MainModels" Hover="true" Breakpoint="Breakpoint.None" LoadingProgressColor="Color.Info">
-                <HeaderContent>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày khám</MudTh>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Lượt khám</MudTh>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày lập sổ</MudTh>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Người lập</MudTh>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Trạng thái</MudTh>
-                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Thao tác</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
-                    <MudTd DataLabel="Ngày khám">@context.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
-                    <MudTd DataLabel="Lượt khám">@context.ma_luot_kham</MudTd>
-                    <MudTd DataLabel="Ngày lập sổ">@context.ngay_lap_so?.ToString("dd/MM/yyyy")</MudTd>
-                    <MudTd DataLabel="Người lập">@context.nguoi_lap</MudTd>
-                    <MudTd DataLabel="Trạng thái">
-                        <span class="inline-flex items-center rounded shadow-sm text-xs justify-center px-2 py-1 @GetStatusBadgeClass(context.status.ToString())">
-                            @context.status.GetDescription()
-                        </span>
-                    </MudTd>
-                    <MudTd DataLabel="Thao tác">
-                        <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context))">
-                            <i class="ri-eye-line me-1"></i>Xem chi tiết
-                        </button>
-                    </MudTd>
-                </RowTemplate>
-                <NoRecordsContent>
-                    <div class="text-center py-8">
-                        <p class="text-slate-500 dark:text-slate-400">Chưa có hồ sơ khám bệnh nào</p>
-                    </div>
-                </NoRecordsContent>
-            </MudTable>
-        </div>
-        
-        <div class="w-full grid grid-cols-1 pb-2">
-            <div class="flex items-center justify-between p-4">
-                <div class="flex items-center gap-2">
-                    <span>Hiển thị</span>
-                    <select class="form-select" @bind="PageSize" @bind:event="oninput" @onchange="async (e) => await OnPageSizeChanged(LoadMedicalRecords)">
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                    <span>mục</span>
+    <div class="grid grid-cols-1 gap-4">
+        <!-- Dashboard Statistics -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
+            <div class="p-5 rounded shadow-sm bg-purple text-white">
+                <div class="text-center">
+                    <i class="fas fa-file-medical fa-2x mb-2"></i>
+                    <h4 class="text-2xl font-semibold mb-1">@TotalItems</h4>
+                    <p class="mb-0">Tổng số lần khám</p>
                 </div>
-                <div class="flex items-center gap-2">
+            </div>
+            <div class="p-5 rounded shadow-sm bg-success text-white">
+                <div class="text-center">
+                    <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                    <h4 class="text-2xl font-semibold mb-1">@NgayKhamGanNhat?.ToString("dd/MM/yyyy")</h4>
+                    <p class="mb-0">Lần khám gần nhất</p>
+                </div>
+            </div>
+            <div class="p-5 rounded shadow-sm bg-info text-white">
+                <div class="text-center">
+                    <i class="fas fa-heartbeat fa-2x mb-2"></i>
+                    <h4 class="text-2xl font-semibold mb-1">Tốt</h4>
+                    <p class="mb-0">Tình trạng sức khỏe</p>
+                </div>
+            </div>
+            <div class="p-5 rounded shadow-sm bg-warning text-white">
+                <div class="text-center">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <h4 class="text-2xl font-semibold mb-1">@(NgayKhamGanNhat != null ? (NgayKhamGanNhat.Value.AddDays(60)).ToString("dd/MM/yyyy") : "")</h4>
+                    <p class="mb-0">Đến lần khám tiếp theo</p>
+                </div>
+            </div>
+        </div>
 
-                    <div>
-                        <ul class="inline-flex my-2 -space-x-px list-inside">
-                            <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-l-lg rtl:rounded-r-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await PreviousPage(LoadMedicalRecords)" disabled="@(Page <= 1)">Trước</MudLink></li>
-                            @{
-                                var startPage = Math.Max(1, Page - 1);
-                                var endPage = Math.Min(TotalPages, Page + 1);
+        <!-- Patient Summary -->
+        <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder mb-6">
+            <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
+                <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
+                    <i class="fas fa-user-circle me-2"></i>Thông tin bệnh nhân
+                </h5>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="md:col-span-1">
+                    <strong>Họ và tên:</strong> <span>@CurrentUser?.last_name @CurrentUser?.first_name</span>
+                </div>
+                <div class="md:col-span-1">
+                    <strong>Mã BN:</strong> <span>@CurrentUser?.ma_benh_nhan</span>
+                </div>
+                <div class="md:col-span-1">
+                    <strong>Ngày sinh:</strong> <span>@CurrentUser?.ngay_sinh?.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="md:col-span-1">
+                    <strong>Giới tính:</strong> <span>@CurrentUser?.gioi_tinh?.GetDescription()</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                <div class="md:col-span-2">
+                    <strong>Địa chỉ:</strong> <span>@CurrentUser?.dia_chi</span>
+                </div>
+                <div class="md:col-span-1"> 
+                    <strong>SĐT:</strong> <span>@CurrentUser?.so_dien_thoai</span>
+                </div>
+                <div class="md:col-span-1">
+                    <strong>Công ty:</strong> <span></span>
+                </div>
+            </div>
+        </div>
 
-                                // Always show first page
-                                <li>
-                                    <a href="#"
-                                        class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
-                                        @onclick="async (e) => await SelectedPage(1, LoadMedicalRecords)">1</a>
-                                </li>
+        <!-- Medical Records List -->
+        <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
+            <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
+                <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
+                    <i class="fas fa-list me-2"></i>Danh sách khám sức khỏe
+                </h5>
+            </div>
+            <div class="overflow-auto">
+                <MudTable Class="min-w-[640px] text-left w-full" Items="@MainModels" Hover="true" Breakpoint="Breakpoint.None" LoadingProgressColor="Color.Info">
+                    <HeaderContent>
+                        <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
+                        <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày khám</MudTh>
+                        <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Lượt khám</MudTh>
+                        <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày lập sổ</MudTh>
+                        <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Người lập</MudTh>
+                        <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Trạng thái</MudTh>
+                        <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Thao tác</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
+                        <MudTd DataLabel="Ngày khám">@context.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
+                        <MudTd DataLabel="Lượt khám">@context.ma_luot_kham</MudTd>
+                        <MudTd DataLabel="Ngày lập sổ">@context.ngay_lap_so?.ToString("dd/MM/yyyy")</MudTd>
+                        <MudTd DataLabel="Người lập">@context.nguoi_lap</MudTd>
+                        <MudTd DataLabel="Trạng thái">
+                            <span class="inline-flex items-center rounded shadow-sm text-xs justify-center px-2 py-1 @GetStatusBadgeClass(context.status.ToString())">
+                                @context.status.GetDescription()
+                            </span>
+                        </MudTd>
+                        <MudTd DataLabel="Thao tác">
+                            <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context))">
+                                <i class="ri-eye-line me-1"></i>Xem chi tiết
+                            </button>
+                        </MudTd>
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <div class="text-center py-8">
+                            <p class="text-slate-500 dark:text-slate-400">Chưa có hồ sơ khám bệnh nào</p>
+                        </div>
+                    </NoRecordsContent>
+                </MudTable>
+            </div>
+            
+            <div class="w-full grid grid-cols-1 pb-2">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center gap-2">
+                        <span>Hiển thị</span>
+                        <select class="form-select" @bind="PageSize" @bind:event="oninput" @onchange="async (e) => await OnPageSizeChanged(LoadMedicalRecords)">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>mục</span>
+                    </div>
+                    <div class="flex items-center gap-2">
 
-                                // Show ellipsis if needed
-                                if (startPage > 2)
-                                {
-                                    <li><span class="px-3 py-2">...</span></li>
-                                }
+                        <div>
+                            <ul class="inline-flex my-2 -space-x-px list-inside">
+                                <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-l-lg rtl:rounded-r-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await PreviousPage(LoadMedicalRecords)" disabled="@(Page <= 1)">Trước</MudLink></li>
+                                @{
+                                    var startPage = Math.Max(1, Page - 1);
+                                    var endPage = Math.Min(TotalPages, Page + 1);
 
-                                // Show pages around current page
-                                for (int i = startPage; i <= endPage; i++)
-                                {
-                                    if (i > 1 && i < TotalPages)
-                                    {   
-                                        var currentPage = i; // Local variable to avoid closure issues
+                                    // Always show first page
+                                    <li>
+                                        <a href="#"
+                                            class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
+                                            @onclick="async (e) => await SelectedPage(1, LoadMedicalRecords)">1</a>
+                                    </li>
+
+                                    // Show ellipsis if needed
+                                    if (startPage > 2)
+                                    {
+                                        <li><span class="px-3 py-2">...</span></li>
+                                    }
+
+                                    // Show pages around current page
+                                    for (int i = startPage; i <= endPage; i++)
+                                    {
+                                        if (i > 1 && i < TotalPages)
+                                        {   
+                                            var currentPage = i; // Local variable to avoid closure issues
+                                            <li>
+                                                <a href="#"
+                                                    class="px-3 py-2 text-black  border border-black/10
+                                                    hover:bg-purple hover:text-white dark:bg-transparent
+                                                    dark:text-white dark:border-darkborder dark:hover:bg-purple
+                                                    dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
+                                                    @onclick="async (e) => await SelectedPage(currentPage, LoadMedicalRecords)">@i</a>
+                                            </li>
+                                        }
+                                    }
+
+                                    // Show ellipsis if needed
+                                    if (endPage < TotalPages - 1)
+                                    {
+                                        <li><span class="px-3 py-2">...</span></li>
+                                    }
+
+                                    // Always show last page if there is more than one page
+                                    if (TotalPages > 1)
+                                    {
                                         <li>
                                             <a href="#"
-                                                class="px-3 py-2 text-black  border border-black/10
-                                                hover:bg-purple hover:text-white dark:bg-transparent
-                                                dark:text-white dark:border-darkborder dark:hover:bg-purple
-                                                dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
-                                                @onclick="async (e) => await SelectedPage(currentPage, LoadMedicalRecords)">@i</a>
+                                                class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
+                                                @onclick="async (e) => await SelectedPage(TotalPages, LoadMedicalRecords)">@TotalPages</a>
                                         </li>
                                     }
                                 }
-
-                                // Show ellipsis if needed
-                                if (endPage < TotalPages - 1)
-                                {
-                                    <li><span class="px-3 py-2">...</span></li>
-                                }
-
-                                // Always show last page if there is more than one page
-                                if (TotalPages > 1)
-                                {
-                                    <li>
-                                        <a href="#"
-                                            class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
-                                            @onclick="async (e) => await SelectedPage(TotalPages, LoadMedicalRecords)">@TotalPages</a>
-                                    </li>
-                                }
-                            }
-                            <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-r-lg rtl:rounded-l-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await NextPage(LoadMedicalRecords)" disabled="@(Page >= TotalPages)">Sau</MudLink></li>
-                        </ul>
+                                <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-r-lg rtl:rounded-l-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await NextPage(LoadMedicalRecords)" disabled="@(Page >= TotalPages)">Sau</MudLink></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div> 
-    </div>
+            </div> 
+        </div>
 
-    <!-- Action Buttons -->
-    <div class="text-center mt-6">
-        <a href="/profile" class="px-6 p-3 text-white bg-purple rounded shadow hover:bg-purple transition-colors inline-flex items-center">
-            <i class="ri-account-box-line me-1 "></i>Cập nhật thông tin cá nhân
-        </a>
+        <!-- Action Buttons -->
+        <div class="text-center mt-6">
+            <a href="/profile" class="px-6 p-3 text-white bg-purple rounded shadow hover:bg-purple transition-colors inline-flex items-center">
+                <i class="ri-account-box-line me-1 "></i>Cập nhật thông tin cá nhân
+            </a>
+        </div>
     </div>
 </div>
 

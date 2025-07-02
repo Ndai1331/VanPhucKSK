@@ -2,19 +2,89 @@
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.User
 @inject IJSRuntime JsRuntime
+
 <!-- Start Topbar -->
-<div class=" bg-white dark:bg-darklight dark:border-darkborder flex gap-4 lg:z-10 items-center justify-between px-4 h-[60px] border-b border-black/10 detached-topbar relative">
-    <div class="flex items-center flex-1 gap-2 sm:gap-4">
-        <MudButton type="button" Class="w-full main-logo" @onclick="BackToHome">
-            <img src="@(Logo != null ? $"{Logo.filename_disk}" : "assets/images/logo-icon.svg")" class=" mx-auto logo-icon h-10" alt="">
+<div class="topbar bg-white dark:bg-darklight dark:border-darkborder flex justify-between lg:justify-normal gap-4 lg:z-10 items-center px-4 h-[60px] border-b border-black/10 detached-topbar relative">
+    <div class="flex items-center gap-4">
+        <!-- Mobile Menu Button -->
+        <button type="button" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 text-black dark:text-white" @onclick="ToggleMobileMenu">
+            <svg class="w-6 h-6 transition-transform duration-300 @(isMobileMenuOpen ? "rotate-90" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (!isMobileMenuOpen)
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                }
+                else
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                }
+            </svg>
+        </button>
+        
+        <!-- Logo -->
+        <MudButton type="button" Class="main-logo flex items-center" @onclick="BackToHome">
+            <img src="@(Logo != null ? $"{Logo.filename_disk}" : "assets/images/logo-icon.svg")" class="logo-icon h-8 sm:h-10" alt="Logo">
         </MudButton>
         
-        <div Class="flex-1 hidden min-420-flex  w-full flex justify-center">
-            <span class="text-xl font-bold text-black dark:text-white/80 project-text-color project_name"></span>
-        </div>
+        <!-- Desktop Navigation Menu -->
+        <nav class="hidden lg:flex items-center justify-evenly flex-1 max-w-md ml-8">
+            <a href="/guide" class="text-gray-700 hover:text-red-500 transition-colors duration-200 font-bold text-sm px-4 py-2">
+                Hướng dẫn
+            </a>
+            <a href="/news" class="text-gray-700 hover:text-red-500 transition-colors duration-200 font-bold text-sm px-4 py-2">
+                Tin tức
+            </a>
+            <a href="/results" class="text-gray-700 hover:text-red-500 transition-colors duration-200 font-bold text-sm px-4 py-2">
+                Kết quả
+            </a>
+            <a href="/login" class="text-gray-700 hover:text-red-500 transition-colors duration-200 font-bold text-sm px-4 py-2">
+                Đăng nhập
+            </a>
+        </nav>
     </div>
-    <div class="flex items-center gap-4">
-        <div class="h-5">
+    
+    <!-- Mobile Menu Backdrop -->
+    <div class="@(isMobileMenuOpen ? "block" : "hidden") lg:hidden fixed inset-0 bg-black bg-opacity-20 z-40" @onclick="ToggleMobileMenu"></div>
+    
+    <!-- Mobile Menu Dropdown -->
+    <div class="@(isMobileMenuOpen ? "block animate-fade-in-down" : "hidden") lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-darklight border-b border-black/10 shadow-xl z-50">
+        <nav class="flex flex-col p-3 space-y-1">
+            <a href="/guide" @onclick="ToggleMobileMenu" class="text-gray-700 hover:text-red-500 hover:bg-red-50 transition-all duration-200 font-bold py-4 px-4 rounded-lg border-l-4 border-transparent hover:border-red-500">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Hướng dẫn</span>
+                </div>
+            </a>
+            <a href="/news" @onclick="ToggleMobileMenu" class="text-gray-700 hover:text-red-500 hover:bg-red-50 transition-all duration-200 font-bold py-4 px-4 rounded-lg border-l-4 border-transparent hover:border-red-500">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                    </svg>
+                    <span>Tin tức</span>
+                </div>
+            </a>
+            <a href="/results" @onclick="ToggleMobileMenu" class="text-gray-700 hover:text-red-500 hover:bg-red-50 transition-all duration-200 font-bold py-4 px-4 rounded-lg border-l-4 border-transparent hover:border-red-500">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Kết quả</span>
+                </div>
+            </a>
+            <a href="/login" @onclick="ToggleMobileMenu" class="text-gray-700 hover:text-red-500 hover:bg-red-50 transition-all duration-200 font-bold py-4 px-4 rounded-lg border-l-4 border-transparent hover:border-red-500">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Đăng nhập</span>
+                </div>
+            </a>
+        </nav>
+    </div>
+    
+    <div class="flex items-center gap-2 sm:gap-4">
+        <div class="h-5 hidden sm:block">
             <MudButton Class="text-black dark:text-white/80 " @onclick="ToggleFullScreen">
                 @if (!FullScreen)
                 {
@@ -31,7 +101,7 @@
             </MudButton>
 
         </div>
-        <div>
+        <div class="hidden sm:block">
             <a href="javascript:;" class="text-black " x-cloak x-show="$store.app.mode === 'light'" @click="$store.app.toggleMode('dark')">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
                     <path d="M10 7C10 10.866 13.134 14 17 14C18.9584 14 20.729 13.1957 21.9995 11.8995C22 11.933 22 11.9665 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C12.0335 2 12.067 2 12.1005 2.00049C10.8043 3.27098 10 5.04157 10 7ZM4 12C4 16.4183 7.58172 20 12 20C15.0583 20 17.7158 18.2839 19.062 15.7621C18.3945 15.9187 17.7035 16 17 16C12.0294 16 8 11.9706 8 7C8 6.29648 8.08133 5.60547 8.2379 4.938C5.71611 6.28423 4 8.9417 4 12Z" fill="currentColor"></path>
@@ -44,7 +114,7 @@
             </a>
         </div>
 
-        <div class="h-5">
+        <div class="h-5 hidden sm:block">
             <div x-data="modals">
                 <button class="text-black dark:text-white/80 " @click="toggle()">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -181,6 +251,7 @@
     private bool FullScreen { get; set; } = false;
     private bool isNotificationOpen = false;
     private bool isProfileOpen = false;
+    private bool isMobileMenuOpen = false;
     private string Mode { get; set; } = "light";
     [Parameter]
     public EventCallback OnLogout { get; set; }
@@ -205,6 +276,19 @@
         await JsRuntime.InvokeVoidAsync("toggleFullScreen");
     }
 
+    // Method to toggle mobile menu
+    public void ToggleMobileMenu()
+    {
+        isMobileMenuOpen = !isMobileMenuOpen;
+        // Close other dropdowns when opening mobile menu
+        if (isMobileMenuOpen)
+        {
+            isNotificationOpen = false;
+            isProfileOpen = false;
+        }
+        StateHasChanged();
+    }
+
     // Method to toggle notification dropdown
     public void ToggleNotification()
     {
@@ -227,11 +311,12 @@
         }
     }
 
-    // Method to close both dropdowns when clicking outside
+    // Method to close all dropdowns when clicking outside
     public void CloseDropdowns()
     {
         isNotificationOpen = false;
         isProfileOpen = false;
+        isMobileMenuOpen = false;
     }
 
     // Method to handle click event from JavaScript

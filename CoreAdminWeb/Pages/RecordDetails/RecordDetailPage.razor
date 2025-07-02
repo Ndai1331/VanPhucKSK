@@ -10,445 +10,449 @@
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
 
-<div class="flex justify-between items-center mb-6">
-    <div>
-        <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
-            <i class="fas fa-file-medical me-2 text-primary"></i>
-          Sổ Khám sức khỏe
-        </h2>
-        <p class="text-slate-600 dark:text-slate-400 mb-0">Chi tiết lần khám sức khỏe của bạn</p>
-    </div>
-    <div class="flex gap-2">
-        <button class="px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToList">
-            <i class="ri-arrow-left-line me-1"></i>Quay lại danh sách
-        </button>
-        <button class="px-4 py-2 bg-info text-white rounded hover:bg-info-dark transition-colors" 
-                @onclick="PrintRecord" disabled="@isLoading">
-            <i class="ri-printer-line me-1"></i>In
-        </button>
-        <button class="px-4 py-2 bg-success text-white rounded hover:bg-success-dark transition-colors" 
-                @onclick="ExportPDF" disabled="@isLoading">
-            <i class="ri-file-pdf-line me-1"></i>Xuất PDF
-        </button>
-    </div>
-</div>
-
-@if (isLoading)
-{
-    <div class="flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
-    </div>
-}
-else if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-        <strong class="font-bold">Lỗi!</strong>
-        <span class="block sm:inline"> @errorMessage</span>
-        <button class="float-right font-bold" @onclick="() => LoadDataAsync()">
-            <i class="ri-refresh-line me-1"></i>Thử lại
-        </button>
-    </div>
-}
-else
-{
-
-<!-- Printable Medical Form Content -->
-<div id="medical-form-content">
-<!-- Medical Form Header -->
-<div class="ksk-header" style="margin-bottom:0;">
-    <div class="mau-so">Mẫu số 03</div>
-    <div>MẪU SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
-    <div class="quochoa">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
-    <div class="doclap">Độc lập - Tự do - Hạnh phúc</div>
-    <div>-------------</div>
-</div>
-
-<div class="ksk-title">SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
-
-<!-- Main Medical Form -->
-<div class="ksk-form">
-    <!-- Patient Information Section -->
-    <div class="ksk-row">
-        <!-- Photo Section -->
-        <div>
-            <div class="ksk-photo" id="profilePhotoContainer">
-                <img id="profilePhoto" src="@profileImageUrl" alt="Ảnh đại diện" style="width: 100%; height: 100%; object-fit: cover; @(string.IsNullOrEmpty(profileImageUrl) ? "display:none" : "")" />
-                <span style="@(string.IsNullOrEmpty(profileImageUrl) ? "" : "display:none")">Ảnh 4x6 cm</span>
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
+                    <i class="fas fa-file-medical me-2 text-primary"></i>
+                Sổ Khám sức khỏe
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 mb-0">Chi tiết lần khám sức khỏe của bạn</p>
             </div>
-            <div class="ksk-photo-label">(dán ảnh hoặc scan ảnh)</div>
-        </div>
-        
-        <!-- Patient Info -->
-        <div class="ksk-info">
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">1. Họ và tên:</div>
-                <div class="ksk-info-value">@GetUserFullName()</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">2. Giới tính:</div>
-                <div class="ksk-info-value">@(CurrentUser?.gioi_tinh?.GetDescription() ?? "")</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">3. Sinh ngày:</div>
-                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Day.ToString("00") ?? "")</div>
-                <span style="margin: 0 4px;">tháng</span>
-                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Month.ToString("00") ?? "")</div>
-                <span style="margin: 0 4px;">năm</span>
-                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Year.ToString() ?? "")</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">4. Số CCCD/CMND:</div>
-                <div class="ksk-info-value">@GetSafeString(CurrentUser?.so_dinh_danh)</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">5. Cấp ngày:</div>
-                <div class="ksk-info-value">@FormatDate(CurrentUser?.ngay_cap)</div>
-                <span style="margin: 0 4px;">tại</span>
-                <div class="ksk-info-value">@GetSafeString(CurrentUser?.noi_cap)</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">6. Chỗ ở hiện tại:</div>
-                <div class="ksk-info-value">@GetSafeString(CurrentUser?.dia_chi)</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">7. Số điện thoại:</div>
-                <div class="ksk-info-value">@GetSafeString(CurrentUser?.so_dien_thoai)</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">8. Nghề nghiệp:</div>
-                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeNgheNghiepModel?.nghe_nghiep)</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">9. Nơi công tác:</div>
-                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeNgheNghiepModel?.noi_cong_tac)</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">10. Ngày vào làm:</div>
-                <div class="ksk-info-value">@FormatDate(KhamSucKhoeNgheNghiepModel?.ngay_vao_lam)</div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">11. Nghề, công việc trước đây:</div>
-                <div class="ksk-info-value"></div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">12. Thời gian làm nghề:</div>
-                <div class="ksk-info-value"></div>
-                <span style="margin: 0 4px;">tháng, từ ngày</span>
-                <div class="ksk-info-value"></div>
-                <span style="margin: 0 4px;">đến ngày</span>
-                <div class="ksk-info-value"></div>
-            </div>
-            <div class="ksk-info-row">
-                <div class="ksk-info-label">13. Tiền sử bệnh, tật của gia đình:</div>
-                <div class="ksk-info-value">@(KhamSucKhoeTienSuModels?.Count > 0 ? "Có" : "Không")</div>
+            <div class="flex gap-2">
+                <button class="px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToList">
+                    <i class="ri-arrow-left-line me-1"></i>Quay lại danh sách
+                </button>
+                <button class="px-4 py-2 bg-info text-white rounded hover:bg-info-dark transition-colors" 
+                        @onclick="PrintRecord" disabled="@isLoading">
+                    <i class="ri-printer-line me-1"></i>In
+                </button>
+                <button class="px-4 py-2 bg-success text-white rounded hover:bg-success-dark transition-colors" 
+                        @onclick="ExportPDF" disabled="@isLoading">
+                    <i class="ri-file-pdf-line me-1"></i>Xuất PDF
+                </button>
             </div>
         </div>
-    </div>
 
-    <!-- Note -->
-    <div class="ksk-note">
-        <strong>* Lưu ý:</strong> Trường hợp đối tượng KSK có CCCD gắn chip hoặc có số định danh công dân đã thực hiện kết nối với cơ sở dữ liệu quốc gia, phần HÀNH CHÍNH nếu trên chỉ cần ghi mục (1) Họ và tên, (3) Ngày tháng năm sinh, (4) Số định danh công dân.
-    </div>
-
-    <!-- Disease History Table -->
-    <div class="ksk-table-wrap">
-        <table class="ksk-table">
-            <thead>
-                <tr>
-                    <th>Tên bệnh</th>
-                    <th>Phát hiện năm</th>
-                    <th>Bệnh nghề nghiệp</th>
-                    <th>Năm phát hiện bệnh nghề nghiệp</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in KhamSucKhoeTienSuModels)
-                {
-                    <tr>
-                        <td class="ls-cell-small">@item.ten_benh</td>
-                        <td class="ls-cell-small">@item.nam_phat_hien</td>
-                        <td class="ls-cell-small">@item.benh_nghe_nghiep</td>
-                        <td class="ls-cell-small">@item.nam_phat_hien_benh_nghe_nghiep</td>
-                    </tr> 
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Signature Section -->
-    <div class="ksk-signature-row">
-        <div class="ksk-signature-box">
-            Người lao động xác nhận<br>
-            <small>(Ký và ghi rõ họ, tên)</small><br><br><br>
-            <strong>@GetUserFullName()</strong>
-        </div>
-        <div class="ksk-signature-box">
-            ... ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year<br>
-            Người lập sổ KSK định kỳ<br>
-            <small>(Ký và ghi rõ họ, tên)</small><br><br><br>
-            <strong></strong>
-        </div>
-    </div>
-</div>
-
-<!-- Medical Examination Section -->
-<div class="ksk-form" style="margin-top: 32px;">
-    <div class="ksk-title">KHÁM SỨC KHỎE ĐỊNH KỲ</div>
-    
-    <!-- I. Medical History -->
-    <div class="mb-6">
-        <div class="font-bold mb-2">I. TIỀN SỬ BỆNH, TẬT <span class="font-normal italic">(Bác sỹ khám sức khỏe hỏi và ghi chép)</span></div>
-        
-        @if (CurrentUser?.gioi_tinh != null && CurrentUser?.gioi_tinh == Enums.GioiTinh.Nu && KhamSucKhoeSanPhuKhoaModel != null)
+        @if (isLoading)
         {
-            <div class="mb-4">
-                <div class="font-bold">Tiền sử sản phụ khoa (Đối với nữ): Có</div>
-                <div class="ml-4 space-y-1 text-sm">
-                    <div>- Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi: @KhamSucKhoeSanPhuKhoaModel?.tuoi_bat_dau_kinh</div>
-                    <div>- Tính chất kinh nguyệt: @KhamSucKhoeSanPhuKhoaModel?.tinh_chat_kinh</div>
-                    <div>Chu kỳ kinh: @KhamSucKhoeSanPhuKhoaModel?.chu_ky_kinh ngày, Lượng kinh: @KhamSucKhoeSanPhuKhoaModel?.luong_kinh ml</div>
-                    <div>Đau bụng kinh: @GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.dau_bung_kinh)</div>
-                    <div>Đã lập gia đình: @GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.da_lap_gia_dinh, "Có", "Chưa")</div>
-                    <div>PARA: @KhamSucKhoeSanPhuKhoaModel?.para</div>
-                    <div>Số lần mổ sản, phụ khoa: @KhamSucKhoeSanPhuKhoaModel?.so_lan_mo_san_phu_khoa @(string.IsNullOrEmpty(KhamSucKhoeSanPhuKhoaModel?.mo_san_phu_khoa_ghi_ro) ? "/ Chưa" : $"Có {KhamSucKhoeSanPhuKhoaModel?.mo_san_phu_khoa_ghi_ro}")</div>
-                    <div>Có áp dụng BPTT không: @(KhamSucKhoeSanPhuKhoaModel?.ap_dung_bptt == true ? $"Có {KhamSucKhoeSanPhuKhoaModel?.ap_dung_bptt}" : "Không")</div>
+            <div class="flex justify-center items-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <strong class="font-bold">Lỗi!</strong>
+                <span class="block sm:inline"> @errorMessage</span>
+                <button class="float-right font-bold" @onclick="() => LoadDataAsync()">
+                    <i class="ri-refresh-line me-1"></i>Thử lại
+                </button>
+            </div>
+        }
+        else
+        {
+
+            <!-- Printable Medical Form Content -->
+            <div id="medical-form-content">
+                <!-- Medical Form Header -->
+                <div class="ksk-header" style="margin-bottom:0;">
+                    <div class="mau-so">Mẫu số 03</div>
+                    <div>MẪU SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+                    <div class="quochoa">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                    <div class="doclap">Độc lập - Tự do - Hạnh phúc</div>
+                    <div>-------------</div>
+                </div>
+
+                <div class="ksk-title">SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+
+                <!-- Main Medical Form -->
+                <div class="ksk-form">
+                    <!-- Patient Information Section -->
+                    <div class="ksk-row">
+                        <!-- Photo Section -->
+                        <div>
+                            <div class="ksk-photo" id="profilePhotoContainer">
+                                <img id="profilePhoto" src="@profileImageUrl" alt="Ảnh đại diện" style="width: 100%; height: 100%; object-fit: cover; @(string.IsNullOrEmpty(profileImageUrl) ? "display:none" : "")" />
+                                <span style="@(string.IsNullOrEmpty(profileImageUrl) ? "" : "display:none")">Ảnh 4x6 cm</span>
+                            </div>
+                            <div class="ksk-photo-label">(dán ảnh hoặc scan ảnh)</div>
+                        </div>
+                        
+                        <!-- Patient Info -->
+                        <div class="ksk-info">
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">1. Họ và tên:</div>
+                                <div class="ksk-info-value">@GetUserFullName()</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">2. Giới tính:</div>
+                                <div class="ksk-info-value">@(CurrentUser?.gioi_tinh?.GetDescription() ?? "")</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">3. Sinh ngày:</div>
+                                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Day.ToString("00") ?? "")</div>
+                                <span style="margin: 0 4px;">tháng</span>
+                                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Month.ToString("00") ?? "")</div>
+                                <span style="margin: 0 4px;">năm</span>
+                                <div class="ksk-info-value">@(CurrentUser?.ngay_sinh?.Year.ToString() ?? "")</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">4. Số CCCD/CMND:</div>
+                                <div class="ksk-info-value">@GetSafeString(CurrentUser?.so_dinh_danh)</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">5. Cấp ngày:</div>
+                                <div class="ksk-info-value 70px">@FormatDate(CurrentUser?.ngay_cap)</div>
+                                <span style="margin: 0 4px;">tại</span>
+                                <div class="ksk-info-value">@GetSafeString(CurrentUser?.noi_cap)</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">6. Chỗ ở hiện tại:</div>
+                                <div class="ksk-info-value">@GetSafeString(CurrentUser?.dia_chi)</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">7. Số điện thoại:</div>
+                                <div class="ksk-info-value">@GetSafeString(CurrentUser?.so_dien_thoai)</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">8. Nghề nghiệp:</div>
+                                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeNgheNghiepModel?.nghe_nghiep)</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">9. Nơi công tác:</div>
+                                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeNgheNghiepModel?.noi_cong_tac)</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">10. Ngày vào làm:</div>
+                                <div class="ksk-info-value">@FormatDate(KhamSucKhoeNgheNghiepModel?.ngay_vao_lam)</div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">11. Nghề, công việc trước đây:</div>
+                                <div class="ksk-info-value"></div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">12. Thời gian làm nghề:</div>
+                                <div class="ksk-info-value 30px"></div>
+                                <span>tháng, từ</span>
+                                <div class="ksk-info-value"></div>
+                                <span>đến</span>
+                                <div class="ksk-info-value"></div>
+                            </div>
+                            <div class="ksk-info-row">
+                                <div class="ksk-info-label">13. Tiền sử bệnh, tật của gia đình:</div>
+                                <div class="ksk-info-value">@(KhamSucKhoeTienSuModels?.Count > 0 ? "Có" : "Không")</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Note -->
+                    <div class="ksk-note">
+                        <strong>* Lưu ý:</strong> Trường hợp đối tượng KSK có CCCD gắn chip hoặc có số định danh công dân đã thực hiện kết nối với cơ sở dữ liệu quốc gia, phần HÀNH CHÍNH nếu trên chỉ cần ghi mục (1) Họ và tên, (3) Ngày tháng năm sinh, (4) Số định danh công dân.
+                    </div>
+
+                    <!-- Disease History Table -->
+                    <div class="ksk-table-wrap">
+                        <table class="ksk-table">
+                            <thead>
+                                <tr>
+                                    <th>Tên bệnh</th>
+                                    <th>Phát hiện năm</th>
+                                    <th>Bệnh nghề nghiệp</th>
+                                    <th>Năm phát hiện bệnh nghề nghiệp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in KhamSucKhoeTienSuModels)
+                                {
+                                    <tr>
+                                        <td class="ls-cell-small">@item.ten_benh</td>
+                                        <td class="ls-cell-small">@item.nam_phat_hien</td>
+                                        <td class="ls-cell-small">@item.benh_nghe_nghiep</td>
+                                        <td class="ls-cell-small">@item.nam_phat_hien_benh_nghe_nghiep</td>
+                                    </tr> 
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Signature Section -->
+                    <div class="ksk-signature-row">
+                        <div class="ksk-signature-box">
+                            Người lao động xác nhận<br>
+                            <small>(Ký và ghi rõ họ, tên)</small><br><br><br>
+                            <strong>@GetUserFullName()</strong>
+                        </div>
+                        <div class="ksk-signature-box">
+                            ... ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year<br>
+                            Người lập sổ KSK định kỳ<br>
+                            <small>(Ký và ghi rõ họ, tên)</small><br><br><br>
+                            <strong></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical Examination Section -->
+                <div class="ksk-form" style="margin-top: 32px;">
+                    <div class="ksk-title">KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+                    
+                    <!-- I. Medical History -->
+                    <div class="mb-6">
+                        <div class="font-bold mb-2">I. TIỀN SỬ BỆNH, TẬT <span class="font-normal italic">(Bác sỹ khám sức khỏe hỏi và ghi chép)</span></div>
+                        
+                        @if (CurrentUser?.gioi_tinh != null && CurrentUser?.gioi_tinh == Enums.GioiTinh.Nu && KhamSucKhoeSanPhuKhoaModel != null)
+                        {
+                            <div class="mb-4">
+                                <div class="font-bold">Tiền sử sản phụ khoa (Đối với nữ): Có</div>
+                                <div class="ml-4 space-y-1 text-sm">
+                                    <div>- Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi: @KhamSucKhoeSanPhuKhoaModel?.tuoi_bat_dau_kinh</div>
+                                    <div>- Tính chất kinh nguyệt: @KhamSucKhoeSanPhuKhoaModel?.tinh_chat_kinh</div>
+                                    <div>Chu kỳ kinh: @KhamSucKhoeSanPhuKhoaModel?.chu_ky_kinh ngày, Lượng kinh: @KhamSucKhoeSanPhuKhoaModel?.luong_kinh ml</div>
+                                    <div>Đau bụng kinh: @GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.dau_bung_kinh)</div>
+                                    <div>Đã lập gia đình: @GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.da_lap_gia_dinh, "Có", "Chưa")</div>
+                                    <div>PARA: @KhamSucKhoeSanPhuKhoaModel?.para</div>
+                                    <div>Số lần mổ sản, phụ khoa: @KhamSucKhoeSanPhuKhoaModel?.so_lan_mo_san_phu_khoa @(string.IsNullOrEmpty(KhamSucKhoeSanPhuKhoaModel?.mo_san_phu_khoa_ghi_ro) ? "/ Chưa" : $"Có {KhamSucKhoeSanPhuKhoaModel?.mo_san_phu_khoa_ghi_ro}")</div>
+                                    <div>Có áp dụng BPTT không: @(KhamSucKhoeSanPhuKhoaModel?.ap_dung_bptt == true ? $"Có {KhamSucKhoeSanPhuKhoaModel?.ap_dung_bptt}" : "Không")</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- II. Physical Examination -->
+                    <div class="mb-6">
+                        <div class="font-bold mb-2">II. KHÁM THỂ LỰC</div>
+                        <div class="ml-4 space-y-1">
+                            <div>Chiều cao: @KhamSucKhoeTheLucModel?.chieu_cao cm; Cân nặng: @KhamSucKhoeTheLucModel?.can_nang kg; Chỉ số BMI: @KhamSucKhoeTheLucModel?.bmi</div>
+                            <div>Mạch: @KhamSucKhoeTheLucModel?.mach lần/phút; Huyết áp: @KhamSucKhoeTheLucModel?.huyet_ap mmHg</div>
+                            <div>Phân loại thể lực: @KhamSucKhoeTheLucModel?.phan_loai</div>
+                        </div>
+                    </div>
+
+                    <!-- III. Clinical Examination -->
+                    <div class="mb-6">
+                        <div class="font-bold mb-2">III. KHÁM LÂM SÀNG</div>
+                        <div class="text-sm mb-4">Phải khám đầy đủ các nội dung theo chuyên khoa để khẳng định có/không có bệnh, tật theo quy định tại Quyết định...</div>
+                        
+                        <div class="ksk-table-wrap">
+                            <table class="ksk-table">
+                                <thead>
+                                    <tr>
+                                        <th style="min-width: 140px;">Chuyên khoa</th>
+                                        <th style="min-width: 140px;">Kết quả</th>
+                                        <th style="min-width: 100px;">Bác sĩ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Internal Medicine -->
+                                    <tr>
+                                        <td colspan="3" style="font-weight: bold;">1. Nội khoa:</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-specialty">a) Tuần hoàn</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_tuan_hoan</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_tuan_hoan</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tuan_hoan</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.chu_ky_tuan_hoan</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-specialty">b) Hô hấp</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_ho_hap</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_ho_hap</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_ho_hap</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_ho_hap</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-specialty">c) Tiêu hóa</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_tieu_hoa</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_tieu_hoa</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tieu_hoa</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-specialty">d) Thận-Tiết niệu</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_than_tiet_nieu</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_than_tiet_nieu</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_than_tiet_nieu</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-specialty">h) Tâm thần</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_tam_than</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_tam_than</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tam_than</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_tam_than</td>
+                                    </tr>
+                                    
+                                    <!-- Surgery, Dermatology -->
+                                    <tr>
+                                        <td colspan="3" style="font-weight: bold;">2. Ngoại khoa, Da liễu:</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-specialty">- Ngoại khoa</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_ngoai_khoa</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_ngoai_khoa</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_ngoai_khoa</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-specialty">- Da liễu</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_da_lieu</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_da_lieu</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_da_lieu</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_da_lieu</td>
+                                    </tr>
+                                    
+                                    <!-- Obstetrics & Gynecology -->
+                                    <tr>
+                                        <td colspan="3" style="font-weight: bold;">3. Sản phụ khoa:</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-specialty">- Sản phụ khoa</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeSanPhuKhoaModel?.ket_qua</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeSanPhuKhoaModel?.chu_ky</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeSanPhuKhoaModel?.phan_loai</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeSanPhuKhoaModel?.chu_ky</td>
+                                    </tr>
+                                    
+                                    <!-- Ophthalmology -->
+                                    <tr>
+                                        <td colspan="3" style="font-weight: bold;">4. Mắt:</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="ls-cell-small">
+                                            <div class="ls-specialty">Kết quả khám thị lực:</div>
+                                            <div>Không kính: Mắt phải @KhamSucKhoeChuyenKhoaModel.thi_luc_khong_kinh_phai Mắt trái @KhamSucKhoeChuyenKhoaModel.thi_luc_khong_kinh_trai | Có kính: Mắt phải @KhamSucKhoeChuyenKhoaModel.thi_luc_co_kinh_phai Mắt trái @KhamSucKhoeChuyenKhoaModel.thi_luc_co_kinh_trai</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="ls-cell-small">
+                                            <div class="ls-specialty">Các bệnh về mắt (nếu có):</div>
+                                            <div>@KhamSucKhoeChuyenKhoaModel.benh_mat</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel.pl_mat</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.bs_mat</td>
+                                    </tr>
+                                    
+                                    <!-- ENT -->
+                                    <tr>
+                                        <td colspan="3" style="font-weight: bold;">5. Tai - Mũi - Họng:</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="ls-cell-small">
+                                            <div class="ls-specialty">Kết quả khám thính lực:</div>
+                                            <div>Tai trái: @KhamSucKhoeChuyenKhoaModel.tmh_nt_trai m; Nói thầm @KhamSucKhoeChuyenKhoaModel.tmh_ntham_trai m | Tai phải: @KhamSucKhoeChuyenKhoaModel.tmh_nt_phai m; Nói thầm @KhamSucKhoeChuyenKhoaModel.tmh_ntham_phai m</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="ls-cell-small">
+                                            <div class="ls-specialty">Các bệnh về tai mũi họng (nếu có):</div>
+                                            <div>@KhamSucKhoeChuyenKhoaModel.benh_tai_mui_hong</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel.pl_tmh</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.bs_tmh</td>
+                                    </tr>
+                                    
+                                    <!-- Dental -->
+                                    <tr>
+                                        <td colspan="3" style="font-weight: bold;">6. Răng - Hàm - Mặt:</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="ls-cell-small">
+                                            <div class="ls-specialty">Kết quả khám:</div>
+                                            <div>Hàm trên: @KhamSucKhoeChuyenKhoaModel.kq_rhm_ham_tren | Hàm dưới: @KhamSucKhoeChuyenKhoaModel.kq_rhm_ham_duoi</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="ls-cell-small">
+                                            <div class="ls-specialty">Các bệnh về răng hàm mặt (nếu có):</div>
+                                            <div>@KhamSucKhoeChuyenKhoaModel.benh_rhm</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ls-label">Phân loại</td>
+                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel.pl_rhm</td>
+                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.bs_rhm</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- IV. Laboratory Tests -->
+                    <div style="margin-bottom: 24px;">
+                        <div style="font-weight: bold; text-align: center; margin-bottom: 8px;">IV. KHÁM CẬN LÂM SÀNG</div>
+                        <div style="border: 1px solid #000; padding: 16px;">
+                            <div style="margin-bottom: 8px;">* Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</div>
+                            <div style="margin-left: 16px;">
+                                <div style="margin-bottom: 8px;">a) Kết quả: @KhamSucKhoeCanLamSanModel.ket_qua_cls</div>
+                                <div>b) Đánh giá: @KhamSucKhoeCanLamSanModel.danh_gia_cls</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- V. Conclusion -->
+                    <div style="margin-bottom: 24px;">
+                        <div style="font-weight: bold; text-align: center; margin-bottom: 8px;">V. KẾT LUẬN</div>
+                        <div style="margin-bottom: 32px;">
+                            <div style="margin-bottom: 8px;"><strong>1. Phân loại sức khỏe:<sup>1</sup></strong> @KhamSucKhoeKetLuanModel.phan_loai_suc_khoe</div>
+                            <div style="margin-bottom: 8px;"><strong>2. Các bệnh, tật (nếu có):<sup>2</sup></strong> @KhamSucKhoeKetLuanModel.benh_tat_ket_luan</div>
+                            <div><strong>3. Đề nghị:</strong> @KhamSucKhoeKetLuanModel.de_nghi</div>
+                        </div>
+                        
+                        <div class="ksk-signature-row">
+                            <div style="flex: 1;"></div>
+                            <div class="ksk-signature-box">
+                                <div><strong>NGƯỜI KẾT LUẬN</strong></div>
+                                <small>(Ký, ghi rõ họ tên và đóng dấu)</small>
+                                <div style="margin-bottom: 32px;">@KhamSucKhoeKetLuanModel.ngay_ket_luan</div>
+                                <div><strong>@KhamSucKhoeKetLuanModel.chu_ky</strong></div>
+                                <div><strong>@KhamSucKhoeKetLuanModel.nguoi_ket_luan</strong></div>
+                            </div>
+                        </div>
+                        
+                        <div class="ksk-note" style="border-top: 1px solid #333; padding-top: 8px;">
+                            <div><sup>1</sup> Phân loại sức khỏe theo quy định của Bộ Y tế.</div>
+                            <div><sup>2</sup> Ghi rõ các bệnh, tật, phương án điều trị, phục hồi chức năng hoặc giới thiệu khám chuyên khoa để khám bệnh, chữa bệnh (nếu có).</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         }
     </div>
-
-    <!-- II. Physical Examination -->
-    <div class="mb-6">
-        <div class="font-bold mb-2">II. KHÁM THỂ LỰC</div>
-        <div class="ml-4 space-y-1">
-            <div>Chiều cao: @KhamSucKhoeTheLucModel?.chieu_cao cm; Cân nặng: @KhamSucKhoeTheLucModel?.can_nang kg; Chỉ số BMI: @KhamSucKhoeTheLucModel?.bmi</div>
-            <div>Mạch: @KhamSucKhoeTheLucModel?.mach lần/phút; Huyết áp: @KhamSucKhoeTheLucModel?.huyet_ap mmHg</div>
-            <div>Phân loại thể lực: @KhamSucKhoeTheLucModel?.phan_loai</div>
-        </div>
-    </div>
-
-    <!-- III. Clinical Examination -->
-    <div class="mb-6">
-        <div class="font-bold mb-2">III. KHÁM LÂM SÀNG</div>
-        <div class="text-sm mb-4">Phải khám đầy đủ các nội dung theo chuyên khoa để khẳng định có/không có bệnh, tật theo quy định tại Quyết định...</div>
-        
-        <div class="ksk-table-wrap">
-            <table class="ksk-table">
-                <thead>
-                    <tr>
-                        <th style="min-width: 140px;">Chuyên khoa</th>
-                        <th style="min-width: 140px;">Kết quả</th>
-                        <th style="min-width: 100px;">Bác sĩ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Internal Medicine -->
-                    <tr>
-                        <td colspan="3" style="font-weight: bold;">1. Nội khoa:</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-specialty">a) Tuần hoàn</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_tuan_hoan</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_tuan_hoan</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tuan_hoan</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.chu_ky_tuan_hoan</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-specialty">b) Hô hấp</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_ho_hap</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_ho_hap</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_ho_hap</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_ho_hap</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-specialty">c) Tiêu hóa</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_tieu_hoa</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_tieu_hoa</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tieu_hoa</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-specialty">d) Thận-Tiết niệu</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_than_tiet_nieu</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_than_tiet_nieu</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_than_tiet_nieu</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-specialty">h) Tâm thần</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_tam_than</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_tam_than</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tam_than</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_tam_than</td>
-                    </tr>
-                    
-                    <!-- Surgery, Dermatology -->
-                    <tr>
-                        <td colspan="3" style="font-weight: bold;">2. Ngoại khoa, Da liễu:</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-specialty">- Ngoại khoa</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_ngoai_khoa</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_ngoai_khoa</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_ngoai_khoa</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-specialty">- Da liễu</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_da_lieu</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_da_lieu</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_da_lieu</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_da_lieu</td>
-                    </tr>
-                    
-                    <!-- Obstetrics & Gynecology -->
-                    <tr>
-                        <td colspan="3" style="font-weight: bold;">3. Sản phụ khoa:</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-specialty">- Sản phụ khoa</td>
-                        <td class="ls-cell-small">@KhamSucKhoeSanPhuKhoaModel?.ket_qua</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeSanPhuKhoaModel?.chu_ky</td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeSanPhuKhoaModel?.phan_loai</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeSanPhuKhoaModel?.chu_ky</td>
-                    </tr>
-                    
-                    <!-- Ophthalmology -->
-                    <tr>
-                        <td colspan="3" style="font-weight: bold;">4. Mắt:</td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" class="ls-cell-small">
-                            <div class="ls-specialty">Kết quả khám thị lực:</div>
-                            <div>Không kính: Mắt phải @KhamSucKhoeChuyenKhoaModel.thi_luc_khong_kinh_phai Mắt trái @KhamSucKhoeChuyenKhoaModel.thi_luc_khong_kinh_trai | Có kính: Mắt phải @KhamSucKhoeChuyenKhoaModel.thi_luc_co_kinh_phai Mắt trái @KhamSucKhoeChuyenKhoaModel.thi_luc_co_kinh_trai</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" class="ls-cell-small">
-                            <div class="ls-specialty">Các bệnh về mắt (nếu có):</div>
-                            <div>@KhamSucKhoeChuyenKhoaModel.benh_mat</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel.pl_mat</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.bs_mat</td>
-                    </tr>
-                    
-                    <!-- ENT -->
-                    <tr>
-                        <td colspan="3" style="font-weight: bold;">5. Tai - Mũi - Họng:</td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" class="ls-cell-small">
-                            <div class="ls-specialty">Kết quả khám thính lực:</div>
-                            <div>Tai trái: @KhamSucKhoeChuyenKhoaModel.tmh_nt_trai m; Nói thầm @KhamSucKhoeChuyenKhoaModel.tmh_ntham_trai m | Tai phải: @KhamSucKhoeChuyenKhoaModel.tmh_nt_phai m; Nói thầm @KhamSucKhoeChuyenKhoaModel.tmh_ntham_phai m</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" class="ls-cell-small">
-                            <div class="ls-specialty">Các bệnh về tai mũi họng (nếu có):</div>
-                            <div>@KhamSucKhoeChuyenKhoaModel.benh_tai_mui_hong</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel.pl_tmh</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.bs_tmh</td>
-                    </tr>
-                    
-                    <!-- Dental -->
-                    <tr>
-                        <td colspan="3" style="font-weight: bold;">6. Răng - Hàm - Mặt:</td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" class="ls-cell-small">
-                            <div class="ls-specialty">Kết quả khám:</div>
-                            <div>Hàm trên: @KhamSucKhoeChuyenKhoaModel.kq_rhm_ham_tren | Hàm dưới: @KhamSucKhoeChuyenKhoaModel.kq_rhm_ham_duoi</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" class="ls-cell-small">
-                            <div class="ls-specialty">Các bệnh về răng hàm mặt (nếu có):</div>
-                            <div>@KhamSucKhoeChuyenKhoaModel.benh_rhm</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ls-label">Phân loại</td>
-                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel.pl_rhm</td>
-                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.bs_rhm</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- IV. Laboratory Tests -->
-    <div style="margin-bottom: 24px;">
-        <div style="font-weight: bold; text-align: center; margin-bottom: 8px;">IV. KHÁM CẬN LÂM SÀNG</div>
-        <div style="border: 1px solid #000; padding: 16px;">
-            <div style="margin-bottom: 8px;">* Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</div>
-            <div style="margin-left: 16px;">
-                <div style="margin-bottom: 8px;">a) Kết quả: @KhamSucKhoeCanLamSanModel.ket_qua_cls</div>
-                <div>b) Đánh giá: @KhamSucKhoeCanLamSanModel.danh_gia_cls</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- V. Conclusion -->
-    <div style="margin-bottom: 24px;">
-        <div style="font-weight: bold; text-align: center; margin-bottom: 8px;">V. KẾT LUẬN</div>
-        <div style="margin-bottom: 32px;">
-            <div style="margin-bottom: 8px;"><strong>1. Phân loại sức khỏe:<sup>1</sup></strong> @KhamSucKhoeKetLuanModel.phan_loai_suc_khoe</div>
-            <div style="margin-bottom: 8px;"><strong>2. Các bệnh, tật (nếu có):<sup>2</sup></strong> @KhamSucKhoeKetLuanModel.benh_tat_ket_luan</div>
-            <div><strong>3. Đề nghị:</strong> @KhamSucKhoeKetLuanModel.de_nghi</div>
-        </div>
-        
-        <div class="ksk-signature-row">
-            <div style="flex: 1;"></div>
-            <div class="ksk-signature-box">
-                <div><strong>NGƯỜI KẾT LUẬN</strong></div>
-                <small>(Ký, ghi rõ họ tên và đóng dấu)</small>
-                <div style="margin-bottom: 32px;">@KhamSucKhoeKetLuanModel.ngay_ket_luan</div>
-                <div><strong>@KhamSucKhoeKetLuanModel.chu_ky</strong></div>
-                <div><strong>@KhamSucKhoeKetLuanModel.nguoi_ket_luan</strong></div>
-            </div>
-        </div>
-        
-        <div class="ksk-note" style="border-top: 1px solid #333; padding-top: 8px;">
-            <div><sup>1</sup> Phân loại sức khỏe theo quy định của Bộ Y tế.</div>
-            <div><sup>2</sup> Ghi rõ các bệnh, tật, phương án điều trị, phục hồi chức năng hoặc giới thiệu khám chuyên khoa để khám bệnh, chữa bệnh (nếu có).</div>
-        </div>
-    </div>
 </div>
-</div>
-<!-- End of Printable Medical Form Content -->
-}
+
 
 @code {
     #region Constants
@@ -682,7 +686,7 @@ else
             Console.WriteLine("Step 3: Cấu hình PDF settings...");
             var pdfSettings = new PdfSettings
             {
-                FileName = $"So_KSK_{CurrentUser.last_name}_{CurrentUser.first_name}_{DateTime.Now:yyyyMMdd}.pdf",
+                FileName = $"So_KSK_{CurrentUser.last_name}{CurrentUser.first_name}_{DateTime.Now:yyyyMMdd}.pdf",
                 PageSize = "A4",
                 Orientation = "Portrait",
                 MarginTop = 10,

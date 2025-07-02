@@ -29,7 +29,6 @@ namespace CoreAdminWeb.DIInjections
             
             // PDF Service Configuration
             services.AddScoped<IPdfService, PdfService>();
-            services.AddScoped<IHtmlRenderService, HtmlRenderService>();
         }
     }
 }

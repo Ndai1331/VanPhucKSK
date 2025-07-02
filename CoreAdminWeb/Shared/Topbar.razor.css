@@ -1,0 +1,31 @@
+﻿.animate-fade-in-down {
+    animation: fade-in-down 0.3s ease-out;
+}
+
+@keyframes fade-in-down {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive logo size */
+.logo-icon {
+    height: 2.5rem;
+}
+
+@media (max-width: 640px) {
+    .logo-icon {
+        height: 2rem;
+    }
+}
+
+/* Improved mobile menu overlay */
+.mobile-menu-overlay {
+    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.1);
+}

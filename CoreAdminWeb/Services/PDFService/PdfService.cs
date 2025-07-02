@@ -222,63 +222,79 @@ namespace CoreAdminWeb.Services.PDFService
                     font-size: 14px;
                     background: #fff;
                     margin: 0;
-                    padding: 20px;
+                    padding: 5px;
                     color: #000;
-                    line-height: 1.4;
+                    line-height: 1.2;
+                    width: 100%;
+                    box-sizing: border-box;
                 }
-                
+               
                 .ksk-header {
                     text-align: center;
-                    margin-bottom: 10px;
+                    margin-bottom: 5px;
+                    line-height: 1.1;
                 }
                 
                 .ksk-header .quochoa {
                     font-weight: bold;
                     text-transform: uppercase;
+                    font-size: 14px;
                 }
                 
                 .ksk-header .doclap {
                     font-style: italic;
+                    font-size: 13px;
                 }
                 
                 .ksk-header .mau-so {
                     font-weight: bold;
-                    margin-bottom: 5px;
+                    margin-bottom: 2px;
+                    font-size: 12px;
                 }
                 
                 .ksk-title {
                     text-align: center;
                     font-weight: bold;
                     text-transform: uppercase;
-                    font-size: 18px;
-                    margin-bottom: 10px;
+                    font-size: 16px;
+                    margin: 5px 0 10px 0;
+                    line-height: 1.1;
                 }
                 
                 .ksk-form {
-                    max-width: 900px;
+                    max-width: calc(100% - 10px);
+                    width: 100%;
                     margin: 0 auto;
-                    border: 2px solid #000;
-                    padding: 24px 32px 16px 32px;
+                    border-top: 2px solid #000;
+                    border-right: 2px solid #000;
+                    border-bottom: 2px solid #000;
+                    border-left: 2px solid #000;
+                    padding: 20px 30px 16px 30px;
                     page-break-inside: avoid;
+                    box-sizing: border-box;
+                    overflow: hidden;
                 }
                 
                 .ksk-row {
                     display: flex;
                     flex-direction: row;
-                    gap: 32px;
-                    margin-bottom: 20px;
+                    gap: 30px;
+                    margin-bottom: 16px;
+                    max-width: 100%;
+                    overflow: hidden;
+                    box-sizing: border-box;
                 }
                 
                 .ksk-photo {
-                    width: 120px;
-                    min-width: 120px;
-                    height: 160px;
+                    width: 90px;
+                    min-width: 90px;
+                    height: 120px;
                     border: 1px solid #000;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 13px;
-                    margin-bottom: 8px;
+                    font-size: 11px;
+                    margin-bottom: 6px;
                 }
                 
                 .ksk-photo img {
@@ -288,23 +304,33 @@ namespace CoreAdminWeb.Services.PDFService
                 }
                 
                 .ksk-photo-label {
-                    font-size: 12px;
+                    font-size: 10px;
                     text-align: center;
                     margin-top: 4px;
                 }
                 
                 .ksk-info {
                     flex: 1;
+                    max-width: calc(100% - 150px);
                 }
                 
                 .ksk-info-row {
                     display: flex;
                     margin-bottom: 4px;
+                    max-width: 100%;
+                    overflow: visible;
+                    align-items: flex-start;
+                    flex-wrap: nowrap;
                 }
                 
                 .ksk-info-label {
-                    min-width: 140px;
+                    min-width: 100px;
                     font-weight: bold;
+                    flex-shrink: 0;
+                    font-size: 13px;
+                    padding-right: 8px;
+                    padding-top: 2px;
+                    vertical-align: top;
                 }
                 
                 .ksk-info-value {
@@ -315,53 +341,85 @@ namespace CoreAdminWeb.Services.PDFService
                 }
                 
                 .ksk-note {
-                    font-size: 12px;
-                    margin: 8px 0 12px 0;
+                    font-size: 11px;
+                    margin: 12px 0 16px 0;
+                    padding: 8px;
+                    border: 1px solid #333;
+                    background-color: #f9f9f9;
+                    line-height: 1.3;
                 }
                 
                 .ksk-table-wrap {
-                    margin: 12px 0;
+                    margin: 16px 0;
                     overflow-x: auto;
                     -webkit-overflow-scrolling: touch;
                 }
                 
                 .ksk-table {
                     width: 100%;
-                    border-collapse: collapse;
+                    border-collapse: separate;
+                    border-spacing: 0;
                     margin: 12px 0;
-                    font-size: 13px;
+                    font-size: 12px;
+                    border: 1px solid #000;
                 }
                 
                 .ksk-table th, .ksk-table td {
-                    border: 1px solid #000;
+                    border-right: 1px solid #000;
+                    border-bottom: 1px solid #000;
                     text-align: center;
-                    padding: 4px 6px;
+                    padding: 3px 4px;
+                    vertical-align: middle;
+                }
+                
+                .ksk-table th:last-child, .ksk-table td:last-child {
+                    border-right: none;
+                }
+                
+                .ksk-table tr:last-child th, .ksk-table tr:last-child td {
+                    border-bottom: none;
                 }
                 
                 .ksk-table th {
                     background: #f8f8f8;
                     font-weight: bold;
+                    border-top: none;
+                }
+                
+                .ksk-table tr:first-child th {
+                    border-top: none;
+                }
+                
+                .ksk-table tr:first-child td {
+                    border-top: none;
                 }
                 
                 .ksk-signature-row {
                     display: flex;
                     justify-content: space-between;
-                    margin-top: 32px;
+                    margin-top: 24px;
+                    gap: 20px;
                 }
                 
                 .ksk-signature-box {
-                    width: 40%;
+                    width: 45%;
                     text-align: center;
+                    font-size: 12px;
+                    padding: 10px;
+                    line-height: 1.4;
                 }
                 
                 .ksk-signature-box small {
-                    font-size: 12px;
+                    font-size: 10px;
+                    font-style: italic;
                 }
                 
                 .ls-cell-small {
                     font-size: 12px;
                     padding: 2px 4px;
                     line-height: 1.2;
+                    border-right: 1px solid #000 !important;
+                    border-bottom: 1px solid #000 !important;
                 }
                 
                 .ls-doctor-cell {
@@ -370,17 +428,23 @@ namespace CoreAdminWeb.Services.PDFService
                     padding: 2px 2px;
                     line-height: 1.2;
                     min-width: 80px;
+                    border-right: 1px solid #000 !important;
+                    border-bottom: 1px solid #000 !important;
                 }
                 
                 .ls-specialty {
                     font-style: italic;
                     font-weight: normal;
+                    text-align: left;
+                    padding-left: 8px;
                 }
                 
                 .ls-label {
                     font-size: 12px;
                     font-style: normal;
                     color: #333;
+                    text-align: left;
+                    padding-left: 16px;
                 }
                 
                 .font-bold {
@@ -396,28 +460,67 @@ namespace CoreAdminWeb.Services.PDFService
                 }
                 
                 .mb-2 {
-                    margin-bottom: 8px;
+                    margin-bottom: 6px;
                 }
                 
                 .mb-4 {
-                    margin-bottom: 16px;
+                    margin-bottom: 12px;
                 }
                 
                 .mb-6 {
-                    margin-bottom: 24px;
+                    margin-bottom: 18px;
                 }
                 
                 .ml-4 {
-                    margin-left: 16px;
+                    margin-left: 12px;
                 }
                 
                 .space-y-1 > * + * {
-                    margin-top: 4px;
+                    margin-top: 3px;
                 }
                 
                 .text-sm {
-                    font-size: 12px;
+                    font-size: 11px;
                 }
+                
+                /* Inline text elements for date/time fields */
+                .ksk-info-row span {
+                    white-space: nowrap;
+                    margin: 0 4px;
+                    flex-shrink: 0;
+                    font-size: 13px;
+                    font-weight: normal;
+                }
+                
+                /* Special styling for date input fields */
+                .ksk-info-row .ksk-info-value {
+                    margin-right: 4px;
+                }
+                
+                .ksk-info-value + span + .ksk-info-value {
+                    min-width: 60px;
+                    max-width: 80px;
+                    text-align: center;
+                    white-space: nowrap;
+                }
+                
+                /* Specific styling for birth date row (mục 3) */
+                .birth-date-row .ksk-info-value {
+                    max-width: 80px;
+                    flex: 0 0 auto;
+                }
+                
+                .birth-date-row span {
+                    margin: 0 8px;
+                    font-size: 13px;
+                }
+                
+                .issued-date-row .ksk-info-value:first-of-type {
+                    max-width: 100px;
+                    flex: 0 0 auto;
+                }
+                
+
                 
                 /* Page break controls */
                 .page-break-before {
@@ -432,10 +535,49 @@ namespace CoreAdminWeb.Services.PDFService
                     page-break-inside: avoid;
                 }
                 
-                /* Page settings for PDF */
+                /* Page settings for PDF - compact margins */
                 @page {
                     size: A4;
-                    margin: 1cm;
+                    margin: 0.8cm 0.6cm;
+                }
+                
+                /* Ensure proper border rendering */
+                * {
+                    box-sizing: border-box;
+                }
+                
+                /* Force border visibility for iText7 */
+                .ksk-form, .ksk-table, .ksk-photo {
+                    -webkit-print-color-adjust: exact;
+                    color-adjust: exact;
+                }
+                
+                /* iText7 border fix - ensure all borders render */
+                .ksk-form {
+                    outline: 2px solid #000;
+                    outline-offset: -2px;
+                }
+                
+                /* Alternative border approach for better iText7 compatibility */
+                .ksk-form::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    border: 2px solid #000;
+                    pointer-events: none;
+                }
+
+                .30px {
+                    width: 30px !important;
+                }
+                .70px {
+                    width: 70px !important;
+                }
+                .50px {
+                    width: 50px !important;
                 }
             ";
         }
