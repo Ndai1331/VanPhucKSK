@@ -1,5 +1,4 @@
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.RequestHttp;
 using System.Net;
@@ -12,7 +11,7 @@ namespace CoreAdminWeb.Services
     /// </summary>
     public class KhamSucKhoeChuyenKhoaService : IBaseGetService<KhamSucKhoeChuyenKhoaModel>
     {
-        private readonly string _collection = "kham_suc_khoe_chuyen_khoa";
+        private readonly string _collection = "kham_suc_khoe_kham_chuyen_khoa";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
 
         /// <summary>

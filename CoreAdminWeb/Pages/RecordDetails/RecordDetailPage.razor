@@ -6,6 +6,7 @@
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Services.PDFService
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
 
@@ -52,6 +53,8 @@ else if (!string.IsNullOrEmpty(errorMessage))
 else
 {
 
+<!-- Printable Medical Form Content -->
+<div id="medical-form-content">
 <!-- Medical Form Header -->
 <div class="ksk-header" style="margin-bottom:0;">
     <div class="mau-so">Mẫu số 03</div>
@@ -138,7 +141,7 @@ else
             </div>
             <div class="ksk-info-row">
                 <div class="ksk-info-label">13. Tiền sử bệnh, tật của gia đình:</div>
-                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeTienSuModel?.tien_su_gia_dinh)</div>
+                <div class="ksk-info-value">@(KhamSucKhoeTienSuModels?.Count > 0 ? "Có" : "Không")</div>
             </div>
         </div>
     </div>
@@ -153,25 +156,22 @@ else
         <table class="ksk-table">
             <thead>
                 <tr>
-                    <th rowspan="2">Tên bệnh</th>
-                    <th colspan="2">Phát hiện năm</th>
-                </tr>
-                <tr>
-                    <th>Bệnh mãn tính</th>
+                    <th>Tên bệnh</th>
+                    <th>Phát hiện năm</th>
                     <th>Bệnh nghề nghiệp</th>
+                    <th>Năm phát hiện bệnh nghề nghiệp</th>
                 </tr>
             </thead>
             <tbody>
-                @* <tr>
-                    <td class="ls-cell-small">@(diseaseHistory.FirstOrDefault()?.DiseaseName ?? "Không")</td>
-                    <td class="ls-cell-small">@(diseaseHistory.FirstOrDefault()?.ChronicYear ?? "-")</td>
-                    <td class="ls-cell-small">@(diseaseHistory.FirstOrDefault()?.OccupationalYear ?? "-")</td>
-                </tr>
-                <tr>
-                    <td class="ls-cell-small">@(diseaseHistory.Skip(1).FirstOrDefault()?.DiseaseName ?? "Không")</td>
-                    <td class="ls-cell-small">@(diseaseHistory.Skip(1).FirstOrDefault()?.ChronicYear ?? "-")</td>
-                    <td class="ls-cell-small">@(diseaseHistory.Skip(1).FirstOrDefault()?.OccupationalYear ?? "-")</td>
-                </tr> *@
+                @foreach (var item in KhamSucKhoeTienSuModels)
+                {
+                    <tr>
+                        <td class="ls-cell-small">@item.ten_benh</td>
+                        <td class="ls-cell-small">@item.nam_phat_hien</td>
+                        <td class="ls-cell-small">@item.benh_nghe_nghiep</td>
+                        <td class="ls-cell-small">@item.nam_phat_hien_benh_nghe_nghiep</td>
+                    </tr> 
+                }
             </tbody>
         </table>
     </div>
@@ -446,6 +446,8 @@ else
         </div>
     </div>
 </div>
+</div>
+<!-- End of Printable Medical Form Content -->
 }
 
 @code {
@@ -471,6 +473,9 @@ else
     [Inject] IBaseGetService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaService { get; set; } = null!;
     [Inject] IBaseGetService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
     [Inject] IBaseGetService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
+    [Inject] IPdfService PdfService { get; set; } = null!;
+    [Inject] IHtmlRenderService HtmlRenderService { get; set; } = null!;
+    [Inject] IJSRuntime JsRuntime { get; set; } = null!;
 
     #endregion
 
@@ -484,7 +489,7 @@ else
     private KhamSucKhoeNgheNghiepModel? KhamSucKhoeNgheNghiepModel { get; set; }
     private KhamSucKhoeSanPhuKhoaModel? KhamSucKhoeSanPhuKhoaModel { get; set; }
     private KhamSucKhoeTheLucModel? KhamSucKhoeTheLucModel { get; set; }
-    private KhamSucKhoeTienSuModel? KhamSucKhoeTienSuModel { get; set; }
+    private List<KhamSucKhoeTienSuModel>? KhamSucKhoeTienSuModels { get; set; }
 
     private UserModel? CurrentUser { get; set; }
     private string profileImageUrl = string.Empty;
@@ -516,16 +521,10 @@ else
             isLoading = true;
             errorMessage = null;
             StateHasChanged();
-
-            // Build query for medical record filter
-            var query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
-
             // Load user data and medical records in parallel for better performance
             var userTask = LoadUserDataAsync();
-            var medicalDataTask = LoadMedicalDataAsync(query);
-
+            var medicalDataTask = LoadMedicalDataAsync();
             await Task.WhenAll(userTask, medicalDataTask);
-
             // Set profile image placeholder
             SetProfileImagePlaceholder();
         }
@@ -556,8 +555,9 @@ else
     /// <summary>
     /// Load all medical record data in parallel
     /// </summary>
-    private async Task LoadMedicalDataAsync(string query)
+    private async Task LoadMedicalDataAsync()
     {
+        string query =$"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
         // Execute all medical data API calls in parallel for better performance
         var tasks = new[]
         {
@@ -568,7 +568,7 @@ else
             LoadSingleRecordAsync<KhamSucKhoeNgheNghiepModel>(KhamSucKhoeNgheNghiepService, query, r => KhamSucKhoeNgheNghiepModel = r),
             LoadSingleRecordAsync<KhamSucKhoeSanPhuKhoaModel>(KhamSucKhoeSanPhuKhoaService, query, r => KhamSucKhoeSanPhuKhoaModel = r),
             LoadSingleRecordAsync<KhamSucKhoeTheLucModel>(KhamSucKhoeTheLucService, query, r => KhamSucKhoeTheLucModel = r),
-            LoadSingleRecordAsync<KhamSucKhoeTienSuModel>(KhamSucKhoeTienSuService, query, r => KhamSucKhoeTienSuModel = r)
+            LoadMultipleRecordAsync<KhamSucKhoeTienSuModel>(KhamSucKhoeTienSuService, query, r => KhamSucKhoeTienSuModels = r)
         };
 
         await Task.WhenAll(tasks);
@@ -585,6 +585,25 @@ else
             if (result?.IsSuccess == true && result.Data != null)
             {
                 setResult(result.Data.FirstOrDefault());
+            }
+            else
+            {
+                setResult(null);
+            }
+        }
+        catch
+        {
+            setResult(null);
+        }
+    }
+    private async Task LoadMultipleRecordAsync<T>(IBaseGetService<T> service, string query, Action<List<T>?> setResult) where T : class
+    {
+        try
+        {
+            var result = await service.GetAllAsync(query);
+            if (result?.IsSuccess == true && result.Data != null)
+            {
+                setResult(result.Data);
             }
             else
             {
@@ -616,15 +635,59 @@ else
     {
         if (!isLoading)
         {
-            await JsRuntime.InvokeVoidAsync("window.print");
+            // Sử dụng function mới để chỉ in phần medical form content
+            await JsRuntime.InvokeVoidAsync("printMedicalForm");
         }
     }
 
     private async Task ExportPDF()
     {
-        if (!isLoading)
+        if (isLoading || CurrentUser == null) return;
+
+        try
         {
-            await JsRuntime.InvokeVoidAsync("alert", "Tính năng xuất PDF sẽ được phát triển trong phiên bản tiếp theo!");
+            isLoading = true;
+            StateHasChanged();
+
+            // Create PDF model from current data
+            var pdfModel = CreatePdfModel();
+
+            // Generate HTML content
+            var htmlContent = HtmlRenderService.RenderMedicalRecordToPdf(pdfModel);
+
+            // Configure PDF settings
+            var pdfSettings = new PdfSettings
+            {
+                FileName = $"So_KSK_{CurrentUser.last_name}_{CurrentUser.first_name}_{DateTime.Now:yyyyMMdd}.pdf",
+                PageSize = "A4",
+                Orientation = "Portrait",
+                MarginTop = 10,
+                MarginBottom = 10,
+                MarginLeft = 10,
+                MarginRight = 10
+            };
+
+            // Generate PDF
+            var pdfBytes = PdfService.GeneratePdfFromHtml(htmlContent, pdfSettings);
+
+            // Convert to base64 for download
+            var base64 = Convert.ToBase64String(pdfBytes);
+            var dataUrl = $"data:application/pdf;base64,{base64}";
+
+            // Trigger download via JavaScript
+            await JsRuntime.InvokeVoidAsync("downloadFile", dataUrl, pdfSettings.FileName);
+
+            AlertService?.ShowAlert("Xuất PDF thành công!", "success");
+        }
+        catch (Exception ex)
+        {
+            var errorMsg = $"Lỗi khi xuất PDF: {ex.Message}";
+            AlertService?.ShowAlert(errorMsg, "danger");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -683,6 +746,78 @@ else
     /// Safe access to string with default empty
     /// </summary>
     private string GetSafeString(string? value) => value ?? string.Empty;
+
+    /// <summary>
+    /// Create PDF model from current medical record data
+    /// </summary>
+    private MedicalRecordPdfModel CreatePdfModel()
+    {
+        return new MedicalRecordPdfModel
+        {
+            PatientName = GetUserFullName(),
+            Gender = CurrentUser?.gioi_tinh?.GetDescription() ?? "",
+            BirthDate = FormatDate(CurrentUser?.ngay_sinh),
+            IdNumber = GetSafeString(CurrentUser?.so_dinh_danh),
+            IssuedDate = FormatDate(CurrentUser?.ngay_cap),
+            IssuedPlace = GetSafeString(CurrentUser?.noi_cap),
+            Address = GetSafeString(CurrentUser?.dia_chi),
+            Phone = GetSafeString(CurrentUser?.so_dien_thoai),
+            Occupation = GetSafeString(KhamSucKhoeNgheNghiepModel?.nghe_nghiep),
+            WorkPlace = GetSafeString(KhamSucKhoeNgheNghiepModel?.noi_cong_tac),
+            WorkStartDate = FormatDate(KhamSucKhoeNgheNghiepModel?.ngay_vao_lam),
+            ProfileImageUrl = profileImageUrl,
+
+            // Physical examination data
+            PhysicalData = KhamSucKhoeTheLucModel != null ? new PhysicalExamData
+            {
+                Height = GetSafeString(KhamSucKhoeTheLucModel.chieu_cao?.ToString()),
+                Weight = GetSafeString(KhamSucKhoeTheLucModel.can_nang?.ToString()),
+                BMI = GetSafeString(KhamSucKhoeTheLucModel.bmi?.ToString()),
+                Pulse = GetSafeString(KhamSucKhoeTheLucModel.mach?.ToString()),
+                BloodPressure = GetSafeString(KhamSucKhoeTheLucModel.huyet_ap),
+                Classification = GetSafeString(KhamSucKhoeTheLucModel.phan_loai)
+            } : null,
+
+            // Laboratory test data
+            LabData = KhamSucKhoeCanLamSanModel != null ? new LabTestData
+            {
+                Results = GetSafeString(KhamSucKhoeCanLamSanModel.ket_qua_cls),
+                Evaluation = GetSafeString(KhamSucKhoeCanLamSanModel.danh_gia_cls)
+            } : null,
+
+            // Conclusion data
+            ConclusionData = KhamSucKhoeKetLuanModel != null ? new ConclusionData
+            {
+                HealthClassification = GetSafeString(KhamSucKhoeKetLuanModel.phan_loai_suc_khoe),
+                Diseases = GetSafeString(KhamSucKhoeKetLuanModel.benh_tat_ket_luan),
+                Recommendations = GetSafeString(KhamSucKhoeKetLuanModel.de_nghi),
+                ConclusionDate = FormatDate(KhamSucKhoeKetLuanModel.ngay_ket_luan),
+                DoctorName = GetSafeString(KhamSucKhoeKetLuanModel.nguoi_ket_luan),
+                DoctorSignature = GetSafeString(KhamSucKhoeKetLuanModel.chu_ky)
+            } : null,
+
+            // Gynecology data for female patients
+            GynecoData = CurrentUser?.gioi_tinh == Enums.GioiTinh.Nu && KhamSucKhoeSanPhuKhoaModel != null ? new GynecoExamData
+            {
+                MenarcheAge = GetSafeString(KhamSucKhoeSanPhuKhoaModel.tuoi_bat_dau_kinh?.ToString()),
+                MenstrualCycle = GetSafeString(KhamSucKhoeSanPhuKhoaModel.chu_ky_kinh?.ToString()),
+                MenstrualAmount = GetSafeString(KhamSucKhoeSanPhuKhoaModel.luong_kinh?.ToString()),
+                Dysmenorrhea = GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel.dau_bung_kinh),
+                Married = GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel.da_lap_gia_dinh, "Có", "Chưa"),
+                PARA = GetSafeString(KhamSucKhoeSanPhuKhoaModel.para),
+                Surgeries = GetSafeString(KhamSucKhoeSanPhuKhoaModel.so_lan_mo_san_phu_khoa?.ToString()),
+                Contraception = GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel.ap_dung_bptt),
+                Results = GetSafeString(KhamSucKhoeSanPhuKhoaModel.ket_qua),
+                Classification = GetSafeString(KhamSucKhoeSanPhuKhoaModel.phan_loai)
+            } : null,
+
+            ExamData = new MedicalExamData
+            {
+                MedicalHistory = "Khám sức khỏe định kỳ",
+                CurrentDate = DateTime.Now.ToString(DATE_FORMAT)
+            }
+        };
+    }
 
     #endregion
 }

@@ -41,6 +41,7 @@
     <link href="assets/libs/magnific-popup/magnific-popup.css" rel="stylesheet" />
     <link href="css/site-custom.css" rel="stylesheet" />
     <link href="css/record-detail.css" rel="stylesheet" />
+    <link href="css/record-detail-print.css" rel="stylesheet" />
 
     <link href="_content/Blazored.Typeahead/blazored-typeahead.css" rel="stylesheet" />
 
@@ -82,6 +83,9 @@
 
     <script src="assets/libs/flatpickr/flatpickr.min.js"></script>
     <script src="assets/libs/flatpickr/flatpickr.js"></script>
+    
+    <!-- Print Helper for Medical Records -->
+    <script src="js/print-helper.js"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
@@ -195,6 +199,16 @@
         window.setBodyClass = (className) => {
             document.body.classList.remove('light', 'dark');
             document.body.classList.add(className);
+        };
+
+        // PDF Download function
+        window.downloadFile = function (dataUrl, fileName) {
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         };
     
         window.addClickListener = function (dotNetObject) {

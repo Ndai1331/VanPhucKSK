@@ -1,11 +1,12 @@
 ﻿@using CoreAdminWeb.Commons
+@using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.User
 @inject IJSRuntime JsRuntime
 <!-- Start Topbar -->
 <div class=" bg-white dark:bg-darklight dark:border-darkborder flex gap-4 lg:z-10 items-center justify-between px-4 h-[60px] border-b border-black/10 detached-topbar relative">
     <div class="flex items-center flex-1 gap-2 sm:gap-4">
-        <MudButton type="button" Class="text-black dark:text-white/80 " @onclick="BackToHome">
-            <i class="fas fa-hospital-user fa-3x text-primary mb-3"></i>
+        <MudButton type="button" Class="w-full main-logo" @onclick="BackToHome">
+            <img src="@(Logo != null ? $"{Logo.filename_disk}" : "assets/images/logo-icon.svg")" class=" mx-auto logo-icon h-10" alt="">
         </MudButton>
         
         <div Class="flex-1 hidden min-420-flex  w-full flex justify-center">
@@ -14,18 +15,6 @@
     </div>
     <div class="flex items-center gap-4">
         <div class="h-5">
-            @* <button class="text-black dark:text-white/80  @((fullScreen ? "hidden" : "block"))">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
-            <path d="M16 3H22V9H20V5H16V3ZM2 3H8V5H4V9H2V3ZM20 19V15H22V21H16V19H20ZM4 19H8V21H2V15H4V19Z" fill="currentColor"></path>
-            </svg >
-            </button>
-            <button class="text-black dark:text-white/80 @((fullScreen ? "block" : "hidden"))">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
-            <path d="M18 7H22V9H16V3H18V7ZM8 9H2V7H6V3H8V9ZM18 17V21H16V15H22V17H18ZM8 15V21H6V17H2V15H8Z" fill="currentColor"></path>
-            </svg>
-            </button> *@
-
-
             <MudButton Class="text-black dark:text-white/80 " @onclick="ToggleFullScreen">
                 @if (!FullScreen)
                 {
@@ -199,6 +188,8 @@
     public UserModel? CurrentUser { get; set; }
     [Inject]
     private NavigationManager NavigationManager { get; set; }
+    [Parameter]
+    public FileModel? Logo { get; set; }
 
     protected override void OnInitialized()
     {

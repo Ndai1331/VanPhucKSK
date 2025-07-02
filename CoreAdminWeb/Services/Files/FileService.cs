@@ -31,11 +31,8 @@ namespace CoreAdminWeb.Services.Files
             try
             {
                 string Fields = "id, storage,filename_disk,filename_download,"
-                + "title,type,filesize,width,height,system,folder,"
-                + "user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,"
-                +"co_quan_ban_hanh, so_van_ban, so_ky_hieu,ngay_ban_hanh,ngay_hieu_luc,so_luu_tru,"
-                + "linh_vuc_vb.id, linh_vuc_vb.name,"
-                + "phan_loai_vb.id, phan_loai_vb.name";
+                                + "title,type,filesize,width,height,system,folder,"
+                                + "user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
                 var result = await RequestClient.GetAPIAsync<RequestHttpResponse<List<FileModel>>>($"files?fields={Fields}&sort=-uploaded_on&{query}");
                 response = result.IsSuccess
                     ? new RequestHttpResponse<List<FileModel>> { Data = result.Data.Data, Meta = result.Data.Meta, Errors = result.Errors }
@@ -64,10 +61,8 @@ namespace CoreAdminWeb.Services.Files
             var response = new RequestHttpResponse<FileModel>();
             try
             {
-                string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,"
-                +"co_quan_ban_hanh, so_van_ban, so_ky_hieu,ngay_ban_hanh,ngay_hieu_luc,so_luu_tru,"
-                + "linh_vuc_vb.id, linh_vuc_vb.name,"
-                + "phan_loai_vb.id, phan_loai_vb.name";
+                string Fields =
+                    "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
                 
                 var result = await RequestClient.GetAPIAsync<RequestHttpResponse<FileModel>>($"files/{id}?fields={Fields}");
                 if (result?.Data != null)
@@ -93,10 +88,8 @@ namespace CoreAdminWeb.Services.Files
             var response = new RequestHttpResponse<FileModel>();
             try
             {
-                string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,"
-                +"co_quan_ban_hanh, so_van_ban, so_ky_hieu,ngay_ban_hanh,ngay_hieu_luc,so_luu_tru,"
-                + "linh_vuc_vb.id, linh_vuc_vb.name,"
-                + "phan_loai_vb.id, phan_loai_vb.name";
+                string Fields =
+                    "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
                 
                 var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<FileModel>>($"files/{id}?fields={Fields}");
                 if (result?.Data != null)

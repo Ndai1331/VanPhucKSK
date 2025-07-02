@@ -5,6 +5,9 @@ using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Model;
+using CoreAdminWeb.Services.PDFService;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 
 namespace CoreAdminWeb.DIInjections
 {
@@ -25,6 +28,11 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseGetService<KhamSucKhoeTheLucModel>, KhamSucKhoeTheLucService>();
             services.AddScoped<IBaseGetService<KhamSucKhoeTienSuModel>, KhamSucKhoeTienSuService>();
             services.AddScoped<AlertService>();
+            
+            // PDF Service Configuration
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+            services.AddScoped<IPdfService, PdfService>();
+            services.AddScoped<IHtmlRenderService, HtmlRenderService>();
         }
     }
 }
