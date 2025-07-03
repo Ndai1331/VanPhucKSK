@@ -1,10 +1,5 @@
 using iText.Html2pdf;
 using iText.Html2pdf.Resolver.Font;
-using iText.IO.Font;
-using iText.Kernel.Pdf;
-using iText.Layout.Font;
-using CoreAdminWeb.Model;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace CoreAdminWeb.Services.PDFService
@@ -65,6 +60,7 @@ namespace CoreAdminWeb.Services.PDFService
                 
                 // Configure font provider for Vietnamese support
                 var fontProvider = new DefaultFontProvider(true, true, true);
+                fontProvider.AddFont("wwwroot/assets/fonts/times.ttf");
                 
                 // Add system fonts for better Vietnamese support
                 try
@@ -109,9 +105,6 @@ namespace CoreAdminWeb.Services.PDFService
                 // macOS fonts
                 var macFonts = new[]
                 {
-                    "/System/Library/Fonts/Times.ttc",
-                    "/System/Library/Fonts/Arial.ttf",
-                    "/System/Library/Fonts/Helvetica.ttc",
                     "/Library/Fonts/Times New Roman.ttf"
                 };
 
@@ -128,8 +121,6 @@ namespace CoreAdminWeb.Services.PDFService
                 var windowsFonts = new[]
                 {
                     @"C:\Windows\Fonts\times.ttf",
-                    @"C:\Windows\Fonts\arial.ttf",
-                    @"C:\Windows\Fonts\calibri.ttf"
                 };
 
                 foreach (var fontPath in windowsFonts)
