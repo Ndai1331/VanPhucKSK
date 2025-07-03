@@ -18,11 +18,11 @@
     <div class="grid grid-cols-1 gap-4">
         <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
             <div>
-                <ul class="space-y-2 px-4 overflow-y-auto">
+                <ul class="space-y-2 overflow-y-auto">
                     @foreach (var post in MainModels)
                     {
                         <li>
-                            <MudLink Href="#"  
+                            <MudLink Href="#"   @onclick=" (e) =>  ViewPostDetail(post)"
                             Class="flex items-start gap-2 p-2 transition-all duration-300 rounded bg-light/50 dark:bg-white/10 dark:hover:bg-white/10 hover:border-transparent hover:bg-light/50">
                                 <div class="flex items-center flex-1 gap-2 p-1">
                                     <div class="w-160">
