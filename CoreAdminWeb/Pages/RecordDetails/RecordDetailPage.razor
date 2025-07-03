@@ -1,12 +1,14 @@
 @page "/record-detail-page/{ma_luot_kham}/{ma_benh_nhan}"
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Services
 @using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Services.PDFService
+@using Microsoft.AspNetCore.Components
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
 
@@ -56,7 +58,7 @@
         {
 
             <!-- Printable Medical Form Content -->
-            <div id="medical-form-content">
+            <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder" id="medical-form-content">
                 <!-- Medical Form Header -->
                 <div class="ksk-header" style="margin-bottom:0;">
                     <div class="mau-so">Mẫu số 03</div>
@@ -101,33 +103,33 @@
                             </div>
                             <div class="ksk-info-row">
                                 <div class="ksk-info-label">4. Số CCCD/CMND:</div>
-                                <div class="ksk-info-value">@GetSafeString(CurrentUser?.so_dinh_danh)</div>
+                                <div class="ksk-info-value">@CoreHelpers.GetSafeString(CurrentUser?.so_dinh_danh)</div>
                             </div>
                             <div class="ksk-info-row">
                                 <div class="ksk-info-label">5. Cấp ngày:</div>
-                                <div class="ksk-info-value 70px">@FormatDate(CurrentUser?.ngay_cap)</div>
+                                <div class="ksk-info-value 70px">@CoreHelpers.FormatDate(CurrentUser?.ngay_cap)</div>
                                 <span style="margin: 0 4px;">tại</span>
-                                <div class="ksk-info-value">@GetSafeString(CurrentUser?.noi_cap)</div>
+                                <div class="ksk-info-value">@CoreHelpers.GetSafeString(CurrentUser?.noi_cap)</div>
                             </div>
                             <div class="ksk-info-row">
                                 <div class="ksk-info-label">6. Chỗ ở hiện tại:</div>
-                                <div class="ksk-info-value">@GetSafeString(CurrentUser?.dia_chi)</div>
+                                <div class="ksk-info-value">@CoreHelpers.GetSafeString(CurrentUser?.dia_chi)</div>
                             </div>
                             <div class="ksk-info-row">
                                 <div class="ksk-info-label">7. Số điện thoại:</div>
-                                <div class="ksk-info-value">@GetSafeString(CurrentUser?.so_dien_thoai)</div>
+                                <div class="ksk-info-value">@CoreHelpers.GetSafeString(CurrentUser?.so_dien_thoai)</div>
                             </div>
                             <div class="ksk-info-row">
                                 <div class="ksk-info-label">8. Nghề nghiệp:</div>
-                                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeNgheNghiepModel?.nghe_nghiep)</div>
+                                <div class="ksk-info-value">@CoreHelpers.GetSafeString(KhamSucKhoeNgheNghiepModel?.nghe_nghiep)</div>
                             </div>
                             <div class="ksk-info-row">
                                 <div class="ksk-info-label">9. Nơi công tác:</div>
-                                <div class="ksk-info-value">@GetSafeString(KhamSucKhoeNgheNghiepModel?.noi_cong_tac)</div>
+                                <div class="ksk-info-value">@CoreHelpers.GetSafeString(KhamSucKhoeNgheNghiepModel?.noi_cong_tac)</div>
                             </div>
                             <div class="ksk-info-row">
                                 <div class="ksk-info-label">10. Ngày vào làm:</div>
-                                <div class="ksk-info-value">@FormatDate(KhamSucKhoeNgheNghiepModel?.ngay_vao_lam)</div>
+                                <div class="ksk-info-value">@CoreHelpers.FormatDate(KhamSucKhoeNgheNghiepModel?.ngay_vao_lam)</div>
                             </div>
                             <div class="ksk-info-row">
                                 <div class="ksk-info-label">11. Nghề, công việc trước đây:</div>
@@ -210,8 +212,8 @@
                                     <div>- Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi: @KhamSucKhoeSanPhuKhoaModel?.tuoi_bat_dau_kinh</div>
                                     <div>- Tính chất kinh nguyệt: @KhamSucKhoeSanPhuKhoaModel?.tinh_chat_kinh</div>
                                     <div>Chu kỳ kinh: @KhamSucKhoeSanPhuKhoaModel?.chu_ky_kinh ngày, Lượng kinh: @KhamSucKhoeSanPhuKhoaModel?.luong_kinh ml</div>
-                                    <div>Đau bụng kinh: @GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.dau_bung_kinh)</div>
-                                    <div>Đã lập gia đình: @GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.da_lap_gia_dinh, "Có", "Chưa")</div>
+                                    <div>Đau bụng kinh: @CoreHelpers.GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.dau_bung_kinh)</div>
+                                    <div>Đã lập gia đình: @CoreHelpers.GetBooleanDisplay(KhamSucKhoeSanPhuKhoaModel?.da_lap_gia_dinh, "Có", "Chưa")</div>
                                     <div>PARA: @KhamSucKhoeSanPhuKhoaModel?.para</div>
                                     <div>Số lần mổ sản, phụ khoa: @KhamSucKhoeSanPhuKhoaModel?.so_lan_mo_san_phu_khoa @(string.IsNullOrEmpty(KhamSucKhoeSanPhuKhoaModel?.mo_san_phu_khoa_ghi_ro) ? "/ Chưa" : $"Có {KhamSucKhoeSanPhuKhoaModel?.mo_san_phu_khoa_ghi_ro}")</div>
                                     <div>Có áp dụng BPTT không: @(KhamSucKhoeSanPhuKhoaModel?.ap_dung_bptt == true ? $"Có {KhamSucKhoeSanPhuKhoaModel?.ap_dung_bptt}" : "Không")</div>
@@ -257,7 +259,7 @@
                                     <tr>
                                         <td class="ls-label">Phân loại</td>
                                         <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tuan_hoan</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.chu_ky_tuan_hoan</td>
+                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tuan_hoan, KhamSucKhoeChuyenKhoaModel?.chu_ky_tuan_hoan, 100, 50)</td>
                                     </tr>
                                     <tr>
                                         <td class="ls-specialty">b) Hô hấp</td>
@@ -277,7 +279,7 @@
                                     <tr>
                                         <td class="ls-label">Phân loại</td>
                                         <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tieu_hoa</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa</td>
+                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa, KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa, 100, 50)</td>
                                     </tr>
                                     <tr>
                                         <td class="ls-specialty">d) Thận-Tiết niệu</td>
@@ -287,7 +289,7 @@
                                     <tr>
                                         <td class="ls-label">Phân loại</td>
                                         <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_than_tiet_nieu</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu</td>
+                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu, KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu, 100, 50)</td>
                                     </tr>
                                     <tr>
                                         <td class="ls-specialty">h) Tâm thần</td>
@@ -297,7 +299,7 @@
                                     <tr>
                                         <td class="ls-label">Phân loại</td>
                                         <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tam_than</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_tam_than</td>
+                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tam_than, KhamSucKhoeChuyenKhoaModel?.chu_ky_tam_than, 100, 50)</td>
                                     </tr>
                                     
                                     <!-- Surgery, Dermatology -->
@@ -312,7 +314,7 @@
                                     <tr>
                                         <td class="ls-label">Phân loại</td>
                                         <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_ngoai_khoa</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa</td>
+                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa, KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa, 100, 50)</td>
                                     </tr>
                                     <tr>
                                         <td class="ls-specialty">- Da liễu</td>
@@ -322,7 +324,7 @@
                                     <tr>
                                         <td class="ls-label">Phân loại</td>
                                         <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_da_lieu</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_da_lieu</td>
+                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_da_lieu, KhamSucKhoeChuyenKhoaModel?.chu_ky_da_lieu, 100, 50)</td>
                                     </tr>
                                     
                                     <!-- Obstetrics & Gynecology -->
@@ -332,12 +334,12 @@
                                     <tr>
                                         <td class="ls-specialty">- Sản phụ khoa</td>
                                         <td class="ls-cell-small">@KhamSucKhoeSanPhuKhoaModel?.ket_qua</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeSanPhuKhoaModel?.chu_ky</td>
+                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeSanPhuKhoaModel?.chu_ky, KhamSucKhoeSanPhuKhoaModel?.chu_ky, 100, 50)</td>
                                     </tr>
                                     <tr>
                                         <td class="ls-label">Phân loại</td>
                                         <td class="ls-cell-small">@KhamSucKhoeSanPhuKhoaModel?.phan_loai</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeSanPhuKhoaModel?.chu_ky</td>
+                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeSanPhuKhoaModel?.chu_ky, KhamSucKhoeSanPhuKhoaModel?.chu_ky, 100, 50)</td>
                                     </tr>
                                     
                                     <!-- Ophthalmology -->
@@ -437,7 +439,7 @@
                                 <div><strong>NGƯỜI KẾT LUẬN</strong></div>
                                 <small>(Ký, ghi rõ họ tên và đóng dấu)</small>
                                 <div style="margin-bottom: 32px;">@KhamSucKhoeKetLuanModel.ngay_ket_luan</div>
-                                <div><strong>@KhamSucKhoeKetLuanModel.chu_ky</strong></div>
+                                <div class="signature-container">@RenderSignature(KhamSucKhoeKetLuanModel?.chu_ky, KhamSucKhoeKetLuanModel?.chu_ky, 150, 80)</div>
                                 <div><strong>@KhamSucKhoeKetLuanModel.nguoi_ket_luan</strong></div>
                             </div>
                         </div>
@@ -755,49 +757,19 @@
         CurrentUser != null ? $"{CurrentUser.last_name} {CurrentUser.first_name}".Trim() : string.Empty;
 
     /// <summary>
-    /// Safe access to formatted date
+    /// Render signature as HTML - either image or text
     /// </summary>
-    private string FormatDate(DateTime? date, string format = DATE_FORMAT) => 
-        date?.ToString(format) ?? string.Empty;
-
-    /// <summary>
-    /// Safe access to formatted date from string or DateTime
-    /// </summary>
-    private string FormatDate(object? dateValue, string format = DATE_FORMAT)
+    /// <param name="signatureData">Signature data (hex string or text)</param>
+    /// <param name="fallbackText">Fallback text if signature is empty</param>
+    /// <param name="maxWidth">Maximum width for signature image</param>
+    /// <param name="maxHeight">Maximum height for signature image</param>
+    /// <returns>MarkupString containing signature HTML</returns>
+    private MarkupString RenderSignature(string signatureData, string fallbackText = "", int maxWidth = 120, int maxHeight = 60)
     {
-        if (dateValue == null) return string.Empty;
-
-        if (dateValue is DateTime dateTime)
-        {
-            return dateTime.ToString(format);
-        }
-
-        if (dateValue is string dateString && !string.IsNullOrEmpty(dateString))
-        {
-            if (DateTime.TryParse(dateString, out var parsedDate))
-            {
-                return parsedDate.ToString(format);
-            }
-            return dateString; // Return original string if can't parse
-        }
-
-        return string.Empty;
+        var html = signatureData.GetSignatureDisplayHtml(fallbackText, maxWidth, maxHeight);
+        return new MarkupString(html);
     }
 
-    /// <summary>
-    /// Safe access to boolean display
-    /// </summary>
-    private string GetBooleanDisplay(bool? value, string trueText = "Có", string falseText = "Không") => 
-        value.HasValue ? (value.Value ? trueText : falseText) : string.Empty;
-
-    /// <summary>
-    /// Safe access to string with default empty
-    /// </summary>
-    private string GetSafeString(string? value) => value ?? string.Empty;
-
-    /// <summary>
-    /// Create simplified HTML content for large document fallback
-    /// </summary>
     
     #endregion
 }

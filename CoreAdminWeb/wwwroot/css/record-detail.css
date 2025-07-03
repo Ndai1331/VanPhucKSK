@@ -399,4 +399,155 @@ body {
     /* Override Tailwind classes for print */
     .print\:border-none { border: none !important; }
     .print\:p-0 { padding: 0 !important; }
+}
+
+/* Signature display styles */
+.signature-image {
+    max-width: 120px;
+    max-height: 60px;
+    object-fit: contain;
+    vertical-align: middle;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 2px;
+    background-color: #fff;
+}
+
+.signature-text {
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+/* Signature containers */
+.signature-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+    padding: 4px;
+    text-align: center;
+}
+
+.signature-container .signature-image {
+    display: block;
+    margin: 0 auto;
+}
+
+.signature-container .signature-text {
+    text-align: center;
+    margin: 0 auto;
+}
+
+/* Doctor signature cells in table */
+.ls-doctor-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.ls-doctor-cell .signature-image {
+    max-width: 100px;
+    max-height: 50px;
+    display: block;
+    margin: 0 auto;
+}
+
+.ls-doctor-cell .signature-text {
+    font-size: 12px;
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Main conclusion signature */
+.ksk-signature-box {
+    text-align: center;
+}
+
+.ksk-signature-box .signature-image {
+    max-width: 150px;
+    max-height: 80px;
+    margin: 8px auto;
+    display: block;
+}
+
+.ksk-signature-box .signature-text {
+    font-size: 16px;
+    font-weight: bold;
+    display: block;
+    margin: 8px auto;
+    text-align: center;
+}
+
+/* Table cells alignment */
+.ksk-table td {
+    vertical-align: middle;
+}
+
+.ksk-table .ls-doctor-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.ksk-table .ls-cell-small {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.ksk-table .ls-specialty {
+    text-align: left;
+    vertical-align: middle;
+}
+
+.ksk-table .ls-label {
+    text-align: left;
+    vertical-align: middle;
+    padding-left: 20px;
+}
+
+/* Print specific styles */
+@media print {
+    .signature-image {
+        max-width: 100px;
+        max-height: 50px;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        display: block;
+        margin: 0 auto;
+    }
+    
+    .ls-doctor-cell {
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    .ls-doctor-cell .signature-image {
+        max-width: 80px;
+        max-height: 40px;
+        display: block;
+        margin: 0 auto;
+    }
+    
+    .ksk-signature-box {
+        text-align: center;
+    }
+    
+    .ksk-signature-box .signature-image {
+        max-width: 120px;
+        max-height: 60px;
+        display: block;
+        margin: 0 auto;
+    }
+    
+    .signature-container {
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .signature-container .signature-image {
+        display: block;
+        margin: 0 auto;
+    }
 } 
