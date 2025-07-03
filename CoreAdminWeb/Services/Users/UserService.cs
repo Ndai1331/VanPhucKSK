@@ -12,7 +12,7 @@ namespace CoreAdminWeb.Services.Users
     public interface IUserService
     {
         Task<RequestHttpResponse<LoginResponse>> LoginAsync(string email, string password);
-        Task<bool> LogoutAsync(string refreshToken);
+        Task<bool> LogoutAsync();
         Task<RequestHttpResponse<UserModel>> GetCurrentUserAsync();
         Task<RequestHttpResponse<UserModel>> UpdateUserAsync(UserModel req);
         Task<RequestHttpResponse<UserModel>> UpdateCurrentUserAsync(UserModel req);
@@ -95,16 +95,21 @@ namespace CoreAdminWeb.Services.Users
             return response;
         }
 
-        public async Task<bool> LogoutAsync(string refreshToken)
+        public async Task<bool> LogoutAsync()
         {
             try
             {
-                if (string.IsNullOrEmpty(_accessToken))
-                    return true;
-
-                await PublicRequestClient.PostAPIAsync("auth/logout", new LogoutRequest { refresh_token = refreshToken });
                 _accessToken = null;
                 _refreshToken = null;
+                RequestClient.RemoveToken();
+                await _localStorage.RemoveItemAsync("accessToken");
+                await _localStorage.RemoveItemAsync("userName");
+                await _localStorage.RemoveItemAsync("userId");
+                await _localStorage.RemoveItemAsync("role");
+                await _localStorage.RemoveItemAsync("claims");
+                (
+                    (ApiAuthenticationStateProvider)_authenticationStateProvider
+                ).MarkUserAsLoggedOut();
                 return true;
             }
             catch
@@ -112,6 +117,8 @@ namespace CoreAdminWeb.Services.Users
                 return false;
             }
         }
+
+
 
         public async Task<RequestHttpResponse<UserModel>> GetCurrentUserAsync()
         {

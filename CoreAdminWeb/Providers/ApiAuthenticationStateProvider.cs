@@ -91,7 +91,6 @@ namespace CoreAdminWeb.Providers
             await _localStorage.RemoveItemAsync("userId");
             await _localStorage.RemoveItemAsync("role");
             var authState = Task.FromResult(new AuthenticationState(anonymousUser));
-
             NotifyAuthenticationStateChanged(authState);
         }
 

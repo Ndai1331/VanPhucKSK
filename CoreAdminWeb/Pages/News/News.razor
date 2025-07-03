@@ -35,7 +35,7 @@
                                 </div>
                                 <div class="ltr:text-right rtl:text-left">
                                     <p class="flex-none text-xs text-muted mb-1.5">@post.date_created.ToString("dd/MM/yyyy")</p>
-                                    <span class="inline-block items-center rounded text-xs justify-center px-1.5 py-0.5 bg-purple text-white">@post.view_count</span>
+                                    <span class="inline-block items-center rounded text-xs justify-center px-1.5 py-0.5 bg-purple text-white">@(post.view_count ?? 0) lượt xem</span>
                                 </div>
                             </MudLink>
                         </li>
