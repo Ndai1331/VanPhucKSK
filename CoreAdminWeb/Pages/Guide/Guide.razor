@@ -1,0 +1,174 @@
+@page "/guide"
+@using CoreAdminWeb.Services
+@using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Shared.Base
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Services.BaseServices
+@layout CoreAdminWeb.Shared.MainLayout
+@inherits BlazorCoreBase
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
+
+<PageHeader Title="Hướng dẫn" pTitle="Hướng dẫn"></PageHeader>
+<!-- Start Main Content -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
+            <div>
+                <ul class="space-y-2 px-4 overflow-y-auto">
+                    @foreach (var post in MainModels)
+                    {
+                        <li>
+                            <MudLink Href="#"  
+                            Class="flex items-start gap-2 p-2 transition-all duration-300 rounded bg-light/50 dark:bg-white/10 dark:hover:bg-white/10 hover:border-transparent hover:bg-light/50">
+                                <div class="flex items-center flex-1 gap-2 p-1">
+                                    <div class="w-160">
+                                        <img class="flex-none object-cover overflow-hidden" src="@post.post_images.filename_disk" alt="">
+                                    </div>
+                                    <div class="flex-1 ltr:text-left rtl:text-right">
+                                        <h2 class="line-clamp-1 dark:text-white text-base font-semibold text-black dark:text-white/80">@post.title</h2>
+                                        <p class="text-xs text-muted line-clamp-1">@((MarkupString)post.sort_description)</p>
+                                    </div>
+                                </div>
+                                <div class="ltr:text-right rtl:text-left">
+                                    <p class="flex-none text-xs text-muted mb-1.5">@post.date_created.ToString("dd/MM/yyyy")</p>
+                                    <span class="inline-block items-center rounded text-xs justify-center px-1.5 py-0.5 bg-purple text-white">@post.view_count</span>
+                                </div>
+                            </MudLink>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="w-full grid grid-cols-1 pb-2">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center gap-2">
+                        <span>Hiển thị</span>
+                        <select class="form-select" @bind="PageSize" @bind:event="oninput" @onchange="async (e) => await OnPageSizeChanged(LoadPosts)">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>mục</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+
+                        <div>
+                            <ul class="inline-flex my-2 -space-x-px list-inside">
+                                <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-l-lg rtl:rounded-r-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await PreviousPage(LoadPosts)" disabled="@(Page <= 1)">Trước</MudLink></li>
+                                @{
+                                    var startPage = Math.Max(1, Page - 1);
+                                    var endPage = Math.Min(TotalPages, Page + 1);
+
+                                    // Always show first page
+                                    <li>
+                                        <a href="#"
+                                            class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
+                                            @onclick="async (e) => await SelectedPage(1, LoadPosts)">1</a>
+                                    </li>
+
+                                    // Show ellipsis if needed
+                                    if (startPage > 2)
+                                    {
+                                        <li><span class="px-3 py-2">...</span></li>
+                                    }
+
+                                    // Show pages around current page
+                                    for (int i = startPage; i <= endPage; i++)
+                                    {
+                                        if (i > 1 && i < TotalPages)
+                                        {   
+                                            var currentPage = i; // Local variable to avoid closure issues
+                                            <li>
+                                                <a href="#"
+                                                    class="px-3 py-2 text-black  border border-black/10
+                                                    hover:bg-purple hover:text-white dark:bg-transparent
+                                                    dark:text-white dark:border-darkborder dark:hover:bg-purple
+                                                    dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
+                                                    @onclick="async (e) => await SelectedPage(currentPage, LoadPosts)">@i</a>
+                                            </li>
+                                        }
+                                    }
+
+                                    // Show ellipsis if needed
+                                    if (endPage < TotalPages - 1)
+                                    {
+                                        <li><span class="px-3 py-2">...</span></li>
+                                    }
+
+                                    // Always show last page if there is more than one page
+                                    if (TotalPages > 1)
+                                    {
+                                        <li>
+                                            <a href="#"
+                                                class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
+                                                @onclick="async (e) => await SelectedPage(TotalPages, LoadPosts)">@TotalPages</a>
+                                        </li>
+                                    }
+                                }
+                                <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-r-lg rtl:rounded-l-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await NextPage(LoadPosts)" disabled="@(Page >= TotalPages)">Sau</MudLink></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject] AlertService AlertService { get; set; }
+    [Inject] IBaseGetService<PostModel> PostService { get; set; }
+    private List<PostModel> MainModels = new List<PostModel>();
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadPosts();
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task LoadPosts()
+    {
+        try
+        {
+            BuildPaginationQuery(Page, PageSize, "date_created");
+            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
+            BuilderQuery += $"&filter[_and][1][status][_eq]={Model.Base.Status.published.ToString()}";
+            BuilderQuery += $"&filter[_and][2][post_catgory][_eq]=1";
+            var result = await PostService.GetAllAsync(BuilderQuery);
+            if (result.IsSuccess)
+            {
+                MainModels = result.Data ?? new List<PostModel>();
+                if (result.Meta != null)
+                {
+                    TotalItems = result.Meta.filter_count ?? 0;
+                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                }
+            }
+            else
+            {
+                MainModels = new List<PostModel>();
+            }
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải: " + ex.Message, "danger");
+        }
+    }
+
+    private void ViewPostDetail(PostModel post)
+    {
+        Navigation.NavigateTo($"/news/{post.id}");
+    }
+} 

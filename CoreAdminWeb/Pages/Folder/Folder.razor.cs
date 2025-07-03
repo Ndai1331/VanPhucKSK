@@ -11,9 +11,7 @@ using Microsoft.AspNetCore.Components.Web;
 namespace CoreAdminWeb.Pages.Folder
 {
     public partial class Folder(IBaseService<FolderModel> MainService,
-                                IFileService FileService,
-                                 IBaseService<LinhVucVanBanModel> LinhVucVanBanService,
-                                 IBaseService<PhanLoaiVanBanModel> PhanLoaiVanBanService) : BlazorCoreBase
+                                IFileService FileService) : BlazorCoreBase
     {
         private List<FolderModel> MainModels { get; set; } = new();
         private List<FileModel> Files { get; set; } = new();
@@ -28,10 +26,6 @@ namespace CoreAdminWeb.Pages.Folder
         private bool openCreateFolderModal = false;
         private bool openUploadFileModal = false;
         private bool openDeleteFileModal = false;
-        private PhanLoaiVanBanModel _selectedPhanLoaiVanBan { get; set; } = new PhanLoaiVanBanModel();
-        private LinhVucVanBanModel _selectedLinhVucVanBan { get; set; } = new LinhVucVanBanModel();
-        private PhanLoaiVanBanModel _selectedFilterPhanLoaiVanBan { get; set; } = new PhanLoaiVanBanModel();
-        private LinhVucVanBanModel _selectedFilterLinhVucVanBan { get; set; } = new LinhVucVanBanModel();
         private IBrowserFile UploadFile { get; set; } = default!;
 
         protected override async Task OnInitializedAsync()
@@ -85,17 +79,6 @@ namespace CoreAdminWeb.Pages.Folder
                 BuilderQuery += $"&filter[_and][1][folder][_eq]={SelectedItem.id }";
             }
 
-            if(_selectedFilterPhanLoaiVanBan != null && _selectedFilterPhanLoaiVanBan.id > 0)
-            {
-                BuilderQuery += $"&filter[_and][{index}][phan_loai_vb][_eq]={_selectedFilterPhanLoaiVanBan.id}";
-                index++;
-            }
-
-            if(_selectedFilterLinhVucVanBan != null && _selectedFilterLinhVucVanBan.id > 0)
-            {
-                BuilderQuery += $"&filter[_and][{index}][linh_vuc_vb][_eq]={_selectedFilterLinhVucVanBan.id}";
-                index++;
-            }
 
             if(!string.IsNullOrEmpty(_searchString))
             {
@@ -137,39 +120,6 @@ namespace CoreAdminWeb.Pages.Folder
             SelectedItem = new FolderModel();
 
             openDeleteModal = false;
-        }
-
-        private async Task<IEnumerable<PhanLoaiVanBanModel>> LoadPhanLoaiVanBanData(string searchText)
-        {
-            return await LoadBlazorTypeaheadData(searchText, PhanLoaiVanBanService);
-        }
-        private async Task<IEnumerable<LinhVucVanBanModel>> LoadLinhVucVanBanData(string searchText)
-        {
-            return await LoadBlazorTypeaheadData(searchText, LinhVucVanBanService);
-        }
-
-        private void OnPhanLoaiVanBanChanged(PhanLoaiVanBanModel selected)
-        {
-            _selectedPhanLoaiVanBan = selected;
-            UploadFileCRUD.phan_loai_vb = selected.id;
-        }
-        private void OnLinhVucVanBanChanged(LinhVucVanBanModel selected)
-        {
-            _selectedLinhVucVanBan = selected;
-            UploadFileCRUD.linh_vuc_vb = selected.id;
-        }
-
-
-        private async Task OnPhanLoaiVanBanFilterChanged(PhanLoaiVanBanModel selected)
-        {
-            _selectedFilterPhanLoaiVanBan = selected;
-            await LoadFiles();
-        }
-        private async Task OnLinhVucVanBanFilterChanged(LinhVucVanBanModel selected)
-        {
-            _selectedFilterLinhVucVanBan = selected;
-            
-            await LoadFiles();
         }
 
 
@@ -219,7 +169,6 @@ namespace CoreAdminWeb.Pages.Folder
                 return;
             }
 
-            SelectedCreateItem.system = 2;
             SelectedCreateItem.parent = SelectedItem.id == Guid.Empty ? null : SelectedItem.id;
             var result = await MainService.CreateAsync(SelectedCreateItem);
             if (result.IsSuccess)
@@ -331,8 +280,6 @@ namespace CoreAdminWeb.Pages.Folder
         private async Task OpenUploadFileModal()
         {
             UploadFileCRUD = new FileCRUDModel();
-            _selectedPhanLoaiVanBan = new PhanLoaiVanBanModel();
-            _selectedLinhVucVanBan = new LinhVucVanBanModel();
             openUploadFileModal = true;
 
             _ = Task.Run(async () =>
@@ -346,8 +293,6 @@ namespace CoreAdminWeb.Pages.Folder
         {
             UploadFile = null;
             UploadFileCRUD = new FileCRUDModel();
-            _selectedPhanLoaiVanBan = new PhanLoaiVanBanModel();
-            _selectedLinhVucVanBan = new LinhVucVanBanModel();
             SelectedFile = new FileModel();
             openUploadFileModal = false;
         }
@@ -361,12 +306,7 @@ namespace CoreAdminWeb.Pages.Folder
                 {
                     switch (fieldName)
                     {
-                        case nameof(UploadFileCRUD.ngay_ban_hanh):
-                            UploadFileCRUD.ngay_ban_hanh = null;
-                            break;
-                        case nameof(UploadFileCRUD.ngay_hieu_luc):
-                            UploadFileCRUD.ngay_hieu_luc = null;
-                            break;
+                     
                     }
                     return;
                 }
@@ -381,12 +321,7 @@ namespace CoreAdminWeb.Pages.Folder
 
                     switch (fieldName)
                     {
-                        case nameof(UploadFileCRUD.ngay_ban_hanh):
-                            UploadFileCRUD.ngay_ban_hanh = date;
-                            break;
-                        case nameof(UploadFileCRUD.ngay_hieu_luc):
-                            UploadFileCRUD.ngay_hieu_luc = date;
-                            break;
+                       
                     }
                 }
             }

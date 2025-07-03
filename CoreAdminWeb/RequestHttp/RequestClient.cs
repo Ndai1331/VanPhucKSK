@@ -358,16 +358,7 @@ namespace CoreAdminWeb.RequestHttp
                 content.Add(new StringContent(stringValue), key);
             }
 
-            AddTextIfNotNull(model.phan_loai_vb, "phan_loai_vb");
-            AddTextIfNotNull(model.linh_vuc_vb, "linh_vuc_vb");
             AddTextIfNotNull(model.folder, "folder");
-            AddTextIfNotNull(model.ngay_ban_hanh, "ngay_ban_hanh");
-            AddTextIfNotNull(model.ngay_hieu_luc, "ngay_hieu_luc");
-            AddTextIfNotNull(model.co_quan_ban_hanh, "co_quan_ban_hanh");
-            AddTextIfNotNull(model.system, "system");
-            AddTextIfNotNull(model.so_van_ban, "so_van_ban");
-            AddTextIfNotNull(model.so_ky_hieu, "so_ky_hieu");
-            AddTextIfNotNull(model.so_luu_tru, "so_luu_tru");
         }
 
         private static RequestHttpResponse<T> CreateErrorResponse<T>(string message, string code)

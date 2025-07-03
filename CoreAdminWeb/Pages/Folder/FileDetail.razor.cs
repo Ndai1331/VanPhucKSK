@@ -11,15 +11,13 @@ namespace CoreAdminWeb.Pages.Folder
     public partial class FileDetail(
                                 IFileService FileService,
                                 IBaseService<FolderModel> FolderService,
-                                 IBaseService<LinhVucVanBanModel> LinhVucVanBanService,
-                                 IBaseService<PhanLoaiVanBanModel> PhanLoaiVanBanService) : BlazorCoreBase
+                                 IBaseService<PostModel> PostService) : BlazorCoreBase
     {
         [Parameter]
         public string FileId { get; set; } = string.Empty;
         private FileModel SelectedFile { get; set; } = new FileModel();
         private FileCRUDModel UploadFileCRUD { get; set; } = new FileCRUDModel();
-        private PhanLoaiVanBanModel _selectedPhanLoaiVanBan { get; set; } = new PhanLoaiVanBanModel();
-        private LinhVucVanBanModel _selectedLinhVucVanBan { get; set; } = new LinhVucVanBanModel();
+        private PostModel _selectedPost { get; set; } = new PostModel();
         private IBrowserFile UploadFile { get; set; } = default!;
 
         protected override async Task OnInitializedAsync()
@@ -50,14 +48,6 @@ namespace CoreAdminWeb.Pages.Folder
             if(result.IsSuccess)
             {
                 SelectedFile = result.Data;
-                if(SelectedFile.phan_loai_vb != null)
-                {
-                    _selectedPhanLoaiVanBan = SelectedFile.phan_loai_vb;
-                }
-                if(SelectedFile.linh_vuc_vb != null)
-                {
-                    _selectedLinhVucVanBan = SelectedFile.linh_vuc_vb;  
-                }
                 SelectedFile.GetFileType();
                 UploadFileCRUD = MapToCRUDModel(SelectedFile);
             }
@@ -66,26 +56,6 @@ namespace CoreAdminWeb.Pages.Folder
                 AlertService.ShowAlert(result.Message ?? "Lỗi khi tải file", "danger");
             }
         }
-        private async Task<IEnumerable<PhanLoaiVanBanModel>> LoadPhanLoaiVanBanData(string searchText)
-        {
-            return await LoadBlazorTypeaheadData(searchText, PhanLoaiVanBanService);
-        }
-        private async Task<IEnumerable<LinhVucVanBanModel>> LoadLinhVucVanBanData(string searchText)
-        {
-            return await LoadBlazorTypeaheadData(searchText, LinhVucVanBanService);
-        }
-
-        private void OnPhanLoaiVanBanChanged(PhanLoaiVanBanModel selected)
-        {
-            _selectedPhanLoaiVanBan = selected;
-            UploadFileCRUD.phan_loai_vb = selected.id;
-        }
-        private void OnLinhVucVanBanChanged(LinhVucVanBanModel selected)
-        {
-            _selectedLinhVucVanBan = selected;
-            UploadFileCRUD.linh_vuc_vb = selected.id;
-        }
-
 
         private async Task OnUploadFile()
         {
@@ -120,12 +90,7 @@ namespace CoreAdminWeb.Pages.Folder
                 {
                     switch (fieldName)
                     {
-                        case nameof(UploadFileCRUD.ngay_ban_hanh):
-                            UploadFileCRUD.ngay_ban_hanh = null;
-                            break;
-                        case nameof(UploadFileCRUD.ngay_hieu_luc):
-                            UploadFileCRUD.ngay_hieu_luc = null;
-                            break;
+                      
                     }
                     return;
                 }
@@ -140,12 +105,7 @@ namespace CoreAdminWeb.Pages.Folder
 
                     switch (fieldName)
                     {
-                        case nameof(UploadFileCRUD.ngay_ban_hanh):
-                            UploadFileCRUD.ngay_ban_hanh = date;
-                            break;
-                        case nameof(UploadFileCRUD.ngay_hieu_luc):
-                            UploadFileCRUD.ngay_hieu_luc = date;
-                            break;
+     
                     }
                 }
             }
@@ -170,16 +130,7 @@ namespace CoreAdminWeb.Pages.Folder
             fileCRUD.filename_disk = file.filename_disk;
             fileCRUD.filename_download = file.filename_download;
             fileCRUD.type_file = file.type_file;
-            fileCRUD.phan_loai_vb = file.phan_loai_vb?.id;
-            fileCRUD.linh_vuc_vb = file.linh_vuc_vb?.id;
-            fileCRUD.ngay_ban_hanh = file.ngay_ban_hanh;
-            fileCRUD.ngay_hieu_luc = file.ngay_hieu_luc;
-            fileCRUD.co_quan_ban_hanh = file.co_quan_ban_hanh;
-            fileCRUD.so_van_ban = file.so_van_ban;
-            fileCRUD.so_ky_hieu = file.so_ky_hieu;
-            fileCRUD.so_luu_tru = file.so_luu_tru;
             fileCRUD.folder = file.folder;
-            fileCRUD.system = file.system;
             fileCRUD.title = file.title;
             fileCRUD.type = file.type;
             fileCRUD.charset = file.charset;

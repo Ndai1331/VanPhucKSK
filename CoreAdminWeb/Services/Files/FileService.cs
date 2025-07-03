@@ -144,14 +144,14 @@ namespace CoreAdminWeb.Services.Files
             {
                 var result = await RequestClient.PatchAPIAsync<RequestHttpResponse<FileCRUDModel>>($"files/{id}", 
                 new {
-                    co_quan_ban_hanh = model.co_quan_ban_hanh,
-                    so_van_ban = model.so_van_ban,
-                    so_ky_hieu = model.so_ky_hieu,
-                    ngay_ban_hanh = model.ngay_ban_hanh,
-                    ngay_hieu_luc = model.ngay_hieu_luc,
-                    so_luu_tru = model.so_luu_tru,
-                    linh_vuc_vb = model.linh_vuc_vb,
-                    phan_loai_vb = model.phan_loai_vb
+                            // co_quan_ban_hanh = model.co_quan_ban_hanh,
+                            // so_van_ban = model.so_van_ban,
+                            // so_ky_hieu = model.so_ky_hieu,
+                            // ngay_ban_hanh = model.ngay_ban_hanh,
+                            // ngay_hieu_luc = model.ngay_hieu_luc,
+                            // so_luu_tru = model.so_luu_tru,
+                            // linh_vuc_vb = model.linh_vuc_vb,
+                            // phan_loai_vb = model.phan_loai_vb
                 });
                 if (result.IsSuccess)
                 {

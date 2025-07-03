@@ -1,38 +1,16 @@
-using CoreAdminWeb.Enums;
 using CoreAdminWeb.Model.Base;
 using CoreAdminWeb.Helpers;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Components.Forms;
 
 
 namespace CoreAdminWeb.Model  
 {
-    public class LinhVucVanBanModel  : BaseModel<int>
-    {
-        public int system { set; get; } = 2;
-    }
-    public class LinhVucVanBanCRUDModel : BaseDetailModel
-    {
-        public new string status { set; get; } = Status.published.ToString();
-        public int system { set; get; } = 2;
-    }
-
-     public class PhanLoaiVanBanModel  : BaseModel<int>
-    {
-        public int system { set; get; } = 2;
-    }
-    public class PhanLoaiVanBanCRUDModel : BaseDetailModel
-    {
-        public new string status { set; get; } = Status.published.ToString();
-        public int system { set; get; } = 2;
-    }
 
     public class FolderModel 
     {
         public Guid id { get; set; } = Guid.Empty;
         public string? name { set; get; }
         public Guid? parent { set; get; }
-        public int system { set; get; } = 2;
         [JsonIgnore]
         public List<FolderModel> sub_folders { get; set; } = new List<FolderModel>();
         [JsonIgnore]
@@ -44,9 +22,7 @@ namespace CoreAdminWeb.Model
     {
         public Guid? parent { set; get; }
         public string? name { set; get; }
-        public int system { set; get; } = 2;
     }
-
 
 
     public class FileModel  : BaseModel<Guid>
@@ -75,15 +51,6 @@ namespace CoreAdminWeb.Model
         public string? tus_id { set; get; }
         public string? tus_data { set; get; }
         public DateTime? uploaded_on { set; get; }
-        public PhanLoaiVanBanModel? phan_loai_vb { set; get; }
-        public LinhVucVanBanModel? linh_vuc_vb { set; get; }
-        public string? co_quan_ban_hanh { set; get; }
-        public string? so_van_ban { set; get; }
-        public string? so_ky_hieu { set; get; }
-        public DateTime? ngay_ban_hanh { set; get; }
-        public DateTime? ngay_hieu_luc { set; get; }
-        public string? so_luu_tru { set; get; }
-        public int? system { set; get; } = 1;
         [JsonIgnore]    
         public string? icon_file { set; get; }
         [JsonIgnore]
@@ -117,16 +84,6 @@ namespace CoreAdminWeb.Model
         public string? icon_file { set; get; }
         public string? type_file { set; get; }
         public Guid? folder { set; get; } = null;
-        public int? system { set; get; } = 1;
-        public int? phan_loai_vb { set; get; } = null;   
-        public int? linh_vuc_vb { set; get; } = null;
-        public string? co_quan_ban_hanh { set; get; } = null;
-        public string? so_van_ban { set; get; } = null;
-        public string? so_ky_hieu { set; get; } = null;
-        public DateTime? ngay_ban_hanh { set; get; } = null;
-        public DateTime? ngay_hieu_luc { set; get; } = null;
-        public string? so_luu_tru { set; get; } = null;
-
 
         public string? storage { set; get; }
         public string? filename_disk { set; get; }

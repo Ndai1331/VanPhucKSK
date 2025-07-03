@@ -25,6 +25,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseGetService<KhamSucKhoeSanPhuKhoaModel>, KhamSucKhoeSanPhuKhoaService>();
             services.AddScoped<IBaseGetService<KhamSucKhoeTheLucModel>, KhamSucKhoeTheLucService>();
             services.AddScoped<IBaseGetService<KhamSucKhoeTienSuModel>, KhamSucKhoeTienSuService>();
+            services.AddScoped<IBaseGetService<PostModel>, PostService>();
             services.AddScoped<AlertService>();
             
             // PDF Service Configuration

@@ -27,7 +27,6 @@ namespace CoreAdminWeb.Services
         {
             return new()
             {
-                system = model.system,
                 parent = model.parent,
                 name = model.name
             };
