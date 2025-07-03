@@ -74,6 +74,7 @@ namespace CoreAdminWeb.RequestHttp
             EnsureClientInitialized();
             _client!.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Authorization = null;
+            _accessToken = string.Empty;
         }
 
         /// <summary>

@@ -105,7 +105,6 @@
             return;
 
         isLoading = true;
-        StateHasChanged();
         var response = await UserService.LoginAsync(_phone, _password);
         if (response.IsSuccess)
         {
@@ -113,12 +112,11 @@
             if (authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
             {
                 AlertService.ShowAlert("Đăng nhập thành công!", "success");
-                Navigation.NavigateTo("/");
+                Navigation.NavigateTo("/",forceLoad: true);
             }
             else
             {
                 AlertService.ShowAlert("Chưa đăng nhập thành công!", "warning");
-                Navigation.NavigateTo("/signin");
             }
         }
         else
@@ -126,7 +124,6 @@
             AlertService.ShowAlert(response.Message ?? "Lỗi khi đăng nhập", "danger");
         }
         isLoading = false;
-        StateHasChanged();
     }
 
     private async Task HandleGlobalKeyDown(KeyboardEventArgs e)
