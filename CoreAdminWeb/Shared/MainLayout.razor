@@ -6,6 +6,7 @@
 @using CoreAdminWeb.Services.Settings
 @using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Providers
+@using CoreAdminWeb.Services
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components
 @inherits LayoutComponentBase
@@ -21,7 +22,7 @@
 
     <div class="flex mx-auto main-container">
         <div class="flex-1 main-content">
-            <Topbar OnLogout="Logout" CurrentUser="currentUser" Logo="Logo"></Topbar>
+            <Topbar OnLogout="Logout" CurrentUser="currentUser" Logo="Logo" IsAuthenticated="isAuthenticated"></Topbar>
             <div class="h-[calc(100vh-60px)] relative overflow-y-auto overflow-x-hidden p-4 detached-content">
                 @if (isLoading)
                 {
@@ -29,16 +30,8 @@
                         <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
                     </div>
                 }
-                else if (!isAuthenticated)
-                {
-                    <MudAlert Severity="Severity.Warning" Class="my-4">
-                        Please sign in to continue
-                    </MudAlert>
-                }
-                else
-                {
-                    @Body
-                }
+                @Body
+
 
                 <Footer></Footer>
             </div>
@@ -50,6 +43,8 @@
     private bool isLoading = true;
     private bool isAuthenticated = false;
     private UserModel currentUser;
+    [Inject]
+    private AlertService AlertService { get; set; }
     [Inject]
     private ISettingService SettingService { get; set; }
     [Inject]
@@ -83,13 +78,7 @@
         if (firstRender)
         {
             await CheckAuth();
-            if (!isAuthenticated)
-            {
-                NavigationManager?.NavigateTo("/signin");
-            }else{
-                await LoadSettings();
-            }
-
+            await LoadSettings();
             StateHasChanged();
         }
     }
@@ -105,40 +94,15 @@
             if (isAuthenticated)
             {
                 var resUser = await UserService.GetCurrentUserAsync();
-                if (!resUser.IsSuccess)
-                {
-                    // Only navigate if not already on signin page
-                    var currentUri = NavigationManager?.Uri ?? "";
-                    if (!currentUri.Contains("/signin"))
-                    {
-                        NavigationManager?.NavigateTo("/signin");
-                    }
-                }
-                else
+                if (resUser.IsSuccess)
                 {
                     currentUser = resUser.Data;
-                }
-            }
-            else
-            {
-                // Only navigate if not already on signin page
-                var currentUri = NavigationManager?.Uri ?? "";
-                if (!currentUri.Contains("/signin"))
-                {
-                    NavigationManager?.NavigateTo("/signin");
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error checking auth: {ex.Message}");
-            isAuthenticated = false;
-            // Only navigate if not already on signin page
-            var currentUri = NavigationManager?.Uri ?? "";
-            if (!currentUri.Contains("/signin"))
-            {
-                NavigationManager?.NavigateTo("/signin");
-            }
+            AlertService.ShowAlert("Lỗi khi kiểm tra đăng nhập", "error");
         }
         finally
         {

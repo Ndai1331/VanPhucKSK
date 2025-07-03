@@ -1,4 +1,4 @@
-@page "/record-detail-page/{ma_luot_kham}/{ma_benh_nhan}"
+@page "/record-detail-page/{ma_luot_kham}"
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Helpers
@@ -467,7 +467,6 @@
     #region Parameters and Injection
 
     [Parameter] public string ma_luot_kham { get; set; } = "1";
-    [Parameter] public string ma_benh_nhan { get; set; } = "1";
     
     [Inject] AlertService AlertService { get; set; } = null!;
     [Inject] IUserService UserService { get; set; } = null!;

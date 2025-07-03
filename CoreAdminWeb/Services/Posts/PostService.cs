@@ -16,7 +16,7 @@ namespace CoreAdminWeb.Services
             _appSettings = appSettings;
         }
         private readonly string _collection = "Posts";
-        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name," +
+        private const string Fields = "*," +
         "post_images.modified_on,post_images.type,post_images.filename_disk,post_images.storage,post_images.id";
         public async Task<RequestHttpResponse<List<PostModel>>> GetAllAsync(string query)
         {
