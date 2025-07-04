@@ -18,12 +18,12 @@ namespace CoreAdminWeb.Services
         /// <summary>
         /// Gets all fertilizer production facilities
         /// </summary>
-        public async Task<RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>>> GetAllAsync(string query)
+        public async Task<RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>>> GetAllAsync(string query, bool isPublic = false)
         {
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>>>(url);
+                var response = isPublic ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>>>(url) : await RequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>>>(url);
                 
                 return response.IsSuccess 
                     ? new RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>> { Data = response.Data.Data, Meta = response.Data.Meta }

@@ -7,6 +7,8 @@
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Services.PDFService
+@using Microsoft.Extensions.Configuration
+@using System.Linq
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
 @inject IWebHostEnvironment WebHostEnvironment
@@ -41,6 +43,21 @@
             <div class="flex justify-center items-center py-12">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
+            </div>
+        }
+        else if(_isShowInputCCCD)
+        {
+            <div class="card">
+                <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập CCCD</MudText>
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <MudText>CCCD</MudText>
+                        <input type="text" class="form-input" placeholder="CCCD" required="" @bind-value="@_so_dinh_danh">
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]" OnClick="LoadDataWithCccdAsync">Tải dữ liệu</MudButton>
+                    </div>
+                </div>
             </div>
         }
         else if (!string.IsNullOrEmpty(_errorMessage))
@@ -248,8 +265,8 @@
                                         <th rowspan="2">Họ tên và chữ ký của Bác sỹ chuyên khoa</th>
                                     </tr>
                                     <tr>
-                                        <th>Kết luận</th>
-                                        <th>Kết quả</th>
+                                        <th style="border: 1px solid #000;">Kết luận</th>
+                                        <th style="border: 1px solid #000;">Kết quả</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -504,12 +521,11 @@
     #region Constants
 
     private const string DEFAULT_PROFILE_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
-
     #endregion
 
     #region Parameters and Injection
 
-    [Parameter] public string ma_luot_kham { get; set; } = "1";
+    [Parameter] public string ma_luot_kham { get; set; } = "";
     [Inject] IUserService UserService { get; set; } = null!;
     [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
     [Inject] IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService { get; set; } = null!;
@@ -520,6 +536,7 @@
     [Inject] IBaseGetService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
     [Inject] IBaseGetService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
     [Inject] IPdfService PdfService { get; set; } = null!;
+    [Inject] IConfiguration Configuration { get; set; } = null!;
 
     #endregion
 
@@ -538,7 +555,11 @@
     private UserModel? CurrentUser { get; set; }
     private string _profileImageUrl = string.Empty;
     private bool _isLoading = true;
+    private bool _isShowInputCCCD = false;
     private string? _errorMessage;
+    private string _imagesFolder = $"/images/";
+    private string _so_dinh_danh = string.Empty;
+    private bool _isPublic = false;
 
     #endregion
 
@@ -548,6 +569,7 @@
     {
         await base.OnInitializedAsync();
         await LoadDataAsync();
+        _imagesFolder += ma_luot_kham;
     }
 
     #endregion
@@ -558,6 +580,39 @@
     /// <summary>
     /// Load all medical record data and user information asynchronously
     /// </summary>
+    private async Task LoadDataWithCccdAsync()
+    {
+        try
+        {
+            _isLoading = true;
+            _errorMessage = null;
+            StateHasChanged();
+            var userResult = await UserService.GetUserByCCCDAsync(_so_dinh_danh);
+            if (userResult?.IsSuccess == true)
+            {
+                CurrentUser = userResult.Data;  
+                _isPublic = true;
+                await LoadMedicalDataAsync();
+                _isShowInputCCCD = false;
+            }
+            else
+            {
+                _errorMessage = $"Không tìm thấy dữ liệu với CCCD: {_so_dinh_danh}";
+                AlertService?.ShowAlert(_errorMessage, "danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+            AlertService?.ShowAlert(_errorMessage, "danger");
+        }
+        finally
+        {
+            _isLoading = false; 
+            StateHasChanged();
+        }
+    }
+
     private async Task LoadDataAsync()
     {
         try
@@ -567,10 +622,16 @@
             StateHasChanged();
             // Load user data and medical records in parallel for better performance
             var userTask = LoadUserDataAsync();
-            var medicalDataTask = LoadMedicalDataAsync();
-            await Task.WhenAll(userTask, medicalDataTask);
-            // Set profile image placeholder
-            SetProfileImagePlaceholder();
+            if(CurrentUser != null)
+            {
+                var medicalDataTask = LoadMedicalDataAsync();
+                await Task.WhenAll(userTask, medicalDataTask);
+                SetProfileImagePlaceholder();
+            }
+            else
+            {
+                _isShowInputCCCD = true;
+            }
         }
         catch (Exception ex)
         {
@@ -625,7 +686,7 @@
     {
         try
         {
-            var result = await service.GetAllAsync(query);
+            var result = await service.GetAllAsync(query , _isPublic);
             if (result?.IsSuccess == true && result.Data != null)
             {
                 setResult(result.Data.FirstOrDefault());
@@ -776,9 +837,56 @@
             // Trigger download via JavaScript
             Console.WriteLine("Step 7: Trigger download...");
             await JsRuntime.InvokeVoidAsync("downloadFile", dataUrl, pdfSettings.FileName);
+            AlertService?.ShowAlert("Xuất PDF thành công!", "success");
 
             Console.WriteLine("Step 8: Hoàn thành thành công!");
-            AlertService?.ShowAlert("Xuất PDF thành công!", "success");
+
+            // Xóa ảnh chữ ký sau khi export PDF
+            try
+            {
+                // Xóa folder con chứa ảnh của mã lượt khám
+                string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder;
+                if (Directory.Exists(folderPath))
+                {
+                    // Xóa tất cả file trong folder
+                    var files = Directory.GetFiles(folderPath);
+                    foreach (var file in files)
+                    {
+                        File.Delete(file);
+                    }
+                    
+                    // Xóa folder sau khi xóa hết file
+                    Directory.Delete(folderPath);
+                    Console.WriteLine($"Step 9: Xóa folder và ảnh chữ ký thành công: {folderPath}");
+                }
+
+                // Xóa các ảnh có thể bị tạo nhầm ở thư mục gốc /images/
+                string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images");
+                if (Directory.Exists(rootImagesPath))
+                {
+                    // Tìm và xóa các file có tên chứa mã lượt khám hoặc tên chữ ký
+                    var signatureFiles = Directory.GetFiles(rootImagesPath, "*")
+                        .Where(f => Path.GetFileName(f).Contains(ma_luot_kham) || 
+                                    Path.GetFileName(f).Contains("ket_luan") ||
+                                    Path.GetFileName(f).Contains("tuan_hoan") ||
+                                    Path.GetFileName(f).Contains("chu_ky"))
+                        .ToArray();
+                    
+                    foreach (var file in signatureFiles)
+                    {
+                        File.Delete(file);
+                        Console.WriteLine($"Xóa file nhầm: {Path.GetFileName(file)}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi xóa ảnh: {ex.Message}");
+            }
+            
+
+            
+
         }
         catch (Exception ex)
         {
@@ -828,8 +936,8 @@
     private MarkupString RenderSignature(string? signatureData, string? fallbackText = "", string? fileName = "", int maxWidth = 120, int maxHeight = 60)
     {
         if (string.IsNullOrEmpty(signatureData)) return new MarkupString();
-        var html = signatureData.GetSignatureDisplayHtml(fallbackText, ma_luot_kham + "_" + fileName, maxWidth, maxHeight,
-            WebHostEnvironment.WebRootPath,  "https://localhost:7078");
+        var html = signatureData.GetSignatureDisplayHtml(fallbackText, fileName, maxWidth, maxHeight,
+            WebHostEnvironment.WebRootPath + _imagesFolder,  Configuration["DrCoreApi:BaseUrlImage"]);
         return new MarkupString(html);
     }
     #endregion

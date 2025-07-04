@@ -79,6 +79,10 @@
         {
             await CheckAuth();
             await LoadSettings();
+            if(!isAuthenticated && !NavigationManager.Uri.Contains("/record-detail-page"))
+            {
+                NavigationManager?.NavigateTo("/news");
+            }
             StateHasChanged();
         }
     }

@@ -32,6 +32,10 @@
     <Content Include="Pages\Folder\Folder.razor.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\LK0005\" />
+  </ItemGroup>
+
   <!-- <ItemGroup>
     <Compile Remove="Pages\Apps\**" />
     <Compile Remove="Pages\Chart\**" />

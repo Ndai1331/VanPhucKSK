@@ -14,7 +14,7 @@ namespace CoreAdminWeb.Services.BaseServices
 
     public interface IBaseGetService<T>
     {
-        Task<RequestHttpResponse<List<T>>> GetAllAsync(string query);
+        Task<RequestHttpResponse<List<T>>> GetAllAsync(string query, bool isPublic = false);
         Task<RequestHttpResponse<T>> GetByIdAsync(string id);
         
         public static RequestHttpResponse<T> CreateErrorResponse<T>(Exception ex)

@@ -18,12 +18,12 @@ namespace CoreAdminWeb.Services
         private readonly string _collection = "Posts";
         private const string Fields = "*," +
         "post_images.modified_on,post_images.type,post_images.filename_disk,post_images.storage,post_images.id";
-        public async Task<RequestHttpResponse<List<PostModel>>> GetAllAsync(string query)
+        public async Task<RequestHttpResponse<List<PostModel>>> GetAllAsync(string query, bool isPulic = false)
         {
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var result = await RequestClient.GetAPIAsync<RequestHttpResponse<List<PostModel>>>(url);
+                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<PostModel>>>(url);
                 
 
                 var response = result.IsSuccess

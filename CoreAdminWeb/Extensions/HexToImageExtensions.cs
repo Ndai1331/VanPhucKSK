@@ -151,7 +151,7 @@ namespace CoreAdminWeb.Extensions
                     extension = "png"; // Default fallback
 
                 // Create images directory if not exists
-                string imagesDir = Path.Combine(webRootPath, "images");
+                string imagesDir = webRootPath;
                 if (!Directory.Exists(imagesDir))
                     Directory.CreateDirectory(imagesDir);
 
@@ -163,7 +163,21 @@ namespace CoreAdminWeb.Extensions
                 // Save file (overwrite if exists)
                 File.WriteAllBytes(filePath, imageBytes);
 
-                // Return relative path for web use
+                // Calculate correct relative path for web use
+                // Find where 'wwwroot' ends in the webRootPath
+                int wwwrootIndex = webRootPath.IndexOf("wwwroot");
+                if (wwwrootIndex >= 0)
+                {
+                    // Get the part after wwwroot
+                    string afterWwwroot = webRootPath.Substring(wwwrootIndex + 7); // 7 is length of "wwwroot"
+                    // Convert to web path format and add filename
+                    string webPath = afterWwwroot.Replace('\\', '/');
+                    if (!webPath.StartsWith("/")) webPath = "/" + webPath;
+                    if (!webPath.EndsWith("/")) webPath += "/";
+                    return webPath + fullFileName;
+                }
+                
+                // Fallback - assumes standard structure
                 return $"/images/{fullFileName}";
             }
             catch (Exception ex)

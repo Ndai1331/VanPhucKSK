@@ -76,5 +76,6 @@ namespace CoreAdminWeb.Model.User
 
         [JsonPropertyName("policies")]
         public List<string> policies { get; set; }
+
     }
 } 

@@ -16,6 +16,7 @@ namespace CoreAdminWeb.Services.Users
         Task<RequestHttpResponse<UserModel>> GetCurrentUserAsync();
         Task<RequestHttpResponse<UserModel>> UpdateUserAsync(UserModel req);
         Task<RequestHttpResponse<UserModel>> UpdateCurrentUserAsync(UserModel req);
+        Task<RequestHttpResponse<UserModel>> GetUserByCCCDAsync(string cccd);
         string GetAccessTokenAsync();
         string GetRefreshTokenAsync();
         Task<bool> RefreshTokenAsync();
@@ -118,7 +119,27 @@ namespace CoreAdminWeb.Services.Users
             }
         }
 
-
+        public async Task<RequestHttpResponse<UserModel>> GetUserByCCCDAsync(string cccd)
+        {
+            var response = new RequestHttpResponse<UserModel>();
+            try
+            {
+                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?filter[_and][0][_and][0][so_dinh_danh][_eq]={cccd}");
+                if (result.IsSuccess)
+                {
+                    response.Data = result.Data.Data.FirstOrDefault();
+                }
+                else
+                {
+                    response.Errors = result.Errors;
+                }
+            }
+            catch (Exception ex)    
+            {
+                response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = ex.Message } };
+            }
+            return response;
+        }
 
         public async Task<RequestHttpResponse<UserModel>> GetCurrentUserAsync()
         {
