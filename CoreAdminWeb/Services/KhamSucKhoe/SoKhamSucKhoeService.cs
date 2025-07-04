@@ -1,10 +1,10 @@
+using CoreAdminWeb.Http;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.RequestHttp;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Http;
 using System.Net;
-
-namespace CoreAdminWeb.Services
+namespace CoreAdminWeb.Services.KhamSucKhoe
 {
     /// <summary>
     /// Service for managing fertilizer production facilities
@@ -12,7 +12,14 @@ namespace CoreAdminWeb.Services
     public class SoKhamSucKhoeService : IBaseGetService<SoKhamSucKhoeModel>
     {
         private readonly string _collection = "SoKhamSucKhoe";
-        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+        private readonly IHttpClientService _httpClientService;
+
+        private string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+
+        public SoKhamSucKhoeService(IHttpClientService httpClientService)
+        {
+            _httpClientService = httpClientService;
+        }
 
         /// <summary>
         /// Gets all fertilizer production facilities
@@ -22,7 +29,9 @@ namespace CoreAdminWeb.Services
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = isPublic ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<SoKhamSucKhoeModel>>>(url) : await RequestClient.GetAPIAsync<RequestHttpResponse<List<SoKhamSucKhoeModel>>>(url);
+                var response = isPublic
+                    ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<SoKhamSucKhoeModel>>>(url)
+                    : await _httpClientService.GetAPIAsync<RequestHttpResponse<List<SoKhamSucKhoeModel>>>(url);
 
                 return response.IsSuccess
                     ? new RequestHttpResponse<List<SoKhamSucKhoeModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
@@ -50,10 +59,10 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<SoKhamSucKhoeModel>>($"items/{_collection}/{id}?fields={Fields}");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<SoKhamSucKhoeModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<SoKhamSucKhoeModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
+                    ? new RequestHttpResponse<SoKhamSucKhoeModel> { Data = response.Data?.Data }
                     : new RequestHttpResponse<SoKhamSucKhoeModel> { Errors = response.Errors };
             }
             catch (Exception ex)

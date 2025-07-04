@@ -1,6 +1,3 @@
-
-
-
 @page "/news/{id}"
 @using CoreAdminWeb.Services
 @using CoreAdminWeb.Services.Users
@@ -16,85 +13,179 @@
 @inject IJSRuntime JsRuntime
 
 <PageHeader Title="Tin tức" pTitle="Chi tiết tin tức"></PageHeader>
+
 <!-- Start Main Content -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
-
-    <div class="grid grid-cols-1 gap-4 bg-white">
-        <div class="flex justify-end items-center mb-4 mt-4">
-            <div class="flex gap-2">
-                <button class="px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToNews">
-                    <i class="ri-arrow-left-line me-1"></i>Quay lại
-                </button>
-            </div>
+    @if (_isLoading)
+    {
+        <div class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <span class="ml-3 text-slate-600">Đang tải chi tiết tin tức...</span>
         </div>
+    }
+    else if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <strong class="font-bold">Lỗi!</strong>
+            <span class="block sm:inline"> @_errorMessage</span>
+            <button class="float-right font-bold" @onclick="() => LoadPostAsync()">
+                <i class="ri-refresh-line me-1"></i>Thử lại
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 gap-4 bg-white">
+            <div class="flex justify-end items-center mb-4 mt-4">
+                <div class="flex gap-2">
+                    <button class="px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToNews">
+                        <i class="ri-arrow-left-line me-1"></i>Quay lại
+                    </button>
+                </div>
+            </div>
 
-        <div class="card p-4">
-            <div class="grid grid-cols-1 gap-4">
-                @if(MainModels != null)
+            <div class="card p-4">
+                @if (MainModels != null && !string.IsNullOrEmpty(MainModels.title))
                 {
-                    <div>
-                        <img src="@MainModels.post_images?.filename_disk" class="w-full" alt="">
+                    <div class="grid grid-cols-1 gap-4">
+                        @if (!string.IsNullOrEmpty(MainModels.post_images?.filename_disk))
+                        {
+                            <div>
+                                <img src="@MainModels.post_images.filename_disk" class="w-full" alt="@MainModels.title">
+                            </div>
+                        }
+                        <h2 class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">@MainModels.title</h2>
+                        <div class="text-sm text-gray-500">
+                            <p class="mb-2">@MainModels.date_created.ToString("dd/MM/yyyy")</p>
+                            <p class="mb-2">@(MainModels.view_count ?? 0) lượt xem</p>
+                        </div>
+                        @if (!string.IsNullOrEmpty(MainModels.description))
+                        {
+                            @((MarkupString)MainModels.description)
+                        }
                     </div>
-                    <h2 class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">@MainModels.title</h2>
-                    <div class="text-sm text-gray-500">
-                        <p class="mb-2">@MainModels.date_created.ToString("dd/MM/yyyy")</p>
-                        <p class="mb-2">@MainModels.view_count</p>
+                }
+                else
+                {
+                    <div class="text-center py-8">
+                        <p class="text-slate-500 dark:text-slate-400">Không tìm thấy tin tức này hoặc tin tức đã bị gỡ</p>
+                        <button class="mt-4 px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToNews">
+                            <i class="ri-arrow-left-line me-1"></i>Quay về danh sách tin tức
+                        </button>
                     </div>
-                    @((MarkupString)MainModels.description)
                 }
             </div>
         </div>
-    </div>
+    }
 </div>
 
 @code {
     [Inject] AlertService AlertService { get; set; }
     [Inject] IBaseGetService<PostModel> PostService { get; set; }
-    [Parameter]
-    public string id { get; set; }
+    
+    [Parameter] public string id { get; set; } = "";
+    
+    // State management
+    private bool _isLoading = true;
+    private bool _hasInitialized = false;
+    private string? _errorMessage;
+    
+    // Data
     private PostModel MainModels = new();
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
     }
 
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && !_hasInitialized)
         {
-            await LoadPosts();
-            StateHasChanged();
+            _hasInitialized = true;
+            await InitializePageDataAsync();
         }
     }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        // Handle parameter changes (if user navigates between different news)
+        if (_hasInitialized)
+        {
+            await LoadPostAsync();
+        }
+    }
 
-    private async Task LoadPosts()
+    /// <summary>
+    /// Initialize page data with parameter validation
+    /// </summary>
+    private async Task InitializePageDataAsync()
     {
         try
         {
-            BuildPaginationQuery(Page, PageSize, "date_created");
-            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            BuilderQuery += $"&filter[_and][1][status][_eq]={Model.Base.Status.published.ToString()}";
-            BuilderQuery += $"&filter[_and][2][id][_eq]={id}";
-            var result = await PostService.GetAllAsync(BuilderQuery);
-            if (result.IsSuccess && result.Data != null && result.Data.Count > 0)
+            _isLoading = true;
+            _errorMessage = null;
+            
+            if (string.IsNullOrWhiteSpace(id))
             {
-                MainModels = result.Data.FirstOrDefault();
+                _errorMessage = "ID tin tức không hợp lệ";
+                return;
+            }
+
+            await LoadPostAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+            AlertService.ShowAlert(_errorMessage, "danger");
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Load single post with optimized query (no pagination needed)
+    /// </summary>
+    private async Task LoadPostAsync()
+    {
+        try
+        {
+            _errorMessage = null;
+            
+            // Simple query for single record - no pagination needed
+            string query = $"filter[_and][0][deleted][_eq]=false";
+            query += $"&filter[_and][1][status][_eq]={Model.Base.Status.published.ToString()}";
+            query += $"&filter[_and][2][id][_eq]={id}";
+            query += $"&limit=1"; // Only get one record
+            
+            var result = await PostService.GetAllAsync(query);
+            if (result.IsSuccess && result.Data?.Any() == true)
+            {
+                MainModels = result.Data.FirstOrDefault() ?? new PostModel();
             }
             else
             {
-                MainModels = new();
+                MainModels = new PostModel();
+                _errorMessage = "Không tìm thấy tin tức này";
             }
         }
         catch (Exception ex)
         {
-            AlertService.ShowAlert("Lỗi khi tải: " + ex.Message, "danger");
+            _errorMessage = $"Lỗi khi tải tin tức: {ex.Message}";
+            AlertService.ShowAlert(_errorMessage, "danger");
+            MainModels = new PostModel();
         }
     }
 
+    /// <summary>
+    /// Navigate back to news list
+    /// </summary>
     private void BackToNews()
     {
         Navigation.NavigateTo("/news");
     }
+} 
 } 

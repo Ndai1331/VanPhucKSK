@@ -581,28 +581,80 @@
 
     #region Data Loading Methods
 
-
     /// <summary>
-    /// Load all medical record data and user information asynchronously
+    /// Initialize page data with optimized loading and error handling
     /// </summary>
-    private async Task LoadDataWithCccdAsync()
+    private async Task InitializePageDataAsync()
     {
         try
         {
             _isLoading = true;
             _errorMessage = null;
-            StateHasChanged();
+            
+            // Load user data first
+            await LoadUserDataAsync();
+            
+            if (CurrentUser != null)
+            {
+                // Load medical data if user is authenticated
+                await LoadMedicalDataAsync();
+                SetProfileImagePlaceholder();
+            }
+            else
+            {
+                // Show CCCD input for public access
+                _isShowInputCCCD = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+            AlertService?.ShowAlert(_errorMessage, "danger");
+        }
+        finally
+        {
+            _isLoading = false;
+            // Use InvokeAsync to avoid render cycle issues
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Load all medical record data and user information asynchronously
+    /// </summary>
+    /// <summary>
+    /// Load data with CCCD input - optimized version
+    /// </summary>
+    private async Task LoadDataWithCccdAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_so_dinh_danh))
+        {
+            AlertService?.ShowAlert("Vui lòng nhập CCCD", "warning");
+            return;
+        }
+
+        try
+        {
+            _isLoading = true;
+            _errorMessage = null;
+            
             var userResult = await UserService.GetUserByCCCDAsync(_so_dinh_danh);
             if (userResult?.IsSuccess == true && userResult.Data != null)
             {
                 CurrentUser = userResult.Data;  
                 _isPublic = true;
+                
+                // Load medical data in parallel
                 await LoadMedicalDataAsync();
 
-                if(SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ma_benh_nhan == CurrentUser.ma_benh_nhan)
+                // Validate user matches the medical record
+                if (SoKhamSucKhoeModel != null && 
+                    string.Equals(SoKhamSucKhoeModel.ma_benh_nhan, CurrentUser.ma_benh_nhan, StringComparison.OrdinalIgnoreCase))
                 {
                     _isShowInputCCCD = false;
-                }else
+                    SetProfileImagePlaceholder();
+                }
+                else
                 {
                     _isShowInputCCCD = true;
                     AlertService?.ShowAlert("Không tìm thấy mã bệnh nhân với lượt khám này", "danger");
@@ -622,51 +674,38 @@
         finally
         {
             _isLoading = false; 
-            StateHasChanged();
-        }
-    }
-
-    private async Task LoadDataAsync()
-    {
-        try
-        {
-            _isLoading = true;
-            _errorMessage = null;
-            StateHasChanged();
-            // Load user data and medical records in parallel for better performance
-            await LoadUserDataAsync();
-            if(CurrentUser != null)
-            {
-                var medicalDataTask = LoadMedicalDataAsync();
-                await Task.WhenAll(medicalDataTask);
-                SetProfileImagePlaceholder();
-            }
-            else
-            {
-                _isShowInputCCCD = true;
-            }
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
-            AlertService?.ShowAlert(_errorMessage, "danger");
-        }
-        finally
-        {
-            _isLoading = false;
-            StateHasChanged();
+            // Use InvokeAsync to avoid render cycle issues
+            await InvokeAsync(StateHasChanged);
         }
     }
 
     /// <summary>
-    /// Load user data
+    /// Load data asynchronously (wrapper for InitializePageDataAsync)
+    /// </summary>
+    private async Task LoadDataAsync()
+    {
+        await InitializePageDataAsync();
+    }
+
+    /// <summary>
+    /// Load user data with caching
     /// </summary>
     private async Task LoadUserDataAsync()
     {
-        var userResult = await UserService.GetCurrentUserAsync();
-        if (userResult?.IsSuccess == true)
+        if (CurrentUser != null) return; // Skip if already loaded
+        
+        try
         {
-            CurrentUser = userResult.Data;
+            var userResult = await UserService.GetCurrentUserAsync();
+            if (userResult?.IsSuccess == true)
+            {
+                CurrentUser = userResult.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user data: {ex.Message}");
+            // CurrentUser will remain null, triggering CCCD input
         }
     }
 

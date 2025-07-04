@@ -1,11 +1,12 @@
-@using CoreAdminWeb.RequestHttp
+@using CoreAdminWeb.Services.Http
 @inject NavigationManager NavigationManager
+@inject IHttpClientService HttpClientService
 @implements IDisposable
 
 @code {
     protected override void OnInitialized()
     {
-        RequestClient.OnLogoutRequired += HandleLogoutRequired;
+        HttpClientService.OnLogoutRequired += HandleLogoutRequired;
     }
 
     private void HandleLogoutRequired(object? sender, EventArgs e)
@@ -15,6 +16,6 @@
 
     public void Dispose()
     {
-        RequestClient.OnLogoutRequired -= HandleLogoutRequired;
+        HttpClientService.OnLogoutRequired -= HandleLogoutRequired;
     }
 } 

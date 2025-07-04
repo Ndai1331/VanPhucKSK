@@ -5,101 +5,108 @@ using System.Net.Http.Headers;
 using System.Text;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.Model.User;
 using Blazored.LocalStorage;
 using CoreAdminWeb.Services.Users;
-using LoginResponse = CoreAdminWeb.Model.User.LoginResponse;
 
-namespace CoreAdminWeb.RequestHttp
+namespace CoreAdminWeb.Services.Http
 {
     /// <summary>
-    /// Client for making authenticated API requests
+    /// Scoped service for making authenticated API requests - replaces static RequestClient
     /// </summary>
-    public static class RequestClient
+    public class HttpClientService : IHttpClientService
     {
-        private static HttpClient? _client;
-
-        private static ILocalStorageService _localStorage;
-        private static readonly CancellationTokenSource _tokenSource = new();
+        private readonly HttpClient _client;
+        private readonly IConfiguration _configuration;
+        private readonly ILocalStorageService _localStorage;
+        private readonly CancellationTokenSource _tokenSource = new();
         private const long UploadLimit = 25214400; // ~24MB
-        private static string? _accessToken;
-        private static IUserService? _userService;
+        private IUserService? _userService;
 
         // Event để thông báo khi cần logout
-        public static event EventHandler? OnLogoutRequired;
+        public event EventHandler? OnLogoutRequired;
 
-        /// <summary>
-        /// Initialize the client with a new HttpClient instance
-        /// </summary>
-        public static void Initialize(HttpClient client)
+        public HttpClientService(HttpClient client, ILocalStorageService localStorage, IConfiguration configuration)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
+            _localStorage = localStorage ?? throw new ArgumentNullException(nameof(localStorage));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _client.BaseAddress = new Uri(_configuration["DrCoreApi:BaseUrl"]);
         }
 
-        /// <summary>
-        /// Cancel any ongoing requests
-        /// </summary>
-        public static void CancelToken()
+        public void SetUserService(IUserService userService)
         {
-            _tokenSource.Cancel();
+            _userService = userService;
         }
-
-
-        public static void InjectServices(ILocalStorageService localStorage)
-        {
-            _localStorage = localStorage;
-        }
-
 
         /// <summary>
         /// Attach authentication token to the client
         /// </summary>
-        public static void AttachToken(string token)
+        public void AttachToken(string token)
         {
-            _accessToken = token;
-            EnsureClientInitialized();
-            
-            if (!string.IsNullOrEmpty(_accessToken))
+            if (!string.IsNullOrEmpty(token))
             {
-                _client!.DefaultRequestHeaders.Clear();
-                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
-            }
-            else
-            {
-                
+                _client.DefaultRequestHeaders.Clear();
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
         }
 
         /// <summary>
         /// Remove authentication token from the client
         /// </summary>
-        public static void RemoveToken()
+        public void RemoveToken()
         {
-            EnsureClientInitialized();
-            _client!.DefaultRequestHeaders.Clear();
+            _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Authorization = null;
-            _accessToken = string.Empty;
+        }
+
+        /// <summary>
+        /// Get current access token from localStorage
+        /// </summary>
+        private async Task<string?> GetCurrentTokenAsync()
+        {
+            try
+            {
+                return await _localStorage.GetItemAsync<string>("accessToken");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Ensure token is attached before making request
+        /// </summary>
+        private async Task EnsureTokenAttachedAsync()
+        {
+            if (_client.DefaultRequestHeaders.Authorization == null)
+            {
+                var token = await GetCurrentTokenAsync();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    AttachToken(token);
+                }
+            }
         }
 
         /// <summary>
         /// Trigger logout event and remove token
         /// </summary>
-        private static void TriggerLogout()
+        private void TriggerLogout()
         {
             RemoveToken();
-            OnLogoutRequired?.Invoke(null, EventArgs.Empty);
+            OnLogoutRequired?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
         /// Make a GET request to the specified URL
         /// </summary>
-        public static async Task<RequestHttpResponse<T>> GetAPIAsync<T>([Required] string URL)
+        public async Task<RequestHttpResponse<T>> GetAPIAsync<T>([Required] string URL)
         {
             try
             {
-                EnsureClientInitialized();
-                EnsureTokenAttached();
-                var response = await _client!.GetAsync(URL, _tokenSource.Token);
+                await EnsureTokenAttachedAsync();
+                var response = await _client.GetAsync(URL, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -111,14 +118,20 @@ namespace CoreAdminWeb.RequestHttp
         /// <summary>
         /// Make a GET request without authentication
         /// </summary>
-        public static async Task<RequestHttpResponse<T>> GetAPIWithoutAuthAsync<T>([Required] string URL)
+        public async Task<RequestHttpResponse<T>> GetAPIWithoutAuthAsync<T>([Required] string URL)
         {
             try
             {
-                EnsureClientInitialized();
+                var originalAuth = _client.DefaultRequestHeaders.Authorization;
                 RemoveToken();
-                var response = await _client!.GetAsync(URL, _tokenSource.Token);
-                AttachToken(_accessToken ?? "");
+                var response = await _client.GetAsync(URL, _tokenSource.Token);
+                
+                // Restore original auth header
+                if (originalAuth != null)
+                {
+                    _client.DefaultRequestHeaders.Authorization = originalAuth;
+                }
+                
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -130,11 +143,10 @@ namespace CoreAdminWeb.RequestHttp
         /// <summary>
         /// Make a POST request with JSON data without return type
         /// </summary>
-        public static async Task PostAPIAsync([Required] string URL, object input)
+        public async Task PostAPIAsync([Required] string URL, object input)
         {
             try
             {
-                EnsureClientInitialized();
                 var content = new StringContent(
                     JsonConvert.SerializeObject(input),
                     Encoding.UTF8,
@@ -147,10 +159,10 @@ namespace CoreAdminWeb.RequestHttp
                 }
                 else
                 {
-                    EnsureTokenAttached();
+                    await EnsureTokenAttachedAsync();
                 }
 
-                var response = await _client!.PostAsync(URL, content, _tokenSource.Token);
+                var response = await _client.PostAsync(URL, content, _tokenSource.Token);
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorResponse = await response.Content.ReadAsStringAsync();
@@ -166,11 +178,10 @@ namespace CoreAdminWeb.RequestHttp
         /// <summary>
         /// Make a POST request with JSON data and return type
         /// </summary>
-        public static async Task<RequestHttpResponse<T>> PostAPIAsync<T>([Required] string URL, object input, bool notifyOk = true)
+        public async Task<RequestHttpResponse<T>> PostAPIAsync<T>([Required] string URL, object input, bool notifyOk = true)
         {
             try
             {
-                EnsureClientInitialized();
                 var content = new StringContent(
                     JsonConvert.SerializeObject(input),
                     Encoding.UTF8,
@@ -183,10 +194,10 @@ namespace CoreAdminWeb.RequestHttp
                 }
                 else
                 {
-                    EnsureTokenAttached();
+                    await EnsureTokenAttachedAsync();
                 }
 
-                var response = await _client!.PostAsync(URL, content, _tokenSource.Token);
+                var response = await _client.PostAsync(URL, content, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -198,12 +209,11 @@ namespace CoreAdminWeb.RequestHttp
         /// <summary>
         /// Make a POST request with a file
         /// </summary>
-        public static async Task<RequestHttpResponse<T>> PostAPIWithFileAsync<T>([Required] string URL, IBrowserFile file, FileCRUDModel? fileCRUDModel = null)
+        public async Task<RequestHttpResponse<T>> PostAPIWithFileAsync<T>([Required] string URL, IBrowserFile file, FileCRUDModel? fileCRUDModel = null)
         {
             try
             {
-                EnsureClientInitialized();
-                EnsureTokenAttached();
+                await EnsureTokenAttachedAsync();
 
                 using var content = new MultipartFormDataContent();
                 using var stream = file.OpenReadStream(UploadLimit);
@@ -216,7 +226,7 @@ namespace CoreAdminWeb.RequestHttp
                     AddFileMetadata(content, fileCRUDModel);
                 }
 
-                var response = await _client!.PostAsync(URL, content, _tokenSource.Token);
+                var response = await _client.PostAsync(URL, content, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -228,12 +238,11 @@ namespace CoreAdminWeb.RequestHttp
         /// <summary>
         /// Make a POST request with multiple files
         /// </summary>
-        public static async Task<RequestHttpResponse<T>> PostAPIWithMultipleFileAsync<T>([Required] string URL, List<IBrowserFile> files)
+        public async Task<RequestHttpResponse<T>> PostAPIWithMultipleFileAsync<T>([Required] string URL, List<IBrowserFile> files)
         {
             try
             {
-                EnsureClientInitialized();
-                EnsureTokenAttached();
+                await EnsureTokenAttachedAsync();
 
                 using var content = new MultipartFormDataContent();
                 var streams = new List<MemoryStream>();
@@ -247,7 +256,7 @@ namespace CoreAdminWeb.RequestHttp
                     streams.Add(ms);
                 }
 
-                var response = await _client!.PostAsync(URL, content, _tokenSource.Token);
+                var response = await _client.PostAsync(URL, content, _tokenSource.Token);
 
                 foreach (var stream in streams)
                 {
@@ -265,12 +274,11 @@ namespace CoreAdminWeb.RequestHttp
         /// <summary>
         /// Make a PATCH request with JSON data
         /// </summary>
-        public static async Task<RequestHttpResponse<T>> PatchAPIAsync<T>([Required] string URL, object input, bool notifyOk = true)
+        public async Task<RequestHttpResponse<T>> PatchAPIAsync<T>([Required] string URL, object input, bool notifyOk = true)
         {
             try
             {
-                EnsureClientInitialized();
-                EnsureTokenAttached();
+                await EnsureTokenAttachedAsync();
 
                 var content = new StringContent(
                     JsonConvert.SerializeObject(input),
@@ -278,7 +286,7 @@ namespace CoreAdminWeb.RequestHttp
                     "application/json"
                 );
 
-                var response = await _client!.PatchAsync(URL, content, _tokenSource.Token);
+                var response = await _client.PatchAsync(URL, content, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -290,12 +298,11 @@ namespace CoreAdminWeb.RequestHttp
         /// <summary>
         /// Make a PUT request with JSON data
         /// </summary>
-        public static async Task<RequestHttpResponse<T>> PutAPIAsync<T>([Required] string URL, object input)
+        public async Task<RequestHttpResponse<T>> PutAPIAsync<T>([Required] string URL, object input)
         {
             try
             {
-                EnsureClientInitialized();
-                EnsureTokenAttached();
+                await EnsureTokenAttachedAsync();
 
                 var content = new StringContent(
                     JsonConvert.SerializeObject(input),
@@ -303,7 +310,7 @@ namespace CoreAdminWeb.RequestHttp
                     "application/json"
                 );
 
-                var response = await _client!.PutAsync(URL, content, _tokenSource.Token);
+                var response = await _client.PutAsync(URL, content, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -315,35 +322,18 @@ namespace CoreAdminWeb.RequestHttp
         /// <summary>
         /// Make a DELETE request
         /// </summary>
-        public static async Task<RequestHttpResponse<T>> DeleteAPIAsync<T>([Required] string URL)
+        public async Task<RequestHttpResponse<T>> DeleteAPIAsync<T>([Required] string URL)
         {
             try
             {
-                EnsureClientInitialized();
-                EnsureTokenAttached();
+                await EnsureTokenAttachedAsync();
 
-                var response = await _client!.DeleteAsync(URL, _tokenSource.Token);
+                var response = await _client.DeleteAsync(URL, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
             {
                 return CreateErrorResponse<T>($"Request failed: {ex.Message}", "REQUEST_FAILED");
-            }
-        }
-
-        private static void EnsureClientInitialized()
-        {
-            if (_client == null)
-            {
-                throw new InvalidOperationException("Client has not been initialized. Call Initialize() first.");
-            }
-        }
-
-        private static void EnsureTokenAttached()
-        {
-            if (_client!.DefaultRequestHeaders.Authorization == null)
-            {
-                AttachToken(_accessToken ?? "");
             }
         }
 
@@ -381,7 +371,7 @@ namespace CoreAdminWeb.RequestHttp
             };
         }
 
-        private static async Task<RequestHttpResponse<T>> ReturnApiResponse<T>(HttpResponseMessage response, int retryCount = 0)
+        private async Task<RequestHttpResponse<T>> ReturnApiResponse<T>(HttpResponseMessage response, int retryCount = 0)
         {
             var result = new RequestHttpResponse<T>();
             
@@ -418,12 +408,19 @@ namespace CoreAdminWeb.RequestHttp
                     // Try to refresh token
                     if (_userService != null && await _userService.RefreshTokenAsync())
                     {
-                        // Retry the original request
-                        var originalRequest = response.RequestMessage;
-                        if (originalRequest != null)
+                        // Get updated token and retry
+                        var newToken = await GetCurrentTokenAsync();
+                        if (!string.IsNullOrEmpty(newToken))
                         {
-                            var newResponse = await _client!.SendAsync(originalRequest, _tokenSource.Token);
-                            return await ReturnApiResponse<T>(newResponse, retryCount + 1);
+                            AttachToken(newToken);
+                            
+                            // Retry the original request
+                            var originalRequest = response.RequestMessage;
+                            if (originalRequest != null)
+                            {
+                                var newResponse = await _client.SendAsync(originalRequest, _tokenSource.Token);
+                                return await ReturnApiResponse<T>(newResponse, retryCount + 1);
+                            }
                         }
                     }
                     else
@@ -469,5 +466,10 @@ namespace CoreAdminWeb.RequestHttp
 
             return result;
         }
+
+        public void Dispose()
+        {
+            _tokenSource?.Dispose();
+        }
     }
-}
+} 

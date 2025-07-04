@@ -1,19 +1,24 @@
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Services.BaseServices;
-using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Services.Http;
 using System.Net;
 using CoreAdminWeb.Model;
 
-namespace CoreAdminWeb.Services
+namespace CoreAdminWeb.Services.DanhMucDungChung
 {
     /// <summary>
     /// Service for managing fertilizer production facilities
     /// </summary>
     public class CongTyService : IBaseService<CongTyModel>
     {
-        private readonly string _collection = "xa";
+        private readonly string _collection = "cong_ty";
+        private readonly IHttpClientService _httpClientService;
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+
+        public CongTyService(IHttpClientService httpClientService)
+        {
+            _httpClientService = httpClientService;
+        }
 
         /// <summary>
         /// Creates a response with error handling
@@ -49,7 +54,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<List<CongTyModel>>>(url);
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<CongTyModel>>>(url);
                 
                 return response.IsSuccess 
                     ? new RequestHttpResponse<List<CongTyModel>> { Data = response.Data.Data }
@@ -77,7 +82,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<CongTyModel>>($"items/{_collection}/{id}?fields={Fields}");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<CongTyModel>>($"items/{_collection}/{id}?fields={Fields}");
                 
                 return response.IsSuccess
                     ? new RequestHttpResponse<CongTyModel> { Data = response.Data.Data }
@@ -106,7 +111,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await RequestClient.PostAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}", createModel);
 
                 if (!response.IsSuccess)
                 {
@@ -146,7 +151,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
@@ -177,7 +182,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {

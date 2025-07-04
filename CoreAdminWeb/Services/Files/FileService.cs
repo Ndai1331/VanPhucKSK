@@ -1,10 +1,11 @@
-
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Configuration;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Http;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Options;
+    
+using CoreAdminWeb.Services.Http;
 
 namespace CoreAdminWeb.Services.Files
 {
@@ -20,9 +21,17 @@ namespace CoreAdminWeb.Services.Files
     public class FileService : IFileService
     {
         private readonly IOptions<DrCoreApi> _appSettings;
-        public FileService(IOptions<DrCoreApi> appSettings)
+        private readonly IHttpClientService _httpClientService;
+        private readonly IHttpClientService _publicHttpClientService;
+
+        // Fields for API requests
+        private readonly string Fields = "id,storage,filename_disk,filename_download,title,type,folder,filesize,width,height,duration,embed,uploaded_by,uploaded_on,modified_by,modified_on";
+
+        public FileService(IOptions<DrCoreApi> appSettings, IHttpClientService httpClientService)
         {
             _appSettings = appSettings;
+            _httpClientService = httpClientService;
+            _publicHttpClientService = httpClientService; // For now, use same service
         }
 
         public async Task<RequestHttpResponse<List<FileModel>>> GetAllFileAsync(string query)
@@ -30,10 +39,7 @@ namespace CoreAdminWeb.Services.Files
             var response = new RequestHttpResponse<List<FileModel>>();
             try
             {
-                string Fields = "id, storage,filename_disk,filename_download,"
-                                + "title,type,filesize,width,height,system,folder,"
-                                + "user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
-                var result = await RequestClient.GetAPIAsync<RequestHttpResponse<List<FileModel>>>($"files?fields={Fields}&sort=-uploaded_on&{query}");
+                var result = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<FileModel>>>($"files?fields={Fields}&sort=-uploaded_on&{query}");
                 response = result.IsSuccess
                     ? new RequestHttpResponse<List<FileModel>> { Data = result.Data.Data, Meta = result.Data.Meta, Errors = result.Errors }
                     : new RequestHttpResponse<List<FileModel>> { Errors = result.Errors };
@@ -55,16 +61,12 @@ namespace CoreAdminWeb.Services.Files
             return response;
         }
 
-
         public async Task<RequestHttpResponse<FileModel>> GetFileAsync(string id)
         {
             var response = new RequestHttpResponse<FileModel>();
             try
             {
-                string Fields =
-                    "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
-                
-                var result = await RequestClient.GetAPIAsync<RequestHttpResponse<FileModel>>($"files/{id}?fields={Fields}");
+                var result = await _httpClientService.GetAPIAsync<RequestHttpResponse<FileModel>>($"files/{id}?fields={Fields}");
                 if (result?.Data != null)
                 {
                     response.Data = result.Data.Data;
@@ -88,10 +90,7 @@ namespace CoreAdminWeb.Services.Files
             var response = new RequestHttpResponse<FileModel>();
             try
             {
-                string Fields =
-                    "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
-                
-                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<FileModel>>($"files/{id}?fields={Fields}");
+                var result = await _publicHttpClientService.GetAPIAsync<RequestHttpResponse<FileModel>>($"files/{id}?fields={Fields}"); 
                 if (result?.Data != null)
                 {
                     response.Data = result.Data.Data;
@@ -109,12 +108,13 @@ namespace CoreAdminWeb.Services.Files
             }
             return response;
         }
+
         public async Task<RequestHttpResponse<FileModel>> UploadFileAsync(IBrowserFile file, FileCRUDModel? model = null)
         {
             var response = new RequestHttpResponse<FileModel>();
             try
             {
-                var result = await RequestClient.PostAPIWithFileAsync<RequestHttpResponse<FileModel>>($"files", file);
+                var result = await _httpClientService.PostAPIWithFileAsync<RequestHttpResponse<FileModel>>($"files", file);
                 if (result.IsSuccess)
                 {
                     response.Data = result.Data.Data;
@@ -122,7 +122,7 @@ namespace CoreAdminWeb.Services.Files
                     response.Data.filename_download = $"{_appSettings.Value.BaseUrl}assets/{result.Data.Data.filename_download}";
                     if(model != null)
                     {
-                        await RequestClient.PatchAPIAsync<RequestHttpResponse<FileModel>>($"files/{response.Data.id}", model);
+                        await _httpClientService.PatchAPIAsync<RequestHttpResponse<FileModel>>($"files/{response.Data.id}", model);
                     }
                 }
                 else if (result?.Errors != null)
@@ -137,12 +137,12 @@ namespace CoreAdminWeb.Services.Files
             return response;
         }
 
-         public async Task<RequestHttpResponse<FileCRUDModel>> EditFileAsync(string id,  FileCRUDModel? model = null)
+        public async Task<RequestHttpResponse<FileCRUDModel>> EditFileAsync(string id,  FileCRUDModel? model = null)
         {
             var response = new RequestHttpResponse<FileCRUDModel>();
             try
             {
-                var result = await RequestClient.PatchAPIAsync<RequestHttpResponse<FileCRUDModel>>($"files/{id}", 
+                var result = await _httpClientService.PatchAPIAsync<RequestHttpResponse<FileCRUDModel>>($"files/{id}", 
                 new {
                             // co_quan_ban_hanh = model.co_quan_ban_hanh,
                             // so_van_ban = model.so_van_ban,

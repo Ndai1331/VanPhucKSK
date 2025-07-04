@@ -1,13 +1,19 @@
 ﻿using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.RequestHttp;
-using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Http;
 using System.Net;
 
 namespace CoreAdminWeb.Services
 {
-    public class FolderService : IBaseService<FolderModel>
+    public class FolderService
     {
+        private readonly IHttpClientService _httpClientService;
+
+        public FolderService(IHttpClientService httpClientService)
+        {
+            _httpClientService = httpClientService;
+        }
+
         /// <summary>
         /// Creates a response with error handling
         /// </summary>
@@ -41,7 +47,7 @@ namespace CoreAdminWeb.Services
             {
                 string url = !string.IsNullOrEmpty(query) ? 
                 $"folders?fields=*&sort=name&{query}" : $"folders?fields=*&sort=name";
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<List<FolderModel>>>(url);
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<FolderModel>>>(url);
 
                 return response.IsSuccess
                     ? new RequestHttpResponse<List<FolderModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
@@ -69,7 +75,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<FolderModel>>($"folders/{id}?fields=*");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<FolderModel>>($"folders/{id}?fields=*");
 
                 return response.IsSuccess
                     ? new RequestHttpResponse<FolderModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
@@ -98,7 +104,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await RequestClient.PostAPIAsync<RequestHttpResponse<FolderCRUDModel>>($"folders", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<FolderCRUDModel>>($"folders", createModel);
 
                 if (!response.IsSuccess)
                 {
@@ -137,7 +143,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<FolderCRUDModel>>($"folders/{model.id}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<FolderCRUDModel>>($"folders/{model.id}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
@@ -168,7 +174,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<FolderCRUDModel>>($"folders/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<FolderCRUDModel>>($"folders/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {

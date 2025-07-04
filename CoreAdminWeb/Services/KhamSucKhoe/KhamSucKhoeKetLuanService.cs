@@ -1,10 +1,10 @@
+using CoreAdminWeb.Http;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.RequestHttp;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Http;
 using System.Net;
-
-namespace CoreAdminWeb.Services
+namespace CoreAdminWeb.Services.KhamSucKhoe
 {
     /// <summary>
     /// Service for managing fertilizer production facilities
@@ -12,7 +12,14 @@ namespace CoreAdminWeb.Services
     public class KhamSucKhoeKetLuanService : IBaseGetService<KhamSucKhoeKetLuanModel>
     {
         private readonly string _collection = "kham_suc_khoe_ket_luan";
-        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+        private readonly IHttpClientService _httpClientService;
+
+        private string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+
+        public KhamSucKhoeKetLuanService(IHttpClientService httpClientService)
+        {
+            _httpClientService = httpClientService;
+        }
 
         /// <summary>
         /// Gets all fertilizer production facilities
@@ -22,7 +29,9 @@ namespace CoreAdminWeb.Services
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = isPublic ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeKetLuanModel>>>(url) : await RequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeKetLuanModel>>>(url);
+                var response = isPublic
+                    ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeKetLuanModel>>>(url)
+                    : await _httpClientService.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeKetLuanModel>>>(url);
 
                 return response.IsSuccess
                     ? new RequestHttpResponse<List<KhamSucKhoeKetLuanModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
@@ -50,10 +59,10 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<KhamSucKhoeKetLuanModel>>($"items/{_collection}/{id}?fields={Fields}");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<KhamSucKhoeKetLuanModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<KhamSucKhoeKetLuanModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
+                    ? new RequestHttpResponse<KhamSucKhoeKetLuanModel> { Data = response.Data?.Data }
                     : new RequestHttpResponse<KhamSucKhoeKetLuanModel> { Errors = response.Errors };
             }
             catch (Exception ex)
