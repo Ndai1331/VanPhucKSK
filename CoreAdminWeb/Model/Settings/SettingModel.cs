@@ -36,6 +36,8 @@
         public bool? public_registration_verify_email { get; set; }
         public string? public_registration_role { get; set; }
         public string? public_registration_email_filter { get; set; }
+
+        public int? lock_result_page_after { get; set; } = 7;
         public List<VisualEditorUrl> visual_editor_urls { get; set; } = new List<VisualEditorUrl>();
     }
 

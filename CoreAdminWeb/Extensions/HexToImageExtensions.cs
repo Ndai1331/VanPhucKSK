@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.IO;
 
 namespace CoreAdminWeb.Extensions
 {
@@ -119,15 +120,169 @@ namespace CoreAdminWeb.Extensions
         }
 
         /// <summary>
+        /// Save base64 image data to wwwroot/images folder
+        /// </summary>
+        /// <param name="base64Data">Base64 image data (with or without data:image prefix)</param>
+        /// <param name="fileName">File name without extension</param>
+        /// <param name="webRootPath">Web root path (from IWebHostEnvironment)</param>
+        /// <returns>Relative path to saved image or empty string if failed</returns>
+        public static string SaveBase64AsImage(string base64Data, string fileName, string webRootPath)
+        {
+            if (string.IsNullOrEmpty(base64Data) || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(webRootPath))
+                return string.Empty;
+
+            try
+            {
+                // Remove data:image prefix if present
+                string cleanBase64 = base64Data;
+                if (base64Data.StartsWith("data:image"))
+                {
+                    var commaIndex = base64Data.IndexOf(',');
+                    if (commaIndex > 0)
+                        cleanBase64 = base64Data.Substring(commaIndex + 1);
+                }
+
+                // Convert base64 to byte array
+                byte[] imageBytes = Convert.FromBase64String(cleanBase64);
+
+                // Determine image format
+                string extension = GetImageExtensionFromBytes(imageBytes);
+                if (string.IsNullOrEmpty(extension))
+                    extension = "png"; // Default fallback
+
+                // Create images directory if not exists
+                string imagesDir = Path.Combine(webRootPath, "images");
+                if (!Directory.Exists(imagesDir))
+                    Directory.CreateDirectory(imagesDir);
+
+                // Generate file path (with extension)
+                string safeFileName = MakeSafeFileName(fileName);
+                string fullFileName = $"{safeFileName}.{extension}";
+                string filePath = Path.Combine(imagesDir, fullFileName);
+
+                // Save file (overwrite if exists)
+                File.WriteAllBytes(filePath, imageBytes);
+
+                // Return relative path for web use
+                return $"/images/{fullFileName}";
+            }
+            catch (Exception ex)
+            {
+                // Log error if needed
+                Console.WriteLine($"Error saving image {fileName}: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Get image file extension from byte array
+        /// </summary>
+        /// <param name="bytes">Image byte array</param>
+        /// <returns>File extension without dot</returns>
+        private static string GetImageExtensionFromBytes(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length < 4)
+                return "png";
+
+            // PNG signature: 89 50 4E 47
+            if (bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47)
+                return "png";
+
+            // JPEG signature: FF D8 FF
+            if (bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF)
+                return "jpg";
+
+            // GIF signature: 47 49 46
+            if (bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46)
+                return "gif";
+
+            // Default to PNG
+            return "png";
+        }
+
+        /// <summary>
+        /// Make file name safe for file system
+        /// </summary>
+        /// <param name="fileName">Original file name</param>
+        /// <returns>Safe file name</returns>
+        private static string MakeSafeFileName(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return $"signature_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+            // Remove invalid characters
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            string safeName = fileName;
+            
+            foreach (char invalidChar in invalidChars)
+            {
+                safeName = safeName.Replace(invalidChar, '_');
+            }
+
+            // Replace spaces and special characters
+            safeName = safeName.Replace(' ', '_')
+                              .Replace('?', '_')
+                              .Replace('&', '_')
+                              .Replace('=', '_');
+
+            // Limit length
+            if (safeName.Length > 50)
+                safeName = safeName.Substring(0, 50);
+
+            return safeName;
+        }
+
+        /// <summary>
         /// Get signature display HTML - either image or text
+        /// </summary>
+        /// <param name="signatureData">Signature data (hex string or text)</param>
+        /// <param name="fallbackText">Fallback text if not hex</param>
+        /// <param name="fileName">File name to save image (without extension)</param>
+        /// <param name="maxWidth">Maximum width for signature image</param>
+        /// <param name="maxHeight">Maximum height for signature image</param>
+        /// <param name="webRootPath">Web root path for saving images</param>
+        /// <returns>HTML string for signature display</returns>
+        public static string GetSignatureDisplayHtml(this string signatureData, 
+            string? fallbackText = "", 
+            string? fileName="",
+            int maxWidth = 120, 
+            int maxHeight = 60,
+            string? webRootPath = null,
+            string? baseUrl = null)
+        {
+            if (string.IsNullOrEmpty(signatureData))
+                return $"<span class='signature-text'>{fallbackText}</span>";
+            // Check if it's a hex signature
+            if (signatureData.IsValidHexSignature())
+            {
+                var base64Image = signatureData.ToBase64Image();
+                if (!string.IsNullOrEmpty(base64Image))
+                {
+                    if (!string.IsNullOrEmpty(webRootPath) && !string.IsNullOrEmpty(fileName))
+                    {
+                        var imagePath = SaveBase64AsImage(base64Image, fileName, webRootPath);
+                        if (!string.IsNullOrEmpty(imagePath))
+                        {
+                            return $"<img src='{baseUrl}{imagePath}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' />";
+                        }
+                    }
+                }
+            }
+
+            // Fallback to text display
+            return $"<span class='signature-text'>{signatureData}</span>";
+        }
+
+        /// <summary>
+        /// Get optimized signature display HTML for PDF export
         /// </summary>
         /// <param name="signatureData">Signature data (hex string or text)</param>
         /// <param name="fallbackText">Fallback text if not hex</param>
         /// <param name="maxWidth">Maximum width for signature image</param>
         /// <param name="maxHeight">Maximum height for signature image</param>
-        /// <returns>HTML string for signature display</returns>
-        public static string GetSignatureDisplayHtml(this string signatureData, 
-            string fallbackText = "", 
+        /// <returns>HTML string for signature display optimized for PDF</returns>
+        public static string GetOptimizedSignatureDisplayHtml(this string signatureData, 
+            string? fallbackText = "", 
             int maxWidth = 120, 
             int maxHeight = 60)
         {
@@ -140,6 +295,12 @@ namespace CoreAdminWeb.Extensions
                 var base64Image = signatureData.ToBase64Image();
                 if (!string.IsNullOrEmpty(base64Image))
                 {
+                    // Cho PDF, luôn sử dụng placeholder nếu ảnh quá lớn
+                    if (base64Image.Length > 30000) // Ngưỡng thấp hơn cho PDF
+                    {
+                        return $"<div class='signature-placeholder' style='border: 1px solid #000; padding: 4px; text-align: center; width: {maxWidth}px; height: {maxHeight}px; display: inline-block; line-height: {maxHeight}px; font-size: 12px;'>Chữ ký</div>";
+                    }
+                    
                     return $"<img src='{base64Image}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' />";
                 }
             }

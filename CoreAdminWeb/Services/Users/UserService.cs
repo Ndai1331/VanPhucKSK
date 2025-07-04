@@ -133,6 +133,17 @@ namespace CoreAdminWeb.Services.Users
                 else
                 {
                     response.Errors = result.Errors;
+                    _accessToken = null;
+                    _refreshToken = null;
+                    RequestClient.RemoveToken();
+                    await _localStorage.RemoveItemAsync("accessToken");
+                    await _localStorage.RemoveItemAsync("userName");
+                    await _localStorage.RemoveItemAsync("userId");
+                    await _localStorage.RemoveItemAsync("role");
+                    await _localStorage.RemoveItemAsync("claims");
+                    (
+                        (ApiAuthenticationStateProvider)_authenticationStateProvider
+                    ).MarkUserAsLoggedOut();
                 }
             }
             catch (Exception ex)

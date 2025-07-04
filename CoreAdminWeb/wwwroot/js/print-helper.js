@@ -231,12 +231,45 @@ window.printMedicalFormCSS = function() {
 
 // Function để lấy HTML content cho PDF export
 window.getMedicalFormHtml = function() {
-    const printContent = document.getElementById('medical-form-content');
-    if (!printContent) {
-        console.log('Element not found: medical-form-content');
-        return null;
-    }
-    
+    try {
+        console.log('getMedicalFormHtml called');
+        
+        const printContent = document.getElementById('medical-form-content');
+        if (!printContent) {
+            console.error('Element not found: medical-form-content');
+            return '';
+        }
+        
+        console.log('Print content found:', printContent);
+        
+        // Kiểm tra xem element có innerHTML không
+        if (!printContent.innerHTML) {
+            console.error('Element has no innerHTML');
+            return '';
+        }
+
+        // Clone element để tối ưu hóa ảnh base64
+        const clonedContent = printContent.cloneNode(true);
+        
+        // Tối ưu hóa ảnh base64 đơn giản - thay thế ảnh lớn bằng placeholder
+        const images = clonedContent.querySelectorAll('img.signature-image');
+        console.log('Found signature images:', images.length);
+        
+        images.forEach((img, index) => {
+            try {
+                if (img.src && img.src.startsWith('data:image') && img.src.length > 50000) {
+                    // Nếu ảnh quá lớn (>50KB), thay thế bằng placeholder đơn giản
+                    console.log(`Replacing large image ${index + 1} (${img.src.length} chars)`);
+                    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjUwIiB2aWV3Qm94PSIwIDAgMTAwIDUwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iNTAiIGZpbGw9IiNmOGY5ZmEiIHN0cm9rZT0iI2RlZTJlNiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iNTAiIHk9IjMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNmM3NTdkIiBmb250LXNpemU9IjEyIj5DaMOqIGvDvTwvdGV4dD48L3N2Zz4=';
+                } else if (img.src && img.src.startsWith('data:image')) {
+                    console.log(`Keeping image ${index + 1} (${img.src.length} chars)`);
+                }
+            } catch (error) {
+                console.warn(`Error processing image ${index}:`, error);
+            }
+        });
+
+        console.log('Images optimization completed');
     // CSS cho PDF - tương tự như print styles
     const pdfStyles = `
         body { 
@@ -309,13 +342,15 @@ window.getMedicalFormHtml = function() {
         .ksk-table-wrap {
             margin: 20px 0;
         }
-        .ksk-table {
+        .ksk-table, .ksk-table-2 {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #000;
         }
         .ksk-table th,
-        .ksk-table td {
+        .ksk-table td,
+        .ksk-table-2 th,
+        .ksk-table-2 td {
             border: 1px solid #000;
             padding: 8px;
             text-align: center;
@@ -368,6 +403,37 @@ window.getMedicalFormHtml = function() {
         .text-sm {
             font-size: 12px;
         }
+
+        .ksk-table-2 th:nth-child(1), 
+        .ksk-table-2 td:nth-child(1) {
+            width: 50px;
+            min-width: 50px;
+        }
+
+        .ksk-table-2 th:nth-child(2), 
+        .ksk-table-2 td:nth-child(2) {
+            width: auto;
+        }
+
+        .ksk-table-2 th:nth-child(3), 
+        .ksk-table-2 td:nth-child(3) {
+            width: auto;
+        }
+
+        .ksk-table-2 th:nth-child(4), 
+        .ksk-table-2 td:nth-child(4) {
+            width: 150px;
+            min-width: 150px;
+        }
+
+        .ksk-table-2 th, 
+        .ksk-table-2 td {
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+            vertical-align: top;
+            line-height: 1.4;
+        }
     `;
     
     // Tạo HTML hoàn chỉnh cho PDF
@@ -382,12 +448,18 @@ window.getMedicalFormHtml = function() {
             </style>
         </head>
         <body>
-            ${printContent.innerHTML}
+            ${clonedContent.innerHTML}
         </body>
         </html>
     `;
-    
-    return htmlContent;
+        console.log('HTML content length:', htmlContent.length);
+        console.log('Optimized HTML with', images.length, 'signature images');
+        console.log('Optimized htmlContent', htmlContent);
+        return htmlContent;
+    } catch (error) {
+        console.error('Error in getMedicalFormHtml:', error);
+        return '';
+    }
 };
 
 // Function để download file

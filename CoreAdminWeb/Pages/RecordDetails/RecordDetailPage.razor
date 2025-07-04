@@ -2,15 +2,14 @@
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Helpers
-@using CoreAdminWeb.Services
 @using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Services.PDFService
-@using Microsoft.AspNetCore.Components
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
+@inject IWebHostEnvironment WebHostEnvironment
 
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
     <div class="grid grid-cols-1 gap-4">
@@ -27,28 +26,28 @@
                     <i class="ri-arrow-left-line me-1"></i>Quay lại danh sách
                 </button>
                 <button class="px-4 py-2 bg-info text-white rounded hover:bg-info-dark transition-colors" 
-                        @onclick="PrintRecord" disabled="@isLoading">
+                        @onclick="PrintRecord" disabled="@_isLoading">
                     <i class="ri-printer-line me-1"></i>In
                 </button>
                 <button class="px-4 py-2 bg-success text-white rounded hover:bg-success-dark transition-colors" 
-                        @onclick="ExportPDF" disabled="@isLoading">
+                        @onclick="ExportPDF" disabled="@_isLoading">
                     <i class="ri-file-pdf-line me-1"></i>Xuất PDF
                 </button>
             </div>
         </div>
 
-        @if (isLoading)
+        @if (_isLoading)
         {
             <div class="flex justify-center items-center py-12">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
             </div>
         }
-        else if (!string.IsNullOrEmpty(errorMessage))
+        else if (!string.IsNullOrEmpty(_errorMessage))
         {
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
                 <strong class="font-bold">Lỗi!</strong>
-                <span class="block sm:inline"> @errorMessage</span>
+                <span class="block sm:inline"> @_errorMessage</span>
                 <button class="float-right font-bold" @onclick="() => LoadDataAsync()">
                     <i class="ri-refresh-line me-1"></i>Thử lại
                 </button>
@@ -77,8 +76,8 @@
                         <!-- Photo Section -->
                         <div>
                             <div class="ksk-photo" id="profilePhotoContainer">
-                                <img id="profilePhoto" src="@profileImageUrl" alt="Ảnh đại diện" style="width: 100%; height: 100%; object-fit: cover; @(string.IsNullOrEmpty(profileImageUrl) ? "display:none" : "")" />
-                                <span style="@(string.IsNullOrEmpty(profileImageUrl) ? "" : "display:none")">Ảnh 4x6 cm</span>
+                                <img id="profilePhoto" src="@_profileImageUrl" alt="Ảnh đại diện" style="width: 100%; height: 100%; object-fit: cover; @(string.IsNullOrEmpty(_profileImageUrl) ? "display:none" : "")" />
+                                <span style="@(string.IsNullOrEmpty(_profileImageUrl) ? "" : "display:none")">Ảnh 4x6 cm</span>
                             </div>
                             <div class="ksk-photo-label">(dán ảnh hoặc scan ảnh)</div>
                         </div>
@@ -167,6 +166,8 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            @if(KhamSucKhoeTienSuModels != null)
+                            {
                                 @foreach (var item in KhamSucKhoeTienSuModels)
                                 {
                                     <tr>
@@ -174,8 +175,9 @@
                                         <td class="ls-cell-small">@item.nam_phat_hien</td>
                                         <td class="ls-cell-small">@item.benh_nghe_nghiep</td>
                                         <td class="ls-cell-small">@item.nam_phat_hien_benh_nghe_nghiep</td>
-                                    </tr> 
+                                    </tr>
                                 }
+                            }
                             </tbody>
                         </table>
                     </div>
@@ -238,174 +240,217 @@
                         <div class="text-sm mb-4">Phải khám đầy đủ các nội dung theo chuyên khoa để khẳng định có/không có bệnh, tật theo quy định tại Quyết định...</div>
                         
                         <div class="ksk-table-wrap">
-                            <table class="ksk-table">
+                            <table class="ksk-table ksk-table-2">
                                 <thead>
                                     <tr>
-                                        <th style="min-width: 140px;">Chuyên khoa</th>
-                                        <th style="min-width: 140px;">Kết quả</th>
-                                        <th style="min-width: 100px;">Bác sĩ</th>
+                                        <th rowspan="2">STT</th>
+                                        <th colspan="2">Nội dung khám</th>
+                                        <th rowspan="2">Họ tên và chữ ký của Bác sỹ chuyên khoa</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Kết luận</th>
+                                        <th>Kết quả</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Internal Medicine -->
+                                    <!-- Nội khoa -->
+                                    <tr><td colspan="4"><b>Nội khoa</b></td></tr>
                                     <tr>
-                                        <td colspan="3" style="font-weight: bold;">1. Nội khoa:</td>
+                                        <td rowspan="2">a</td>
+                                        <td><i>Tuần hoàn</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_nk_tuan_hoan)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tuan_hoan, KhamSucKhoeChuyenKhoaModel?.chu_ky_tuan_hoan, "tuan_hoan", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_tuan_hoan)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-specialty">a) Tuần hoàn</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_tuan_hoan</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_tuan_hoan</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_tuan_hoan)</td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tuan_hoan</td>
-                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tuan_hoan, KhamSucKhoeChuyenKhoaModel?.chu_ky_tuan_hoan, 100, 50)</td>
+                                        <td rowspan="2">b</td>
+                                        <td><i>Hô hấp</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_nk_ho_hap)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_ho_hap, KhamSucKhoeChuyenKhoaModel?.chu_ky_ho_hap, "ho_hap", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_ho_hap)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-specialty">b) Hô hấp</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_ho_hap</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_ho_hap</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_ho_hap)</td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_ho_hap</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.chu_ky_ho_hap</td>
+                                        <td rowspan="2">c</td>
+                                        <td><i>Tiêu hóa</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_nk_tieu_hoa)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa, KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa, "tieu_hoa", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_tieu_hoa)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-specialty">c) Tiêu hóa</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_tieu_hoa</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_tieu_hoa</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_tieu_hoa)</td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tieu_hoa</td>
-                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa, KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa, 100, 50)</td>
+                                        <td rowspan="2">d</td>
+                                        <td><i>Thận-Tiết niệu</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_nk_than_tiet_nieu)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu, KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu, "than_tiet_nieu", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_than_tiet_nieu)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-specialty">d) Thận-Tiết niệu</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_than_tiet_nieu</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_than_tiet_nieu</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_than_tiet_nieu)</td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_than_tiet_nieu</td>
-                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu, KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu, 100, 50)</td>
+                                        <td rowspan="2">đ</td>
+                                        <td><i>Nội tiết</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_nk_noi_tiet)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_noi_tiet, KhamSucKhoeChuyenKhoaModel?.chu_ky_noi_tiet, "noi_tiet", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_noi_tiet)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-specialty">h) Tâm thần</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_nk_tam_than</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_tam_than</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_noi_tiet)</td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_nk_tam_than</td>
-                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tam_than, KhamSucKhoeChuyenKhoaModel?.chu_ky_tam_than, 100, 50)</td>
-                                    </tr>
-                                    
-                                    <!-- Surgery, Dermatology -->
-                                    <tr>
-                                        <td colspan="3" style="font-weight: bold;">2. Ngoại khoa, Da liễu:</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ls-specialty">- Ngoại khoa</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_ngoai_khoa</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_ngoai_khoa</td>
+                                        <td rowspan="2">e</td>
+                                        <td><i>Cơ-xương-khớp</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_nk_co_xuong_khop)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_co_xuong_khop, KhamSucKhoeChuyenKhoaModel?.chu_ky_co_xuong_khop, "co_xuong_khop", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_co_xuong_khop)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_ngoai_khoa</td>
-                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa, KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa, 100, 50)</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_co_xuong_khop)</td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-specialty">- Da liễu</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.kq_da_lieu</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel?.bs_da_lieu</td>
+                                        <td rowspan="2">g</td>
+                                        <td><i>Thần kinh</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_nk_than_kinh)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_than_kinh, KhamSucKhoeChuyenKhoaModel?.chu_ky_than_kinh, "than_kinh", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_than_kinh)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel?.pl_da_lieu</td>
-                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_da_lieu, KhamSucKhoeChuyenKhoaModel?.chu_ky_da_lieu, 100, 50)</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_than_kinh)</td>
                                     </tr>
-                                    
-                                    <!-- Obstetrics & Gynecology -->
+                                    <!-- Ngoại khoa, Da liễu -->
+                                    <tr><td colspan="4"><b>Ngoại khoa, Da liễu</b></td></tr>
                                     <tr>
-                                        <td colspan="3" style="font-weight: bold;">3. Sản phụ khoa:</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ls-specialty">- Sản phụ khoa</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeSanPhuKhoaModel?.ket_qua</td>
-                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeSanPhuKhoaModel?.chu_ky, KhamSucKhoeSanPhuKhoaModel?.chu_ky, 100, 50)</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeSanPhuKhoaModel?.phan_loai</td>
-                                        <td class="ls-doctor-cell">@RenderSignature(KhamSucKhoeSanPhuKhoaModel?.chu_ky, KhamSucKhoeSanPhuKhoaModel?.chu_ky, 100, 50)</td>
-                                    </tr>
-                                    
-                                    <!-- Ophthalmology -->
-                                    <tr>
-                                        <td colspan="3" style="font-weight: bold;">4. Mắt:</td>
+                                        <td rowspan="2">a</td>
+                                        <td><i>Ngoại khoa</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_ngoai_khoa)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa, KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa, "ngoai_khoa", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_ngoai_khoa)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" class="ls-cell-small">
-                                            <div class="ls-specialty">Kết quả khám thị lực:</div>
-                                            <div>Không kính: Mắt phải @KhamSucKhoeChuyenKhoaModel.thi_luc_khong_kinh_phai Mắt trái @KhamSucKhoeChuyenKhoaModel.thi_luc_khong_kinh_trai | Có kính: Mắt phải @KhamSucKhoeChuyenKhoaModel.thi_luc_co_kinh_phai Mắt trái @KhamSucKhoeChuyenKhoaModel.thi_luc_co_kinh_trai</div>
-                                        </td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_ngoai_khoa)</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" class="ls-cell-small">
-                                            <div class="ls-specialty">Các bệnh về mắt (nếu có):</div>
-                                            <div>@KhamSucKhoeChuyenKhoaModel.benh_mat</div>
-                                        </td>
+                                        <td rowspan="2">b</td>
+                                        <td><i>Da liễu</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_da_lieu)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_da_lieu, KhamSucKhoeChuyenKhoaModel?.chu_ky_da_lieu, "da_lieu", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_da_lieu)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel.pl_mat</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.bs_mat</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_da_lieu)</td>
                                     </tr>
-                                    
-                                    <!-- ENT -->
+                                    <!-- Sản phụ khoa -->
+                                    <tr><td colspan="4"><b>Sản phụ khoa</b></td></tr>
                                     <tr>
-                                        <td colspan="3" style="font-weight: bold;">5. Tai - Mũi - Họng:</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="ls-cell-small">
-                                            <div class="ls-specialty">Kết quả khám thính lực:</div>
-                                            <div>Tai trái: @KhamSucKhoeChuyenKhoaModel.tmh_nt_trai m; Nói thầm @KhamSucKhoeChuyenKhoaModel.tmh_ntham_trai m | Tai phải: @KhamSucKhoeChuyenKhoaModel.tmh_nt_phai m; Nói thầm @KhamSucKhoeChuyenKhoaModel.tmh_ntham_phai m</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="ls-cell-small">
-                                            <div class="ls-specialty">Các bệnh về tai mũi họng (nếu có):</div>
-                                            <div>@KhamSucKhoeChuyenKhoaModel.benh_tai_mui_hong</div>
-                                        </td>
+                                        <td rowspan="2">a</td>
+                                        <td><i>Sản phụ khoa</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.ket_qua)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeSanPhuKhoaModel?.chu_ky, KhamSucKhoeSanPhuKhoaModel?.chu_ky, "san_phu_khoa", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.nguoi_ket_luan)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel.pl_tmh</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.bs_tmh</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.phan_loai)</td>
                                     </tr>
-                                    
-                                    <!-- Dental -->
+                                    <!-- Mắt -->
+                                    <tr><td colspan="4"><b>Mắt</b></td></tr>
                                     <tr>
-                                        <td colspan="3" style="font-weight: bold;">6. Răng - Hàm - Mặt:</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="ls-cell-small">
-                                            <div class="ls-specialty">Kết quả khám:</div>
-                                            <div>Hàm trên: @KhamSucKhoeChuyenKhoaModel.kq_rhm_ham_tren | Hàm dưới: @KhamSucKhoeChuyenKhoaModel.kq_rhm_ham_duoi</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="ls-cell-small">
-                                            <div class="ls-specialty">Các bệnh về răng hàm mặt (nếu có):</div>
-                                            <div>@KhamSucKhoeChuyenKhoaModel.benh_rhm</div>
-                                        </td>
+                                        <td rowspan="2">a</td>
+                                        <td><i>Kết quả khám thị lực</i></td>
+                                        <td>Không kính: Mắt phải @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.thi_luc_khong_kinh_phai) Mắt trái @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.thi_luc_khong_kinh_trai) | Có kính: Mắt phải @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.thi_luc_co_kinh_phai) Mắt trái @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.thi_luc_co_kinh_trai)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_mat, KhamSucKhoeChuyenKhoaModel?.chu_ky_mat, "mat", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_mat)
+                                            </td>
                                     </tr>
                                     <tr>
-                                        <td class="ls-label">Phân loại</td>
-                                        <td class="ls-cell-small">@KhamSucKhoeChuyenKhoaModel.pl_rhm</td>
-                                        <td class="ls-doctor-cell">@KhamSucKhoeChuyenKhoaModel.bs_rhm</td>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_mat)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>b</td>
+                                        <td><i>Các bệnh về mắt (nếu có)</i></td>
+                                        <td>@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.benh_mat)</td>
+                                        <td></td>
+                                    </tr>
+                                    <!-- Tai - Mũi - Họng -->
+                                    <tr><td colspan="4"><b>Tai - Mũi - Họng</b></td></tr>
+                                    <tr>
+                                        <td rowspan="2">a</td>
+                                        <td><i>Kết quả khám thính lực</i></td>
+                                        <td>Tai trái: @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.tmh_nt_trai) m; Nói thầm @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.tmh_ntham_trai) m | Tai phải: @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.tmh_nt_phai) m; Nói thầm @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.tmh_ntham_phai) m</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tmh, KhamSucKhoeChuyenKhoaModel?.chu_ky_tmh, "tmh", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_tmh)
+                                            </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_tmh)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>b</td>
+                                        <td><i>Các bệnh về tai mũi họng (nếu có)</i></td>
+                                        <td>@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.benh_tai_mui_hong)</td>
+                                        <td></td>
+                                    </tr>
+                                    <!-- Răng - Hàm - Mặt -->
+                                    <tr><td colspan="4"><b>Răng - Hàm - Mặt</b></td></tr>
+                                    <tr>
+                                        <td rowspan="2">a</td>
+                                        <td><i>Kết quả khám</i></td>
+                                        <td>Hàm trên: @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_rhm_ham_tren) | Hàm dưới: @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.kq_rhm_ham_duoi)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_rhm, KhamSucKhoeChuyenKhoaModel?.chu_ky_rhm, "rhm", 100, 50)
+                                            @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_rhm)
+                                            </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_rhm)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>b</td>
+                                        <td><i>Các bệnh về răng hàm mặt (nếu có)</i></td>
+                                        <td>@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.benh_rhm)</td>
+                                        <td></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -439,7 +484,7 @@
                                 <div><strong>NGƯỜI KẾT LUẬN</strong></div>
                                 <small>(Ký, ghi rõ họ tên và đóng dấu)</small>
                                 <div style="margin-bottom: 32px;">@KhamSucKhoeKetLuanModel.ngay_ket_luan</div>
-                                <div class="signature-container">@RenderSignature(KhamSucKhoeKetLuanModel?.chu_ky, KhamSucKhoeKetLuanModel?.chu_ky, 150, 80)</div>
+                                <div class="signature-container">@RenderSignature(KhamSucKhoeKetLuanModel?.chu_ky, KhamSucKhoeKetLuanModel?.chu_ky, "ket_luan", 150, 80)</div>
                                 <div><strong>@KhamSucKhoeKetLuanModel.nguoi_ket_luan</strong></div>
                             </div>
                         </div>
@@ -455,20 +500,16 @@
     </div>
 </div>
 
-
 @code {
     #region Constants
 
     private const string DEFAULT_PROFILE_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
-    private const string DATE_FORMAT = "dd/MM/yyyy";
 
     #endregion
 
     #region Parameters and Injection
 
     [Parameter] public string ma_luot_kham { get; set; } = "1";
-    
-    [Inject] AlertService AlertService { get; set; } = null!;
     [Inject] IUserService UserService { get; set; } = null!;
     [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
     [Inject] IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService { get; set; } = null!;
@@ -479,7 +520,6 @@
     [Inject] IBaseGetService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
     [Inject] IBaseGetService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
     [Inject] IPdfService PdfService { get; set; } = null!;
-    [Inject] IJSRuntime JsRuntime { get; set; } = null!;
 
     #endregion
 
@@ -496,9 +536,9 @@
     private List<KhamSucKhoeTienSuModel>? KhamSucKhoeTienSuModels { get; set; }
 
     private UserModel? CurrentUser { get; set; }
-    private string profileImageUrl = string.Empty;
-    private bool isLoading = true;
-    private string? errorMessage;
+    private string _profileImageUrl = string.Empty;
+    private bool _isLoading = true;
+    private string? _errorMessage;
 
     #endregion
 
@@ -522,8 +562,8 @@
     {
         try
         {
-            isLoading = true;
-            errorMessage = null;
+            _isLoading = true;
+            _errorMessage = null;
             StateHasChanged();
             // Load user data and medical records in parallel for better performance
             var userTask = LoadUserDataAsync();
@@ -534,12 +574,12 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
-            AlertService?.ShowAlert(errorMessage, "danger");
+            _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+            AlertService?.ShowAlert(_errorMessage, "danger");
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
             StateHasChanged();
         }
     }
@@ -625,9 +665,9 @@
     /// </summary>
     private void SetProfileImagePlaceholder()
     {
-        if (string.IsNullOrEmpty(profileImageUrl))
+        if (string.IsNullOrEmpty(_profileImageUrl))
         {
-            profileImageUrl = DEFAULT_PROFILE_IMAGE;
+            _profileImageUrl = DEFAULT_PROFILE_IMAGE;
         }
     }
 
@@ -637,7 +677,7 @@
 
     private async Task PrintRecord()
     {
-        if (!isLoading)
+        if (!_isLoading)
         {
             // Sử dụng function mới để chỉ in phần medical form content
             await JsRuntime.InvokeVoidAsync("printMedicalForm");
@@ -646,21 +686,44 @@
 
     private async Task ExportPDF()
     {
-        if (isLoading || CurrentUser == null) return;
+        if (_isLoading || CurrentUser == null) return;
 
         try
         {
-            isLoading = true;
-            StateHasChanged();
 
             Console.WriteLine("=== Debug ExportPDF - Bắt đầu ===");
             Console.WriteLine($"CurrentUser: {CurrentUser?.first_name} {CurrentUser?.last_name}");
 
+            // Hiển thị thông báo đang xử lý
+            AlertService?.ShowAlert("Đang xử lý ảnh chữ ký và tạo PDF, vui lòng đợi...", "info");
+
             // Lấy HTML content từ JavaScript - giống như chức năng in
             Console.WriteLine("Step 1: Đang lấy HTML từ JavaScript...");
-            var htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml");
             
-            Console.WriteLine($"Step 2: HTML content length: {htmlContent?.Length ?? 0}");
+            string htmlContent = null;
+            try
+            {
+                // Đợi một chút để đảm bảo DOM đã render xong
+                await Task.Delay(100);
+                
+                // Tăng timeout lên 2 phút để xử lý ảnh base64
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(120));
+                htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", cts.Token);
+                
+                Console.WriteLine($"Step 2: HTML content length: {htmlContent?.Length ?? 0}");
+            }
+            catch (TaskCanceledException ex)
+            {
+                Console.WriteLine($"ERROR: TaskCancelled - {ex.Message}");
+                AlertService?.ShowAlert("Timeout khi lấy nội dung HTML từ JavaScript", "danger");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: JavaScript interop failed - {ex.Message}");
+                AlertService?.ShowAlert($"Lỗi JavaScript: {ex.Message}", "danger");
+                return;
+            }
             
             if (string.IsNullOrEmpty(htmlContent))
             {
@@ -735,8 +798,6 @@
         finally
         {
             Console.WriteLine("=== Debug ExportPDF - Kết thúc ===");
-            isLoading = false;
-            StateHasChanged();
         }
     }
 
@@ -760,15 +821,16 @@
     /// </summary>
     /// <param name="signatureData">Signature data (hex string or text)</param>
     /// <param name="fallbackText">Fallback text if signature is empty</param>
+    /// <param name="fileName">File name for saving image</param>
     /// <param name="maxWidth">Maximum width for signature image</param>
     /// <param name="maxHeight">Maximum height for signature image</param>
     /// <returns>MarkupString containing signature HTML</returns>
-    private MarkupString RenderSignature(string signatureData, string fallbackText = "", int maxWidth = 120, int maxHeight = 60)
+    private MarkupString RenderSignature(string? signatureData, string? fallbackText = "", string? fileName = "", int maxWidth = 120, int maxHeight = 60)
     {
-        var html = signatureData.GetSignatureDisplayHtml(fallbackText, maxWidth, maxHeight);
+        if (string.IsNullOrEmpty(signatureData)) return new MarkupString();
+        var html = signatureData.GetSignatureDisplayHtml(fallbackText, ma_luot_kham + "_" + fileName, maxWidth, maxHeight,
+            WebHostEnvironment.WebRootPath,  "https://localhost:7078");
         return new MarkupString(html);
     }
-
-    
     #endregion
 }

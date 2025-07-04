@@ -64,6 +64,10 @@ namespace CoreAdminWeb.RequestHttp
                 _client!.DefaultRequestHeaders.Clear();
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
             }
+            else
+            {
+                
+            }
         }
 
         /// <summary>
