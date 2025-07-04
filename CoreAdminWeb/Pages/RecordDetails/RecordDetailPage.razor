@@ -568,10 +568,15 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await LoadDataAsync();
-        _imagesFolder += ma_luot_kham;
     }
-
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadDataAsync();
+            _imagesFolder += ma_luot_kham;
+        }
+    }
     #endregion
 
     #region Data Loading Methods
@@ -621,11 +626,11 @@
             _errorMessage = null;
             StateHasChanged();
             // Load user data and medical records in parallel for better performance
-            var userTask = LoadUserDataAsync();
+            await LoadUserDataAsync();
             if(CurrentUser != null)
             {
                 var medicalDataTask = LoadMedicalDataAsync();
-                await Task.WhenAll(userTask, medicalDataTask);
+                await Task.WhenAll(medicalDataTask);
                 SetProfileImagePlaceholder();
             }
             else
