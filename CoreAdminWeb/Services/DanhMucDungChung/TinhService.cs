@@ -1,19 +1,24 @@
-using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.Model.Settings;
-using CoreAdminWeb.Services.BaseServices;
-using CoreAdminWeb.RequestHttp;
-using System.Net;
 using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.RequestHttps;
+using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Http;
+using System.Net;
 
-namespace CoreAdminWeb.Services
+namespace CoreAdminWeb.Services.DanhMucDungChung
 {
     /// <summary>
-    /// Service for managing fertilizer production facilities
+    /// Service for managing Tinh
     /// </summary>
     public class TinhService : IBaseService<TinhModel>
     {
         private readonly string _collection = "tinh";
+        private readonly IHttpClientService _httpClientService;
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+
+        public TinhService(IHttpClientService httpClientService)
+        {
+            _httpClientService = httpClientService;
+        }
 
         /// <summary>
         /// Creates a response with error handling
@@ -42,14 +47,14 @@ namespace CoreAdminWeb.Services
         }
 
         /// <summary>
-        /// Gets all fertilizer production facilities
+        /// Gets all Tinh
         /// </summary>
         public async Task<RequestHttpResponse<List<TinhModel>>> GetAllAsync(string query)
         {
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<List<TinhModel>>>(url);
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<TinhModel>>>(url);
                 
                 return response.IsSuccess 
                     ? new RequestHttpResponse<List<TinhModel>> { Data = response.Data.Data }
@@ -62,7 +67,7 @@ namespace CoreAdminWeb.Services
         }
 
         /// <summary>
-        /// Gets a fertilizer production facility by ID
+        /// Gets a Tinh by ID
         /// </summary>
         public async Task<RequestHttpResponse<TinhModel>> GetByIdAsync(string id)
         {
@@ -77,7 +82,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<TinhModel>>($"items/{_collection}/{id}?fields={Fields}");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<TinhModel>>($"items/{_collection}/{id}?fields={Fields}");
                 
                 return response.IsSuccess
                     ? new RequestHttpResponse<TinhModel> { Data = response.Data.Data }
@@ -90,7 +95,7 @@ namespace CoreAdminWeb.Services
         }
 
         /// <summary>
-        /// Creates a new fertilizer production facility
+        /// Creates a new Tinh
         /// </summary>
         public async Task<RequestHttpResponse<TinhModel>> CreateAsync(TinhModel model)
         {
@@ -106,7 +111,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await RequestClient.PostAPIAsync<RequestHttpResponse<TinhCRUDModel>>($"items/{_collection}", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<TinhCRUDModel>>($"items/{_collection}", createModel);
 
                 if (!response.IsSuccess)
                 {
@@ -129,7 +134,7 @@ namespace CoreAdminWeb.Services
         }
 
         /// <summary>
-        /// Updates an existing fertilizer production facility
+        /// Updates an existing Tinh
         /// </summary>
         public async Task<RequestHttpResponse<bool>> UpdateAsync(TinhModel model)
         {
@@ -146,7 +151,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<TinhCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<TinhCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
@@ -161,7 +166,7 @@ namespace CoreAdminWeb.Services
         }
 
         /// <summary>
-        /// Deletes a fertilizer production facility
+        /// Deletes a Tinh
         /// </summary>
         public async Task<RequestHttpResponse<bool>> DeleteAsync(TinhModel model)
         {
@@ -177,7 +182,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<TinhCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<TinhCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {

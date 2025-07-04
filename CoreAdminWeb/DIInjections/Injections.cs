@@ -6,6 +6,11 @@ using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Services.PDFService;
+using CoreAdminWeb.Services.Http;
+using CoreAdminWeb.Services.DanhMucDungChung;
+using CoreAdminWeb.Services.KhamSucKhoe;
+using CoreAdminWeb.Services.Posts;
+
 
 namespace CoreAdminWeb.DIInjections
 {
@@ -30,6 +35,30 @@ namespace CoreAdminWeb.DIInjections
             
             // PDF Service Configuration
             services.AddScoped<IPdfService, PdfService>();
+            
+            // HTTP Client Service Configuration - replaces static RequestClient
+            services.AddScoped<IHttpClientService, HttpClientService>();
+
+            // DanhMucDungChung Services
+            services.AddScoped<CongTyService>();
+            services.AddScoped<TinhService>();
+            services.AddScoped<XaPhuongService>();
+            services.AddScoped<FolderService>();
+
+            // KhamSucKhoe Services
+            services.AddScoped<KhamSucKhoeCanLamSanService>();
+            services.AddScoped<KhamSucKhoeChuyenKhoaService>();
+            services.AddScoped<KhamSucKhoeKetLuanService>();
+            services.AddScoped<KhamSucKhoeNgheNghiepService>();
+            services.AddScoped<KhamSucKhoeTheLucService>();
+            services.AddScoped<KhamSucKhoeTienSuService>();
+            services.AddScoped<KhamSucKhoeSanPhuKhoaService>();
+            services.AddScoped<SoKhamSucKhoeService>();
+
+            // Post Services
+            services.AddScoped<PostService>();
+
+
         }
     }
 }

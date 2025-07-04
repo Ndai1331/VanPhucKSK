@@ -13,15 +13,18 @@ namespace CoreAdminWeb.RequestHttp
     public static class PublicRequestClient
     {
         private static HttpClient? _client;
+        private static IConfiguration _configuration;
         private static readonly CancellationTokenSource _tokenSource = new();
         private const long UploadLimit = 25214400; // ~24MB
 
         /// <summary>
         /// Initialize the client with a new HttpClient instance
         /// </summary>
-        public static void Initialize(HttpClient client)
+        public static void Initialize(HttpClient client, IConfiguration configuration)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _client.BaseAddress = new Uri(_configuration["DrCoreApi:BaseUrl"]);
         }
 
         /// <summary>

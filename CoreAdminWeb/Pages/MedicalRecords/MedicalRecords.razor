@@ -43,7 +43,7 @@
             <div class="p-5 rounded shadow-sm bg-warning text-white">
                 <div class="text-center">
                     <i class="fas fa-clock fa-2x mb-2"></i>
-                    <h4 class="text-2xl font-semibold mb-1">@(NgayKhamGanNhat != null ? (NgayKhamGanNhat.Value.AddDays(60)).ToString("dd/MM/yyyy") : "")</h4>
+                    <h4 class="text-2xl font-semibold mb-1">@(NgayKhamGanNhat != null ? (NgayKhamGanNhat.Value.AddMonths(6)).ToString("dd/MM/yyyy") : "")</h4>
                     <p class="mb-0">Đến lần khám tiếp theo</p>
                 </div>
             </div>

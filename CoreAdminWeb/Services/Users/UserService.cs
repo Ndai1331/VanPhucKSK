@@ -6,6 +6,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Helpers;
+using CoreAdminWeb.Services.Http;
 
 namespace CoreAdminWeb.Services.Users
 {
@@ -27,15 +28,25 @@ namespace CoreAdminWeb.Services.Users
 
         private readonly ILocalStorageService _localStorage;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
+        private readonly IHttpClientService _httpClientService;
         private string _accessToken;
         private string _refreshToken;
+        
         public UserService(
             ILocalStorageService localStorage,
-            AuthenticationStateProvider authenticationStateProvider
+            AuthenticationStateProvider authenticationStateProvider,
+            IHttpClientService httpClientService
         )
         {
             _localStorage = localStorage;
             _authenticationStateProvider = authenticationStateProvider;
+            _httpClientService = httpClientService;
+            
+            // Set up circular reference for token refresh
+            if (_httpClientService is HttpClientService httpService)
+            {
+                httpService.SetUserService(this);
+            }
         }
 
         private async Task<string> GetEmailFromPhone(string phone)
@@ -67,8 +78,7 @@ namespace CoreAdminWeb.Services.Users
                     _accessToken = result.Data.Data.access_token;
                     _refreshToken = result.Data.Data.refresh_token;
 
-                    RequestClient.AttachToken(_accessToken);
-                    RequestClient.InjectServices(_localStorage);
+                    _httpClientService.AttachToken(_accessToken);
                     var claim = ClaimHepler.GetListClaim(_accessToken);
 
                     var currentUserAsync = await GetCurrentUserAsync();
@@ -102,7 +112,7 @@ namespace CoreAdminWeb.Services.Users
             {
                 _accessToken = null;
                 _refreshToken = null;
-                RequestClient.RemoveToken();
+                _httpClientService.RemoveToken();
                 await _localStorage.RemoveItemAsync("accessToken");
                 await _localStorage.RemoveItemAsync("userName");
                 await _localStorage.RemoveItemAsync("userId");
@@ -146,7 +156,7 @@ namespace CoreAdminWeb.Services.Users
             var response = new RequestHttpResponse<UserModel>();
             try
             {
-                var result = await RequestClient.GetAPIAsync<RequestHttpResponse<UserModel>>("users/me");
+                var result = await _httpClientService.GetAPIAsync<RequestHttpResponse<UserModel>>("users/me");
                 if (result.IsSuccess)
                 {
                     response.Data = result.Data.Data;
@@ -156,7 +166,7 @@ namespace CoreAdminWeb.Services.Users
                     response.Errors = result.Errors;
                     _accessToken = null;
                     _refreshToken = null;
-                    RequestClient.RemoveToken();
+                    _httpClientService.RemoveToken();
                     await _localStorage.RemoveItemAsync("accessToken");
                     await _localStorage.RemoveItemAsync("userName");
                     await _localStorage.RemoveItemAsync("userId");
@@ -191,7 +201,7 @@ namespace CoreAdminWeb.Services.Users
                     req.language
                 };
 
-                var result = await RequestClient.PatchAPIAsync<RequestHttpResponse<UserModel>>($"users/{req.id}", request);
+                var result = await _httpClientService.PatchAPIAsync<RequestHttpResponse<UserModel>>($"users/{req.id}", request);
                 if (result.IsSuccess)
                 {
                     response.Data = result.Data.Data;
@@ -231,7 +241,7 @@ namespace CoreAdminWeb.Services.Users
                         req.language
                     };
 
-                var result = await RequestClient.PatchAPIAsync<RequestHttpResponse<UserModel>>("users/me", request);
+                var result = await _httpClientService.PatchAPIAsync<RequestHttpResponse<UserModel>>("users/me", request);
                 if (result.IsSuccess)
                 {
                     response.Data = result.Data.Data;
@@ -276,8 +286,9 @@ namespace CoreAdminWeb.Services.Users
                     _accessToken = response.Data.Data.access_token;
                     _refreshToken = response.Data.Data.refresh_token;
                     
-                    // Update token in RequestClient
-                    RequestClient.AttachToken(_accessToken);
+                    // Update token in localStorage and HttpClientService
+                    await _localStorage.SetItemAsync("accessToken", _accessToken);
+                    _httpClientService.AttachToken(_accessToken);
                     return true;
                 }
             }
