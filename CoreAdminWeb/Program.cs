@@ -13,7 +13,6 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
 builder.Services.AddSingleton<ModeStateService>();
-builder.Services.AddRazorComponents();  // Add this line if using Blazor Server
 
 // Add Blazored.LocalStorage before other services that depend on it
 builder.Services.AddBlazoredLocalStorage();
