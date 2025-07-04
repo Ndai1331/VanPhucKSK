@@ -593,12 +593,20 @@
             _errorMessage = null;
             StateHasChanged();
             var userResult = await UserService.GetUserByCCCDAsync(_so_dinh_danh);
-            if (userResult?.IsSuccess == true)
+            if (userResult?.IsSuccess == true && userResult.Data != null)
             {
                 CurrentUser = userResult.Data;  
                 _isPublic = true;
                 await LoadMedicalDataAsync();
-                _isShowInputCCCD = false;
+
+                if(SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ma_benh_nhan == CurrentUser.ma_benh_nhan)
+                {
+                    _isShowInputCCCD = false;
+                }else
+                {
+                    _isShowInputCCCD = true;
+                    AlertService?.ShowAlert("Không tìm thấy mã bệnh nhân với lượt khám này", "danger");
+                }
             }
             else
             {
