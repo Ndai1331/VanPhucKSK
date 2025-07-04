@@ -1,7 +1,7 @@
 using MudBlazor.Services;
 using CoreAdminWeb.StateService;
 using CoreAdminWeb.Model.Configuration;
-using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Http;
 using CoreAdminWeb.DIInjections;
 using CoreAdminWeb.Commons;
 using Blazored.LocalStorage;

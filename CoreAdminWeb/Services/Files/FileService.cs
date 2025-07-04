@@ -1,7 +1,7 @@
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Configuration;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Http;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Options;
     

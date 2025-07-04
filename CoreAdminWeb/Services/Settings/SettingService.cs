@@ -1,7 +1,7 @@
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Services.Http;
-using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Http;
 namespace CoreAdminWeb.Services.Settings
 {
     public interface ISettingService

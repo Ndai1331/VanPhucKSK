@@ -5,7 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using CoreAdminWeb.Model.RequestHttps;
 
-namespace CoreAdminWeb.RequestHttp
+namespace CoreAdminWeb.Http
 {
     /// <summary>
     /// Client for making unauthenticated API requests

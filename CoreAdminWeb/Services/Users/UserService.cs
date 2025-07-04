@@ -1,6 +1,6 @@
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.User;
-using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Http;
 using LoginResponse = CoreAdminWeb.Model.User.LoginResponse;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;

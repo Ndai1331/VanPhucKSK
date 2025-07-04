@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Http;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.Http;
 

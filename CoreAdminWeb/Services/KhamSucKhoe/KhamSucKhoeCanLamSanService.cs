@@ -3,7 +3,7 @@ using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
-using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Http;
 
 namespace CoreAdminWeb.Services.KhamSucKhoe
 {

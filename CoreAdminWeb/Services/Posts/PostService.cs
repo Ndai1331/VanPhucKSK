@@ -3,7 +3,7 @@ using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
 using System.Net;
-using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Http;
 using Microsoft.Extensions.Options;
 using CoreAdminWeb.Model.Configuration;
 namespace CoreAdminWeb.Services.Posts
