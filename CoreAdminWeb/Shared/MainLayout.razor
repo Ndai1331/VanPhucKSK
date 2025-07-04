@@ -27,25 +27,24 @@
              
                 @Body
 
-
                 <Footer></Footer>
             </div>
         </div>
     </div>
 </div>
 <MudPopoverProvider />
+
 @code {
     private bool isLoading = true;
     private bool isAuthenticated = false;
+    private bool _hasInitialized = false; // Prevent multiple initializations
     private UserModel currentUser;
-    [Inject]
-    private AlertService AlertService { get; set; }
-    [Inject]
-    private ISettingService SettingService { get; set; }
-    [Inject]
-    private IUserService UserService { get; set; }
-    [Inject]
-    private IFileService FileService { get; set; }
+    
+    [Inject] private AlertService AlertService { get; set; }
+    [Inject] private ISettingService SettingService { get; set; }
+    [Inject] private IUserService UserService { get; set; }
+    [Inject] private IFileService FileService { get; set; }
+    
     private SettingModel? Setting { get; set; }
     private FileModel? Logo { get; set; }
 
@@ -54,43 +53,63 @@
         try
         {
             await base.OnInitializedAsync();
-          
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in initialization: {ex.Message}");
-            // Only navigate if not already on signin page
-            var currentUri = NavigationManager?.Uri ?? "";
-            if (!currentUri.Contains("/signin"))
-            {
-                NavigationManager?.NavigateTo("/signin");
-            }
+            await HandleAuthenticationError();
         }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && !_hasInitialized)
         {
-            await CheckAuth();
-            await LoadSettings();
-            if(!isAuthenticated && !NavigationManager.Uri.Contains("/record-detail-page"))
-            {
-                NavigationManager?.NavigateTo("/news");
-            }
-            StateHasChanged();
+            _hasInitialized = true;
+            await InitializeApplicationAsync();
         }
     }
-    
 
-    private async Task CheckAuth()
+    /// <summary>
+    /// Initialize application data with optimized parallel loading
+    /// </summary>
+    private async Task InitializeApplicationAsync()
+    {
+        try
+        {
+            // Load authentication and settings in parallel for better performance
+            var authTask = CheckAuthAsync();
+            var settingsTask = LoadSettingsAsync();
+            
+            await Task.WhenAll(authTask, settingsTask);
+            
+            // Handle navigation after auth check completes
+            await HandlePostAuthNavigationAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in application initialization: {ex.Message}");
+            await HandleAuthenticationError();
+        }
+        finally
+        {
+            isLoading = false;
+            // Only call StateHasChanged if we're not already in a render cycle
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Optimized authentication check with caching
+    /// </summary>
+    private async Task CheckAuthAsync()
     {
         try
         {
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
 
-            if (isAuthenticated)
+            if (isAuthenticated && currentUser == null) // Only load user if not already loaded
             {
                 var resUser = await UserService.GetCurrentUserAsync();
                 if (resUser.IsSuccess)
@@ -101,24 +120,28 @@
         }
         catch (Exception ex)
         {
-            AlertService.ShowAlert("Lỗi khi kiểm tra đăng nhập", "error");
-        }
-        finally
-        {
-            isLoading = false;
+            Console.WriteLine($"Auth check error: {ex.Message}");
+            isAuthenticated = false;
+            currentUser = null;
         }
     }
 
-    private async Task LoadSettings()
+    /// <summary>
+    /// Optimized settings loading with caching
+    /// </summary>
+    private async Task LoadSettingsAsync()
     {
         try
         {
+            if (Setting != null) return; // Skip if already loaded
+            
             var settingResults = await SettingService.GetCurrentSettingAsync();
             if (settingResults.IsSuccess)
             {
                 Setting = settingResults.Data;
 
-                if (!string.IsNullOrEmpty(Setting.project_logo))
+                // Load logo only if setting has logo and we haven't loaded it yet
+                if (!string.IsNullOrEmpty(Setting.project_logo) && Logo == null)
                 {
                     var logoRes = await FileService.GetFileAsync(Setting.project_logo);
                     if (logoRes.IsSuccess)
@@ -132,14 +155,68 @@
         {
             Console.WriteLine($"Error loading settings: {ex.Message}");
         }
-    } 
+    }
 
+    /// <summary>
+    /// Handle navigation logic after authentication check
+    /// </summary>
+    private async Task HandlePostAuthNavigationAsync()
+    {
+        try
+        {
+            var currentUri = NavigationManager?.Uri ?? "";
+            
+            // Avoid navigation loops by checking current location
+            if (!isAuthenticated && 
+                !currentUri.Contains("/record-detail-page") && 
+                !currentUri.Contains("/news") &&
+                !currentUri.Contains("/signin"))
+            {
+                await InvokeAsync(() => NavigationManager?.NavigateTo("/news"));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Navigation error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Handle authentication errors consistently
+    /// </summary>
+    private async Task HandleAuthenticationError()
+    {
+        try
+        {
+            var currentUri = NavigationManager?.Uri ?? "";
+            if (!currentUri.Contains("/signin"))
+            {
+                await InvokeAsync(() => NavigationManager?.NavigateTo("/signin"));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error handling auth error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Optimized logout with proper cleanup
+    /// </summary>
     private async Task Logout()
     {
         try
         {
             await UserService.LogoutAsync();
-            NavigationManager?.NavigateTo("/signin");
+            
+            // Clear cached data
+            isAuthenticated = false;
+            currentUser = null;
+            Setting = null;
+            Logo = null;
+            _hasInitialized = false;
+            
+            await InvokeAsync(() => NavigationManager?.NavigateTo("/signin"));
         }
         catch (Exception ex)
         {
