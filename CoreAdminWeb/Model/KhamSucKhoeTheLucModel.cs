@@ -1,4 +1,3 @@
-using CoreAdminWeb.Enums;
 using CoreAdminWeb.Model.Base;
 
 namespace CoreAdminWeb.Model
@@ -12,6 +11,5 @@ namespace CoreAdminWeb.Model
         public int? mach { get; set; }
         public string? huyet_ap { get; set; }
         public string? phan_loai { get; set; }
-
     }
 }

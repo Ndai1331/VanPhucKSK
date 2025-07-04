@@ -1,8 +1,8 @@
-using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.Services.BaseServices;
-using CoreAdminWeb.RequestHttp;
-using System.Net;
 using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.RequestHttps;
+using CoreAdminWeb.RequestHttp;
+using CoreAdminWeb.Services.BaseServices;
+using System.Net;
 
 namespace CoreAdminWeb.Services
 {
@@ -23,9 +23,9 @@ namespace CoreAdminWeb.Services
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
                 var response = isPublic ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>>>(url) : await RequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>>>(url);
-                
-                return response.IsSuccess 
-                    ? new RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>> { Data = response.Data.Data, Meta = response.Data.Meta }
+
+                return response.IsSuccess
+                    ? new RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -51,9 +51,9 @@ namespace CoreAdminWeb.Services
             try
             {
                 var response = await RequestClient.GetAPIAsync<RequestHttpResponse<KhamSucKhoeChuyenKhoaModel>>($"items/{_collection}/{id}?fields={Fields}");
-                
+
                 return response.IsSuccess
-                    ? new RequestHttpResponse<KhamSucKhoeChuyenKhoaModel> { Data = response.Data.Data, Meta = response.Data.Meta }
+                    ? new RequestHttpResponse<KhamSucKhoeChuyenKhoaModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<KhamSucKhoeChuyenKhoaModel> { Errors = response.Errors };
             }
             catch (Exception ex)

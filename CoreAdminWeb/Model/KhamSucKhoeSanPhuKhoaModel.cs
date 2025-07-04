@@ -1,4 +1,3 @@
-using CoreAdminWeb.Enums;
 using CoreAdminWeb.Model.Base;
 
 namespace CoreAdminWeb.Model
