@@ -1,7 +1,7 @@
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.RequestHttp;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Http;
 using System.Net;
 
 namespace CoreAdminWeb.Services
@@ -13,6 +13,12 @@ namespace CoreAdminWeb.Services
     {
         private readonly string _collection = "danh_muc_dinh_muc";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+        private readonly IHttpClientService _httpClientService;
+
+        public DinhMucService(IHttpClientService httpClientService)
+        {
+            _httpClientService = httpClientService;
+        }
 
         /// <summary>
         /// Creates a response with error handling
@@ -48,10 +54,10 @@ namespace CoreAdminWeb.Services
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<List<DinhMucModel>>>(url);
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<DinhMucModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<DinhMucModel>> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<List<DinhMucModel>> { Data = response.Data?.Data }
                     : new RequestHttpResponse<List<DinhMucModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -76,10 +82,10 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<DinhMucModel>>($"items/{_collection}/{id}?fields={Fields}");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<DinhMucModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<DinhMucModel> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<DinhMucModel> { Data = response.Data?.Data }
                     : new RequestHttpResponse<DinhMucModel> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -105,7 +111,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await RequestClient.PostAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}", createModel);
 
                 if (!response.IsSuccess)
                 {
@@ -116,8 +122,8 @@ namespace CoreAdminWeb.Services
                 {
                     Data = new()
                     {
-                        code = response.Data.Data.code,
-                        name = response.Data.Data.name
+                        code = response.Data?.Data?.code,
+                        name = response.Data?.Data?.name
                     }
                 };
             }
@@ -145,7 +151,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
@@ -176,7 +182,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {

@@ -1,7 +1,8 @@
+using CoreAdminWeb.Http;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.RequestHttp;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Http;
 using System.Net;
 
 namespace CoreAdminWeb.Services
@@ -13,6 +14,12 @@ namespace CoreAdminWeb.Services
     {
         private readonly string _collection = "medical_agency";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+        private readonly IHttpClientService _httpClientService;
+
+        public MedicalAgencyService(IHttpClientService httpClientService)
+        {
+            _httpClientService = httpClientService;
+        }
 
         /// <summary>
         /// Gets all fertilizer production facilities
@@ -22,7 +29,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = isPublic ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<MedicalAgencyModel>>>(url) : await RequestClient.GetAPIAsync<RequestHttpResponse<List<MedicalAgencyModel>>>(url);
+                var response = isPublic ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<MedicalAgencyModel>>>(url) : await _httpClientService.GetAPIAsync<RequestHttpResponse<List<MedicalAgencyModel>>>(url);
 
                 return response.IsSuccess
                     ? new RequestHttpResponse<List<MedicalAgencyModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
@@ -50,7 +57,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<MedicalAgencyModel>>($"items/{_collection}/{id}?fields={Fields}");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<MedicalAgencyModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
                     ? new RequestHttpResponse<MedicalAgencyModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }

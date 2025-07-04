@@ -1,7 +1,7 @@
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.RequestHttp;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Http;
 using System.Net;
 
 namespace CoreAdminWeb.Services
@@ -13,6 +13,12 @@ namespace CoreAdminWeb.Services
     {
         private readonly string _collection = "contract_type";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+        private readonly IHttpClientService _httpClientService;
+
+        public ContractTypeService(IHttpClientService httpClientService)
+        {
+            _httpClientService = httpClientService;
+        }
 
         /// <summary>
         /// Creates a response with error handling
@@ -48,10 +54,10 @@ namespace CoreAdminWeb.Services
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<List<ContractTypeModel>>>(url);
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<ContractTypeModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<ContractTypeModel>> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<List<ContractTypeModel>> { Data = response.Data?.Data }
                     : new RequestHttpResponse<List<ContractTypeModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -76,10 +82,10 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.GetAPIAsync<RequestHttpResponse<ContractTypeModel>>($"items/{_collection}/{id}?fields={Fields}");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<ContractTypeModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<ContractTypeModel> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<ContractTypeModel> { Data = response.Data?.Data }
                     : new RequestHttpResponse<ContractTypeModel> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -105,7 +111,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await RequestClient.PostAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}", createModel);
 
                 if (!response.IsSuccess)
                 {
@@ -116,8 +122,8 @@ namespace CoreAdminWeb.Services
                 {
                     Data = new()
                     {
-                        code = response.Data.Data.code,
-                        name = response.Data.Data.name
+                        code = response.Data?.Data?.code,
+                        name = response.Data?.Data?.name
                     }
                 };
             }
@@ -145,7 +151,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
@@ -176,7 +182,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await RequestClient.PatchAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {
