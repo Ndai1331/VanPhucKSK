@@ -251,7 +251,7 @@
         if (firstRender && !_hasInitialized)
         {
             _hasInitialized = true;
-            await HandlePostAuthNavigationAsync();
+           
             await InitializePageDataAsync();
         }
     }
@@ -280,6 +280,8 @@
                 {
                     await LoadKetLuanAsync();
                 }
+            }else{
+                await InvokeAsync(() => NavigationManager?.NavigateTo("/signin"));
             }
         }
         catch (Exception ex)
@@ -437,21 +439,6 @@
         {
             AlertService.ShowAlert("Lỗi khi tải kết luận gần nhất: " + ex.Message, "danger");
             KetLuanGanNhat = null;
-        }
-    }
-
-    private async Task HandlePostAuthNavigationAsync()
-    {
-        try
-        {
-            if (!IsAuthenticated)
-            {
-                await InvokeAsync(() => NavigationManager?.NavigateTo("/news"));
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Navigation error: {ex.Message}");
         }
     }
 
