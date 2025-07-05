@@ -164,7 +164,7 @@
     .ksk-signature-row {
         display: flex;
         justify-content: space-between;
-        margin: 30px 0;
+        margin: 10px 0;
         page-break-inside: avoid;
     }
     

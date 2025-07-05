@@ -152,7 +152,7 @@ window.printMedicalForm = function() {
         .ksk-signature-row {
             display: flex;
             justify-content: space-between;
-            margin: 30px 0;
+            margin: 0;
         }
         .ksk-signature-box {
             text-align: center;
@@ -435,7 +435,7 @@ window.getMedicalFormHtml = function() {
         .ksk-signature-row {
             display: flex;
             justify-content: space-between;
-            margin: 30px 0;
+            margin: 0px;
         }
         .ksk-signature-box {
             text-align: center;
