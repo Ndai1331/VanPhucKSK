@@ -45,8 +45,8 @@
                 <div class="p-5 rounded shadow-sm bg-info text-white">
                     <div class="text-center">
                         <i class="fas fa-heartbeat fa-2x mb-2"></i>
-                        <h4 class="text-2xl font-semibold mb-1">Tốt</h4>
-                        <p class="mb-0">Tình trạng sức khỏe</p>
+                        <h4 class="text-2xl font-semibold mb-1">@(KetLuanGanNhat?.phan_loai_suc_khoe ?? "Chưa có")</h4>
+                        <p class="mb-0">@(KetLuanGanNhat?.benh_tat_ket_luan ?? "Chưa có")</p>
                     </div>
                 </div>
                 <div class="p-5 rounded shadow-sm bg-warning text-white">
@@ -213,7 +213,7 @@
             {
                     <!-- Action Buttons -->
                     <div class="text-center mt-6">
-                        <a href="/profile" class="px-6 p-3 text-white bg-purple rounded shadow hover:bg-purple transition-colors inline-flex items-center">
+                        <a href="/settings" class="px-6 p-3 text-white bg-purple rounded shadow hover:bg-purple transition-colors inline-flex items-center">
                             <i class="ri-account-box-line me-1 "></i>Cập nhật thông tin cá nhân
                         </a>
                     </div>
@@ -226,6 +226,7 @@
     [Inject] AlertService AlertService { get; set; }
     [Inject] IUserService UserService { get; set; }
     [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; }
+    [Inject] IBaseGetService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; }
     
     // State management
     private bool _isLoading = true;
@@ -237,6 +238,8 @@
     // Medical Records
     private List<SoKhamSucKhoeModel> MainModels = new List<SoKhamSucKhoeModel>();
     private DateTime? NgayKhamGanNhat = null;
+    private string? MaLuotKhamGanNhat { get; set; }
+    private KhamSucKhoeKetLuanModel? KetLuanGanNhat { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -269,8 +272,13 @@
                 // Load medical records and latest exam date in parallel
                 var medicalRecordsTask = LoadMedicalRecordsAsync();
                 var latestExamTask = LoadLatestExamDateAsync();
-                
                 await Task.WhenAll(medicalRecordsTask, latestExamTask);
+                
+                // Only load conclusion if we have the latest exam code
+                if (!string.IsNullOrEmpty(MaLuotKhamGanNhat))
+                {
+                    await LoadKetLuanAsync();
+                }
             }
         }
         catch (Exception ex)
@@ -356,22 +364,25 @@
             string query = $"limit=1&offset=0&sort=-ngay_kham";
             query += $"&filter[_and][0][deleted][_eq]=false";
             query += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
-            query += $"&fields=ngay_kham"; // Only get the date field for performance
+            query += $"&fields=ngay_kham,ma_luot_kham"; // Only get the date field for performance
             
             var result = await SoKhamSucKhoeService.GetAllAsync(query);
             if (result.IsSuccess && result.Data?.Any() == true)
             {
                 NgayKhamGanNhat = result.Data.FirstOrDefault()?.ngay_kham;
+                MaLuotKhamGanNhat = result.Data.FirstOrDefault()?.ma_luot_kham;
             }
             else
             {
                 NgayKhamGanNhat = null;
+                MaLuotKhamGanNhat = null;
             }
         }
         catch (Exception ex)
         {
             AlertService.ShowAlert("Lỗi khi tải ngày khám gần nhất: " + ex.Message, "danger");
             NgayKhamGanNhat = null;
+            MaLuotKhamGanNhat = null;
         }
     }
 
@@ -398,6 +409,34 @@
     private void ViewRecordDetail(SoKhamSucKhoeModel record)
     {
         Navigation.NavigateTo($"/record-detail-page/{record.ma_luot_kham}");
+    }
+
+    private async Task LoadKetLuanAsync()
+    {
+        if (CurrentUser?.ma_benh_nhan == null) return;
+        
+        try
+        {
+            // Separate query to get only the latest exam date
+            string query = $"limit=1&offset=0&sort=-id";
+            query += $"&filter[_and][0][ma_luot_kham][_eq]={MaLuotKhamGanNhat}";
+            query += $"&fields=phan_loai_suc_khoe,benh_tat_ket_luan,ma_luot_kham"; // Only get the date field for performance
+            
+            var result = await KhamSucKhoeKetLuanService.GetAllAsync(query);
+            if (result.IsSuccess && result.Data?.Any() == true)
+            {
+                KetLuanGanNhat = result.Data.FirstOrDefault();
+            }
+            else
+            {
+                KetLuanGanNhat = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải kết luận gần nhất: " + ex.Message, "danger");
+            KetLuanGanNhat = null;
+        }
     }
 
 } 
