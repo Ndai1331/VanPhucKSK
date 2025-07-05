@@ -12,6 +12,7 @@
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
 @inject IWebHostEnvironment WebHostEnvironment
+@implements IDisposable
 
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
     <div class="grid grid-cols-1 gap-4">
@@ -58,6 +59,17 @@
                         <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]" OnClick="LoadDataWithCccdAsync">Tải dữ liệu</MudButton>
                     </div>
                 </div>
+            </div>
+        }
+        else if(_expired_result_page)
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <strong class="font-bold">Thông báo!</strong>
+                <span class="block sm:inline">Thời gian xem kết quả sức khỏe đã hết hạn, vui lòng đăng nhập để xem kết quả</span>
+                 <div class="flex flex-wrap gap-3">
+                        <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]"
+                         OnClick="LoginAsync">Đăng nhập</MudButton>
+                    </div>
             </div>
         }
         else if (!string.IsNullOrEmpty(_errorMessage))
@@ -563,6 +575,7 @@
     private string _imagesFolder = $"/images/";
     private string _logoPath = $"/images/Logo/logo.png";
     private string _so_dinh_danh = string.Empty;
+    private bool _expired_result_page = false;
     private bool _isPublic = false;
 
     #endregion
@@ -578,7 +591,6 @@
         if (firstRender)
         {
             await LoadDataAsync();
-            _imagesFolder += ma_luot_kham;
             _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
         }
     }
@@ -607,8 +619,16 @@
             }
             else
             {
-                // Show CCCD input for public access
-                _isShowInputCCCD = true;
+                await LoadSoKhamSucKhoeDataAsync();
+
+                if (SoKhamSucKhoeModel != null&& SoKhamSucKhoeModel.ngay_kham != null && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
+                {
+                    _expired_result_page = true;
+                }
+                else
+                {
+                    _isShowInputCCCD = true;
+                }
             }
         }
         catch (Exception ex)
@@ -734,6 +754,16 @@
         };
 
         await Task.WhenAll(tasks);
+    }
+
+    private async Task LoadSoKhamSucKhoeDataAsync()
+    {
+        string query =$"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+        var result = await SoKhamSucKhoeService.GetAllAsync(query, true);
+        if (result?.IsSuccess == true && result.Data != null)
+        {
+            SoKhamSucKhoeModel = result.Data.FirstOrDefault();
+        }
     }
 
     /// <summary>
@@ -971,6 +1001,11 @@
         Navigation.NavigateTo("/");
     }
 
+    private void LoginAsync()
+    {
+        Navigation.NavigateTo("/signin");
+    }
+
     #endregion
 
     #region Helper Methods
@@ -994,8 +1029,75 @@
     {
         if (string.IsNullOrEmpty(signatureData)) return new MarkupString();
         var html = signatureData.GetSignatureDisplayHtml(fallbackText, fileName, maxWidth, maxHeight,
-            WebHostEnvironment.WebRootPath + _imagesFolder,  Configuration["DrCoreApi:BaseUrlImage"]);
+            WebHostEnvironment.WebRootPath + _imagesFolder + ma_luot_kham,  Configuration["DrCoreApi:BaseUrlImage"]);
         return new MarkupString(html);
     }
+
+    #endregion
+
+    #region Dispose Method
+
+    /// <summary>
+    /// Clean up resources and delete signature images when component is disposed
+    /// </summary>
+    public void Dispose()
+    {
+        try
+        {
+            // Clean up signature images folder
+            CleanupSignatureImages();
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't throw exception in Dispose
+            Console.WriteLine($"Error during dispose cleanup: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Delete all signature images in the component's folder
+    /// </summary>
+    private void CleanupSignatureImages()
+    {
+        if (string.IsNullOrEmpty(ma_luot_kham)) return;
+
+        try
+        {
+            // Delete specific folder for this medical record
+            string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder + $"{ma_luot_kham}";
+            if (Directory.Exists(folderPath))
+            {
+                // Delete all files in the folder
+                var files = Directory.GetFiles(folderPath);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+                
+                // Delete the folder itself
+                Directory.Delete(folderPath);
+                Console.WriteLine($"Cleanup: Deleted signature folder: {folderPath}");
+            }
+
+            // Also clean up any stray signature files in root images folder
+            string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images",ma_luot_kham);
+            if (Directory.Exists(rootImagesPath))
+            {
+                // Find and delete files that might be related to this medical record
+                var signatureFiles = Directory.GetFiles(rootImagesPath, "*");
+                
+                foreach (var file in signatureFiles)
+                {
+                    File.Delete(file);
+                    Console.WriteLine($"Cleanup: Deleted stray signature file: {Path.GetFileName(file)}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cleaning up signature images: {ex.Message}");
+        }
+    }
+
     #endregion
 }

@@ -246,16 +246,6 @@ namespace CoreAdminWeb.Extensions
             return safeName;
         }
 
-        /// <summary>
-        /// Get signature display HTML - either image or text
-        /// </summary>
-        /// <param name="signatureData">Signature data (hex string or text)</param>
-        /// <param name="fallbackText">Fallback text if not hex</param>
-        /// <param name="fileName">File name to save image (without extension)</param>
-        /// <param name="maxWidth">Maximum width for signature image</param>
-        /// <param name="maxHeight">Maximum height for signature image</param>
-        /// <param name="webRootPath">Web root path for saving images</param>
-        /// <returns>HTML string for signature display</returns>
         public static string GetSignatureDisplayHtml(this string signatureData, 
             string? fallbackText = "", 
             string? fileName="",
@@ -266,19 +256,29 @@ namespace CoreAdminWeb.Extensions
         {
             if (string.IsNullOrEmpty(signatureData))
                 return $"<span class='signature-text'>{fallbackText}</span>";
+
+
+            string base64Image = "";
             // Check if it's a hex signature
             if (signatureData.IsValidHexSignature())
             {
-                var base64Image = signatureData.ToBase64Image();
-                if (!string.IsNullOrEmpty(base64Image))
+                 base64Image = signatureData.ToBase64Image();
+               
+            }
+            else
+            {
+                base64Image = signatureData;
+            }
+            
+            
+            if (!string.IsNullOrEmpty(base64Image))
+            {
+                if (!string.IsNullOrEmpty(webRootPath) && !string.IsNullOrEmpty(fileName))
                 {
-                    if (!string.IsNullOrEmpty(webRootPath) && !string.IsNullOrEmpty(fileName))
+                    var imagePath = SaveBase64AsImage(base64Image, fileName, webRootPath);
+                    if (!string.IsNullOrEmpty(imagePath))
                     {
-                        var imagePath = SaveBase64AsImage(base64Image, fileName, webRootPath);
-                        if (!string.IsNullOrEmpty(imagePath))
-                        {
-                            return $"<img src='{baseUrl}{imagePath}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' />";
-                        }
+                        return $"<img src='{baseUrl}{imagePath}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' />";
                     }
                 }
             }

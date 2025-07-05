@@ -172,8 +172,7 @@
 
             if (!isAuthenticated && 
                 (string.IsNullOrEmpty(path) ||
-                !path.Contains("/results") || 
-                !path.Contains("/record-detail-page")))
+                path.Contains("/results")))
             {
                 await InvokeAsync(() => NavigationManager?.NavigateTo("/news"));
             }

@@ -2,6 +2,7 @@ using CoreAdminWeb.Model.Menus;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Settings;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -19,6 +20,10 @@ namespace CoreAdminWeb.Shared.Base
         protected NavigationManager? NavigationManager { get; set; }
 
         [Inject]
+        protected ISettingService SettingService { get; set; } = null!;
+
+
+        [Inject]
         protected AlertService AlertService { get; set; } = null!;
 
         [Inject]
@@ -31,6 +36,7 @@ namespace CoreAdminWeb.Shared.Base
 
         protected bool IsAuthenticated { get; private set; }
         public bool IsLoading { get; set; } = false;
+        public int ExpiredResultPage  { get; set; } = 10;
 
         // Pagination properties with better initialization
         public int Page { get; set; } = 1;
@@ -60,6 +66,7 @@ namespace CoreAdminWeb.Shared.Base
         {
             await base.OnInitializedAsync();
             await IsAuthenticatedAsync();
+            await GetSettingAsync();
             // Only reset page if not already initialized properly
             if (Page <= 0 || PageSize <= 0)
             {
@@ -77,10 +84,18 @@ namespace CoreAdminWeb.Shared.Base
             TotalCount = 0;
             TotalPages = 0;
             TotalItems = 0;
-            
             // Clear query cache when resetting
             _queryCache.Clear();
             BuilderQuery = "";
+        }
+
+        public async Task GetSettingAsync()
+        {
+            var settingResults = await SettingService.GetCurrentSettingAsync();
+            if (settingResults.IsSuccess)
+            {
+                ExpiredResultPage = settingResults.Data?.lock_result_page_after ?? 7;
+            }
         }
 
         /// <summary>
