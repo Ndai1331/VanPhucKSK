@@ -59,7 +59,7 @@ namespace CoreAdminWeb.Shared.Base
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-            
+            await IsAuthenticatedAsync();
             // Only reset page if not already initialized properly
             if (Page <= 0 || PageSize <= 0)
             {

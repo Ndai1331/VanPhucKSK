@@ -165,12 +165,15 @@
         try
         {
             var currentUri = NavigationManager?.Uri ?? "";
-            
-            // Avoid navigation loops by checking current location
+            // Use ToBaseRelativePath to get relative path correctly
+            // Example: https://localhost:5000/results -> results
+            var path = NavigationManager?.ToBaseRelativePath(currentUri) ?? "";
+            Console.WriteLine($"Path: {path}"); 
+
             if (!isAuthenticated && 
-                !currentUri.Contains("/record-detail-page") && 
-                !currentUri.Contains("/news") &&
-                !currentUri.Contains("/signin"))
+                (string.IsNullOrEmpty(path) ||
+                !path.Contains("/results") || 
+                !path.Contains("/record-detail-page")))
             {
                 await InvokeAsync(() => NavigationManager?.NavigateTo("/news"));
             }
