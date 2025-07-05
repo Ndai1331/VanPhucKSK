@@ -83,8 +83,6 @@
                         <img src="@_logoPath" alt="Logo" class="header-logo" />
                     </div>
                     <div class="ksk-header">
-                        <div class="mau-so">Mẫu số 03</div>
-                        <div>MẪU SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
                         <div class="quochoa">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
                         <div class="doclap">Độc lập - Tự do - Hạnh phúc</div>
                         <div>-------------</div>
@@ -505,7 +503,7 @@
                             <div class="ksk-signature-box">
                                 <div><strong>NGƯỜI KẾT LUẬN</strong></div>
                                 <small>(Ký, ghi rõ họ tên và đóng dấu)</small>
-                                <div style="margin-bottom: 32px;">@KhamSucKhoeKetLuanModel.ngay_ket_luan</div>
+                                <div style="margin-bottom: 15px;">@KhamSucKhoeKetLuanModel.ngay_ket_luan?.ToString("dd/MM/yyyy")</div>
                                 <div class="signature-container">@RenderSignature(KhamSucKhoeKetLuanModel?.chu_ky, KhamSucKhoeKetLuanModel?.chu_ky, "ket_luan", 150, 80)</div>
                                 <div><strong>@KhamSucKhoeKetLuanModel.nguoi_ket_luan</strong></div>
                             </div>

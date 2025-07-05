@@ -48,17 +48,18 @@
                 @if (MainModels != null && !string.IsNullOrEmpty(MainModels.title))
                 {
                     <div class="grid grid-cols-1 gap-4">
-                        @if (!string.IsNullOrEmpty(MainModels.post_images?.filename_disk))
-                        {
-                            <div>
-                                <img src="@MainModels.post_images.filename_disk" class="w-full" alt="@MainModels.title">
-                            </div>
-                        }
                         <h2 class="mb-4 text-base font-semibold text-black capitalize dark:text-white/80">@MainModels.title</h2>
                         <div class="text-sm text-gray-500">
                             <p class="mb-2">@MainModels.date_created.ToString("dd/MM/yyyy")</p>
                             <p class="mb-2">@(MainModels.view_count ?? 0) lượt xem</p>
                         </div>
+                        @if (!string.IsNullOrEmpty(MainModels.post_images?.filename_disk))
+                        {
+                            <div>
+                                <img src="@MainModels.post_images.filename_disk" class="max-w-[526px]" alt="@MainModels.title">
+                            </div>
+                        }
+                      
                         @if (!string.IsNullOrEmpty(MainModels.description))
                         {
                             @((MarkupString)MainModels.description)
