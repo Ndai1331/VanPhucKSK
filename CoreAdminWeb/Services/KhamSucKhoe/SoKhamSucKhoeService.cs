@@ -1,9 +1,9 @@
+using CoreAdminWeb.Http;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
 using System.Net;
-using CoreAdminWeb.Http;
 namespace CoreAdminWeb.Services.KhamSucKhoe
 {
     /// <summary>
@@ -13,7 +13,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
     {
         private readonly string _collection = "SoKhamSucKhoe";
         private readonly IHttpClientService _httpClientService;
-        
+
         private string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
 
         public SoKhamSucKhoeService(IHttpClientService httpClientService)
@@ -29,12 +29,12 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = isPublic 
-                    ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<SoKhamSucKhoeModel>>>(url) 
+                var response = isPublic
+                    ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<SoKhamSucKhoeModel>>>(url)
                     : await _httpClientService.GetAPIAsync<RequestHttpResponse<List<SoKhamSucKhoeModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<SoKhamSucKhoeModel>> { Data = response.Data.Data, Meta = response.Data.Meta }
+                    ? new RequestHttpResponse<List<SoKhamSucKhoeModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<SoKhamSucKhoeModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -60,9 +60,9 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             try
             {
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<SoKhamSucKhoeModel>>($"items/{_collection}/{id}?fields={Fields}");
-                
+
                 return response.IsSuccess
-                    ? new RequestHttpResponse<SoKhamSucKhoeModel> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<SoKhamSucKhoeModel> { Data = response.Data?.Data }
                     : new RequestHttpResponse<SoKhamSucKhoeModel> { Errors = response.Errors };
             }
             catch (Exception ex)

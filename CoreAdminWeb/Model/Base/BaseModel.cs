@@ -1,6 +1,5 @@
-using System.ComponentModel;
-using CoreAdminWeb.Exceptions;
 using CoreAdminWeb.Model.User;
+using System.ComponentModel;
 
 namespace CoreAdminWeb.Model.Base
 {
@@ -13,7 +12,7 @@ namespace CoreAdminWeb.Model.Base
         [Description("Đã xóa")]
         removed
     }
-    public class BaseModel<T> :  BaseDetailModel
+    public class BaseModel<T> : BaseDetailModel
     {
         public T id { get; set; }
         public UserModel? user_created { get; set; }
@@ -31,4 +30,4 @@ namespace CoreAdminWeb.Model.Base
         public Status status { get; set; } = Status.published;
         public int? sort { get; set; } = 0;
     }
-}   
+}

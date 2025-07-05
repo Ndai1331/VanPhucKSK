@@ -1,9 +1,9 @@
+using CoreAdminWeb.Http;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
 using System.Net;
-using CoreAdminWeb.Http;
 namespace CoreAdminWeb.Services.KhamSucKhoe
 {
     /// <summary>
@@ -29,12 +29,12 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = isPublic 
-                    ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeTheLucModel>>>(url) 
+                var response = isPublic
+                    ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeTheLucModel>>>(url)
                     : await _httpClientService.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeTheLucModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<KhamSucKhoeTheLucModel>> { Data = response.Data.Data, Meta = response.Data.Meta }
+                    ? new RequestHttpResponse<List<KhamSucKhoeTheLucModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<KhamSucKhoeTheLucModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -60,9 +60,9 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             try
             {
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<KhamSucKhoeTheLucModel>>($"items/{_collection}/{id}?fields={Fields}");
-                
+
                 return response.IsSuccess
-                    ? new RequestHttpResponse<KhamSucKhoeTheLucModel> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<KhamSucKhoeTheLucModel> { Data = response.Data?.Data }
                     : new RequestHttpResponse<KhamSucKhoeTheLucModel> { Errors = response.Errors };
             }
             catch (Exception ex)

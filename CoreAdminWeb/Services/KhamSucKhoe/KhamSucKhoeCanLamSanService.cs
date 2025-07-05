@@ -1,9 +1,9 @@
-using System.Net;
+using CoreAdminWeb.Http;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
-using CoreAdminWeb.Http;
+using System.Net;
 
 namespace CoreAdminWeb.Services.KhamSucKhoe
 {
@@ -30,12 +30,12 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = isPublic 
-                    ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>>>(url) 
+                var response = isPublic
+                    ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>>>(url)
                     : await _httpClientService.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>> { Data = response.Data.Data, Meta = response.Data.Meta }
+                    ? new RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<KhamSucKhoeCanLamSanModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -61,9 +61,9 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             try
             {
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<KhamSucKhoeCanLamSanModel>>($"items/{_collection}/{id}?fields={Fields}");
-                
+
                 return response.IsSuccess
-                    ? new RequestHttpResponse<KhamSucKhoeCanLamSanModel> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<KhamSucKhoeCanLamSanModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<KhamSucKhoeCanLamSanModel> { Errors = response.Errors };
             }
             catch (Exception ex)

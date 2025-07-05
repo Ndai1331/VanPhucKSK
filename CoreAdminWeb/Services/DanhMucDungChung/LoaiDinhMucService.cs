@@ -4,18 +4,18 @@ using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
 using System.Net;
 
-namespace CoreAdminWeb.Services.DanhMucDungChung
+namespace CoreAdminWeb.Services
 {
     /// <summary>
     /// Service for managing fertilizer production facilities
     /// </summary>
-    public class CongTyService : IBaseService<CongTyModel>
+    public class LoaiDinhMucService : IBaseService<LoaiDinhMucModel>
     {
-        private readonly string _collection = "cong_ty";
+        private readonly string _collection = "loai_dinh_muc";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
         private readonly IHttpClientService _httpClientService;
 
-        public CongTyService(IHttpClientService httpClientService)
+        public LoaiDinhMucService(IHttpClientService httpClientService)
         {
             _httpClientService = httpClientService;
         }
@@ -35,7 +35,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
         /// <summary>
         /// Maps a model to CRUD model
         /// </summary>
-        private static CongTyCRUDModel MapToCRUDModel(CongTyModel model)
+        private static LoaiDinhMucCRUDModel MapToCRUDModel(LoaiDinhMucModel model)
         {
             return new()
             {
@@ -49,31 +49,31 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
         /// <summary>
         /// Gets all fertilizer production facilities
         /// </summary>
-        public async Task<RequestHttpResponse<List<CongTyModel>>> GetAllAsync(string query)
+        public async Task<RequestHttpResponse<List<LoaiDinhMucModel>>> GetAllAsync(string query)
         {
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<CongTyModel>>>(url);
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<LoaiDinhMucModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<CongTyModel>> { Data = response.Data?.Data }
-                    : new RequestHttpResponse<List<CongTyModel>> { Errors = response.Errors };
+                    ? new RequestHttpResponse<List<LoaiDinhMucModel>> { Data = response.Data?.Data }
+                    : new RequestHttpResponse<List<LoaiDinhMucModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return CreateErrorResponse<List<CongTyModel>>(ex);
+                return CreateErrorResponse<List<LoaiDinhMucModel>>(ex);
             }
         }
 
         /// <summary>
         /// Gets a fertilizer production facility by ID
         /// </summary>
-        public async Task<RequestHttpResponse<CongTyModel>> GetByIdAsync(string id)
+        public async Task<RequestHttpResponse<LoaiDinhMucModel>> GetByIdAsync(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
-                return new RequestHttpResponse<CongTyModel>
+                return new RequestHttpResponse<LoaiDinhMucModel>
                 {
                     Errors = new List<ErrorResponse> { new() { Message = "ID không được để trống" } },
                     StatusCode = HttpStatusCode.BadRequest
@@ -82,26 +82,26 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
 
             try
             {
-                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<CongTyModel>>($"items/{_collection}/{id}?fields={Fields}");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<LoaiDinhMucModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<CongTyModel> { Data = response.Data?.Data }
-                    : new RequestHttpResponse<CongTyModel> { Errors = response.Errors };
+                    ? new RequestHttpResponse<LoaiDinhMucModel> { Data = response.Data?.Data }
+                    : new RequestHttpResponse<LoaiDinhMucModel> { Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return CreateErrorResponse<CongTyModel>(ex);
+                return CreateErrorResponse<LoaiDinhMucModel>(ex);
             }
         }
 
         /// <summary>
         /// Creates a new fertilizer production facility
         /// </summary>
-        public async Task<RequestHttpResponse<CongTyModel>> CreateAsync(CongTyModel model)
+        public async Task<RequestHttpResponse<LoaiDinhMucModel>> CreateAsync(LoaiDinhMucModel model)
         {
             if (model == null)
             {
-                return new RequestHttpResponse<CongTyModel>
+                return new RequestHttpResponse<LoaiDinhMucModel>
                 {
                     Errors = new List<ErrorResponse> { new() { Message = "Vui lòng nhập đầy đủ thông tin" } },
                     StatusCode = HttpStatusCode.BadRequest
@@ -111,14 +111,14 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<LoaiDinhMucCRUDModel>>($"items/{_collection}", createModel);
 
                 if (!response.IsSuccess)
                 {
-                    return new RequestHttpResponse<CongTyModel> { Errors = response.Errors };
+                    return new RequestHttpResponse<LoaiDinhMucModel> { Errors = response.Errors };
                 }
 
-                return new RequestHttpResponse<CongTyModel>
+                return new RequestHttpResponse<LoaiDinhMucModel>
                 {
                     Data = new()
                     {
@@ -129,14 +129,14 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
             }
             catch (Exception ex)
             {
-                return CreateErrorResponse<CongTyModel>(ex);
+                return CreateErrorResponse<LoaiDinhMucModel>(ex);
             }
         }
 
         /// <summary>
         /// Updates an existing fertilizer production facility
         /// </summary>
-        public async Task<RequestHttpResponse<bool>> UpdateAsync(CongTyModel model)
+        public async Task<RequestHttpResponse<bool>> UpdateAsync(LoaiDinhMucModel model)
         {
             if (model == null || model.id == 0)
             {
@@ -151,7 +151,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<LoaiDinhMucCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
@@ -168,7 +168,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
         /// <summary>
         /// Deletes a fertilizer production facility
         /// </summary>
-        public async Task<RequestHttpResponse<bool>> DeleteAsync(CongTyModel model)
+        public async Task<RequestHttpResponse<bool>> DeleteAsync(LoaiDinhMucModel model)
         {
             if (model == null || model.id == 0)
             {
@@ -182,7 +182,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
 
             try
             {
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<LoaiDinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {
