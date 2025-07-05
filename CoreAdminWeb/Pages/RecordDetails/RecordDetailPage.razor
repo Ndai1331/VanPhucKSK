@@ -75,13 +75,20 @@
 
             <!-- Printable Medical Form Content -->
             <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder" id="medical-form-content">
+
+                
                 <!-- Medical Form Header -->
-                <div class="ksk-header" style="margin-bottom:0;">
-                    <div class="mau-so">Mẫu số 03</div>
-                    <div>MẪU SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
-                    <div class="quochoa">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
-                    <div class="doclap">Độc lập - Tự do - Hạnh phúc</div>
-                    <div>-------------</div>
+                <div class="ksk-header-container" style="margin-bottom:0;">
+                    <div class="ksk-header-logo">
+                        <img src="@_logoPath" alt="Logo" class="header-logo" />
+                    </div>
+                    <div class="ksk-header">
+                        <div class="mau-so">Mẫu số 03</div>
+                        <div>MẪU SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+                        <div class="quochoa">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                        <div class="doclap">Độc lập - Tự do - Hạnh phúc</div>
+                        <div>-------------</div>
+                    </div>
                 </div>
 
                 <div class="ksk-title">SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
@@ -556,6 +563,7 @@
     private bool _isShowInputCCCD = false;
     private string? _errorMessage;
     private string _imagesFolder = $"/images/";
+    private string _logoPath = $"/images/Logo/logo.png";
     private string _so_dinh_danh = string.Empty;
     private bool _isPublic = false;
 
@@ -573,6 +581,7 @@
         {
             await LoadDataAsync();
             _imagesFolder += ma_luot_kham;
+            _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
         }
     }
     #endregion
@@ -861,7 +870,7 @@
             Console.WriteLine("Step 3: Cấu hình PDF settings...");
             var pdfSettings = new PdfSettings
             {
-                FileName = $"So_KSK_{CurrentUser.last_name}{CurrentUser.first_name}_{DateTime.Now:yyyyMMdd}.pdf",
+                FileName = $"{ma_luot_kham}_{DateTime.Now:yyyyMMdd}.pdf",
                 PageSize = "A4",
                 Orientation = "Portrait",
                 MarginTop = 10,

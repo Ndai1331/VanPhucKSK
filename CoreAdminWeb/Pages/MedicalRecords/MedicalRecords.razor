@@ -46,7 +46,7 @@
                     <div class="text-center">
                         <i class="fas fa-heartbeat fa-2x mb-2"></i>
                         <h4 class="text-2xl font-semibold mb-1">@(KetLuanGanNhat?.phan_loai_suc_khoe ?? "Chưa có")</h4>
-                        <p class="mb-0">@(KetLuanGanNhat?.benh_tat_ket_luan ?? "Chưa có")</p>
+                        <p class="mb-0">Tình trạng sức khoẻ</p>
                     </div>
                 </div>
                 <div class="p-5 rounded shadow-sm bg-warning text-white">
@@ -420,7 +420,7 @@
             // Separate query to get only the latest exam date
             string query = $"limit=1&offset=0&sort=-id";
             query += $"&filter[_and][0][ma_luot_kham][_eq]={MaLuotKhamGanNhat}";
-            query += $"&fields=phan_loai_suc_khoe,benh_tat_ket_luan,ma_luot_kham"; // Only get the date field for performance
+            query += $"&fields=phan_loai_suc_khoe,ma_luot_kham"; // Only get the date field for performance
             
             var result = await KhamSucKhoeKetLuanService.GetAllAsync(query);
             if (result.IsSuccess && result.Data?.Any() == true)

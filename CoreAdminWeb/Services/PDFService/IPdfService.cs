@@ -27,7 +27,7 @@ namespace CoreAdminWeb.Services.PDFService
     /// </summary>
     public class PdfSettings
     {
-        public string FileName { get; set; } = "document.pdf";
+        public string FileName { get; set; } = "";
         public string PageSize { get; set; } = "A4";
         public string Orientation { get; set; } = "Portrait";
         public int MarginTop { get; set; } = 10;

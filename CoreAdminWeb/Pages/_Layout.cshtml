@@ -202,14 +202,14 @@
         };
 
         // PDF Download function
-        window.downloadFile = function (dataUrl, fileName) {
+        @* window.downloadFile = function (dataUrl, fileName) {
             const link = document.createElement('a');
             link.href = dataUrl;
             link.download = fileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        };
+        }; *@
     
         window.addClickListener = function (dotNetObject) {
             document.body.addEventListener("click", function () {
@@ -237,17 +237,29 @@
             console.log('message: ', message, 'data: ', data);
         };
         // Function to handle file download
-        window.downloadFile = function (url) {
-            // Create a temporary anchor element
-            const link = document.createElement('a');
-            link.href = url;
-            link.target = '_blank';
-            link.download = ''; // Let the browser determine the filename
-            
-            // Append to body, click and remove
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        
+        // Function để download file
+        window.downloadFile = function(dataUrl, filename) {
+            try {
+                console.log('downloadFile called with filename:', filename);
+                console.log('Data URL length:', dataUrl.length);
+                
+                // Tạo element anchor để download
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = filename;
+                link.style.display = 'none';
+                
+                // Thêm vào DOM, click và remove
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                console.log('Download triggered successfully');
+            } catch (error) {
+                console.error('Error in downloadFile:', error);
+                alert('Lỗi khi tải file: ' + error.message);
+            }
         }; 
 
         window.saveAsFile = (filename, bytesBase64) => {

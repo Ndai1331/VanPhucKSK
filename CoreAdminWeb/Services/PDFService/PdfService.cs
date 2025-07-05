@@ -49,8 +49,10 @@ namespace CoreAdminWeb.Services.PDFService
                 var cleanHtml = CleanHtmlForPdf(htmlContent);
                 _logger.LogInformation($"Cleaned HTML size: {cleanHtml.Length} characters");
 
-                // Create complete HTML document with CSS
-                var completeHtml = CreateCompleteHtmlDocument(cleanHtml);
+                // Check if HTML is already a complete document
+                var completeHtml = IsCompleteHtmlDocument(cleanHtml) 
+                    ? cleanHtml 
+                    : CreateCompleteHtmlDocument(cleanHtml);
                 _logger.LogInformation($"Complete HTML size: {completeHtml.Length} characters");
 
                 // Generate PDF using iText7
@@ -139,6 +141,21 @@ namespace CoreAdminWeb.Services.PDFService
         }
 
         /// <summary>
+        /// Check if HTML is already a complete document
+        /// </summary>
+        private bool IsCompleteHtmlDocument(string htmlContent)
+        {
+            if (string.IsNullOrEmpty(htmlContent))
+                return false;
+                
+            var trimmed = htmlContent.Trim();
+            return trimmed.StartsWith("<!DOCTYPE html", StringComparison.OrdinalIgnoreCase) &&
+                   trimmed.Contains("<html", StringComparison.OrdinalIgnoreCase) &&
+                   trimmed.Contains("<head", StringComparison.OrdinalIgnoreCase) &&
+                   trimmed.Contains("<body", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
         /// Clean HTML content for PDF generation
         /// </summary>
         private string CleanHtmlForPdf(string htmlContent)
@@ -220,345 +237,366 @@ namespace CoreAdminWeb.Services.PDFService
                     box-sizing: border-box;
                 }
                
+                .ksk-header-container {
+                    max-width: 900px !important;
+                    margin: 0 auto !important;
+                    display: flex !important;
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    margin-bottom: 10px !important;
+                    gap: 15px !important;
+                }
+                
+                .ksk-header-logo {
+                    flex-shrink: 0 !important;
+                }
+                
+                .header-logo {
+                        width: 150px !important;
+                        height: 150px !important;
+                        object-fit: contain !important;
+                    }
+                
                 .ksk-header {
-                    text-align: center;
-                    margin-bottom: 5px;
-                    line-height: 1.1;
+                    flex: 1 !important;
+                    text-align: center !important;
+                    margin-bottom: 5px !important;
+                    line-height: 1.1 !important;
                 }
                 
                 .ksk-header .quochoa {
-                    font-weight: bold;
-                    text-transform: uppercase;
-                    font-size: 14px;
+                    font-weight: bold !important;
+                    text-transform: uppercase !important;
+                    font-size: 14px !important;
                 }
                 
                 .ksk-header .doclap {
-                    font-style: italic;
-                    font-size: 13px;
+                    font-style: italic !important;
+                    font-size: 13px !important;
                 }
                 
                 .ksk-header .mau-so {
-                    font-weight: bold;
-                    margin-bottom: 2px;
-                    font-size: 12px;
+                    font-weight: bold !important;
+                    margin-bottom: 2px !important;
+                    font-size: 12px !important;
                 }
                 
                 .ksk-title {
-                    text-align: center;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                    font-size: 16px;
-                    margin: 5px 0 10px 0;
-                    line-height: 1.1;
+                    text-align: center !important;
+                    font-weight: bold !important;
+                    text-transform: uppercase !important;
+                    font-size: 16px !important;
+                    margin: 5px 0 10px 0 !important;
+                    line-height: 1.1 !important;
                 }
                 
                 .ksk-form {
-                    max-width: calc(100% - 10px);
-                    width: 100%;
-                    margin: 0 auto;
-                    border-top: 2px solid #000;
-                    border-right: 2px solid #000;
-                    border-bottom: 2px solid #000;
-                    border-left: 2px solid #000;
-                    padding: 20px 30px 16px 30px;
-                    page-break-inside: avoid;
-                    box-sizing: border-box;
-                    overflow: hidden;
+                    max-width: calc(100% - 10px) !important;
+                    width: 100% !important;
+                    margin: 0 auto !important;
+                    border-top: 2px solid #000 !important;
+                    border-right: 2px solid #000 !important;
+                    border-bottom: 2px solid #000 !important;
+                    border-left: 2px solid #000 !important;
+                    padding: 20px 30px 16px 30px !important;
+                    page-break-inside: avoid !important;
+                    box-sizing: border-box !important;
+                    overflow: hidden !important;
                 }
                 
                 .ksk-row {
-                    display: flex;
-                    flex-direction: row;
-                    gap: 30px;
-                    margin-bottom: 16px;
-                    max-width: 100%;
-                    overflow: hidden;
-                    box-sizing: border-box;
+                    display: flex !important;
+                    flex-direction: row !important;
+                    gap: 30px !important;
+                    margin-bottom: 16px !important;
+                    max-width: 100% !important;
+                    overflow: hidden !important;
+                    box-sizing: border-box !important;
                 }
                 
                 .ksk-photo {
-                    width: 90px;
-                    min-width: 90px;
-                    height: 120px;
-                    border: 1px solid #000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 11px;
-                    margin-bottom: 6px;
+                    width: 90px !important;
+                    min-width: 90px !important;
+                    height: 120px !important;
+                    border: 1px solid #000 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    font-size: 11px !important;
+                    margin-bottom: 6px !important;
                 }
                 
                 .ksk-photo img {
-                    max-width: 100%;
-                    max-height: 100%;
-                    object-fit: cover;
+                    max-width: 100% !important;
+                    max-height: 100% !important;
+                    object-fit: cover !important;
                 }
                 
                 .ksk-photo-label {
-                    font-size: 10px;
-                    text-align: center;
-                    margin-top: 4px;
+                    font-size: 10px !important;
+                    text-align: center !important;
+                    margin-top: 4px !important;
                 }
                 
                 .ksk-info {
-                    flex: 1;
-                    max-width: calc(100% - 150px);
+                    flex: 1 !important;
+                    max-width: calc(100% - 150px) !important;
                 }
                 
                 .ksk-info-row {
-                    display: flex;
-                    margin-bottom: 4px;
-                    max-width: 100%;
-                    overflow: visible;
-                    align-items: flex-start;
-                    flex-wrap: nowrap;
+                    display: flex !important;
+                    margin-bottom: 4px !important;
+                    max-width: 100% !important;
+                    overflow: visible !important;
+                    align-items: flex-start !important;
+                    flex-wrap: nowrap !important;
                 }
                 
                 .ksk-info-label {
-                    min-width: 100px;
-                    font-weight: bold;
-                    flex-shrink: 0;
-                    font-size: 13px;
-                    padding-right: 8px;
-                    padding-top: 2px;
-                    vertical-align: top;
+                    min-width: 100px !important;
+                    font-weight: bold !important;
+                    flex-shrink: 0 !important;
+                    font-size: 13px !important;
+                    padding-right: 8px !important;
+                    padding-top: 2px !important;
+                    vertical-align: top !important;
                 }
                 
                 .ksk-info-value {
-                    flex: 1;
-                    border-bottom: 1px dotted #333;
-                    min-height: 20px;
-                    padding-left: 4px;
+                    flex: 1 !important;
+                    border-bottom: 1px dotted #333 !important;
+                    min-height: 20px !important;
+                    padding-left: 4px !important;
                 }
                 
                 .ksk-note {
-                    font-size: 11px;
-                    margin: 12px 0 16px 0;
-                    padding: 8px;
-                    border: 1px solid #333;
-                    background-color: #f9f9f9;
-                    line-height: 1.3;
+                    font-size: 11px !important;
+                    margin: 12px 0 16px 0 !important;
+                    padding: 8px !important;
+                    border: 1px solid #333 !important;
+                    background-color: #f9f9f9 !important;
+                    line-height: 1.3 !important;
                 }
                 
                 .ksk-table-wrap {
-                    margin: 16px 0;
-                    overflow-x: auto;
-                    -webkit-overflow-scrolling: touch;
+                    margin: 16px 0 !important;
+                    overflow-x: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
                 }
                 
                 .ksk-table {
-                    width: 100%;
-                    border-collapse: separate;
-                    border-spacing: 0;
-                    margin: 12px 0;
-                    font-size: 12px;
-                    border: 1px solid #000;
+                    width: 100% !important;
+                    border-collapse: separate !important;
+                    border-spacing: 0 !important;
+                    margin: 12px 0 !important;
+                    font-size: 12px !important;
+                    border: 1px solid #000 !important;
                 }
                 
                 .ksk-table th, .ksk-table td {
-                    border-right: 1px solid #000;
-                    border-bottom: 1px solid #000;
-                    text-align: center;
-                    padding: 3px 4px;
-                    vertical-align: middle;
+                    border-right: 1px solid #000 !important;
+                    border-bottom: 1px solid #000 !important;
+                    text-align: center !important;
+                    padding: 3px 4px !important;
+                    vertical-align: middle !important;
                 }
                 
                 .ksk-table th:last-child, .ksk-table td:last-child {
-                    border-right: none;
+                    border-right: none !important;
                 }
                 
                 .ksk-table tr:last-child th, .ksk-table tr:last-child td {
-                    border-bottom: none;
+                    border-bottom: none !important;
                 }
                 
                 .ksk-table th {
-                    background: #f8f8f8;
-                    font-weight: bold;
-                    border-top: none;
+                    background: #f8f8f8 !important;
+                    font-weight: bold !important;
+                    border-top: none !important;
                 }
                 
                 .ksk-table tr:first-child th {
-                    border-top: none;
+                    border-top: none !important;
                 }
                 
                 .ksk-table tr:first-child td {
-                    border-top: none;
+                    border-top: none !important;
                 }
                 
                 .ksk-signature-row {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-top: 24px;
-                    gap: 20px;
+                    display: flex !important;
+                    justify-content: space-between !important;
+                    margin-top: 24px !important;
+                    gap: 20px !important;
                 }
                 
                 .ksk-signature-box {
-                    width: 45%;
-                    text-align: center;
-                    font-size: 12px;
-                    padding: 10px;
-                    line-height: 1.4;
+                    width: 45% !important;
+                    text-align: center !important;
+                    font-size: 12px !important;
+                    padding: 10px !important;
+                    line-height: 1.4 !important;
                 }
                 
                 .ksk-signature-box small {
-                    font-size: 10px;
-                    font-style: italic;
+                    font-size: 10px !important;
+                    font-style: italic !important;
                 }
                 
                 .ls-cell-small {
-                    font-size: 12px;
-                    padding: 2px 4px;
-                    line-height: 1.2;
+                    font-size: 12px !important;
+                    padding: 2px 4px !important;
+                    line-height: 1.2 !important;
                     border-right: 1px solid #000 !important;
                     border-bottom: 1px solid #000 !important;
                 }
                 
                 .ls-doctor-cell {
-                    font-size: 11px;
-                    text-align: center;
-                    padding: 2px 2px;
-                    line-height: 1.2;
-                    min-width: 80px;
+                    font-size: 11px !important;
+                    text-align: center !important;
+                    padding: 2px 2px !important;
+                    line-height: 1.2 !important;
+                    min-width: 80px !important;
                     border-right: 1px solid #000 !important;
                     border-bottom: 1px solid #000 !important;
                 }
                 
                 .ls-specialty {
-                    font-style: italic;
-                    font-weight: normal;
-                    text-align: left;
-                    padding-left: 8px;
+                    font-style: italic !important;
+                    font-weight: normal !important;
+                    text-align: left !important;
+                    padding-left: 8px !important;
                 }
                 
                 .ls-label {
-                    font-size: 12px;
-                    font-style: normal;
-                    color: #333;
-                    text-align: left;
-                    padding-left: 16px;
+                    font-size: 12px !important;    
+                    font-style: normal !important;
+                    color: #333 !important;
+                    text-align: left !important;
+                    padding-left: 16px !important;
                 }
                 
                 .font-bold {
-                    font-weight: bold;
+                    font-weight: bold !important;
                 }
                 
                 .font-normal {
-                    font-weight: normal;
+                    font-weight: normal !important;
                 }
                 
                 .italic {
-                    font-style: italic;
+                    font-style: italic !important;
                 }
                 
                 .mb-2 {
-                    margin-bottom: 6px;
+                    margin-bottom: 6px !important;
                 }
                 
                 .mb-4 {
-                    margin-bottom: 12px;
+                    margin-bottom: 12px !important;
                 }
                 
                 .mb-6 {
-                    margin-bottom: 18px;
+                    margin-bottom: 18px !important;
                 }
                 
                 .ml-4 {
-                    margin-left: 12px;
+                    margin-left: 12px !important;
                 }
                 
                 .space-y-1 > * + * {
-                    margin-top: 3px;
+                    margin-top: 3px !important;
                 }
                 
                 .text-sm {
-                    font-size: 11px;
+                    font-size: 11px !important;
                 }
                 
                 /* Inline text elements for date/time fields */
                 .ksk-info-row span {
-                    white-space: nowrap;
-                    margin: 0 4px;
-                    flex-shrink: 0;
-                    font-size: 13px;
-                    font-weight: normal;
+                    white-space: nowrap !important;
+                    margin: 0 4px !important;
+                    flex-shrink: 0 !important;
+                    font-size: 13px !important;
+                    font-weight: normal !important;
                 }
                 
                 /* Special styling for date input fields */
                 .ksk-info-row .ksk-info-value {
-                    margin-right: 4px;
+                    margin-right: 4px !important;
                 }
                 
                 .ksk-info-value + span + .ksk-info-value {
-                    min-width: 60px;
-                    max-width: 80px;
-                    text-align: center;
-                    white-space: nowrap;
+                    min-width: 60px !important;
+                    max-width: 80px !important;
+                    text-align: center !important;
+                    white-space: nowrap !important;
                 }
                 
                 /* Specific styling for birth date row (mục 3) */
                 .birth-date-row .ksk-info-value {
-                    max-width: 80px;
-                    flex: 0 0 auto;
+                    max-width: 80px !important;
+                    flex: 0 0 auto !important;
                 }
                 
                 .birth-date-row span {
-                    margin: 0 8px;
-                    font-size: 13px;
+                    margin: 0 8px !important;
+                    font-size: 13px !important;
                 }
                 
                 .issued-date-row .ksk-info-value:first-of-type {
-                    max-width: 100px;
-                    flex: 0 0 auto;
+                    max-width: 100px !important;
+                    flex: 0 0 auto !important;
                 }
                 
 
                 
                 /* Page break controls */
                 .page-break-before {
-                    page-break-before: always;
+                    page-break-before: always !important;
                 }
                 
                 .page-break-after {
-                    page-break-after: always;
+                    page-break-after: always !important;
                 }
                 
                 .avoid-break {
-                    page-break-inside: avoid;
+                    page-break-inside: avoid !important;
                 }
                 
                 /* Page settings for PDF - compact margins */
                 @page {
-                    size: A4;
-                    margin: 0.8cm 0.6cm;
+                    size: A4 !important;
+                    margin: 0.8cm 0.6cm !important;
                 }
                 
                 /* Ensure proper border rendering */
                 * {
-                    box-sizing: border-box;
+                    box-sizing: border-box !important;
                 }
                 
                 /* Force border visibility for iText7 */
                 .ksk-form, .ksk-table, .ksk-photo {
-                    -webkit-print-color-adjust: exact;
-                    color-adjust: exact;
+                    -webkit-print-color-adjust: exact !important;
+                    color-adjust: exact !important;
                 }
                 
                 /* iText7 border fix - ensure all borders render */
                 .ksk-form {
-                    outline: 2px solid #000;
-                    outline-offset: -2px;
+                    outline: 2px solid #000 !important;
+                    outline-offset: -2px !important;
                 }
                 
                 /* Alternative border approach for better iText7 compatibility */
                 .ksk-form::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    bottom: 0;
-                    left: 0;
-                    border: 2px solid #000;
-                    pointer-events: none;
+                    content: '' !important;
+                    position: absolute !important;
+                    top: 0 !important;
+                    right: 0 !important;
+                    bottom: 0 !important;
+                    left: 0 !important;
+                    border: 2px solid #000 !important;
+                    pointer-events: none !important;
                 }
 
                 .30px {

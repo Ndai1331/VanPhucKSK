@@ -31,10 +31,39 @@ window.printMedicalForm = function() {
             size: A4;
             margin: 1cm;
         }
+        .ksk-header-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 15px;
+        }
+        .ksk-header-logo {
+            flex-shrink: 0;
+        }
+        .header-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            margin-right: 10px;
+        }
         .ksk-header {
+            flex: 1;
             text-align: center;
+            margin-bottom: 10px;
+        }
+        .ksk-header .quochoa {
             font-weight: bold;
-            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .ksk-header .doclap {
+            font-style: italic;
+        }
+        .ksk-header .mau-so {
+            font-weight: bold;
+            margin-bottom: 5px;
         }
         .ksk-title {
             text-align: center;
@@ -285,10 +314,39 @@ window.getMedicalFormHtml = function() {
             size: A4;
             margin: 1cm;
         }
+        .ksk-header-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 15px;
+        }
+        .ksk-header-logo {
+            flex-shrink: 0;
+        }
+        .header-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            margin-right: 10px;
+        }
         .ksk-header {
+            flex: 1;
             text-align: center;
+            margin-bottom: 10px;
+        }
+        .ksk-header .quochoa {
             font-weight: bold;
-            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .ksk-header .doclap {
+            font-style: italic;
+        }
+        .ksk-header .mau-so {
+            font-weight: bold;
+            margin-bottom: 5px;
         }
         .ksk-title {
             text-align: center;
@@ -342,15 +400,13 @@ window.getMedicalFormHtml = function() {
         .ksk-table-wrap {
             margin: 20px 0;
         }
-        .ksk-table, .ksk-table-2 {
+        .ksk-table {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #000;
         }
         .ksk-table th,
-        .ksk-table td,
-        .ksk-table-2 th,
-        .ksk-table-2 td {
+        .ksk-table td {
             border: 1px solid #000;
             padding: 8px;
             text-align: center;
@@ -403,37 +459,6 @@ window.getMedicalFormHtml = function() {
         .text-sm {
             font-size: 12px;
         }
-
-        .ksk-table-2 th:nth-child(1), 
-        .ksk-table-2 td:nth-child(1) {
-            width: 50px;
-            min-width: 50px;
-        }
-
-        .ksk-table-2 th:nth-child(2), 
-        .ksk-table-2 td:nth-child(2) {
-            width: auto;
-        }
-
-        .ksk-table-2 th:nth-child(3), 
-        .ksk-table-2 td:nth-child(3) {
-            width: auto;
-        }
-
-        .ksk-table-2 th:nth-child(4), 
-        .ksk-table-2 td:nth-child(4) {
-            width: 150px;
-            min-width: 150px;
-        }
-
-        .ksk-table-2 th, 
-        .ksk-table-2 td {
-            word-wrap: break-word;
-            word-break: break-word;
-            white-space: normal;
-            vertical-align: top;
-            line-height: 1.4;
-        }
     `;
     
     // Tạo HTML hoàn chỉnh cho PDF
@@ -462,26 +487,26 @@ window.getMedicalFormHtml = function() {
     }
 };
 
-// Function để download file
-window.downloadFile = function(dataUrl, filename) {
-    try {
-        console.log('downloadFile called with filename:', filename);
-        console.log('Data URL length:', dataUrl.length);
+// // Function để download file
+// window.downloadFile = function(dataUrl, filename) {
+//     try {
+//         console.log('downloadFile called with filename:', filename);
+//         console.log('Data URL length:', dataUrl.length);
         
-        // Tạo element anchor để download
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = filename;
-        link.style.display = 'none';
+//         // Tạo element anchor để download
+//         const link = document.createElement('a');
+//         link.href = dataUrl;
+//         link.download = filename;
+//         link.style.display = 'none';
         
-        // Thêm vào DOM, click và remove
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+//         // Thêm vào DOM, click và remove
+//         document.body.appendChild(link);
+//         link.click();
+//         document.body.removeChild(link);
         
-        console.log('Download triggered successfully');
-    } catch (error) {
-        console.error('Error in downloadFile:', error);
-        alert('Lỗi khi tải file: ' + error.message);
-    }
-}; 
+//         console.log('Download triggered successfully');
+//     } catch (error) {
+//         console.error('Error in downloadFile:', error);
+//         alert('Lỗi khi tải file: ' + error.message);
+//     }
+// }; 
