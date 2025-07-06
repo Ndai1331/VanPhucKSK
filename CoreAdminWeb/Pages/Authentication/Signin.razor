@@ -5,8 +5,71 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 @inject IJSRuntime JsRuntime
+<div class="login-wrapper">
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
 
-<div class="container-fluid">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h4 class="login-title text-uppercase">Đăng nhập</h4>
+            <p class="login-subtitle">Vui lòng đăng nhập để xem kết quả KCB</p>
+        </div>
+
+        <div class="login-body">
+            <form id="adminLoginForm" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label for="adminUsername" class="form-label">Số điện thoại</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <InputText @bind-Value="_phone" class="form-control" id="patientId" placeholder="Nhập số điện thoại" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="adminPassword" class="form-label">Mật khẩu</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <InputText @bind-Value="_password" type="password" class="form-control" id="password" placeholder="Nhập mật khẩu" />
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberAdmin">
+                    <label class="form-check-label" for="rememberAdmin">
+                        Ghi nhớ đăng nhập
+                    </label>
+                </div>
+                <button type="button" class="btn btn-login w-100 mb-3" @onclick="HandleSignIn" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                    }
+                    Đăng nhập
+                </button>
+               
+                <div class="back-link">
+                    <a href="#">
+                        <i class="fas fa-arrow-left"></i>
+                        Đăng nhập quản trị hệ thống
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* <div class="container-fluid">
     <div class="row min-vh-100">
         <!-- Left side - Login Form -->
         <div class="col-lg-6 d-flex align-items-center justify-content-center">
@@ -53,44 +116,14 @@
                         Đăng nhập
                     </button>
                     
-                    @* <div class="text-center">
-                        <a href="#" class="text-decoration-none">Quên mật khẩu?</a>
-                        <br>
-                        <a href="/signin" class="text-decoration-none text-muted small">
-                            <i class="fas fa-cog me-1"></i>Quản trị hệ thống
-                        </a>
-                    </div> *@
+                  
                 </div>
             </div>
         </div>
         
-        <!-- Right side - Hero Section -->
-        <div class="col-lg-6 d-none d-lg-block hero-section">
-            <div class="hero-content">
-                <h1 class="display-4 fw-bold text-white mb-4">
-                    Chăm sóc sức khỏe của bạn
-                </h1>
-                <p class="lead text-white mb-4">
-                    Theo dõi lịch sử khám bệnh, cập nhật thông tin cá nhân và quản lý hồ sơ sức khỏe một cách dễ dàng
-                </p>
-                <div class="features">
-                    <div class="feature-item">
-                        <i class="fas fa-history text-white"></i>
-                        <span>Lịch sử khám bệnh</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-user-edit text-white"></i>
-                        <span>Cập nhật thông tin</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-file-medical text-white"></i>
-                        <span>Hồ sơ chi tiết</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
-</div>
+</div> *@
 @code {
 
     [Inject] AlertService AlertService { get; set; }

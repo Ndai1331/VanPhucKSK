@@ -45,7 +45,7 @@
                 <div class="p-5 rounded shadow-sm bg-info text-white">
                     <div class="text-center">
                         <i class="fas fa-heartbeat fa-2x mb-2"></i>
-                        <h4 class="text-2xl font-semibold mb-1">@(KetLuanGanNhat?.phan_loai_suc_khoe ?? "Chưa có")</h4>
+                        <h4 class="text-2xl font-semibold mb-1">Loại: @(KetLuanGanNhat?.phan_loai_suc_khoe ?? "Chưa có")</h4>
                         <p class="mb-0">Tình trạng sức khoẻ</p>
                     </div>
                 </div>
@@ -209,7 +209,7 @@
                     </div>
                 </div> 
             </div>
-            @if(CurrentUser != null)
+            @* @if(CurrentUser != null)
             {
                     <!-- Action Buttons -->
                     <div class="text-center mt-6">
@@ -217,7 +217,7 @@
                             <i class="ri-account-box-line me-1 "></i>Cập nhật thông tin cá nhân
                         </a>
                     </div>
-            }
+            } *@
         </div>
     }
 </div>

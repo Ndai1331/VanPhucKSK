@@ -69,6 +69,9 @@ h1:focus {
     {
         padding:5px;
     }
+    .detail-ksk {
+        display: none !important;
+    }
 }
 
 /* Smartphone nhỏ (< 480px) */
@@ -80,4 +83,44 @@ h1:focus {
     .sidebar {
         padding: 5px;
     }
+    .detail-ksk
+    {
+        display:none !important;
+    }
 }
+.img-list-new
+{
+    border-radius:15px;
+}
+/* Footer Styles */
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 1rem;
+    z-index: 100;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    margin: 0 auto;
+}
+
+.footer-text {
+    text-align: left;
+    font-weight: 500;
+}
+
+    .footer-text span {
+        font-weight: 600;
+        color: #229742;
+    }

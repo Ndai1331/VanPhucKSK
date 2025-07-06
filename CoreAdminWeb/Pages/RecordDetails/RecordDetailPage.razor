@@ -17,22 +17,22 @@
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
     <div class="grid grid-cols-1 gap-4">
         <div class="flex justify-between items-center mb-6">
-            <div>
+            <div class="detail-ksk">
                 <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
                     <i class="fas fa-file-medical me-2 text-primary"></i>
-                Sổ Khám sức khỏe
+                    Sổ Khám sức khỏe
                 </h2>
-                <p class="text-slate-600 dark:text-slate-400 mb-0">Chi tiết lần khám sức khỏe của bạn</p>
+                <p class="text-slate-600 dark:text-slate-400 mb-0">Chi tiết khám sức khỏe của bạn</p>
             </div>
             <div class="flex gap-2">
                 <button class="px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToList">
                     <i class="ri-arrow-left-line me-1"></i>Quay lại danh sách
                 </button>
-                <button class="px-4 py-2 bg-info text-white rounded hover:bg-info-dark transition-colors" 
+                <button class="px-4 py-2 bg-info text-white rounded hover:bg-info-dark transition-colors"
                         @onclick="PrintRecord" disabled="@_isLoading">
                     <i class="ri-printer-line me-1"></i>In
                 </button>
-                <button class="px-4 py-2 bg-success text-white rounded hover:bg-success-dark transition-colors" 
+                <button class="px-4 py-2 bg-success text-white rounded hover:bg-success-dark transition-colors"
                         @onclick="ExportPDF" disabled="@_isLoading">
                     <i class="ri-file-pdf-line me-1"></i>Xuất PDF
                 </button>
@@ -46,30 +46,74 @@
                 <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
             </div>
         }
-        else if(_isShowInputCCCD)
+        else if (_isShowInputCCCD)
         {
-            <div class="card">
-                <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập CCCD</MudText>
-                <div class="space-y-4">
-                    <div class="space-y-2">
-                        <MudText>CCCD</MudText>
-                        <input type="text" class="form-input" placeholder="CCCD" required="" @bind-value="@_so_dinh_danh">
-                    </div>
-                    <div class="flex flex-wrap gap-3">
-                        <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]" OnClick="LoadDataWithCccdAsync">Tải dữ liệu</MudButton>
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-1 2xl:grid-cols-12">
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10 2xl:col-span-4">
+
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">📘 Hướng dẫn</h2>
+
+                    <ul class="mb-5">
+                        <li class="mb-2">Nhập CCCD/ĐT để xem kết quả khám</li>
+                        <li class="mb-2">Thời gian truy cập có giới hạn (7 ngày), vui lượng đăng nhập để xem chi tiết</li>
+                        <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
+                    </ul>
+                    <hr>
+                    <h5 class="mt-4 mb-2">📞 Hỗ trợ khách hàng</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Hotline:</strong> 1900 966 979</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Email:</strong> <a href="marketing@vanphuc.com">marketing@vanphuc.com</a></li>
+                        <li class="mb-2"><i class="bi bi-clock-fill me-2 text-primary"></i><strong>Giờ hỗ trợ:</strong> 7h – 17h</li>
+                    </ul>
+
+                </div>
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder 2xl:col-span-8 border-black/10">
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Xác thực xem kết quả KSK</h2>
+                    <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập CCCD</MudText>
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <input type="text" class="form-input" placeholder="CCCD" required="" @bind-value="@_so_dinh_danh">
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]" OnClick="LoadDataWithCccdAsync">Xem kết quả</MudButton>
+                        </div>
                     </div>
                 </div>
+
             </div>
+
+           
         }
-        else if(_expired_result_page)
+        else if (_expired_result_page)
         {
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                <strong class="font-bold">Thông báo!</strong>
-                <span class="block sm:inline">Thời gian xem kết quả sức khỏe đã hết hạn, vui lòng đăng nhập để xem kết quả</span>
-                 <div class="flex flex-wrap gap-3">
-                        <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]"
-                         OnClick="LoginAsync">Đăng nhập</MudButton>
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-1 2xl:grid-cols-12">
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10 2xl:col-span-4">
+
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">📘 Hướng dẫn</h2>
+
+                    <ul class="mb-5">
+                        <li class="mb-2">Đăng nhập để xem kết quả khám bằng thông tin được gửi qua email</li>
+                        <li class ="mb-2">Thời gian truy cập có giới hạn (7 ngày)</li>
+                        <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
+                    </ul>
+                    <hr>
+                    <h5 class="mt-4 mb-2">📞 Hỗ trợ khách hàng</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Hotline:</strong> 1900 966 979</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Email:</strong> <a href="marketing@vanphuc.com">marketing@vanphuc.com</a></li>
+                        <li class ="mb-2"><i class="bi bi-clock-fill me-2 text-primary"></i><strong>Giờ hỗ trợ:</strong> 7h – 17h</li>
+                    </ul>
+
+                </div>
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder 2xl:col-span-8 border-black/10">
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thông báo</h2>
+                    <div class="flex items-center gap-2 p-3 mb-5text-white rounded bg-success">
+                        <strong>Thông báo:</strong> Thời gian xem kết quả đã hết hạn. Vui lòng đăng nhập để xem chi tiết.
                     </div>
+                    <MudButton type="button" Class="btn mt-4  bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]"
+                               OnClick="LoginAsync">Đăng nhập</MudButton>
+                </div>
+
             </div>
         }
         else if (!string.IsNullOrEmpty(_errorMessage))
@@ -88,7 +132,7 @@
             <!-- Printable Medical Form Content -->
             <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder" id="medical-form-content">
 
-                
+
                 <!-- Medical Form Header -->
                 <div class="ksk-header-container" style="margin-bottom:0;">
                     <div class="ksk-header-logo">
@@ -115,7 +159,7 @@
                             </div>
                             <div class="ksk-photo-label">(dán ảnh hoặc scan ảnh)</div>
                         </div>
-                        
+
                         <!-- Patient Info -->
                         <div class="ksk-info">
                             <div class="ksk-info-row">
@@ -200,18 +244,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @if(KhamSucKhoeTienSuModels != null)
-                            {
-                                @foreach (var item in KhamSucKhoeTienSuModels)
+                                @if (KhamSucKhoeTienSuModels != null)
                                 {
-                                    <tr>
-                                        <td class="ls-cell-small">@item.ten_benh</td>
-                                        <td class="ls-cell-small">@item.nam_phat_hien</td>
-                                        <td class="ls-cell-small">@item.benh_nghe_nghiep</td>
-                                        <td class="ls-cell-small">@item.nam_phat_hien_benh_nghe_nghiep</td>
-                                    </tr>
+                                    @foreach (var item in KhamSucKhoeTienSuModels)
+                                    {
+                                        <tr>
+                                            <td class="ls-cell-small">@item.ten_benh</td>
+                                            <td class="ls-cell-small">@item.nam_phat_hien</td>
+                                            <td class="ls-cell-small">@item.benh_nghe_nghiep</td>
+                                            <td class="ls-cell-small">@item.nam_phat_hien_benh_nghe_nghiep</td>
+                                        </tr>
+                                    }
                                 }
-                            }
                             </tbody>
                         </table>
                     </div>
@@ -235,11 +279,11 @@
                 <!-- Medical Examination Section -->
                 <div class="ksk-form" style="margin-top: 32px;">
                     <div class="ksk-title">KHÁM SỨC KHỎE ĐỊNH KỲ</div>
-                    
+
                     <!-- I. Medical History -->
                     <div class="mb-6">
                         <div class="font-bold mb-2">I. TIỀN SỬ BỆNH, TẬT <span class="font-normal italic">(Bác sỹ khám sức khỏe hỏi và ghi chép)</span></div>
-                        
+
                         @if (CurrentUser?.gioi_tinh != null && CurrentUser?.gioi_tinh == Enums.GioiTinh.Nu && KhamSucKhoeSanPhuKhoaModel != null)
                         {
                             <div class="mb-4">
@@ -272,7 +316,7 @@
                     <div class="mb-6">
                         <div class="font-bold mb-2">III. KHÁM LÂM SÀNG</div>
                         <div class="text-sm mb-4">Phải khám đầy đủ các nội dung theo chuyên khoa để khẳng định có/không có bệnh, tật theo quy định tại Quyết định...</div>
-                        
+
                         <div class="ksk-table-wrap">
                             <table class="ksk-table ksk-table-2">
                                 <thead>
@@ -296,7 +340,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tuan_hoan, KhamSucKhoeChuyenKhoaModel?.chu_ky_tuan_hoan, "tuan_hoan", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_tuan_hoan)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -309,7 +353,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_ho_hap, KhamSucKhoeChuyenKhoaModel?.chu_ky_ho_hap, "ho_hap", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_ho_hap)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -322,7 +366,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa, KhamSucKhoeChuyenKhoaModel?.chu_ky_tieu_hoa, "tieu_hoa", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_tieu_hoa)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -335,7 +379,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu, KhamSucKhoeChuyenKhoaModel?.chu_ky_than_tiet_nieu, "than_tiet_nieu", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_than_tiet_nieu)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -348,7 +392,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_noi_tiet, KhamSucKhoeChuyenKhoaModel?.chu_ky_noi_tiet, "noi_tiet", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_noi_tiet)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -361,7 +405,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_co_xuong_khop, KhamSucKhoeChuyenKhoaModel?.chu_ky_co_xuong_khop, "co_xuong_khop", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_co_xuong_khop)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -374,7 +418,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_than_kinh, KhamSucKhoeChuyenKhoaModel?.chu_ky_than_kinh, "than_kinh", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_than_kinh)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -389,7 +433,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa, KhamSucKhoeChuyenKhoaModel?.chu_ky_ngoai_khoa, "ngoai_khoa", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_ngoai_khoa)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -415,7 +459,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeSanPhuKhoaModel?.chu_ky, KhamSucKhoeSanPhuKhoaModel?.chu_ky, "san_phu_khoa", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.nguoi_ket_luan)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -430,7 +474,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_mat, KhamSucKhoeChuyenKhoaModel?.chu_ky_mat, "mat", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_mat)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -451,7 +495,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_tmh, KhamSucKhoeChuyenKhoaModel?.chu_ky_tmh, "tmh", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_tmh)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -472,7 +516,7 @@
                                         <td class="ls-doctor-cell" rowspan="2">
                                             @RenderSignature(KhamSucKhoeChuyenKhoaModel?.chu_ky_rhm, KhamSucKhoeChuyenKhoaModel?.chu_ky_rhm, "rhm", 100, 50)
                                             @CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.bs_rhm)
-                                            </td>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Phân loại</td>
@@ -509,7 +553,7 @@
                             <div style="margin-bottom: 8px;"><strong>2. Các bệnh, tật (nếu có):<sup>2</sup></strong> @KhamSucKhoeKetLuanModel.benh_tat_ket_luan</div>
                             <div><strong>3. Đề nghị:</strong> @KhamSucKhoeKetLuanModel.de_nghi</div>
                         </div>
-                        
+
                         <div class="ksk-signature-row">
                             <div style="flex: 1;"></div>
                             <div class="ksk-signature-box">
@@ -520,7 +564,7 @@
                                 <div><strong>@KhamSucKhoeKetLuanModel.nguoi_ket_luan</strong></div>
                             </div>
                         </div>
-                        
+
                         <div class="ksk-note" style="border-top: 1px solid #333; padding-top: 8px;">
                             <div><sup>1</sup> Phân loại sức khỏe theo quy định của Bộ Y tế.</div>
                             <div><sup>2</sup> Ghi rõ các bệnh, tật, phương án điều trị, phục hồi chức năng hoặc giới thiệu khám chuyên khoa để khám bệnh, chữa bệnh (nếu có).</div>
@@ -607,10 +651,10 @@
         {
             _isLoading = true;
             _errorMessage = null;
-            
+
             // Load user data first
             await LoadUserDataAsync();
-            
+
             if (CurrentUser != null)
             {
                 // Load medical data if user is authenticated
@@ -621,7 +665,7 @@
             {
                 await LoadSoKhamSucKhoeDataAsync();
 
-                if (SoKhamSucKhoeModel != null&& SoKhamSucKhoeModel.ngay_kham != null && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
+                if (SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ngay_kham != null && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
                 {
                     _expired_result_page = true;
                 }
@@ -662,18 +706,18 @@
         {
             _isLoading = true;
             _errorMessage = null;
-            
+
             var userResult = await UserService.GetUserByCCCDAsync(_so_dinh_danh);
             if (userResult?.IsSuccess == true && userResult.Data != null)
             {
-                CurrentUser = userResult.Data;  
+                CurrentUser = userResult.Data;
                 _isPublic = true;
-                
+
                 // Load medical data in parallel
                 await LoadMedicalDataAsync();
 
                 // Validate user matches the medical record
-                if (SoKhamSucKhoeModel != null && 
+                if (SoKhamSucKhoeModel != null &&
                     string.Equals(SoKhamSucKhoeModel.ma_benh_nhan, CurrentUser.ma_benh_nhan, StringComparison.OrdinalIgnoreCase))
                 {
                     _isShowInputCCCD = false;
@@ -698,7 +742,7 @@
         }
         finally
         {
-            _isLoading = false; 
+            _isLoading = false;
             // Use InvokeAsync to avoid render cycle issues
             await InvokeAsync(StateHasChanged);
         }
@@ -718,7 +762,7 @@
     private async Task LoadUserDataAsync()
     {
         if (CurrentUser != null) return; // Skip if already loaded
-        
+
         try
         {
             var userResult = await UserService.GetCurrentUserAsync();
@@ -739,7 +783,7 @@
     /// </summary>
     private async Task LoadMedicalDataAsync()
     {
-        string query =$"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
         // Execute all medical data API calls in parallel for better performance
         var tasks = new[]
         {
@@ -758,7 +802,7 @@
 
     private async Task LoadSoKhamSucKhoeDataAsync()
     {
-        string query =$"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
         var result = await SoKhamSucKhoeService.GetAllAsync(query, true);
         if (result?.IsSuccess == true && result.Data != null)
         {
@@ -773,7 +817,7 @@
     {
         try
         {
-            var result = await service.GetAllAsync(query , _isPublic);
+            var result = await service.GetAllAsync(query, _isPublic);
             if (result?.IsSuccess == true && result.Data != null)
             {
                 setResult(result.Data.FirstOrDefault());
@@ -847,17 +891,17 @@
 
             // Lấy HTML content từ JavaScript - giống như chức năng in
             Console.WriteLine("Step 1: Đang lấy HTML từ JavaScript...");
-            
+
             string htmlContent = null;
             try
             {
                 // Đợi một chút để đảm bảo DOM đã render xong
                 await Task.Delay(100);
-                
+
                 // Tăng timeout lên 2 phút để xử lý ảnh base64
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(120));
                 htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", cts.Token);
-                
+
                 Console.WriteLine($"Step 2: HTML content length: {htmlContent?.Length ?? 0}");
             }
             catch (TaskCanceledException ex)
@@ -872,7 +916,7 @@
                 AlertService?.ShowAlert($"Lỗi JavaScript: {ex.Message}", "danger");
                 return;
             }
-            
+
             if (string.IsNullOrEmpty(htmlContent))
             {
                 Console.WriteLine("ERROR: HTML content is null or empty!");
@@ -883,13 +927,13 @@
             // Log HTML content details for debugging
             var htmlPreview = htmlContent.Length > 500 ? htmlContent.Substring(0, 500) + "..." : htmlContent;
             Console.WriteLine($"HTML preview (first 500 chars): {htmlPreview}");
-            
+
             // Check for potential problematic content
             var hasImages = htmlContent.Contains("<img");
             var hasSvg = htmlContent.Contains("<svg");
             var hasLargeTable = htmlContent.Contains("ksk-table");
             Console.WriteLine($"HTML analysis: Images={hasImages}, SVG={hasSvg}, LargeTable={hasLargeTable}");
-            
+
             // Log file size in different units
             var sizeKB = htmlContent.Length / 1024.0;
             Console.WriteLine($"HTML size: {htmlContent.Length} chars = {sizeKB:F2} KB");
@@ -897,22 +941,22 @@
             // Configure PDF settings
             Console.WriteLine("Step 3: Cấu hình PDF settings...");
             var pdfSettings = new PdfSettings
-            {
-                FileName = $"{ma_luot_kham}_{DateTime.Now:yyyyMMdd}.pdf",
-                PageSize = "A4",
-                Orientation = "Portrait",
-                MarginTop = 10,
-                MarginBottom = 10,
-                MarginLeft = 10,
-                MarginRight = 10
-            };
+                {
+                    FileName = $"{ma_luot_kham}_{DateTime.Now:yyyyMMdd}.pdf",
+                    PageSize = "A4",
+                    Orientation = "Portrait",
+                    MarginTop = 10,
+                    MarginBottom = 10,
+                    MarginLeft = 10,
+                    MarginRight = 10
+                };
             Console.WriteLine($"PDF filename: {pdfSettings.FileName}");
 
             // Generate PDF từ HTML content lấy từ client
             Console.WriteLine("Step 4: Đang tạo PDF với PuppeteerSharp...");
-            
+
             byte[] pdfBytes;
-            
+
             pdfBytes = PdfService.GeneratePdfFromHtml(htmlContent, pdfSettings);
 
             // Convert to base64 for download
@@ -941,7 +985,7 @@
                     {
                         File.Delete(file);
                     }
-                    
+
                     // Xóa folder sau khi xóa hết file
                     Directory.Delete(folderPath);
                     Console.WriteLine($"Step 9: Xóa folder và ảnh chữ ký thành công: {folderPath}");
@@ -953,12 +997,12 @@
                 {
                     // Tìm và xóa các file có tên chứa mã lượt khám hoặc tên chữ ký
                     var signatureFiles = Directory.GetFiles(rootImagesPath, "*")
-                        .Where(f => Path.GetFileName(f).Contains(ma_luot_kham) || 
+                        .Where(f => Path.GetFileName(f).Contains(ma_luot_kham) ||
                                     Path.GetFileName(f).Contains("ket_luan") ||
                                     Path.GetFileName(f).Contains("tuan_hoan") ||
                                     Path.GetFileName(f).Contains("chu_ky"))
                         .ToArray();
-                    
+
                     foreach (var file in signatureFiles)
                     {
                         File.Delete(file);
@@ -970,9 +1014,9 @@
             {
                 Console.WriteLine($"Lỗi khi xóa ảnh: {ex.Message}");
             }
-            
 
-            
+
+
 
         }
         catch (Exception ex)
@@ -981,12 +1025,12 @@
             Console.WriteLine($"Error type: {ex.GetType().Name}");
             Console.WriteLine($"Error message: {ex.Message}");
             Console.WriteLine($"Stack trace: {ex.StackTrace}");
-            
+
             if (ex.InnerException != null)
             {
                 Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
             }
-            
+
             var errorMsg = $"Lỗi khi xuất PDF: {ex.Message}";
             AlertService?.ShowAlert(errorMsg, "danger");
         }
@@ -1013,7 +1057,7 @@
     /// <summary>
     /// Safe access to user full name
     /// </summary>
-    private string GetUserFullName() => 
+    private string GetUserFullName() =>
         CurrentUser != null ? $"{CurrentUser.last_name} {CurrentUser.first_name}".Trim() : string.Empty;
 
     /// <summary>
@@ -1029,7 +1073,7 @@
     {
         if (string.IsNullOrEmpty(signatureData)) return new MarkupString();
         var html = signatureData.GetSignatureDisplayHtml(fallbackText, fileName, maxWidth, maxHeight,
-            WebHostEnvironment.WebRootPath + _imagesFolder + ma_luot_kham,  Configuration["DrCoreApi:BaseUrlImage"]);
+            WebHostEnvironment.WebRootPath + _imagesFolder + ma_luot_kham, Configuration["DrCoreApi:BaseUrlImage"]);
         return new MarkupString(html);
     }
 
@@ -1073,19 +1117,19 @@
                 {
                     File.Delete(file);
                 }
-                
+
                 // Delete the folder itself
                 Directory.Delete(folderPath);
                 Console.WriteLine($"Cleanup: Deleted signature folder: {folderPath}");
             }
 
             // Also clean up any stray signature files in root images folder
-            string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images",ma_luot_kham);
+            string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", ma_luot_kham);
             if (Directory.Exists(rootImagesPath))
             {
                 // Find and delete files that might be related to this medical record
                 var signatureFiles = Directory.GetFiles(rootImagesPath, "*");
-                
+
                 foreach (var file in signatureFiles)
                 {
                     File.Delete(file);

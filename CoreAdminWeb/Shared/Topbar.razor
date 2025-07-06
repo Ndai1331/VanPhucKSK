@@ -22,7 +22,7 @@
         
         <!-- Logo -->
         <MudButton type="button" Class="main-logo flex items-center" @onclick="BackToHome">
-            <img src="@(Logo != null ? $"{Logo.filename_disk}" : "assets/images/logo-icon.svg")" class="logo-icon h-8 sm:h-10" alt="Logo">
+            <img src="@(Logo != null ? $"{Logo.filename_disk}" : "assets/images/logo-icon.png")" class="logo-icon h-8 sm:h-10" alt="Logo">
         </MudButton>
         
         <!-- Desktop Navigation Menu -->
@@ -33,7 +33,7 @@
             <a href="/news" class="text-gray-700 hover:text-red-500 transition-colors duration-200 font-bold text-sm px-4 py-2">
                 Tin tức
             </a>
-            <a href="/results" class="text-gray-700 hover:text-red-500 transition-colors duration-200 font-bold text-sm px-4 py-2">
+            <a href="/" class="text-gray-700 hover:text-red-500 transition-colors duration-200 font-bold text-sm px-4 py-2">
                 Kết quả
             </a>
             @if (!IsAuthenticated)
