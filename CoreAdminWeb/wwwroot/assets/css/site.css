@@ -72,6 +72,9 @@ h1:focus {
     .detail-ksk {
         display: none !important;
     }
+    .group-button {
+        justify-content: flex-end !important;
+    }
 }
 
 /* Smartphone nhỏ (< 480px) */
@@ -86,6 +89,10 @@ h1:focus {
     .detail-ksk
     {
         display:none !important;
+    }
+
+    .group-button {
+        justify-content: flex-end !important;
     }
 }
 .img-list-new
