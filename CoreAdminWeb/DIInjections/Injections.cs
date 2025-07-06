@@ -1,15 +1,15 @@
+using CoreAdminWeb.Model;
+using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
+using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.DanhMucDungChung;
 using CoreAdminWeb.Services.Files;
+using CoreAdminWeb.Services.Http;
+using CoreAdminWeb.Services.KhamSucKhoe;
+using CoreAdminWeb.Services.PDFService;
+using CoreAdminWeb.Services.Posts;
 using CoreAdminWeb.Services.Settings;
 using CoreAdminWeb.Services.Users;
-using CoreAdminWeb.Providers;
-using CoreAdminWeb.Services.BaseServices;
-using CoreAdminWeb.Model;
-using CoreAdminWeb.Services.PDFService;
-using CoreAdminWeb.Services.Http;
-using CoreAdminWeb.Services.DanhMucDungChung;
-using CoreAdminWeb.Services.KhamSucKhoe;
-using CoreAdminWeb.Services.Posts;
 
 
 namespace CoreAdminWeb.DIInjections
@@ -30,12 +30,14 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseGetService<KhamSucKhoeSanPhuKhoaModel>, KhamSucKhoeSanPhuKhoaService>();
             services.AddScoped<IBaseGetService<KhamSucKhoeTheLucModel>, KhamSucKhoeTheLucService>();
             services.AddScoped<IBaseGetService<KhamSucKhoeTienSuModel>, KhamSucKhoeTienSuService>();
+            services.AddScoped<IBaseGetService<KetQuaCanLamSangModel>, KetQuaCanLamSangService>();
+            services.AddScoped<IBaseGetService<MedicalAgencyModel>, MedicalAgencyService>();
             services.AddScoped<IBaseGetService<PostModel>, PostService>();
             services.AddScoped<AlertService>();
-            
+
             // PDF Service Configuration
             services.AddScoped<IPdfService, PdfService>();
-            
+
             // HTTP Client Service Configuration - replaces static RequestClient
             services.AddScoped<IHttpClientService, HttpClientService>();
 

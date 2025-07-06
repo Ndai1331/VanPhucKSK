@@ -1,0 +1,319 @@
+@page "/subclinical-result-page"
+@using CoreAdminWeb.Services
+@using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Shared.Base
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Services.BaseServices
+@layout CoreAdminWeb.Shared.MainLayout
+@inherits BlazorCoreBase
+@inject NavigationManager Navigation
+@inject IUserService UserService
+@inject IBaseGetService<KetQuaCanLamSangModel> KetQuaCanLamSangService
+
+<!-- Start Main Content -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    @if (_isLoading)
+    {
+        <div class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 gap-4">
+            <!-- Patient Summary -->
+            <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder mb-6">
+                <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
+                    <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
+                        <i class="fas fa-user-circle me-2"></i>Thông tin bệnh nhân
+                    </h5>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="md:col-span-1">
+                        <strong>Họ và tên:</strong> <span>@CurrentUser?.last_name @CurrentUser?.first_name</span>
+                    </div>
+                    <div class="md:col-span-1">
+                        <strong>Mã BN:</strong> <span>@CurrentUser?.ma_benh_nhan</span>
+                    </div>
+                    <div class="md:col-span-1">
+                        <strong>Ngày sinh:</strong> <span>@CurrentUser?.ngay_sinh?.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="md:col-span-1">
+                        <strong>Giới tính:</strong> <span>@CurrentUser?.gioi_tinh?.GetDescription()</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                    <div class="md:col-span-2">
+                        <strong>Địa chỉ:</strong> <span>@CurrentUser?.dia_chi</span>
+                    </div>
+                    <div class="md:col-span-1">
+                        <strong>SĐT:</strong> <span>@CurrentUser?.so_dien_thoai</span>
+                    </div>
+                    <div class="md:col-span-1">
+                        <strong>Công ty:</strong> <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Records List -->
+            <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
+                <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
+                    <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
+                        <i class="fas fa-list me-2"></i>Danh sách kết quả khám Cận lâm sàng
+                    </h5>
+                </div>
+                <div class="overflow-auto">
+                    <MudTable Class="min-w-[640px] text-left w-full" Items="@MainModels" Hover="true" Breakpoint="Breakpoint.None" LoadingProgressColor="Color.Info">
+                        <HeaderContent>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã lượt khám</MudTh>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã cận lâm sàng</MudTh>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Tên cận lâm sàng</MudTh>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày khám</MudTh>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Thao tác</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.ma_luot_kham</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.ma_can_lam_sang</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.ten_can_lam_sang</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
+                            <MudTd DataLabel="Thao tác">
+                                <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context))">
+                                    <i class="ri-eye-line me-1"></i>Xem chi tiết
+                                </button>
+                            </MudTd>
+                        </RowTemplate>
+                        <NoRecordsContent>
+                            <div class="text-center py-8">
+                                <p class="text-slate-500 dark:text-slate-400">Chưa có kết quả khám Cận lâm sàng nào</p>
+                            </div>
+                        </NoRecordsContent>
+                    </MudTable>
+                </div>
+
+                <div class="w-full grid grid-cols-1 pb-2">
+                    <div class="flex items-center justify-between p-4">
+                        <div class="flex items-center gap-2">
+                            <span>Hiển thị</span>
+                            <select class="form-select" @bind="PageSize" @bind:event="oninput" @onchange="async (e) => await OnPageSizeChanged(LoadSubclinicalResultRecords)">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>mục</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+
+                            <div>
+                                <ul class="inline-flex my-2 -space-x-px list-inside">
+                                    <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-l-lg rtl:rounded-r-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await PreviousPage(LoadSubclinicalResultRecords)" disabled="@(Page <= 1)">Trước</MudLink></li>
+                                    @{
+                                        var startPage = Math.Max(1, Page - 1);
+                                        var endPage = Math.Min(TotalPages, Page + 1);
+
+                                        // Always show first page
+                                        <li>
+                                            <a href="#"
+                                               class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
+                                               @onclick="async (e) => await SelectedPage(1, LoadSubclinicalResultRecords)">1</a>
+                                        </li>
+
+                                        // Show ellipsis if needed
+                                        if (startPage > 2)
+                                        {
+                                            <li><span class="px-3 py-2">...</span></li>
+                                        }
+
+                                        // Show pages around current page
+                                        for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            if (i > 1 && i < TotalPages)
+                                            {
+                                                var currentPage = i; // Local variable to avoid closure issues
+                                                                     <li>
+                                                                         <a href="#"
+                                                                            class="px-3 py-2 text-black  border border-black/10
+                                                                                                                                  hover:bg-purple hover:text-white dark:bg-transparent
+                                                                                                                                  dark:text-white dark:border-darkborder dark:hover:bg-purple
+                                                                                                                                  dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
+                                                                            @onclick="async (e) => await SelectedPage(currentPage, LoadSubclinicalResultRecords)">@i</a>
+                                                                     </li>
+                                            }
+                                        }
+
+                                        // Show ellipsis if needed
+                                        if (endPage < TotalPages - 1)
+                                        {
+                                            <li><span class="px-3 py-2">...</span></li>
+                                        }
+
+                                        // Always show last page if there is more than one page
+                                        if (TotalPages > 1)
+                                        {
+                                            <li>
+                                                <a href="#"
+                                                   class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
+                                                   @onclick="async (e) => await SelectedPage(TotalPages, LoadSubclinicalResultRecords)">@TotalPages</a>
+                                            </li>
+                                        }
+                                    }
+                                    <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-r-lg rtl:rounded-l-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await NextPage(LoadSubclinicalResultRecords)" disabled="@(Page >= TotalPages)">Sau</MudLink></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    // State management
+    private bool _isLoading = true;
+    private bool _hasInitialized = false; // Prevent multiple initializations
+
+    // User data
+    private UserModel? CurrentUser { get; set; }
+
+    // Subclinical result Records
+    private List<KetQuaCanLamSangModel> MainModels = new List<KetQuaCanLamSangModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_hasInitialized)
+        {
+            _hasInitialized = true;
+
+            await InitializePageDataAsync();
+        }
+    }
+
+    /// <summary>
+    /// Initialize all page data with optimized parallel loading
+    /// </summary>
+    private async Task InitializePageDataAsync()
+    {
+        try
+        {
+            _isLoading = true;
+
+            // Load user data first
+            await LoadCurrentUserAsync();
+
+            if (CurrentUser != null)
+            {
+                // Load medical records and latest exam date in parallel
+                var medicalRecordsTask = LoadSubclinicalResultRecordsAsync();
+                await Task.WhenAll(medicalRecordsTask);
+            }
+            else
+            {
+                await InvokeAsync(() => NavigationManager?.NavigateTo("/news"));
+            }
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải dữ liệu: " + ex.Message, "danger");
+        }
+        finally
+        {
+            _isLoading = false;
+            // Use InvokeAsync to avoid render cycle issues
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Load current user data with caching
+    /// </summary>
+    private async Task LoadCurrentUserAsync()
+    {
+        if (CurrentUser != null) return; // Skip if already loaded
+
+        try
+        {
+            var resUser = await UserService.GetCurrentUserAsync();
+            if (resUser.IsSuccess)
+            {
+                CurrentUser = resUser.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải thông tin người dùng: " + ex.Message, "danger");
+        }
+    }
+
+    /// <summary>
+    /// Load medical records with pagination
+    /// </summary>
+    private async Task LoadSubclinicalResultRecordsAsync()
+    {
+        if (CurrentUser?.ma_benh_nhan == null) return;
+
+        try
+        {
+            // Build query for paginated results
+            BuildPaginationQuery(Page, PageSize, "ngay_kham");
+            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
+            // BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
+
+            var result = await KetQuaCanLamSangService.GetAllAsync(BuilderQuery);
+            if (result.IsSuccess)
+            {
+                MainModels = result.Data ?? new List<KetQuaCanLamSangModel>();
+
+                if (result.Meta != null)
+                {
+                    TotalItems = result.Meta.filter_count ?? 0;
+                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                }
+            }
+            else
+            {
+                MainModels = new List<KetQuaCanLamSangModel>();
+            }
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải hồ sơ khám bệnh: " + ex.Message, "danger");
+            MainModels = new List<KetQuaCanLamSangModel>();
+        }
+    }
+
+    /// <summary>
+    /// Load subclinical result records for pagination (wrapper method)
+    /// </summary>
+    private async Task LoadSubclinicalResultRecords()
+    {
+        await LoadSubclinicalResultRecordsAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "published" => "bg-success text-white",
+            "draft" => "bg-warning text-white",
+            "deleted" => "bg-danger text-white",
+            _ => "bg-gray-500 text-white"
+        };
+    }
+
+    private void ViewRecordDetail(KetQuaCanLamSangModel record)
+    {
+        Navigation.NavigateTo($"/subclinical-result-detail-page/{record.ma_luot_kham}");
+    }
+}
