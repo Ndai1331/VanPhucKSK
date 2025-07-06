@@ -450,21 +450,25 @@
                                         <td>Phân loại</td>
                                         <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_da_lieu)</td>
                                     </tr>
-                                    <!-- Sản phụ khoa -->
-                                    <tr><td colspan="4"><b>Sản phụ khoa</b></td></tr>
-                                    <tr>
-                                        <td rowspan="2">a</td>
-                                        <td><i>Sản phụ khoa</i></td>
-                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.ket_qua)</td>
-                                        <td class="ls-doctor-cell" rowspan="2">
-                                            @RenderSignature(KhamSucKhoeSanPhuKhoaModel?.chu_ky, KhamSucKhoeSanPhuKhoaModel?.chu_ky, "san_phu_khoa", 100, 50)
-                                            @CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.nguoi_ket_luan)
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Phân loại</td>
-                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.phan_loai)</td>
-                                    </tr>
+
+                                    @if (CurrentUser?.gioi_tinh != null && CurrentUser?.gioi_tinh == Enums.GioiTinh.Nu && KhamSucKhoeSanPhuKhoaModel != null)
+                                    {
+                                        <!-- Sản phụ khoa -->
+                                        <tr><td colspan="4"><b>Sản phụ khoa</b></td></tr>
+                                        <tr>
+                                            <td rowspan="2">a</td>
+                                            <td><i>Sản phụ khoa</i></td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.ket_qua)</td>
+                                            <td class="ls-doctor-cell" rowspan="2">
+                                                @RenderSignature(KhamSucKhoeSanPhuKhoaModel?.chu_ky, KhamSucKhoeSanPhuKhoaModel?.chu_ky, "san_phu_khoa", 100, 50)
+                                                @CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.nguoi_ket_luan)
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Phân loại</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.phan_loai)</td>
+                                        </tr>
+                                    }
                                     <!-- Mắt -->
                                     <tr><td colspan="4"><b>Mắt</b></td></tr>
                                     <tr>
