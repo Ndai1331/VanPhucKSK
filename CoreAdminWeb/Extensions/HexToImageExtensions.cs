@@ -278,7 +278,7 @@ namespace CoreAdminWeb.Extensions
                     var imagePath = SaveBase64AsImage(base64Image, fileName, webRootPath);
                     if (!string.IsNullOrEmpty(imagePath))
                     {
-                        return $"<img src='{baseUrl}{imagePath}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' />";
+                        return $"<div class='signature-wrapper'><img src='{baseUrl}{imagePath}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' /></div>";
                     }
                 }
             }

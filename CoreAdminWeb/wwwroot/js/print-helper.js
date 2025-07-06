@@ -148,6 +148,44 @@ window.printMedicalForm = function() {
         .ls-doctor-cell {
             text-align: center;
             min-width: 100px;
+            vertical-align: top;
+        }
+        .ls-doctor-cell * {
+            display: block !important;
+            margin: 3px auto !important;
+            width: 100% !important;
+        }
+        .ls-doctor-cell img {
+            display: block !important;
+            margin: 0 auto 8px auto !important;
+            width: auto !important;
+            max-width: 100px !important;
+        }
+        .ls-doctor-cell .signature-image {
+            display: block !important;
+            margin: 0 auto 8px auto !important;
+            width: auto !important;
+            max-width: 100px !important;
+        }
+        .signature-image {
+            display: block !important;
+            margin: 0 auto 5px auto !important;
+        }
+        .signature-text {
+            display: block !important;
+            margin: 5px auto !important;
+        }
+        .signature-container {
+            display: block;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .signature-container .signature-image {
+            display: block;
+            margin: 0 auto 5px auto;
+        }
+        .signature-container + div {
+            margin-top: 5px;
         }
         .ksk-signature-row {
             display: flex;
@@ -175,6 +213,24 @@ window.printMedicalForm = function() {
         }
         .text-sm {
             font-size: 12px;
+        }
+        /* Force line break after signature images in table cells */
+        .ls-doctor-cell .signature-image + * {
+            display: block !important;
+            margin-top: 10px !important;
+        }
+        .ls-doctor-cell br {
+            display: block !important;
+            height: 8px !important;
+        }
+        .signature-wrapper {
+            display: block !important;
+            margin: 0 auto 8px auto !important;
+            text-align: center !important;
+        }
+        .signature-wrapper + * {
+            display: block !important;
+            margin-top: 8px !important;
         }
     `;
     
@@ -431,6 +487,44 @@ window.getMedicalFormHtml = function() {
         .ls-doctor-cell {
             text-align: center;
             min-width: 100px;
+            vertical-align: top;
+        }
+        .ls-doctor-cell * {
+            display: block !important;
+            margin: 3px auto !important;
+            width: 100% !important;
+        }
+        .ls-doctor-cell img {
+            display: block !important;
+            margin: 0 auto 8px auto !important;
+            width: auto !important;
+            max-width: 100px !important;
+        }
+        .ls-doctor-cell .signature-image {
+            display: block !important;
+            margin: 0 auto 8px auto !important;
+            width: auto !important;
+            max-width: 100px !important;
+        }
+        .signature-image {
+            display: block !important;
+            margin: 0 auto 5px auto !important;
+        }
+        .signature-text {
+            display: block !important;
+            margin: 5px auto !important;
+        }
+        .signature-container {
+            display: block;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .signature-container .signature-image {
+            display: block;
+            margin: 0 auto 5px auto;
+        }
+        .signature-container + div {
+            margin-top: 5px;
         }
         .ksk-signature-row {
             display: flex;
@@ -458,6 +552,24 @@ window.getMedicalFormHtml = function() {
         }
         .text-sm {
             font-size: 12px;
+        }
+        /* Force line break after signature images in table cells */
+        .ls-doctor-cell .signature-image + * {
+            display: block !important;
+            margin-top: 10px !important;
+        }
+        .ls-doctor-cell br {
+            display: block !important;
+            height: 8px !important;
+        }
+        .signature-wrapper {
+            display: block !important;
+            margin: 0 auto 8px auto !important;
+            text-align: center !important;
+        }
+        .signature-wrapper + * {
+            display: block !important;
+            margin-top: 8px !important;
         }
     `;
     

@@ -136,11 +136,39 @@ body {
 .ls-doctor-cell {
     text-align: center;
     min-width: 100px;
+    vertical-align: top;
+}
+.ls-doctor-cell * {
+    display: block;
+    margin: 2px auto;
+}
+.ls-doctor-cell .signature-image {
+    margin: 0 auto 5px auto;
+}
+.signature-image {
+    display: block;
+    margin: 0 auto 5px auto;
+}
+.signature-text {
+    display: block;
+    margin: 5px auto;
+}
+.signature-container {
+    display: block;
+    text-align: center;
+    margin: 10px 0;
+}
+.signature-container .signature-image {
+    display: block;
+    margin: 0 auto 5px auto;
+}
+.signature-container + div {
+    margin-top: 5px;
 }
 .ksk-signature-row {
     display: flex;
     justify-content: space-between;
-    margin: 0;
+    margin: 0px;
 }
 .ksk-signature-box {
     text-align: center;
@@ -169,9 +197,7 @@ body {
 </head>
 <body>
     <div class="ksk-header-container" style="margin-bottom:0;"><div class="ksk-header-logo"><img src="https://localhost:7078/images/Logo/logo.png" alt="Logo" class="header-logo"></div><!--!-->
-            <!--!--><div class="ksk-header"><div class="mau-so">Mẫu số 03</div>
-                <div>MẪU SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
-                <div class="quochoa">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+            <!--!--><div class="ksk-header"><div class="quochoa">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
                 <div class="doclap">Độc lập - Tự do - Hạnh phúc</div>
                 <div>-------------</div></div></div><!--!-->
 
@@ -181,34 +207,34 @@ body {
         <div class="ksk-form"><div class="ksk-row"><div><div class="ksk-photo" id="profilePhotoContainer"><img id="profilePhoto" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E" alt="Ảnh đại diện" style="width: 100%; height: 100%; object-fit: cover; "><!--!-->
                         <span style="display:none"><!--!-->Ảnh 4x6 cm</span></div><!--!-->
                     <!--!--><div class="ksk-photo-label">(dán ảnh hoặc scan ảnh)</div></div><!--!-->
-                
+
                 
                 <div class="ksk-info"><div class="ksk-info-row"><!--!--><div class="ksk-info-label">1. Họ và tên:</div>
-                        <div class="ksk-info-value">Phan Hoàng</div></div><!--!-->
+                        <div class="ksk-info-value">CAO VĂN BÁCH</div></div><!--!-->
                     <div class="ksk-info-row"><!--!--><div class="ksk-info-label">2. Giới tính:</div>
                         <div class="ksk-info-value">Nam</div></div><!--!-->
                     <div class="ksk-info-row"><!--!--><div class="ksk-info-label">3. Sinh ngày:</div>
-                        <div class="ksk-info-value">28</div><!--!-->
+                        <div class="ksk-info-value">20</div><!--!-->
                         <!--!--><span style="margin: 0 4px;">tháng</span>
-                        <div class="ksk-info-value">08</div><!--!-->
+                        <div class="ksk-info-value">12</div><!--!-->
                         <!--!--><span style="margin: 0 4px;">năm</span>
-                        <div class="ksk-info-value">1989</div></div><!--!-->
+                        <div class="ksk-info-value">1994</div></div><!--!-->
                     <div class="ksk-info-row"><!--!--><div class="ksk-info-label">4. Số CCCD/CMND:</div>
-                        <div class="ksk-info-value"></div></div><!--!-->
+                        <div class="ksk-info-value">11223344</div></div><!--!-->
                     <div class="ksk-info-row"><!--!--><div class="ksk-info-label">5. Cấp ngày:</div>
-                        <div class="ksk-info-value 70px"></div><!--!-->
+                        <div class="ksk-info-value 70px">01/01/1900</div><!--!-->
                         <!--!--><span style="margin: 0 4px;">tại</span>
                         <div class="ksk-info-value"></div></div><!--!-->
                     <div class="ksk-info-row"><!--!--><div class="ksk-info-label">6. Chỗ ở hiện tại:</div>
-                        <div class="ksk-info-value"></div></div><!--!-->
+                        <div class="ksk-info-value">40 QUANG TRUNG, PHƯỜNG HIỆP PHÚ, TP.THỦ ĐỨC, TP.HCM</div></div><!--!-->
                     <div class="ksk-info-row"><!--!--><div class="ksk-info-label">7. Số điện thoại:</div>
-                        <div class="ksk-info-value">0912345680</div></div><!--!-->
+                        <div class="ksk-info-value">0912134363</div></div><!--!-->
                     <div class="ksk-info-row"><!--!--><div class="ksk-info-label">8. Nghề nghiệp:</div>
-                        <div class="ksk-info-value">Quản lý</div></div><!--!-->
+                        <div class="ksk-info-value"></div></div><!--!-->
                     <div class="ksk-info-row"><!--!--><div class="ksk-info-label">9. Nơi công tác:</div>
-                        <div class="ksk-info-value">Công ty CP Đầu tư Hòa Bình</div></div><!--!-->
+                        <div class="ksk-info-value"></div></div><!--!-->
                     <div class="ksk-info-row"><!--!--><div class="ksk-info-label">10. Ngày vào làm:</div>
-                        <div class="ksk-info-value">15/07/2018</div></div><!--!-->
+                        <div class="ksk-info-value"></div></div><!--!-->
                     <!--!--><div class="ksk-info-row"><div class="ksk-info-label">11. Nghề, công việc trước đây:</div>
                         <div class="ksk-info-value"></div></div>
                     <!--!--><div class="ksk-info-row"><div class="ksk-info-label">12. Thời gian làm nghề:</div>
@@ -229,38 +255,38 @@ body {
                             <th>Phát hiện năm</th>
                             <th>Bệnh nghề nghiệp</th>
                             <th>Năm phát hiện bệnh nghề nghiệp</th></tr></thead>
-                    <tbody><tr><td class="ls-cell-small">Không có</td><!--!-->
-                                <td class="ls-cell-small"></td><!--!-->
-                                <td class="ls-cell-small"></td><!--!-->
-                                <td class="ls-cell-small"></td></tr></tbody></table></div><!--!-->
+                    <tbody><tr><td class="ls-cell-small">Khỏe mạnh</td><!--!-->
+                                    <td class="ls-cell-small"></td><!--!-->
+                                    <td class="ls-cell-small"></td><!--!-->
+                                    <td class="ls-cell-small"></td></tr></tbody></table></div><!--!-->
 
             
             <div class="ksk-signature-row"><div class="ksk-signature-box"><!--!-->
                     Người lao động xác nhận<br>
                     <!--!--><small>(Ký và ghi rõ họ, tên)</small><br><br><br>
-                    <strong>Phan Hoàng</strong></div><!--!-->
+                    <strong>CAO VĂN BÁCH</strong></div><!--!-->
                 <div class="ksk-signature-box"><!--!-->
-                    ... ngày 5<!--!--> tháng 7<!--!--> năm 2025<!--!--><br>
+                    ... ngày 6<!--!--> tháng 7<!--!--> năm 2025<!--!--><br>
                     Người lập sổ KSK định kỳ<br>
                     <!--!--><small>(Ký và ghi rõ họ, tên)</small><br><br><br>
                     <strong></strong></div></div></div><!--!-->
 
         
         <div class="ksk-form" style="margin-top: 32px;"><!--!--><div class="ksk-title">KHÁM SỨC KHỎE ĐỊNH KỲ</div>
-            
+
             
             <div class="mb-6"><!--!--><div class="font-bold mb-2">I. TIỀN SỬ BỆNH, TẬT <span class="font-normal italic">(Bác sỹ khám sức khỏe hỏi và ghi chép)</span></div></div><!--!-->
 
             
             <div class="mb-6"><!--!--><div class="font-bold mb-2">II. KHÁM THỂ LỰC</div>
-                <div class="ml-4 space-y-1"><div><!--!-->Chiều cao: 162.5<!--!--> cm; Cân nặng: 50<!--!--> kg; Chỉ số BMI: 19</div><!--!-->
-                    <div><!--!-->Mạch: 75<!--!--> lần/phút; Huyết áp: 112/68 mmHg</div><!--!-->
-                    <div><!--!-->Phân loại thể lực: Bình thường</div></div></div><!--!-->
+                <div class="ml-4 space-y-1"><div><!--!-->Chiều cao: 169<!--!--> cm; Cân nặng: 49.7<!--!--> kg; Chỉ số BMI: 17.4</div><!--!-->
+                    <div><!--!-->Mạch: 79<!--!--> lần/phút; Huyết áp: 108/79  mmHg</div><!--!-->
+                    <div><!--!-->Phân loại thể lực: 2</div></div></div><!--!-->
 
             
             <div class="mb-6"><!--!--><div class="font-bold mb-2">III. KHÁM LÂM SÀNG</div>
                 <!--!--><div class="text-sm mb-4">Phải khám đầy đủ các nội dung theo chuyên khoa để khẳng định có/không có bệnh, tật theo quy định tại Quyết định...</div>
-                
+
                 <div class="ksk-table-wrap"><table class="ksk-table ksk-table-2"><!--!--><thead><tr><th rowspan="2">STT</th>
                                 <th colspan="2">Nội dung khám</th>
                                 <th rowspan="2">Họ tên và chữ ký của Bác sỹ chuyên khoa</th></tr>
@@ -269,136 +295,150 @@ body {
                         <tbody><!--!--><tr><td colspan="4"><b>Nội khoa</b></td></tr>
                             <tr><!--!--><td rowspan="2">a</td>
                                 <!--!--><td><i>Tuần hoàn</i></td>
-                                <td class="ls-cell-small">Bình thu?ng</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/LK0010/tuan_hoan.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td class="ls-cell-small">Chưa ghi nhận bất thường</td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/tuan_hoan.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Võ Hà Băng Sương</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">1</td></tr><!--!-->
                             <tr><!--!--><td rowspan="2">b</td>
                                 <!--!--><td><i>Hô hấp</i></td>
-                                <td class="ls-cell-small">Bình thu?ng</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 2</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td class="ls-cell-small">Chưa ghi nhận bất thường</td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/ho_hap.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Võ Hà Băng Sương</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">1</td></tr><!--!-->
                             <tr><!--!--><td rowspan="2">c</td>
                                 <!--!--><td><i>Tiêu hóa</i></td>
-                                <td class="ls-cell-small">Bình thu?ng</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 3</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td class="ls-cell-small">Chưa ghi nhận bất thường</td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/tieu_hoa.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Võ Hà Băng Sương</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">1</td></tr><!--!-->
                             <tr><!--!--><td rowspan="2">d</td>
                                 <!--!--><td><i>Thận-Tiết niệu</i></td>
-                                <td class="ls-cell-small">Bình thu?ng</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 4</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td class="ls-cell-small">Chưa ghi nhận bất thường</td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/than_tiet_nieu.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Võ Hà Băng Sương</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">1</td></tr><!--!-->
                             <tr><!--!--><td rowspan="2">đ</td>
                                 <!--!--><td><i>Nội tiết</i></td>
-                                <td class="ls-cell-small">Bình thu?ng</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 5</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td class="ls-cell-small">Thiếu cân</td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/noi_tiet.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Võ Hà Băng Sương</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">2</td></tr><!--!-->
                             <tr><!--!--><td rowspan="2">e</td>
                                 <!--!--><td><i>Cơ-xương-khớp</i></td>
-                                <td class="ls-cell-small">Bình thu?ng</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 6</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td class="ls-cell-small">Chưa ghi nhận bất thường</td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/co_xuong_khop.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Võ Hà Băng Sương</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">1</td></tr><!--!-->
                             <tr><!--!--><td rowspan="2">g</td>
                                 <!--!--><td><i>Thần kinh</i></td>
-                                <td class="ls-cell-small">Bình thu?ng</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 7</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td class="ls-cell-small">Chưa ghi nhận bất thường</td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/than_kinh.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Võ Hà Băng Sương</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">1</td></tr><!--!-->
                             
                             <!--!--><tr><td colspan="4"><b>Ngoại khoa, Da liễu</b></td></tr>
                             <tr><!--!--><td rowspan="2">a</td>
                                 <!--!--><td><i>Ngoại khoa</i></td>
-                                <td class="ls-cell-small">Bình thu?ng</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 9</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td class="ls-cell-small">Chưa ghi nhận bất thường</td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/ngoai_khoa.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Lê Hồ Nhựt Minh</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">1</td></tr><!--!-->
                             <tr><!--!--><td rowspan="2">b</td>
                                 <!--!--><td><i>Da liễu</i></td>
-                                <td class="ls-cell-small">Không b?t thu?ng</td><!--!-->
+                                <td class="ls-cell-small">Chưa ghi nhận bất thường</td><!--!-->
                                 <td class="ls-doctor-cell" rowspan="2"></td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">1</td></tr><!--!-->
                             
                             <!--!--><tr><td colspan="4"><b>Sản phụ khoa</b></td></tr>
                             <tr><!--!--><td rowspan="2">a</td>
                                 <!--!--><td><i>Sản phụ khoa</i></td>
-                                <td class="ls-cell-small">Bình thường</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu kỳ SPK 10</span><!--!-->
-                                    BS Sản phụ 10</td></tr><!--!-->
+                                <td class="ls-cell-small"></td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--> <!--!-->
+                                    </td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Loại I</td></tr><!--!-->
+                                <td class="ls-cell-small">7</td></tr><!--!-->
                             
                             <!--!--><tr><td colspan="4"><b>Mắt</b></td></tr>
                             <tr><!--!--><td rowspan="2">a</td>
                                 <!--!--><td><i>Kết quả khám thị lực</i></td>
-                                <td><!--!-->Không kính: Mắt phải 10/10<!--!--> Mắt trái 10/10<!--!--> | Có kính: Mắt phải 10/10<!--!--> Mắt trái 10/10</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 11</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td><!--!-->Không kính: Mắt phải 10/10<!--!--> Mắt trái 10/10<!--!--> | Có kính: Mắt phải <!--!--> Mắt trái </td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/mat.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Lê Thị Kim Thanh</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">1</td></tr><!--!-->
                             <tr><!--!--><td>b</td>
                                 <!--!--><td><i>Các bệnh về mắt (nếu có)</i></td>
-                                <td>Không b?nh m?t</td><!--!-->
+                                <td>Chưa phát hiện bệnh lý </td><!--!-->
                                 <td></td></tr><!--!-->
                             
                             <!--!--><tr><td colspan="4"><b>Tai - Mũi - Họng</b></td></tr>
                             <tr><!--!--><td rowspan="2">a</td>
                                 <!--!--><td><i>Kết quả khám thính lực</i></td>
-                                <td><!--!-->Tai trái: Bình thu?ng<!--!--> m; Nói thầm Bình thu?ng<!--!--> m | Tai phải: Bình thu?ng<!--!--> m; Nói thầm Bình thu?ng m</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 10</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td><!--!-->Tai trái: 5<!--!--> m; Nói thầm 0.5<!--!--> m | Tai phải: 5<!--!--> m; Nói thầm 0.5 m</td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/tmh.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Trần Quang Phúc</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small"></td></tr><!--!-->
+                                <td class="ls-cell-small">2</td></tr><!--!-->
                             <tr><!--!--><td>b</td>
                                 <!--!--><td><i>Các bệnh về tai mũi họng (nếu có)</i></td>
-                                <td>Không b?nh tai mui h?ng</td><!--!-->
+                                <td>Viêm amiđan mạn</td><!--!-->
                                 <td></td></tr><!--!-->
                             
                             <!--!--><tr><td colspan="4"><b>Răng - Hàm - Mặt</b></td></tr>
                             <tr><!--!--><td rowspan="2">a</td>
                                 <!--!--><td><i>Kết quả khám</i></td>
-                                <td><!--!-->Hàm trên: Bình thu?ng<!--!--> | Hàm dưới: Bình thu?ng</td><!--!-->
-                                <td class="ls-doctor-cell" rowspan="2"><!--!--><span class="signature-text">Chu ky 12</span><!--!-->
-                                    BS Phan K</td></tr><!--!-->
+                                <td><!--!-->Hàm trên: Chân răng 16, 17, 26, 27. <!--!--> | Hàm dưới: </td><!--!-->
+                                <td class="ls-doctor-cell" rowspan="2"><!--!--><img src="https://localhost:7078/images/250523110537188527/rhm.png" alt="Chữ ký" class="signature-image" style="max-width:100px; max-height:50px; object-fit: contain;"><!--!-->
+                                    Trần Quang Phúc</td></tr><!--!-->
                             <tr><!--!--><td>Phân loại</td>
-                                <td class="ls-cell-small">Lo?i I</td></tr><!--!-->
+                                <td class="ls-cell-small">3</td></tr><!--!-->
                             <tr><!--!--><td>b</td>
                                 <!--!--><td><i>Các bệnh về răng hàm mặt (nếu có)</i></td>
-                                <td>Không b?nh RHM</td><!--!-->
+                                <td>Chân răng 16, 17, 26, 27, 36, 37, 46. Sức nhai 60%. </td><!--!-->
                                 <td></td></tr></tbody></table></div></div><!--!-->
 
             
             <div style="margin-bottom: 24px;"><!--!--><div style="font-weight: bold; text-align: center; margin-bottom: 8px;">IV. KHÁM CẬN LÂM SÀNG</div>
                 <div style="border: 1px solid #000; padding: 16px;"><!--!--><div style="margin-bottom: 8px;">* Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</div>
-                    <div style="margin-left: 16px;"><div style="margin-bottom: 8px;"><!--!-->a) Kết quả: Không phát hiện tổn thương</div><!--!-->
-                        <div><!--!-->b) Đánh giá: Không bất thường</div></div></div></div><!--!-->
+                    <div style="margin-left: 16px;"><div style="margin-bottom: 8px;"><!--!-->a) Kết quả: Eosinophils %: 8 %</div><!--!-->
+                        <div><!--!-->b) Đánh giá:  Xét nghiệm: Chưa ghi nhận bất thường.
+- Siêu âm ổ bụng: Hiện tại chưa phát hiện bất thường trên siêu âm bụng tổng quát.
+- Siêu âm tuyến giáp: Hiện tại chưa phát hiện bất thường trên siêu âm tuyến giáp.
+- Chụp Xquang Tim phổi thẳng (1 phim): Tim phổi trong giới hạn bình thường.
+- Điện tim thường: Nhịp xoang đều 76 lần/phút.</div></div></div></div><!--!-->
 
             
             <div style="margin-bottom: 24px;"><!--!--><div style="font-weight: bold; text-align: center; margin-bottom: 8px;">V. KẾT LUẬN</div>
-                <div style="margin-bottom: 32px;"><div style="margin-bottom: 8px;"><!--!--><strong>1. Phân loại sức khỏe:<sup>1</sup></strong> Loại I</div><!--!-->
-                    <div style="margin-bottom: 8px;"><!--!--><strong>2. Các bệnh, tật (nếu có):<sup>2</sup></strong> Không bệnh lý</div><!--!-->
-                    <div><!--!--><strong>3. Đề nghị:</strong> Đủ sức khỏe lao động</div></div><!--!-->
-                
+                <div style="margin-bottom: 32px;"><div style="margin-bottom: 8px;"><!--!--><strong>1. Phân loại sức khỏe:<sup>1</sup></strong> 3</div><!--!-->
+                    <div style="margin-bottom: 8px;"><!--!--><strong>2. Các bệnh, tật (nếu có):<sup>2</sup></strong>  Xét nghiệm: Chưa ghi nhận bất thường.
+- Siêu âm ổ bụng: Hiện tại chưa phát hiện bất thường trên siêu âm bụng tổng quát.
+- Siêu âm tuyến giáp: Hiện tại chưa phát hiện bất thường trên siêu âm tuyến giáp.
+- Chụp Xquang Tim phổi thẳng (1 phim): Tim phổi trong giới hạn bình thường.
+- Điện tim thường: Nhịp xoang đều 76 lần/phút.</div><!--!-->
+                    <div><!--!--><strong>3. Đề nghị:</strong> 
+- Thiếu cân.
+- Viêm amiđan mạn.
+- Chân răng 16, 17, 26, 27, 36, 37, 46. Sức nhai 60%.
+Đề nghị:
+- Khám chuyên khoa Răng hàm mặt định kỳ 6 tháng/ lần. 
+- Bổ sung dinh dưỡng.</div></div><!--!-->
+
                 <div class="ksk-signature-row"><!--!--><div style="flex: 1;"></div>
                     <div class="ksk-signature-box"><!--!--><div><strong>NGƯỜI KẾT LUẬN</strong></div>
                         <!--!--><small>(Ký, ghi rõ họ tên và đóng dấu)</small>
-                        <div style="margin-bottom: 32px;">6/30/2025 2:45:00 PM</div><!--!-->
-                        <div class="signature-container"><!--!--><img src="https://localhost:7078/images/LK0010/ket_luan.png" alt="Chữ ký" class="signature-image" style="max-width:150px; max-height:80px; object-fit: contain;"></div><!--!-->
-                        <div><strong>BS Phan K</strong></div></div></div><!--!-->
-                
+                        <div style="margin-bottom: 15px;">30/05/2025</div><!--!-->
+                        <div class="signature-container"><!--!--><img src="https://localhost:7078/images/250523110537188527/ket_luan.png" alt="Chữ ký" class="signature-image" style="max-width:150px; max-height:80px; object-fit: contain;"></div><!--!-->
+                        <div><strong>Uông Tuyết Nhung</strong></div></div></div><!--!-->
+
                 <!--!--><div class="ksk-note" style="border-top: 1px solid #333; padding-top: 8px;"><div><sup>1</sup> Phân loại sức khỏe theo quy định của Bộ Y tế.</div>
                     <div><sup>2</sup> Ghi rõ các bệnh, tật, phương án điều trị, phục hồi chức năng hoặc giới thiệu khám chuyên khoa để khám bệnh, chữa bệnh (nếu có).</div></div></div></div>
 </body>

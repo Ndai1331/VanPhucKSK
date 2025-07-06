@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Pages\Layouts\" />
     <Folder Include="wwwroot\images\LK0005\" />
   </ItemGroup>
 
