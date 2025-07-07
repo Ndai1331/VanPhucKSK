@@ -129,12 +129,14 @@ namespace CoreAdminWeb.Services.Users
             }
         }
 
-        public async Task<RequestHttpResponse<UserModel>> GetUserByCCCDAsync(string cccd)
+        public async Task<RequestHttpResponse<UserModel>> GetUserByCCCDAsync(string strFilter)
         {
             var response = new RequestHttpResponse<UserModel>();
             try
             {
-                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?filter[_and][0][_and][0][so_dinh_danh][_eq]={cccd}");
+                string filter= $"filter[_or][0][so_dinh_danh][_eq]={strFilter}" + 
+                $"&filter[_or][1][so_dien_thoai][_eq]={strFilter}";
+                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?{filter}");
                 if (result.IsSuccess)
                 {
                     response.Data = result.Data.Data.FirstOrDefault();

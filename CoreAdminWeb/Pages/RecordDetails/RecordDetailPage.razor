@@ -68,14 +68,19 @@
 
                 </div>
                 <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder 2xl:col-span-8 border-black/10">
-                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Xác thực xem kết quả KSK</h2>
-                    <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập CCCD</MudText>
+                    <ul class="mb-4 list-unstyled">
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Họ và tên:</strong> @(string.IsNullOrEmpty(GetUserFullName()) ? "*****" : CoreHelpers.GetSafeString(GetUserFullName()))</li>
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Mã lượt khám:</strong> @CoreHelpers.GetSafeString(SoKhamSucKhoeModel?.ma_luot_kham)</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Ngày khám:</strong> @CoreHelpers.FormatDate(SoKhamSucKhoeModel?.ngay_kham)</li>
+                    </ul>
+                    @* <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Xác thực xem kết quả KSK</h2> *@
+                    <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập CCCD hoặc số điện thoại</MudText>
                     <div class="space-y-4">
                         <div class="space-y-2">
-                            <input type="text" class="form-input" placeholder="CCCD" required="" @bind-value="@_so_dinh_danh">
+                            <input type="text" class="form-input" placeholder="CCCD hoặc SĐT" required="" @bind-value="@_so_dinh_danh">
                         </div>
                         <div class="flex flex-wrap gap-3">
-                            <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]" OnClick="LoadDataWithCccdAsync">Xem kết quả</MudButton>
+                            <MudButton type="button" Class="btn bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700 text-white transition-colors shadow-sm" OnClick="LoadDataWithCccdAsync">Xem kết quả</MudButton>
                         </div>
                     </div>
                 </div>
@@ -671,7 +676,8 @@
             {
                 await LoadSoKhamSucKhoeDataAsync();
 
-                if (SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ngay_kham != null && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
+                if (SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ngay_kham != null 
+                                               && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
                 {
                     _expired_result_page = true;
                 }
@@ -704,7 +710,7 @@
     {
         if (string.IsNullOrWhiteSpace(_so_dinh_danh))
         {
-            AlertService?.ShowAlert("Vui lòng nhập CCCD", "warning");
+            AlertService?.ShowAlert("Vui lòng nhập CCCD hoặc SĐT để xem kết quả", "warning");
             return;
         }
 
