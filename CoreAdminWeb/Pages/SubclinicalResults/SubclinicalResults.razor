@@ -10,7 +10,7 @@
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
 @inject IUserService UserService
-@inject IBaseGetService<KetQuaCanLamSangModel> KetQuaCanLamSangService
+@inject IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService
 
 <!-- Start Main Content -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
@@ -69,18 +69,24 @@
                     <MudTable Class="min-w-[640px] text-left w-full" Items="@MainModels" Hover="true" Breakpoint="Breakpoint.None" LoadingProgressColor="Color.Info">
                         <HeaderContent>
                             <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã bệnh nhân</MudTh>
                             <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã lượt khám</MudTh>
-                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã cận lâm sàng</MudTh>
-                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Tên cận lâm sàng</MudTh>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Họ tên</MudTh>
                             <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày khám</MudTh>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Trạng thái</MudTh>
                             <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Thao tác</MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
+                            <MudTd DataLabel="Ngày khám">@CurrentUser?.ma_benh_nhan</MudTd>
                             <MudTd DataLabel="Ngày khám">@context.ma_luot_kham</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.ma_can_lam_sang</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.ten_can_lam_sang</MudTd>
+                            <MudTd DataLabel="Ngày khám">@CurrentUser?.last_name @CurrentUser?.first_name</MudTd>
                             <MudTd DataLabel="Ngày khám">@context.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
+                            <MudTd DataLabel="Trạng thái">
+                                <span class="inline-flex items-center rounded shadow-sm text-xs justify-center px-2 py-1 @GetStatusBadgeClass(context.status.ToString())">
+                                    @context.status.GetDescription()
+                                </span>
+                            </MudTd>
                             <MudTd DataLabel="Thao tác">
                                 <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context))">
                                     <i class="ri-eye-line me-1"></i>Xem chi tiết
@@ -138,9 +144,9 @@
                                                                      <li>
                                                                          <a href="#"
                                                                             class="px-3 py-2 text-black  border border-black/10
-                                                                                                                                  hover:bg-purple hover:text-white dark:bg-transparent
-                                                                                                                                  dark:text-white dark:border-darkborder dark:hover:bg-purple
-                                                                                                                                  dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
+                                                                                                                                                                       hover:bg-purple hover:text-white dark:bg-transparent
+                                                                                                                                                                       dark:text-white dark:border-darkborder dark:hover:bg-purple
+                                                                                                                                                                       dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
                                                                             @onclick="async (e) => await SelectedPage(currentPage, LoadSubclinicalResultRecords)">@i</a>
                                                                      </li>
                                             }
@@ -182,7 +188,7 @@
     private UserModel? CurrentUser { get; set; }
 
     // Subclinical result Records
-    private List<KetQuaCanLamSangModel> MainModels = new List<KetQuaCanLamSangModel>();
+    private List<SoKhamSucKhoeModel> MainModels = new List<SoKhamSucKhoeModel>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -267,12 +273,12 @@
             // Build query for paginated results
             BuildPaginationQuery(Page, PageSize, "ngay_kham");
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            // BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
+            BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
 
-            var result = await KetQuaCanLamSangService.GetAllAsync(BuilderQuery);
+            var result = await SoKhamSucKhoeService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
             {
-                MainModels = result.Data ?? new List<KetQuaCanLamSangModel>();
+                MainModels = result.Data ?? new List<SoKhamSucKhoeModel>();
 
                 if (result.Meta != null)
                 {
@@ -282,13 +288,13 @@
             }
             else
             {
-                MainModels = new List<KetQuaCanLamSangModel>();
+                MainModels = new List<SoKhamSucKhoeModel>();
             }
         }
         catch (Exception ex)
         {
             AlertService.ShowAlert("Lỗi khi tải hồ sơ khám bệnh: " + ex.Message, "danger");
-            MainModels = new List<KetQuaCanLamSangModel>();
+            MainModels = new List<SoKhamSucKhoeModel>();
         }
     }
 
@@ -312,7 +318,7 @@
         };
     }
 
-    private void ViewRecordDetail(KetQuaCanLamSangModel record)
+    private void ViewRecordDetail(SoKhamSucKhoeModel record)
     {
         Navigation.NavigateTo($"/subclinical-result-detail-page/{record.ma_luot_kham}");
     }

@@ -14,6 +14,7 @@
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IUserService UserService
 @inject IBaseGetService<KetQuaCanLamSangModel> KetQuaCanLamSangService
+@inject IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService
 @inject IPdfService PdfService
 @inject IConfiguration Configuration
 @implements IDisposable
@@ -129,6 +130,28 @@
                 <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder mb-6">
                     <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
                         <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
+                            <i class="fas fa-user-circle me-2"></i>Thông tin bệnh nhân
+                        </h5>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="md:col-span-1">
+                            <strong>Mã BN:</strong> <span>@CurrentUser?.ma_benh_nhan</span>
+                        </div>
+                        <div class="md:col-span-1">
+                            <strong>Họ và tên:</strong> <span>@CurrentUser?.last_name @CurrentUser?.first_name</span>
+                        </div>
+                        <div class="md:col-span-1">
+                            <strong>Công ty:</strong> <span></span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Patient Summary -->
+                <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder mb-6">
+                    <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
+                        <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
                             <i class="fas fa-user-circle me-2"></i>Kết quả khám Cận lâm sàng
                         </h5>
                     </div>
@@ -175,6 +198,7 @@
 
     // Medical record data models
     private KetQuaCanLamSangModel? KetQuaCanLamSangModel { get; set; }
+    private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
 
     private UserModel? CurrentUser { get; set; }
     private string _profileImageUrl = string.Empty;
@@ -280,19 +304,6 @@
 
                 // Load medical data in parallel
                 await LoadMedicalDataAsync();
-
-                // // Validate user matches the medical record
-                // if (KetQuaCanLamSangModel != null &&
-                //     string.Equals(KetQuaCanLamSangModel.ma_benh_nhan, CurrentUser.ma_benh_nhan, StringComparison.OrdinalIgnoreCase))
-                // {
-                //     _isShowInputCCCD = false;
-                //     SetProfileImagePlaceholder();
-                // }
-                // else
-                // {
-                //     _isShowInputCCCD = true;
-                //     AlertService?.ShowAlert("Không tìm thấy mã bệnh nhân với lượt khám này", "danger");
-                // }
             }
             else
             {
@@ -352,7 +363,7 @@
         // Execute all medical data API calls in parallel for better performance
         var tasks = new[]
         {
-            LoadSingleRecordAsync<KetQuaCanLamSangModel>(KetQuaCanLamSangService, query, r => KetQuaCanLamSangModel = r)
+            LoadSingleRecordAsync<SoKhamSucKhoeModel>(SoKhamSucKhoeService, query, r => SoKhamSucKhoeModel = r)
         };
 
         await Task.WhenAll(tasks);
