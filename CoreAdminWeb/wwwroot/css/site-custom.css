@@ -152,4 +152,9 @@
 }
 .w-160{
     width: 160px;
+}.text-green-600 {
+    color: #1a7a35 !important;
+}
+.bg-green-600 {
+    background-color: #1a7a35 !important;
 }

@@ -12,7 +12,7 @@ namespace CoreAdminWeb.Services
     /// </summary>
     public class KetQuaCanLamSangService : IBaseGetService<KetQuaCanLamSangModel>
     {
-        private readonly string _collection = "medical_agency";
+        private readonly string _collection = "kham_suc_khoe_can_lam_sang";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
         private readonly IHttpClientService _httpClientService;
 

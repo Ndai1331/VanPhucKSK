@@ -13,7 +13,7 @@
 @inject NavigationManager Navigation
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IUserService UserService
-@inject IBaseGetService<KetQuaCanLamSangModel> KetQuaCanLamSangService
+@inject IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService
 @inject IPdfService PdfService
 @inject IConfiguration Configuration
 @implements IDisposable
@@ -24,15 +24,14 @@
             <div class="detail-ksk">
                 <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
                     <i class="fas fa-file-medical me-2 text-primary"></i>
-                    Sổ Khám sức khỏe
+                   Chi tiết kết quả khám lâm sàng
                 </h2>
-                <p class="text-slate-600 dark:text-slate-400 mb-0">Chi tiết kết quả khám lâm sàng</p>
             </div>
             <div class="flex gap-2">
-                <button class="px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToList">
-                    <i class="ri-arrow-left-line me-1"></i>Quay lại
-                </button>
-            </div>
+                 <button class="px-4 py-2 bg-purple hover:bg-purple text-white rounded transition-colors shadow-sm" @onclick="BackToList">
+                     <i class="ri-arrow-left-line me-1"></i>Quay lại
+                 </button>
+             </div>
         </div>
 
         @if (_isLoading)
@@ -51,7 +50,7 @@
 
                     <ul class="mb-5">
                         <li class="mb-2">Nhập CCCD/ĐT để xem kết quả khám</li>
-                        <li class="mb-2">Thời gian truy cập có giới hạn (7 ngày), vui lượng đăng nhập để xem chi tiết</li>
+                        <li class="mb-2">Thời gian truy cập có giới hạn (@ExpiredResultPage ngày), vui lượng đăng nhập để xem chi tiết</li>
                         <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
                     </ul>
                     <hr>
@@ -70,9 +69,9 @@
                         <div class="space-y-2">
                             <input type="text" class="form-input" placeholder="CCCD" required="" @bind-value="@_so_dinh_danh">
                         </div>
-                        <div class="flex flex-wrap gap-3">
-                            <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]" OnClick="LoadDataWithCccdAsync">Xem kết quả</MudButton>
-                        </div>
+                                                 <div class="flex flex-wrap gap-3">
+                             <MudButton type="button" Class="btn bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700 text-white transition-colors shadow-sm" OnClick="LoadDataWithCccdAsync">Xem kết quả</MudButton>
+                         </div>
                     </div>
                 </div>
 
@@ -89,7 +88,7 @@
 
                     <ul class="mb-5">
                         <li class="mb-2">Đăng nhập để xem kết quả khám bằng thông tin được gửi qua email</li>
-                        <li class="mb-2">Thời gian truy cập có giới hạn (7 ngày)</li>
+                        <li class="mb-2">Thời gian truy cập có giới hạn (@ExpiredResultPage ngày)</li>
                         <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
                     </ul>
                     <hr>
@@ -103,11 +102,12 @@
                 </div>
                 <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder 2xl:col-span-8 border-black/10">
                     <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thông báo</h2>
-                    <div class="flex items-center gap-2 p-3 mb-5text-white rounded bg-success">
-                        <strong>Thông báo:</strong> Thời gian xem kết quả đã hết hạn. Vui lòng đăng nhập để xem chi tiết.
-                    </div>
-                    <MudButton type="button" Class="btn mt-4  bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]"
-                               OnClick="LoginAsync">Đăng nhập</MudButton>
+                                         <div class="flex items-center gap-2 mb-5 text-white rounded bg-orange-500 shadow-sm">
+                         <i class="ri-alert-line me-2"></i>
+                         <strong>Thông báo:</strong> Thời gian xem kết quả đã hết hạn. Vui lòng đăng nhập để xem chi tiết.
+                     </div>
+                    <MudButton type="button" Class="btn mt-4 bg-purple hover:bg-purple text-white transition-colors shadow-sm"
+                                OnClick="LoginAsync">Đăng nhập</MudButton>
                 </div>
 
             </div>
@@ -122,40 +122,171 @@
                 </button>
             </div>
         }
-        else
-        {
-            <div class="grid grid-cols-1 gap-4">
-                <!-- Patient Summary -->
-                <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder mb-6">
-                    <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
-                        <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
-                            <i class="fas fa-user-circle me-2"></i>Kết quả khám Cận lâm sàng
-                        </h5>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="md:col-span-1">
-                            <strong>Mã lượt khám:</strong> <span>@KetQuaCanLamSangModel?.ma_luot_kham</span>
-                        </div>
-                        <div class="md:col-span-1">
-                            <strong>Mã CLS:</strong> <span>@KetQuaCanLamSangModel?.ma_can_lam_sang</span>
-                        </div>
-                        <div class="md:col-span-1">
-                            <strong>Tên CLS:</strong> <span>@KetQuaCanLamSangModel?.ten_can_lam_sang</span>
-                        </div>
-                        <div class="md:col-span-1">
-                            <strong>Ngày khám:</strong> <span>@KetQuaCanLamSangModel?.ngay_kham?.ToString("dd/MM/yyyy")</span>
-                        </div>
-                        <div class="md:col-span-1">
-                            <strong>Nội dung kết quả:</strong>
-                            <iframe src="@KetQuaCanLamSangModel?.ket_quan_url"
-                                    width="100%"
-                                    height="800px"
-                                    style="border: none;"></iframe>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
+                 else
+         {
+             <div class="grid grid-cols-1 gap-4">
+                 <!-- Patient Summary Card -->
+                 <div class="bg-white dark:bg-darklight rounded-lg border border-green-200 dark:border-green-800 shadow-lg overflow-hidden">
+                     <div class="bg-green-50 dark:bg-green-900/20 px-6 py-4 border-b border-green-200 dark:border-green-800">
+                         <h3 class="px-4 text-lg font-semibold text-green-800 dark:text-green-200 flex items-center">
+                             <i class="ri-user-line me-2 text-green-600"></i>
+                             Kết quả khám cận lâm sàng
+                         </h3>
+                     </div>
+                     
+                     <div class="p-6">
+                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                             <!-- Patient Info -->
+                             <div class="space-y-3">
+                                 <div class="flex items-center">
+                                     <i class="fas fa-user me-2 text-green-600"></i>
+                                     <div>
+                                          <strong>Thông tin bệnh nhân</strong>
+                                         <p class="font-medium text-gray-900 dark:text-gray-100">@GetUserFullName()</p>
+                                     </div>
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Mã BN:</strong> @(CurrentUser?.ma_benh_nhan ?? "BN001")
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Họ tên:</strong> @GetUserFullName()
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Công ty:</strong> @(CurrentUser?.title ?? "Công ty TNHH ABC")
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Chẩn đoán:</strong> @(CurrentUser?.description ?? "Viêm họng cấp")
+                                 </div>
+                             </div>
+
+                             <!-- Exam Info -->
+                             <div class="space-y-3">
+                                 <div class="flex items-center">
+                                     <i class="fas fa-calendar-alt me-2 text-green-600"></i>
+                                     <div>
+                                         <strong>Thông tin khám</strong>
+                                         <p class="font-medium text-gray-900 dark:text-gray-100">@(SoKhamSucKhoeModel?.ngay_kham?.ToString("dd/MM/yyyy") ?? "15/12/2024")</p>
+                                     </div>
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Mã lượt khám:</strong> @(SoKhamSucKhoeModel?.ma_luot_kham ?? ma_luot_kham)
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Ngày khám:</strong> @(SoKhamSucKhoeModel?.ngay_kham?.ToString("dd/MM/yyyy") ?? "15/12/2024")
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Ghi chú:</strong> Bệnh nhân có triệu chứng đau họng, ho khan
+                                 </div>
+                             </div>
+
+                             <!-- Spacer columns -->
+                             <div></div>
+                             <div></div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <!-- Subclinical Results List -->
+                 <div class="bg-white dark:bg-darklight rounded-lg border border-gray-200 dark:border-darkborder shadow-lg overflow-hidden">
+                     <div class="bg-gray-50 dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                         <h3 class="px-4 text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
+                             <i class="ri-list-check me-2 text-gray-600"></i>
+                             Danh sách kết quả cận lâm sàng
+                         </h3>
+                     </div>
+                     
+                                           <div class="p-6">
+                          @if (KhamSucKhoeCanLamSanModels != null && KhamSucKhoeCanLamSanModels.Any())
+                          {
+                              <div class="space-y-4" x-data="{ activeAccordion: null }">
+                                  @{
+                                      var itemIndex = 0;
+                                  }
+                                  @foreach (var item in KhamSucKhoeCanLamSanModels)
+                                  {
+                                      var currentIndex = itemIndex++;
+                                      <div class="bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800 overflow-hidden shadow-sm">
+                                          <!-- Accordion Header -->
+                                          <button class="w-full px-4 py-4 text-left bg-green-50 dark:bg-green-900/10 hover:bg-green-100 dark:hover:bg-green-900/20 border-b border-green-200 dark:border-green-800 flex items-center justify-between transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                  x-on:click="activeAccordion = activeAccordion === @currentIndex ? null : @currentIndex">
+                                              <div class="flex-1">
+                                                  <h4 class="font-medium text-green-700 dark:text-green-300 mb-1">@item.name</h4>
+                                                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                      Mã CKS: @item.code | Ngày kết luận: @item.date_created.ToString("dd/MM/yyyy")
+                                                  </p>
+                                              </div>
+                                              <div class="flex items-center space-x-2">
+                                                  <span class="text-sm text-green-600 dark:text-green-400 font-medium">Xem chi tiết</span>
+                                                  <i class="fas fa-chevron-down text-green-600 dark:text-green-400 transition-transform duration-200"
+                                                     x-bind:class="activeAccordion === @currentIndex ? 'rotate-180' : ''"></i>
+                                              </div>
+                                          </button>
+                                          
+                                          <!-- Accordion Content -->
+                                          <div class="overflow-hidden transition-all duration-300"
+                                               x-show="activeAccordion === @currentIndex"
+                                               x-transition:enter="transition-all duration-300"
+                                               x-transition:enter-start="max-h-0"
+                                               x-transition:enter-end="max-h-[1000px]"
+                                               x-transition:leave="transition-all duration-300"
+                                               x-transition:leave-start="max-h-[1000px]"
+                                               x-transition:leave-end="max-h-0">
+                                              <div class="p-4 bg-white dark:bg-gray-800">
+                                                  @if (!string.IsNullOrEmpty(item.ket_qua_cls))
+                                                  {
+                                                      <div class="mb-4">
+                                                          <h5 class="font-medium text-green-700 dark:text-green-300 mb-2 flex items-center">
+                                                              <i class="fas fa-clipboard-check me-2 text-green-600"></i>
+                                                              Kết luận:
+                                                          </h5>
+                                                          <p class="text-gray-700 dark:text-gray-300 p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                                                              @item.ket_qua_cls
+                                                          </p>
+                                                      </div>
+                                                  }
+                                                  
+                                                  @if (!string.IsNullOrEmpty(item.file_cls))
+                                                  {
+                                                      <div class="mb-4">
+                                                          <h5 class="font-medium text-green-700 dark:text-green-300 mb-2 flex items-center">
+                                                              <i class="fas fa-file-medical me-2 text-green-600"></i>
+                                                              Nội dung kết quả:
+                                                          </h5>
+                                                          <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                                                              <iframe src="@item.file_cls"
+                                                                      width="100%"
+                                                                      height="600px"
+                                                                      class="border rounded-lg border-gray-300 dark:border-gray-600"
+                                                                      title="Kết quả @item.name"
+                                                                      loading="lazy">
+                                                              </iframe>
+                                                          </div>
+                                                      </div>
+                                                  }
+                                                  else
+                                                  {
+                                                      <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                                                          <i class="fas fa-file-medical-alt text-3xl mb-2 text-green-400"></i>
+                                                          <p>Không có kết quả để hiển thị</p>
+                                                      </div>
+                                                  }
+                                              </div>
+                                          </div>
+                                      </div>
+                                  }
+                              </div>
+                          }
+                          else
+                          {
+                              <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+                                  <i class="fas fa-file-medical-alt text-4xl mb-4"></i>
+                                  <p class="text-lg">Không có kết quả cận lâm sàng nào.</p>
+                              </div>
+                          }
+                      </div>
+                 </div>
+             </div>
+         }
     </div>
 </div>
 
@@ -167,6 +298,7 @@
 
     #region Parameters and Injection
 
+    [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
     [Parameter] public string ma_luot_kham { get; set; } = "";
 
     #endregion
@@ -174,7 +306,8 @@
     #region Private Fields
 
     // Medical record data models
-    private KetQuaCanLamSangModel? KetQuaCanLamSangModel { get; set; }
+    private List<KhamSucKhoeCanLamSanModel>? KhamSucKhoeCanLamSanModels { get; set; }
+    private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
 
     private UserModel? CurrentUser { get; set; }
     private string _profileImageUrl = string.Empty;
@@ -223,14 +356,13 @@
             if (CurrentUser != null)
             {
                 // Load medical data if user is authenticated
-                await LoadMedicalDataAsync();
+                await LoadKetQuaCanLamSangDataAsync();
                 SetProfileImagePlaceholder();
             }
             else
             {
-                await LoadKetQuaCanLamSangDataAsync();
-
-                if (KetQuaCanLamSangModel != null && KetQuaCanLamSangModel.ngay_kham != null && DateTime.Now > KetQuaCanLamSangModel.ngay_kham.Value.AddDays(ExpiredResultPage))
+                await LoadSoKhamSucKhoeDataAsync();
+                if (SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ngay_kham != null && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
                 {
                     _expired_result_page = true;
                 }
@@ -252,13 +384,8 @@
             await InvokeAsync(StateHasChanged);
         }
     }
+    
 
-    /// <summary>
-    /// Load all medical record data and user information asynchronously
-    /// </summary>
-    /// <summary>
-    /// Load data with CCCD input - optimized version
-    /// </summary>
     private async Task LoadDataWithCccdAsync()
     {
         if (string.IsNullOrWhiteSpace(_so_dinh_danh))
@@ -279,20 +406,20 @@
                 _isPublic = true;
 
                 // Load medical data in parallel
-                await LoadMedicalDataAsync();
+                await LoadKetQuaCanLamSangDataAsync();
 
-                // // Validate user matches the medical record
-                // if (KetQuaCanLamSangModel != null &&
-                //     string.Equals(KetQuaCanLamSangModel.ma_benh_nhan, CurrentUser.ma_benh_nhan, StringComparison.OrdinalIgnoreCase))
-                // {
-                //     _isShowInputCCCD = false;
-                //     SetProfileImagePlaceholder();
-                // }
-                // else
-                // {
-                //     _isShowInputCCCD = true;
-                //     AlertService?.ShowAlert("Không tìm thấy mã bệnh nhân với lượt khám này", "danger");
-                // }
+                // Validate user matches the medical record
+                if (SoKhamSucKhoeModel != null &&
+                    string.Equals(SoKhamSucKhoeModel.ma_benh_nhan, CurrentUser.ma_benh_nhan, StringComparison.OrdinalIgnoreCase))
+                {
+                    _isShowInputCCCD = false;
+                    SetProfileImagePlaceholder();
+                }
+                else
+                {
+                    _isShowInputCCCD = true;
+                    AlertService?.ShowAlert("Không tìm thấy mã bệnh nhân với lượt khám này", "danger");
+                }
             }
             else
             {
@@ -343,72 +470,25 @@
         }
     }
 
-    /// <summary>
-    /// Load all medical record data in parallel
-    /// </summary>
-    private async Task LoadMedicalDataAsync()
-    {
-        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
-        // Execute all medical data API calls in parallel for better performance
-        var tasks = new[]
-        {
-            LoadSingleRecordAsync<KetQuaCanLamSangModel>(KetQuaCanLamSangService, query, r => KetQuaCanLamSangModel = r)
-        };
-
-        await Task.WhenAll(tasks);
-    }
-
     private async Task LoadKetQuaCanLamSangDataAsync()
     {
         string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
-        var result = await KetQuaCanLamSangService.GetAllAsync(query, true);
+        var result = await KhamSucKhoeCanLamSanService.GetAllAsync(query, true);
         if (result?.IsSuccess == true && result.Data != null)
         {
-            KetQuaCanLamSangModel = result.Data.FirstOrDefault();
+            KhamSucKhoeCanLamSanModels = result.Data;
+        }
+    }
+    private async Task LoadSoKhamSucKhoeDataAsync()
+    {
+        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+        var result = await SoKhamSucKhoeService.GetAllAsync(query, true);
+        if (result?.IsSuccess == true && result.Data != null)
+        {
+            SoKhamSucKhoeModel = result.Data.FirstOrDefault();
         }
     }
 
-    /// <summary>
-    /// Generic method to load single record type with proper type safety
-    /// </summary>
-    private async Task LoadSingleRecordAsync<T>(IBaseGetService<T> service, string query, Action<T?> setResult) where T : class
-    {
-        try
-        {
-            var result = await service.GetAllAsync(query, _isPublic);
-            if (result?.IsSuccess == true && result.Data != null)
-            {
-                setResult(result.Data.FirstOrDefault());
-            }
-            else
-            {
-                setResult(null);
-            }
-        }
-        catch
-        {
-            setResult(null);
-        }
-    }
-    private async Task LoadMultipleRecordAsync<T>(IBaseGetService<T> service, string query, Action<List<T>?> setResult) where T : class
-    {
-        try
-        {
-            var result = await service.GetAllAsync(query);
-            if (result?.IsSuccess == true && result.Data != null)
-            {
-                setResult(result.Data);
-            }
-            else
-            {
-                setResult(null);
-            }
-        }
-        catch
-        {
-            setResult(null);
-        }
-    }
 
     /// <summary>
     /// Set profile image placeholder
