@@ -1,12 +1,10 @@
 @page "/subclinical-result-detail-page/{ma_luot_kham}"
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.User
-@using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Extensions
-@using CoreAdminWeb.Services.PDFService
 @using Microsoft.Extensions.Configuration
 @using System.Linq
 @inherits BlazorCoreBase
@@ -14,7 +12,7 @@
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IUserService UserService
 @inject IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService
-@inject IPdfService PdfService
+@inject IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService
 @inject IConfiguration Configuration
 @implements IDisposable
 
@@ -102,7 +100,7 @@
                 </div>
                 <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder 2xl:col-span-8 border-black/10">
                     <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thông báo</h2>
-                                         <div class="flex items-center gap-2 mb-5 text-white rounded bg-orange-500 shadow-sm">
+                    <div class="flex items-center gap-2 mb-5 rounded bg-orange-500 shadow-sm">
                          <i class="ri-alert-line me-2"></i>
                          <strong>Thông báo:</strong> Thời gian xem kết quả đã hết hạn. Vui lòng đăng nhập để xem chi tiết.
                      </div>
@@ -121,8 +119,7 @@
                     <i class="ri-refresh-line me-1"></i>Thử lại
                 </button>
             </div>
-        }
-                 else
+        }else
          {
              <div class="grid grid-cols-1 gap-4">
                  <!-- Patient Summary Card -->
@@ -152,10 +149,10 @@
                                      <strong>Họ tên:</strong> @GetUserFullName()
                                  </div>
                                  <div class="text-sm text-gray-600 dark:text-gray-400">
-                                     <strong>Công ty:</strong> @(CurrentUser?.title ?? "Công ty TNHH ABC")
+                                     <strong>Công ty:</strong> 
                                  </div>
                                  <div class="text-sm text-gray-600 dark:text-gray-400">
-                                     <strong>Chẩn đoán:</strong> @(CurrentUser?.description ?? "Viêm họng cấp")
+                                     <strong>Chẩn đoán:</strong> 
                                  </div>
                              </div>
 
@@ -165,17 +162,16 @@
                                      <i class="fas fa-calendar-alt me-2 text-green-600"></i>
                                      <div>
                                          <strong>Thông tin khám</strong>
-                                         <p class="font-medium text-gray-900 dark:text-gray-100">@(SoKhamSucKhoeModel?.ngay_kham?.ToString("dd/MM/yyyy") ?? "15/12/2024")</p>
                                      </div>
                                  </div>
                                  <div class="text-sm text-gray-600 dark:text-gray-400">
                                      <strong>Mã lượt khám:</strong> @(SoKhamSucKhoeModel?.ma_luot_kham ?? ma_luot_kham)
                                  </div>
                                  <div class="text-sm text-gray-600 dark:text-gray-400">
-                                     <strong>Ngày khám:</strong> @(SoKhamSucKhoeModel?.ngay_kham?.ToString("dd/MM/yyyy") ?? "15/12/2024")
+                                     <strong>Ngày khám:</strong> @(SoKhamSucKhoeModel?.ngay_kham?.ToString("dd/MM/yyyy") ?? "")
                                  </div>
                                  <div class="text-sm text-gray-600 dark:text-gray-400">
-                                     <strong>Ghi chú:</strong> Bệnh nhân có triệu chứng đau họng, ho khan
+                                     <strong>Ghi chú:</strong>
                                  </div>
                              </div>
 
@@ -188,14 +184,14 @@
 
                  <!-- Subclinical Results List -->
                  <div class="bg-white dark:bg-darklight rounded-lg border border-gray-200 dark:border-darkborder shadow-lg overflow-hidden">
-                     <div class="bg-gray-50 dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                     <div class="bg-green-50 dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                          <h3 class="px-4 text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
                              <i class="ri-list-check me-2 text-gray-600"></i>
                              Danh sách kết quả cận lâm sàng
                          </h3>
                      </div>
                      
-                                           <div class="p-6">
+                    <div class="p-6">
                           @if (KhamSucKhoeCanLamSanModels != null && KhamSucKhoeCanLamSanModels.Any())
                           {
                               <div class="space-y-4" x-data="{ activeAccordion: null }">
@@ -205,9 +201,9 @@
                                   @foreach (var item in KhamSucKhoeCanLamSanModels)
                                   {
                                       var currentIndex = itemIndex++;
-                                      <div class="bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800 overflow-hidden shadow-sm">
+                                      <div class="dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800 overflow-hidden shadow-sm">
                                           <!-- Accordion Header -->
-                                          <button class="w-full px-4 py-4 text-left bg-green-50 dark:bg-green-900/10 hover:bg-green-100 dark:hover:bg-green-900/20 border-b border-green-200 dark:border-green-800 flex items-center justify-between transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+                                          <button class="w-full gap-2 px-4 py-4 text-left dark:bg-green-900/10 hover:bg-green-100 dark:hover:bg-green-900/20 border-b border-green-200 dark:border-green-800 flex items-center justify-between transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
                                                   x-on:click="activeAccordion = activeAccordion === @currentIndex ? null : @currentIndex">
                                               <div class="flex-1">
                                                   <h4 class="font-medium text-green-700 dark:text-green-300 mb-1">@item.name</h4>
@@ -215,9 +211,9 @@
                                                       Mã CKS: @item.code | Ngày kết luận: @item.date_created.ToString("dd/MM/yyyy")
                                                   </p>
                                               </div>
-                                              <div class="flex items-center space-x-2">
-                                                  <span class="text-sm text-green-600 dark:text-green-400 font-medium">Xem chi tiết</span>
-                                                  <i class="fas fa-chevron-down text-green-600 dark:text-green-400 transition-transform duration-200"
+                                              <div class="flex items-center space-x-2  bg-green-600 text-white dark:text-green-400 font-medium px-2 py-1 rounded-md">
+                                                  <span class="text-sm">Xem chi tiết</span>
+                                                  <i class="ri-arrow-down-s-line text-white dark:text-green-400 transition-transform duration-200"
                                                      x-bind:class="activeAccordion === @currentIndex ? 'rotate-180' : ''"></i>
                                               </div>
                                           </button>
@@ -239,7 +235,7 @@
                                                               <i class="fas fa-clipboard-check me-2 text-green-600"></i>
                                                               Kết luận:
                                                           </h5>
-                                                          <p class="text-gray-700 dark:text-gray-300 p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                                                          <p class="text-gray-700 dark:text-gray-300 p-3 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
                                                               @item.ket_qua_cls
                                                           </p>
                                                       </div>
@@ -287,6 +283,7 @@
                  </div>
              </div>
          }
+
     </div>
 </div>
 
@@ -298,7 +295,6 @@
 
     #region Parameters and Injection
 
-    [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
     [Parameter] public string ma_luot_kham { get; set; } = "";
 
     #endregion
