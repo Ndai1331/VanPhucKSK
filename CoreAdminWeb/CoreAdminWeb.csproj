@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <!-- <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute> -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <Folder Include="Pages\Layouts\" />
+    <Folder Include="wwwroot\images\cls\" />
     <Folder Include="wwwroot\images\LK0005\" />
   </ItemGroup>
 

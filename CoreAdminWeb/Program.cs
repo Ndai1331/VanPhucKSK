@@ -20,6 +20,7 @@ builder.Services.AddAuthorizationCore();
 
 builder.Services.AddServices();
 builder.Services.Configure<DrCoreApi>(builder.Configuration.GetSection("DrCoreApi"));
+builder.Services.Configure<FTPConfig>(builder.Configuration.GetSection("FTPConfig"));
 
 // Configure HttpClient with base URL - for scoped HttpClientService (SECURE - replaces RequestClient)
 builder.Services.AddHttpClient<CoreAdminWeb.Services.Http.HttpClientService>(client =>

@@ -103,6 +103,7 @@
                     <MudTable Class="min-w-[640px] text-left w-full" Items="@MainModels" Hover="true" Breakpoint="Breakpoint.None" LoadingProgressColor="Color.Info">
                         <HeaderContent>
                             <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
+                            <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Loại</MudTh>
                             <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày khám</MudTh>
                             <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Lượt khám</MudTh>
                             <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày lập sổ</MudTh>
@@ -112,6 +113,7 @@
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
+                            <MudTd DataLabel="Loại">@(context.Type.HasValue && context.Type.Value ? "Khám sức khỏe đoàn" : "Khám thường quy")</MudTd>
                             <MudTd DataLabel="Ngày khám">@context.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
                             <MudTd DataLabel="Lượt khám">@context.ma_luot_kham</MudTd>
                             <MudTd DataLabel="Ngày lập sổ">@context.ngay_lap_so?.ToString("dd/MM/yyyy")</MudTd>

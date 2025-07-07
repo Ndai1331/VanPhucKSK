@@ -13,6 +13,9 @@ namespace CoreAdminWeb.Model
         public string? xac_nhan_nld { get; set; }
         public bool send_mail { get; set; } = false;
         public int? ma_cong_ty { get; set; }
+        public string? GhiChu { get; set; }
+        public string? ChuanDoan { get; set; }
+        public bool? Type { get; set; } = false;
         public new bool deleted { get; set; } = false;
 
     }

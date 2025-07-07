@@ -1,8 +1,10 @@
 @page "/subclinical-result-detail-page/{ma_luot_kham}"
 @using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.Configuration
 @using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Services.FTP
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Extensions
 @using Microsoft.Extensions.Configuration
@@ -13,6 +15,7 @@
 @inject IUserService UserService
 @inject IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService
 @inject IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService
+@inject IFtpService FtpService
 @inject IConfiguration Configuration
 @implements IDisposable
 
@@ -152,7 +155,7 @@
                                      <strong>Công ty:</strong> 
                                  </div>
                                  <div class="text-sm text-gray-600 dark:text-gray-400">
-                                     <strong>Chẩn đoán:</strong> 
+                                     <strong>Chẩn đoán:</strong> @SoKhamSucKhoeModel?.ChuanDoan
                                  </div>
                              </div>
 
@@ -171,7 +174,7 @@
                                      <strong>Ngày khám:</strong> @(SoKhamSucKhoeModel?.ngay_kham?.ToString("dd/MM/yyyy") ?? "")
                                  </div>
                                  <div class="text-sm text-gray-600 dark:text-gray-400">
-                                     <strong>Ghi chú:</strong>
+                                     <strong>Ghi chú:</strong> @SoKhamSucKhoeModel?.GhiChu
                                  </div>
                              </div>
 
@@ -206,7 +209,8 @@
                                           <button class="w-full gap-2 px-4 py-4 text-left dark:bg-green-900/10 hover:bg-green-100 dark:hover:bg-green-900/20 border-b border-green-200 dark:border-green-800 flex items-center justify-between transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
                                                   x-on:click="activeAccordion = activeAccordion === @currentIndex ? null : @currentIndex">
                                               <div class="flex-1">
-                                                  <h4 class="font-medium text-green-700 dark:text-green-300 mb-1">@item.name</h4>
+                                                  <h4 class="font-bold text-green-600 dark:text-green-300 mb-1">
+                                                    <i class="ri-list-check-3 me-2 text-green-600 me-2"></i> @item.name</h4>
                                                   <p class="text-sm text-gray-600 dark:text-gray-400">
                                                       Mã CKS: @item.code | Ngày kết luận: @item.date_created.ToString("dd/MM/yyyy")
                                                   </p>
@@ -231,11 +235,11 @@
                                                   @if (!string.IsNullOrEmpty(item.ket_qua_cls))
                                                   {
                                                       <div class="mb-4">
-                                                          <h5 class="font-medium text-green-700 dark:text-green-300 mb-2 flex items-center">
+                                                          <h5 class="font-bold dark:text-green-300 mb-2 flex items-center">
                                                               <i class="fas fa-clipboard-check me-2 text-green-600"></i>
                                                               Kết luận:
                                                           </h5>
-                                                          <p class="text-gray-700 dark:text-gray-300 p-3 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                                                          <p class="bg-green-50 text-gray-700 dark:text-gray-300 p-3 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
                                                               @item.ket_qua_cls
                                                           </p>
                                                       </div>
@@ -249,13 +253,51 @@
                                                               Nội dung kết quả:
                                                           </h5>
                                                           <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-green-200 dark:border-green-800">
-                                                              <iframe src="@item.file_cls"
-                                                                      width="100%"
-                                                                      height="600px"
-                                                                      class="border rounded-lg border-gray-300 dark:border-gray-600"
-                                                                      title="Kết quả @item.name"
-                                                                      loading="lazy">
-                                                              </iframe>
+                                                              @{
+                                                                  // Download file directly from FTP without caching
+                                                                  var fileName = Path.GetFileName(item.file_cls);
+                                                                  var localPath = GetDirectLocalPath(fileName);
+                                                                  _ = DownloadFileDirectlyAsync(fileName);
+                                                              }
+                                                              
+                                                              @if (IsFileAvailableLocally(fileName))
+                                                              {
+                                                                  <iframe src="@localPath"
+                                                                          width="100%"
+                                                                          height="600px"
+                                                                          class="border rounded-lg border-gray-300 dark:border-gray-600"
+                                                                          title="Kết quả @item.name"
+                                                                          loading="lazy">
+                                                                  </iframe>
+                                                              }
+                                                              else if (IsFileCurrentlyDownloading(fileName))
+                                                              {
+                                                                  <div class="flex justify-center items-center py-12">
+                                                                      <div class="text-center">
+                                                                          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
+                                                                          <span class="text-gray-600 dark:text-gray-400">Đang tải từ FTP...</span>
+                                                                          <div class="mt-2 text-xs text-gray-500">
+                                                                              File: @fileName
+                                                                          </div>
+                                                                      </div>
+                                                                  </div>
+                                                              }
+                                                              else
+                                                              {
+                                                                  <div class="flex justify-center items-center py-12">
+                                                                      <div class="text-center">
+                                                                          <i class="fas fa-file-medical-alt text-3xl mb-2 text-red-400"></i>
+                                                                          <span class="text-gray-600 dark:text-gray-400">Không thể tải file</span>
+                                                                          <div class="mt-2 text-xs text-gray-500">
+                                                                              File: @fileName
+                                                                          </div>
+                                                                          <button @onclick="async () => await RetryDownload(fileName)" 
+                                                                                  class="mt-2 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                                                                              Thử lại
+                                                                          </button>
+                                                                      </div>
+                                                                  </div>
+                                                              }
                                                           </div>
                                                       </div>
                                                   }
@@ -291,6 +333,7 @@
     #region Constants
 
     private const string DEFAULT_PROFILE_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
+    private const int ExpiredResultPage = 7; // 7 days
     #endregion
 
     #region Parameters and Injection
@@ -312,9 +355,15 @@
     private string? _errorMessage;
     private string _imagesFolder = $"/images/";
     private string _logoPath = $"/images/Logo/logo.png";
+    private string _ftpFolder = $"";
     private string _so_dinh_danh = string.Empty;
     private bool _expired_result_page = false;
     private bool _isPublic = false;
+
+    // Local file cache for CLS results
+    private readonly Dictionary<string, string> _localFileCache = new(); // fileName -> local file path
+    private readonly Dictionary<string, bool> _downloadingFiles = new(); // track downloading status
+    private string _clsImagesFolder => $"/images/cls/{ma_luot_kham}/"; // Local folder for CLS files
 
     #endregion
 
@@ -464,6 +513,16 @@
             Console.WriteLine($"Error loading user data: {ex.Message}");
             // CurrentUser will remain null, triggering CCCD input
         }
+        
+        // Build FTP folder path based on user and medical record
+        if (CurrentUser != null)
+        {
+            _ftpFolder = $"{CurrentUser.ma_benh_nhan}/{ma_luot_kham}/";
+        }
+        else
+        {
+            _ftpFolder = $"{ma_luot_kham}/";
+        }
     }
 
     private async Task LoadKetQuaCanLamSangDataAsync()
@@ -473,7 +532,76 @@
         if (result?.IsSuccess == true && result.Data != null)
         {
             KhamSucKhoeCanLamSanModels = result.Data;
+            
+            // Create local folder for CLS files
+            EnsureClsImagesFolderExists();
         }
+    }
+
+    /// <summary>
+    /// Ensure CLS images folder exists
+    /// </summary>
+    private void EnsureClsImagesFolderExists()
+    {
+        try
+        {
+            var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham);
+            if (!Directory.Exists(physicalPath))
+            {
+                Directory.CreateDirectory(physicalPath);
+                Console.WriteLine($"Created CLS images folder: {physicalPath}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating CLS images folder: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Clean up CLS images folder
+    /// </summary>
+    private void CleanupClsImagesFolder()
+    {
+        if (string.IsNullOrEmpty(ma_luot_kham)) return;
+
+        try
+        {
+            var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham);
+            if (Directory.Exists(physicalPath))
+            {
+                // Delete all files in the folder
+                var files = Directory.GetFiles(physicalPath);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+
+                // Delete the folder itself
+                Directory.Delete(physicalPath);
+                Console.WriteLine($"Cleanup: Deleted CLS images folder: {physicalPath}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cleaning up CLS images folder: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Get debug info for FTP paths
+    /// </summary>
+    private string GetFtpPathDebugInfo(string filePath)
+    {
+        var fileName = Path.GetFileName(filePath);
+        var paths = new[]
+        {
+            $"1: {filePath}",
+            $"2: {fileName}",
+            $"3: {_ftpFolder}{fileName}",
+            $"4: {_ftpFolder}{filePath}"
+        };
+        return string.Join(" | ", paths);
     }
     private async Task LoadSoKhamSucKhoeDataAsync()
     {
@@ -550,6 +678,13 @@
         {
             // Clean up signature images folder
             CleanupSignatureImages();
+            
+            // Clean up CLS files folder
+            CleanupClsImagesFolder();
+            
+            // Clear caches
+            _localFileCache.Clear();
+            _downloadingFiles.Clear();
         }
         catch (Exception ex)
         {
@@ -600,6 +735,303 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error cleaning up signature images: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Read file content from FTP server as string
+    /// </summary>
+    private async Task<string> ReadFileFromFTP(string fileName)
+    {
+        try
+        {
+            // Use byte download method which has better error handling
+            var bytes = await FtpService.DownloadFileAsBytesAsync(fileName);
+            if (bytes != null && bytes.Length > 0)
+            {
+                return System.Text.Encoding.UTF8.GetString(bytes);
+            }
+            return string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error reading file from FTP: {ex.Message}");
+            return string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Download file from FTP and save to local folder
+    /// </summary>
+    private async Task<string> DownloadFileFromFtpToLocal(string ftpFileName)
+    {
+        if (string.IsNullOrEmpty(ftpFileName) || !IsValidFileName(ftpFileName)) return string.Empty;
+
+        var localFileName = Path.GetFileName(ftpFileName);
+        var localPath = _clsImagesFolder + localFileName;
+        
+        // Check if already cached locally
+        if (_localFileCache.TryGetValue(ftpFileName, out string? cachedPath))
+        {
+            return cachedPath;
+        }
+
+        // Check if currently downloading
+        if (_downloadingFiles.ContainsKey(ftpFileName) && _downloadingFiles[ftpFileName])
+        {
+            return string.Empty; // Return empty, will show loading
+        }
+
+        try
+        {
+            _downloadingFiles[ftpFileName] = true;
+            
+            Console.WriteLine($"Downloading FTP file: {ftpFileName}");
+            
+            // Try different FTP paths
+            var pathsToTry = new[]
+            {
+                $"{CurrentUser?.ma_benh_nhan}/{ma_luot_kham}/{localFileName}",
+                $"25035409/250523110537188527/{localFileName}", 
+                localFileName
+            };
+
+            byte[]? fileBytes = null;
+            string? successfulPath = null;
+
+            foreach (var ftpPath in pathsToTry)
+            {
+                try
+                {
+                    Console.WriteLine($"Trying FTP path: {ftpPath}");
+                    
+                    // Check if file exists first
+                    var fileExists = await FtpService.FileExistsAsync(ftpPath);
+                    if (!fileExists) continue;
+                    
+                    // Download file
+                    fileBytes = await FtpService.DownloadFileAsBytesAsync(ftpPath);
+                    if (fileBytes != null && fileBytes.Length > 0)
+                    {
+                        successfulPath = ftpPath;
+                        Console.WriteLine($"Successfully downloaded from: {ftpPath} ({fileBytes.Length} bytes)");
+                        break;
+                    }
+                }
+                catch (Exception pathEx)
+                {
+                    Console.WriteLine($"Failed to download from {ftpPath}: {pathEx.Message}");
+                }
+            }
+            
+            if (fileBytes != null && fileBytes.Length > 0)
+            {
+                // Save to local file
+                var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, localFileName);
+                await File.WriteAllBytesAsync(physicalPath, fileBytes);
+                
+                Console.WriteLine($"Saved local file: {physicalPath}");
+                
+                // Cache the local path
+                _localFileCache[ftpFileName] = localPath;
+                return localPath;
+            }
+            else
+            {
+                Console.WriteLine($"Failed to download file: {ftpFileName}");
+                _localFileCache[ftpFileName] = string.Empty;
+                return string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error downloading file from FTP: {ftpFileName}, Error: {ex.Message}");
+            _localFileCache[ftpFileName] = string.Empty;
+            return string.Empty;
+        }
+        finally
+        {
+            _downloadingFiles[ftpFileName] = false;
+        }
+    }
+
+    /// <summary>
+    /// Get local file path for iframe or download from FTP if needed
+    /// </summary>
+    private async Task<string> GetLocalFileForIframe(string ftpFileName)
+    {
+        if (string.IsNullOrEmpty(ftpFileName)) return string.Empty;
+
+        try
+        {
+            // Skip if filename is empty or doesn't look like a file
+            if (!IsValidFileName(ftpFileName))
+            {
+                return ftpFileName; // Return original if not valid
+            }
+            
+            // Download from FTP to local folder
+            var localPath = await DownloadFileFromFtpToLocal(ftpFileName);
+            
+            // Return local path if download successful
+            if (!string.IsNullOrEmpty(localPath))
+            {
+                return localPath;
+            }
+            
+            // Fallback to original filename
+            return ftpFileName;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting local file for iframe: {ex.Message}");
+            return ftpFileName;
+        }
+    }
+
+    /// <summary>
+    /// Check if filename is valid for FTP loading
+    /// </summary>
+    private static bool IsValidFileName(string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName)) return false;
+        
+        // Check for common file extensions that should be loaded from FTP
+        var validExtensions = new[] { ".html", ".htm", ".pdf", ".txt" };
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
+        
+        return validExtensions.Contains(extension);
+    }
+
+    /// <summary>
+    /// Get direct local path for file without caching
+    /// </summary>
+    private string GetDirectLocalPath(string fileName)
+    {
+        return _clsImagesFolder + fileName;
+    }
+
+    /// <summary>
+    /// Check if file is available locally
+    /// </summary>
+    private bool IsFileAvailableLocally(string fileName)
+    {
+        var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, fileName);
+        return File.Exists(physicalPath);
+    }
+
+    /// <summary>
+    /// Check if file is currently downloading
+    /// </summary>
+    private bool IsFileCurrentlyDownloading(string fileName)
+    {
+        return _downloadingFiles.ContainsKey(fileName) && _downloadingFiles[fileName];
+    }
+
+    /// <summary>
+    /// Download file directly from FTP without caching
+    /// </summary>
+    private async Task DownloadFileDirectlyAsync(string fileName)
+    {
+        if (IsFileAvailableLocally(fileName) || IsFileCurrentlyDownloading(fileName))
+            return;
+
+        await DownloadFileFromFtpToLocal(fileName);
+        StateHasChanged(); // Refresh UI after download
+    }
+
+    /// <summary>
+    /// Retry download for failed files
+    /// </summary>
+    private async Task RetryDownload(string fileName)
+    {
+        // Clear any existing cache for this file
+        _localFileCache.Remove(fileName);
+        _downloadingFiles.Remove(fileName);
+        
+        // Delete local file if exists
+        var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, fileName);
+        if (File.Exists(physicalPath))
+        {
+            File.Delete(physicalPath);
+        }
+        
+        // Download again
+        await DownloadFileDirectlyAsync(fileName);
+    }
+
+    /// <summary>
+    /// Get local file loading status for debugging
+    /// </summary>
+    private string GetFtpLoadingStatus()
+    {
+        var localCached = _localFileCache.Count;
+        var downloading = _downloadingFiles.Count(x => x.Value);
+        
+        return $"Local: {localCached} files, Downloading: {downloading} files, CLS Folder: '{_clsImagesFolder}'";
+    }
+
+    /// <summary>
+    /// Clear all local file caches and delete downloaded files
+    /// </summary>
+    private void ClearFtpCache()
+    {
+        try
+        {
+            var localCount = _localFileCache.Count;
+            var downloadingCount = _downloadingFiles.Count;
+            
+            // Clear caches
+            _localFileCache.Clear();
+            _downloadingFiles.Clear();
+            
+            // Delete local files
+            CleanupClsImagesFolder();
+            
+            // Recreate folder for future downloads
+            EnsureClsImagesFolderExists();
+            
+            Console.WriteLine($"Cleared local cache: {localCount} files, {downloadingCount} downloading states");
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error clearing local cache: {ex.Message}");
+        }
+    }
+
+
+
+    /// <summary>
+    /// Read file content from FTP server as byte array
+    /// </summary>
+    private async Task<byte[]> ReadFileAsBytesFromFTP(string fileName)
+    {
+        try
+        {
+            return await FtpService.DownloadFileAsBytesAsync(fileName);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error reading file bytes from FTP: {ex.Message}");
+            return Array.Empty<byte>();
+        }
+    }
+
+
+    /// <summary>
+    /// List files in FTP directory
+    /// </summary>
+    private async Task<List<string>> ListFilesFromFTP(string directory = "")
+    {
+        try
+        {
+            return await FtpService.ListFilesAsync(directory);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error listing files from FTP: {ex.Message}");
+            return new List<string>();
         }
     }
 

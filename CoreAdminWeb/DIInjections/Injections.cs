@@ -10,6 +10,7 @@ using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Posts;
 using CoreAdminWeb.Services.Settings;
 using CoreAdminWeb.Services.Users;
+using CoreAdminWeb.Services.FTP;
 
 
 namespace CoreAdminWeb.DIInjections
@@ -37,6 +38,14 @@ namespace CoreAdminWeb.DIInjections
 
             // PDF Service Configuration
             services.AddScoped<IPdfService, PdfService>();
+
+            // FTP Service Configuration
+            services.AddScoped<IFtpService>(provider =>
+            {
+                var configuration = provider.GetService<IConfiguration>();
+                var ftpConfig = configuration!.GetSection("FTPConfig").Get<CoreAdminWeb.Model.Configuration.FTPConfig>();
+                return new FtpService(ftpConfig!);
+            });
 
             // HTTP Client Service Configuration - replaces static RequestClient
             services.AddScoped<IHttpClientService, HttpClientService>();
