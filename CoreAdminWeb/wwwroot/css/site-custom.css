@@ -162,3 +162,14 @@
 .bg-green-50 {
     background-color: #f0fdf4 !important;
 }
+
+
+.desktop-menu{
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .desktop-menu{
+        display: block;
+    }
+}
