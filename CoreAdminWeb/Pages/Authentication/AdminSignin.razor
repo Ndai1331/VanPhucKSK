@@ -1,0 +1,107 @@
+﻿@page "/admin-signin"
+@using CoreAdminWeb.Services
+@using CoreAdminWeb.Services.Users
+@layout CoreAdminWeb.Shared.Layout.AuthLayout
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
+<div class="login-wrapper">
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h4 class="login-title text-uppercase">Đăng nhập quản trị hệ thống</h4>
+            <p class="login-subtitle">Vui lòng đăng nhập vào hệ thống quản trị</p>
+        </div>
+
+        <div class="login-body">
+            <form id="adminLoginForm" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label for="adminUsername" class="form-label">Email </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <InputText @bind-Value="_email" class="form-control" id="email" placeholder="Nhập email" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="adminPassword" class="form-label">Mật khẩu</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <InputText @bind-Value="_password" type="password" class="form-control" id="password" placeholder="Nhập mật khẩu" />
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberAdmin">
+                    <label class="form-check-label" for="rememberAdmin">
+                        Ghi nhớ đăng nhập
+                    </label>
+                </div>
+                <button type="button" class="btn btn-login w-100 mb-3" @onclick="HandleSignIn" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                    }
+                    Đăng nhập
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Inject] AlertService AlertService { get; set; }
+    [Inject] IUserService UserService { get; set; }
+    private string _email, _password;
+    private bool _rememberMe = false;
+    private bool isLoading = false;
+
+    private async Task HandleSignIn()
+    {
+        if (string.IsNullOrEmpty(_password) || string.IsNullOrEmpty(_email))
+            return;
+
+        isLoading = true;
+        var response = await UserService.LoginAdminAsync(_email, _password);
+        if (response.IsSuccess)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+            {
+                AlertService.ShowAlert("Đăng nhập thành công!", "success");
+                Navigation.NavigateTo("/admin",forceLoad: true);
+            }
+            else
+            {
+                AlertService.ShowAlert("Chưa đăng nhập thành công!", "warning");
+            }
+        }
+        else
+        {
+            AlertService.ShowAlert(response.Message ?? "Lỗi khi đăng nhập", "danger");
+        }
+        isLoading = false;
+    }
+
+    private async Task HandleGlobalKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            await HandleSignIn();
+        }
+    }
+}

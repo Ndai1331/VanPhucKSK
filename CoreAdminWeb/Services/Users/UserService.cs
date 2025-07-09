@@ -13,6 +13,7 @@ namespace CoreAdminWeb.Services.Users
     public interface IUserService
     {
         Task<RequestHttpResponse<LoginResponse>> LoginAsync(string email, string password);
+        Task<RequestHttpResponse<LoginResponse>> LoginAdminAsync(string email, string password);
         Task<bool> LogoutAsync();
         Task<RequestHttpResponse<UserModel>> GetCurrentUserAsync();
         Task<RequestHttpResponse<UserModel>> UpdateUserAsync(UserModel req);
@@ -71,6 +72,46 @@ namespace CoreAdminWeb.Services.Users
                     return response;
                 }
 
+                var result = await PublicRequestClient.PostAPIAsync<RequestHttpResponse<LoginResponse>>("auth/login", new LoginRequest { email = email, password = password });
+                if (result.IsSuccess)
+                {
+                    response.Data = result.Data.Data;
+                    _accessToken = result.Data.Data.access_token;
+                    _refreshToken = result.Data.Data.refresh_token;
+
+                    _httpClientService.AttachToken(_accessToken);
+                    var claim = ClaimHepler.GetListClaim(_accessToken);
+
+                    var currentUserAsync = await GetCurrentUserAsync();
+                    if(currentUserAsync.Data != null)
+                    {
+                        await _localStorage.SetItemAsync("accessToken", _accessToken);
+                        await _localStorage.SetItemAsync("userName", currentUserAsync.Data.email);
+                        await _localStorage.SetItemAsync("userId", currentUserAsync.Data.id);
+                        await _localStorage.SetItemAsync("role", currentUserAsync.Data.role);
+                        await _localStorage.SetItemAsync("claims", claim);
+                        (
+                            (ApiAuthenticationStateProvider)_authenticationStateProvider
+                        ).MarkUserAsAuthenticated(currentUserAsync.Data.email);
+                    }else{
+                        response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = "Không tìm thấy user" } };
+                    }
+                }else{
+                    response.Errors = result.Errors;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = ex.Message } };
+            }
+            return response;
+        }
+
+        public async Task<RequestHttpResponse<LoginResponse>> LoginAdminAsync(string email, string password)
+        {
+            var response = new RequestHttpResponse<LoginResponse>();
+            try
+            {
                 var result = await PublicRequestClient.PostAPIAsync<RequestHttpResponse<LoginResponse>>("auth/login", new LoginRequest { email = email, password = password });
                 if (result.IsSuccess)
                 {

@@ -173,3 +173,18 @@
         display: block;
     }
 }
+
+
+/* Admin Layout */
+@media (min-width: 1024px) {
+    .admin .main-container .main-content {
+        -webkit-margin-start: 240px !important;
+        margin-inline-start: 240px !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .vertical.toggle-sidebar .admin .main-container .main-content:where([dir=ltr],[dir=ltr] *) {
+        margin-left: 72px !important;
+    }
+}

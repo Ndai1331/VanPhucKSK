@@ -43,6 +43,8 @@ namespace CoreAdminWeb.Services
                 name = model.name,
                 description = model.description,
                 sort = model.sort,
+                active = model.active,
+                status = model.status.ToString()
             };
         }
 
@@ -182,7 +184,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}/{model.id}", new { active = false });
 
                 return new RequestHttpResponse<bool>
                 {

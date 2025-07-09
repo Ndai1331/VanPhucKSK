@@ -1,0 +1,136 @@
+﻿@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.Menus
+@using CoreAdminWeb.Services.Menus
+@using CoreAdminWeb.Model.Settings
+@using CoreAdminWeb.Services.Files
+@using CoreAdminWeb.Services.Settings
+@inject NavigationManager NavigationManager
+
+<nav class="sidebar lg:z-[9] z-[10]">
+    <div class="h-full  bg-white dark:bg-darklight group-data-[sidebar=dark]/item:bg-darklight group-data-[sidebar=brand]/item:bg-sky-950">
+        <div class="p-4">
+            <a href="/dashboard" class="w-full main-logo">
+                <img src="@(Logo != null ? $"{Logo.filename_disk}" : "assets/images/logo-dark.svg")" class="mx-auto dark-logo h-7 logo dark:hidden group-data-[sidebar=dark]/item:hidden group-data-[sidebar=brand]/item:hidden" alt="logo" />
+                <img src="@(Logo != null ? $"{Logo.filename_disk}" : "assets/images/logo-light.svg")" class="hidden mx-auto light-logo h-7 logo dark:block group-data-[sidebar=dark]/item:hidden group-data-[sidebar=brand]/item:hidden" alt="logo" />
+                <img src="@(Logo != null ? $"{Logo.filename_disk}" : "assets/images/logo-icon.svg")" class="hidden mx-auto logo-icon h-7" alt="">
+            </a>
+        </div>
+        <div class="h-[calc(100vh-60px)] overflow-y-auto overflow-x-hidden px-1 pb-4 space-y-16 detached-menu">
+            <ul class="relative flex flex-col gap-1">
+                @if (Menus != null && Menus.Count > 0)
+                {
+                    @foreach (var menu in Menus)
+                    {
+                        <li class="menu nav-item">
+                            @if (menu.sub_menus != null && menu.sub_menus.Any())
+                            {
+                                <a href="javascript:;" class="items-center justify-between text-black nav-link group project-text-color @(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name ? "active" : "")"
+                                   @onclick="() => ToggleMenu(menu.name)"
+                                   style="white-space: normal !important;">
+                                    <div class="flex items-center">
+                                        <span class="material-symbols-outlined block">@menu.icon</span>
+                                        <span class="ltr:pl-1.5 rtl:pr-1.5">@menu.name</span>
+                                    </div>
+                                    <div class="flex items-center justify-center w-4 h-4 dropdown-icon"
+                                         class:rotate-180="@(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6">
+                                            <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
+                                        </svg>
+                                    </div>
+                                </a>
+                                <div class="@(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name ? "block" : "hidden")">
+                                    <ul class="flex flex-col gap-1 text-black sub-menu dark:text-white/60 project-text-color">
+                                        @foreach (var subMenu in menu.sub_menus)
+                                        {
+                                            <li>
+                                                <a href="javascript:;" class="@(activeMenus.ContainsKey(2) && activeMenus[2] == subMenu.name ? "active" : "")" @onclick="@(() => HandleRouteChange(subMenu.url,subMenu.name,2))">
+                                                    @subMenu.name
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                            else
+                            {
+                                <a href="javascript:;" class="items-center justify-between text-black nav-link group project-text-color @(activeMenus.ContainsKey(2) && activeMenus[2] == menu.name ? "active" : "")"
+                                   @onclick="@(() => HandleRouteChange(menu.url,menu.name,1))"
+                                   style="white-space: normal !important;">
+                                    <div class="flex items-center">
+                                        <span class="material-symbols-outlined block">@menu.icon</span>
+                                        <span class="ltr:pl-1.5 rtl:pr-1.5">@menu.name</span>
+                                    </div>
+                                </a>
+                            }
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+</nav>
+
+@code {
+    [Parameter]
+    public List<MenuResponse> Menus { get; set; }
+    [Parameter]
+    public FileModel? Logo { get; set; }
+    [Parameter]
+    public SettingModel? Setting { get; set; }
+
+    private string activeMenu = "";
+    private Dictionary<int, string> activeMenus = new Dictionary<int, string>();
+    private string currentRoute = "";
+    private List<MenuResponse> previousMenus;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if(Menus != null)
+        {
+            if (previousMenus == null || !Menus.SequenceEqual(previousMenus))
+            {
+                Menus = Menus.OrderBy(m => m.sort).ToList();
+                previousMenus = Menus.ToList();
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void ToggleMenu(string menuName)
+    {
+        if(activeMenus.ContainsKey(1) && activeMenus[1] == menuName)
+        {
+            activeMenus[1] = "";
+        }else{
+            activeMenus[1] = menuName;
+        }
+        StateHasChanged();
+    }
+
+    private void HandleRouteChange(string route,string menuName, int key=2)
+    {
+        if (!string.IsNullOrEmpty(route))
+        {
+            // Ensure route starts with a slash for absolute path
+            if (!route.StartsWith("/"))
+            {
+                route = "/" + route;
+            }
+            
+            // Reset current route and navigate to new route
+            currentRoute = route;
+            NavigationManager.NavigateTo(route, false);
+
+            if(activeMenus.ContainsKey(key))
+            {
+                activeMenus[key] = menuName;
+            }
+            else
+            {
+                activeMenus.Add(key,menuName);
+            }
+        }
+    }
+}

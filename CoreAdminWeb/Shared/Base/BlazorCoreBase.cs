@@ -250,7 +250,7 @@ namespace CoreAdminWeb.Shared.Base
         private string BuildBaseQuery(string searchText = "", bool isIgnoreCheck = false)
         {
             _queryBuilder.Clear();
-            _queryBuilder.Append("filter[_and][][deleted][_eq]=false&sort=sort");
+            _queryBuilder.Append("filter[_and][][active][_eq]=true&sort=-id");
             
             if (!string.IsNullOrEmpty(searchText))
             {

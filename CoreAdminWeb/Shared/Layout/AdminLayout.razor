@@ -1,0 +1,269 @@
+﻿@using CoreAdminWeb.Model.Menus
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.Settings
+@using CoreAdminWeb.Services.Files
+@using CoreAdminWeb.Services.Menus
+@using CoreAdminWeb.Services.Settings
+@using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Providers
+@using CoreAdminWeb.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+@inherits LayoutComponentBase
+@inject IJSRuntime JsRuntime
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<div class="bg-[#f9fbfd] dark:bg-dark admin">
+    <div class="bg-black min-h-[220px] sm:min-h-[250px] bg-bottom fixed hidden w-full -z-50 detached-img" style="background-image: url('assets/images/bg-main.png');"></div>
+
+    <div x-cloak class="fixed inset-0 bg-black/60 dark:bg-dark/90 z-[999] lg:hidden" :class="{'hidden' : !$store.app.sidebar}" @click="ToggleSidebar">
+    </div>
+
+    <div class="flex mx-auto main-container">
+        <AdminSidebar Menus="Menus" Logo="Logo" Setting="Setting"></AdminSidebar>
+        <div class="flex-1 main-content">
+            <AdminTopbar OnLogout="Logout" CurrentUser="currentUser" IsAuthenticated="isAuthenticated"></AdminTopbar>
+            <div class="h-[calc(100vh-60px)] relative overflow-y-auto overflow-x-hidden p-4 detached-content">
+                @Body
+                <Footer></Footer>
+            </div>
+        </div>
+    </div>
+</div>
+<MudPopoverProvider />
+
+@code {
+    private List<MenuResponse> Menus  = new List<MenuResponse>
+            {
+                new MenuResponse { id = 1, name = "Quản lý hợp đồng", icon = "dashboard", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 11, name = "Danh mục công ty", icon = "apartment", url = "/admin/cong-ty" , parent_id = 1},
+                    new MenuResponse { id = 12, name = "Loại hợp đồng", icon = "sell", url = "/admin/loai-hop-dong" , parent_id = 1},
+                    new MenuResponse { id = 13, name = "Danh mục hợp đồng", icon = "contract", url = "/admin/danh-muc-hop-dong" , parent_id = 1},
+                    new MenuResponse { id = 14, name = "Cấu hình hồ sơ KSK", icon = "settings", url = "/admin/config-ksk" , parent_id = 1},
+                }},
+
+
+                new MenuResponse { id = 2, name = "Quản lý chi phí KSK", icon = "money", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 21, name = "Loại định mức", icon = "sell", url = "/admin/loai-dinh-muc" , parent_id = 2},
+                    new MenuResponse { id = 22, name = "Danh mục định mức", icon = "money", url = "/admin/danh-muc-dinh-muc" , parent_id = 2},
+                }},
+
+                new MenuResponse { id = 3, name = "Quản lý đoàn khám", icon = "settings", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 31, name = "Dashboard tổng quan", icon = "analytics", url = "/admin/dashboard-tong-quan" , parent_id = 3},
+                    new MenuResponse { id = 32, name = "Báo cáo tổng đoàn", icon = "area-chart", url = "/admin/bao-cao-tong-doan" , parent_id = 3},
+                }},
+
+                new MenuResponse { id = 4, name = "Cá nhân", icon = "post", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 41, name = "Hồ sơ khám sức khỏe - TT32", icon = "bookmart-manager", url = "/admin/ho-so-kham-suc-khoe-tt32" , parent_id = 4},
+                    new MenuResponse { id = 42, name = "Hồ sơ sức khỏe chi tiết", icon = "assignment", url = "/admin/ho-so-suc-khoe-chi-tiet" , parent_id = 4},
+                    new MenuResponse { id = 43, name = "Tra cứu hóa đơn", icon = "credit-card-heart", url = "/admin/tra-cuu-hoa-don" , parent_id = 4},
+                }},
+
+
+                new MenuResponse { id = 5, name = "Y tế cơ quan", icon = "try", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 51, name = "Dashboard tổng quan", icon = "analytics", url = "/admin/dashboard-tong-quan" , parent_id = 5},
+                    new MenuResponse { id = 52, name = "Danh sách nhân viên", icon = "contact-emergency", url = "/admin/danh-sach-nhan-vien" , parent_id = 5},
+                    new MenuResponse { id = 53, name = "Chi tiết đợt khám cá nhân", icon = "calendar-clock", url = "/admin/chi-tiet-dot-kham-ca-nhan" , parent_id = 5},
+                }},
+
+                new MenuResponse { id = 6, name = "Khám sức khỏe ngoại viện", icon = "emergency", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 61, name = "Phân loại sức khỏe", icon = "ecg", url = "/admin/phan-loai-suc-khoe" , parent_id = 6},
+                    new MenuResponse { id = 62, name = "Danh sách đoàn", icon = "moving-ministry", url = "/admin/danh-sach-doan" , parent_id = 6},
+                    new MenuResponse { id = 63, name = "Kết quả khám sức khỏe - TT32", icon = "clinical-note", url = "/admin/ket-qua-kham-suc-khoe-tt32" , parent_id = 6},
+                }},
+            };
+    private bool isLoading = true;
+    private bool isAuthenticated = false;
+    private bool _hasInitialized = false; // Prevent multiple initializations
+    private UserModel currentUser;
+    
+    [Inject] private AlertService AlertService { get; set; }
+    [Inject] private ISettingService SettingService { get; set; }
+    [Inject] private IUserService UserService { get; set; }
+    [Inject] private IFileService FileService { get; set; }
+    
+    private SettingModel? Setting { get; set; }
+    private FileModel? Logo { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await base.OnInitializedAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in initialization: {ex.Message}");
+            await HandleAuthenticationError();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_hasInitialized)
+        {
+            _hasInitialized = true;
+            await InitializeApplicationAsync();
+        }
+    }
+
+    /// <summary>
+    /// Initialize application data with optimized parallel loading
+    /// </summary>
+    private async Task InitializeApplicationAsync()
+    {
+        try
+        {
+            // Load authentication and settings in parallel for better performance
+            var authTask = CheckAuthAsync();
+            var settingsTask = LoadSettingsAsync();
+            
+            await Task.WhenAll(authTask, settingsTask);
+            
+            // Handle navigation after auth check completes
+            await HandlePostAuthNavigationAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in application initialization: {ex.Message}");
+            await HandleAuthenticationError();
+        }
+        finally
+        {
+            isLoading = false;
+            // Only call StateHasChanged if we're not already in a render cycle
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Optimized authentication check with caching
+    /// </summary>
+    private async Task CheckAuthAsync()
+    {
+        try
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+            if (isAuthenticated && currentUser == null) // Only load user if not already loaded
+            {
+                var resUser = await UserService.GetCurrentUserAsync();
+                if (resUser.IsSuccess)
+                {
+                    currentUser = resUser.Data;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Auth check error: {ex.Message}");
+            isAuthenticated = false;
+            currentUser = null;
+        }
+    }
+
+    /// <summary>
+    /// Optimized settings loading with caching
+    /// </summary>
+    private async Task LoadSettingsAsync()
+    {
+        try
+        {
+            if (Setting != null) return; // Skip if already loaded
+            
+            var settingResults = await SettingService.GetCurrentSettingAsync();
+            if (settingResults.IsSuccess)
+            {
+                Setting = settingResults.Data;
+
+                // Load logo only if setting has logo and we haven't loaded it yet
+                if (!string.IsNullOrEmpty(Setting.project_logo) && Logo == null)
+                {
+                    var logoRes = await FileService.GetFileAsync(Setting.project_logo);
+                    if (logoRes.IsSuccess)
+                    {
+                        Logo = logoRes.Data;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading settings: {ex.Message}");
+        }
+    }
+
+
+    /// <summary>
+    /// Handle navigation logic after authentication check
+    /// </summary>
+    private async Task HandlePostAuthNavigationAsync()
+    {
+        try
+        {
+            var currentUri = NavigationManager?.Uri ?? "";
+            // Use ToBaseRelativePath to get relative path correctly
+            // Example: https://localhost:5000/results -> results
+            var path = NavigationManager?.ToBaseRelativePath(currentUri) ?? "";
+            Console.WriteLine($"Path: {path}"); 
+
+            if (!isAuthenticated && 
+                (string.IsNullOrEmpty(path) ||
+                path.Contains("/results")))
+            {
+                await InvokeAsync(() => NavigationManager?.NavigateTo("/news"));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Navigation error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Handle authentication errors consistently
+    /// </summary>
+    private async Task HandleAuthenticationError()
+    {
+        try
+        {
+            var currentUri = NavigationManager?.Uri ?? "";
+            if (!currentUri.Contains("/signin"))
+            {
+                await InvokeAsync(() => NavigationManager?.NavigateTo("/signin"));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error handling auth error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Optimized logout with proper cleanup
+    /// </summary>
+    private async Task Logout()
+    {
+        try
+        {
+            await UserService.LogoutAsync();
+            
+            // Clear cached data
+            isAuthenticated = false;
+            currentUser = null;
+            Setting = null;
+            Logo = null;
+            _hasInitialized = false;
+            
+            await InvokeAsync(() => NavigationManager?.NavigateTo("/signin"));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error logging out: {ex.Message}");
+        }
+    }
+}

@@ -2,7 +2,6 @@ using CoreAdminWeb.Model;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
-using CoreAdminWeb.Services.DanhMucDungChung;
 using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.Http;
 using CoreAdminWeb.Services.KhamSucKhoe;
@@ -11,6 +10,7 @@ using CoreAdminWeb.Services.Posts;
 using CoreAdminWeb.Services.Settings;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Services.FTP;
+using CoreAdminWeb.Services.Menus;
 
 
 namespace CoreAdminWeb.DIInjections
@@ -34,11 +34,13 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseGetService<KetQuaCanLamSangModel>, KetQuaCanLamSangService>();
             services.AddScoped<IBaseGetService<MedicalAgencyModel>, MedicalAgencyService>();
             services.AddScoped<IBaseGetService<PostModel>, PostService>();
+            services.AddScoped<IMenuService, MenuService>();
+            services.AddScoped<IBaseService<LoaiDinhMucModel>, LoaiDinhMucService>();
+            services.AddScoped<IBaseService<DinhMucModel>, DinhMucService>();
+            services.AddScoped<IBaseService<ContractTypeModel>, ContractTypeService>();
             services.AddScoped<AlertService>();
-
             // PDF Service Configuration
             services.AddScoped<IPdfService, PdfService>();
-
             // FTP Service Configuration
             services.AddScoped<IFtpService>(provider =>
             {
@@ -49,26 +51,6 @@ namespace CoreAdminWeb.DIInjections
 
             // HTTP Client Service Configuration - replaces static RequestClient
             services.AddScoped<IHttpClientService, HttpClientService>();
-
-            // DanhMucDungChung Services
-            services.AddScoped<CongTyService>();
-            services.AddScoped<TinhService>();
-            services.AddScoped<XaPhuongService>();
-            services.AddScoped<FolderService>();
-
-            // KhamSucKhoe Services
-            services.AddScoped<KhamSucKhoeCanLamSanService>();
-            services.AddScoped<KhamSucKhoeChuyenKhoaService>();
-            services.AddScoped<KhamSucKhoeKetLuanService>();
-            services.AddScoped<KhamSucKhoeNgheNghiepService>();
-            services.AddScoped<KhamSucKhoeTheLucService>();
-            services.AddScoped<KhamSucKhoeTienSuService>();
-            services.AddScoped<KhamSucKhoeSanPhuKhoaService>();
-            services.AddScoped<SoKhamSucKhoeService>();
-
-            // Post Services
-            services.AddScoped<PostService>();
-
 
         }
     }

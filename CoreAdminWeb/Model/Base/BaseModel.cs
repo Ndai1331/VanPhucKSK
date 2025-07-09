@@ -7,7 +7,7 @@ namespace CoreAdminWeb.Model.Base
     {
         [Description("Bản nháp")]
         draft,
-        [Description("Chính thức")]
+        [Description("Xuất bản")]
         published,
         [Description("Đã xóa")]
         removed
@@ -18,7 +18,8 @@ namespace CoreAdminWeb.Model.Base
         public UserModel? user_created { get; set; }
         public DateTime date_created { get; set; } = DateTime.Now;
         public UserModel? user_updated { get; set; }
-        public DateTime? date_updated { get; set; }
+        public DateTime? date_updated { get; set; } 
+        public bool? active { get; set; } = true;
     }
 
     public class BaseDetailModel
@@ -29,5 +30,6 @@ namespace CoreAdminWeb.Model.Base
         public string? description { get; set; }
         public Status status { get; set; } = Status.published;
         public int? sort { get; set; } = 0;
+        public bool? active { get; set; } = true;
     }
 }

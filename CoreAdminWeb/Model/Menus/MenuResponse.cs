@@ -30,13 +30,16 @@ namespace CoreAdminWeb.Model.Menus
 
         [JsonPropertyName("external_system_id")]
         public int external_system_id { get; set; }
+
+        [JsonPropertyName("url")]
+        public string? url { get; set; }
         
         [JsonIgnore]
         public List<MenuResponse> sub_menus { get; set; } = new List<MenuResponse>();
 
-        [JsonIgnore]
-        public string url { get{
-            return MenuHelper.CreateUrlByName(name, id);
-        }}
+        // [JsonIgnore]
+        // public string url { get{
+        //     return MenuHelper.CreateUrlByName(name, id);
+        // }}
     }
 } 

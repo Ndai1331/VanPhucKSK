@@ -24,24 +24,27 @@ namespace CoreAdminWeb.Model
     public class LoaiDinhMucCRUDModel : BaseDetailModel
     {
         public bool? active { get; set; } = true;
+        public string status { get; set; } = Status.published.ToString();
     }
     public class DinhMucModel : BaseModel<int>
     {
         public decimal? du_kien_chi_phi { get; set; }
         public bool? active { get; set; } = true;
-        public int? loai_dinh_muc_id { get; set; }
+        public LoaiDinhMucModel? loai_dinh_muc { get; set; }
     }
     public class DinhMucCRUDModel : BaseDetailModel
     {
         public decimal? du_kien_chi_phi { get; set; }
         public bool? active { get; set; } = true;
-        public int? loai_dinh_muc_id { get; set; }
+        public int? loai_dinh_muc { get; set; }
+        public string status { get; set; } = Status.published.ToString();
     }
     public class ContractTypeModel : BaseModel<int>
     {
     }
     public class ContractTypeCRUDModel : BaseDetailModel
     {
-
+        public bool? active { get; set; } = true;
+        public string status { get; set; } = Status.published.ToString();
     }
 }

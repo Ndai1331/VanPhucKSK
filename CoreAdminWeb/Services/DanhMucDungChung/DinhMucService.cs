@@ -12,7 +12,7 @@ namespace CoreAdminWeb.Services
     public class DinhMucService : IBaseService<DinhMucModel>
     {
         private readonly string _collection = "danh_muc_dinh_muc";
-        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,loai_dinh_muc.name,loai_dinh_muc.code,loai_dinh_muc.id";
         private readonly IHttpClientService _httpClientService;
 
         public DinhMucService(IHttpClientService httpClientService)
@@ -43,6 +43,10 @@ namespace CoreAdminWeb.Services
                 name = model.name,
                 description = model.description,
                 sort = model.sort,
+                active = model.active,
+                status = model.status.ToString(),
+                loai_dinh_muc = model.loai_dinh_muc?.id,
+                du_kien_chi_phi = model.du_kien_chi_phi
             };
         }
 
@@ -182,7 +186,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { active = false });
 
                 return new RequestHttpResponse<bool>
                 {
