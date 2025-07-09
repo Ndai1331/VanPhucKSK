@@ -104,7 +104,7 @@ namespace CoreAdminWeb.Services.FTP
             }
             else
             {
-                ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{fileName}";
+                ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{_ftpConfig.Folder}/{fileName}";
             }
             
             Console.WriteLine($"Standard FTP Download URL: {ftpUrl}");
@@ -133,7 +133,7 @@ namespace CoreAdminWeb.Services.FTP
             }
             else
             {
-                ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{fileName}";
+                ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{_ftpConfig.Folder}/{fileName}";
             }
             
             Console.WriteLine($"Binary FTP Download URL: {ftpUrl}");
@@ -166,7 +166,7 @@ namespace CoreAdminWeb.Services.FTP
             }
             else
             {
-                ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{cleanFileName}";
+                ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{_ftpConfig.Folder}/{cleanFileName}";
             }
             
             Console.WriteLine($"Alternative FTP Download URL: {ftpUrl}");
@@ -200,7 +200,7 @@ namespace CoreAdminWeb.Services.FTP
                 }
                 else
                 {
-                    ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{fileName}";
+                    ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{_ftpConfig.Folder}/{fileName}";
                 }
                 
                 Console.WriteLine($"Checking FTP file exists: {ftpUrl}");
@@ -235,7 +235,7 @@ namespace CoreAdminWeb.Services.FTP
                 }
                 else
                 {
-                    ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{fileName}";
+                    ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{_ftpConfig.Folder}/{fileName}";
                 }
                 
                 Console.WriteLine($"Getting FTP file size: {ftpUrl}");
@@ -264,7 +264,7 @@ namespace CoreAdminWeb.Services.FTP
         {
             try
             {
-                string ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{directory}";
+                string ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{_ftpConfig.Folder}/{directory}";
                 
                 //ftp://103.95.199.25:21/25035409/250523110537188527//
                 var request = (FtpWebRequest)WebRequest.Create(ftpUrl);
