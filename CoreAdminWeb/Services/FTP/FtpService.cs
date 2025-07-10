@@ -265,8 +265,6 @@ namespace CoreAdminWeb.Services.FTP
             try
             {
                 string ftpUrl = $"ftp://{_ftpConfig.Host}:{_ftpConfig.Port}/{_ftpConfig.Folder}/{directory}";
-                
-                //ftp://103.95.199.25:21/25035409/250523110537188527//
                 var request = (FtpWebRequest)WebRequest.Create(ftpUrl);
                 request.Method = WebRequestMethods.Ftp.ListDirectory;
                 request.Credentials = new NetworkCredential(_ftpConfig.Username, _ftpConfig.Password);

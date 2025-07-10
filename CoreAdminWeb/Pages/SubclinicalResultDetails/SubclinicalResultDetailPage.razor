@@ -798,8 +798,6 @@
             var pathsToTry = new[]
             {
                 $"{CurrentUser?.ma_benh_nhan}/{ma_luot_kham}/{localFileName}",
-                $"25035409/250523110537188527/{localFileName}", 
-                localFileName
             };
 
             byte[]? fileBytes = null;
@@ -813,7 +811,7 @@
                     
                     // Check if file exists first
                     var fileExists = await FtpService.FileExistsAsync(ftpPath);
-                    if (!fileExists) continue;
+                    if (!fileExists) return string.Empty;
                     
                     // Download file
                     fileBytes = await FtpService.DownloadFileAsBytesAsync(ftpPath);
@@ -837,7 +835,6 @@
                 await File.WriteAllBytesAsync(physicalPath, fileBytes);
                 
                 Console.WriteLine($"Saved local file: {physicalPath}");
-                
                 // Cache the local path
                 _localFileCache[ftpFileName] = localPath;
                 return localPath;
