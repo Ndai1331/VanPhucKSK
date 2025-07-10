@@ -276,6 +276,21 @@
                                                                           loading="lazy">
                                                                   </iframe>
                                                               }
+                                                              else if (IsFileNotFound(fileName))
+                                                              {
+                                                                  <div class="flex justify-center items-center py-12">
+                                                                      <div class="text-center">
+                                                                          <i class="fas fa-file-slash text-3xl mb-2 text-orange-400"></i>
+                                                                          <span class="text-gray-600 dark:text-gray-400">File không tồn tại</span>
+                                                                          <div class="mt-2 text-xs text-gray-500">
+                                                                              File: @fileName
+                                                                          </div>
+                                                                          <div class="mt-2 text-xs text-orange-500">
+                                                                              Đã kiểm tra tất cả đường dẫn có thể
+                                                                          </div>
+                                                                      </div>
+                                                                  </div>
+                                                              }
                                                               else if (IsFileCurrentlyDownloading(fileName))
                                                               {
                                                                   <div class="flex justify-center items-center py-12">
@@ -284,6 +299,12 @@
                                                                           <span class="text-gray-600 dark:text-gray-400">Đang tải từ FTP...</span>
                                                                           <div class="mt-2 text-xs text-gray-500">
                                                                               File: @fileName
+                                                                          </div>
+                                                                          @{
+                                                                              var retryCount = _downloadRetryCount.ContainsKey(fileName) ? _downloadRetryCount[fileName] : 0;
+                                                                          }
+                                                                          <div class="mt-1 text-xs text-blue-500">
+                                                                              Lần thử: @retryCount/@MAX_DOWNLOAD_RETRIES
                                                                           </div>
                                                                       </div>
                                                                   </div>
@@ -297,10 +318,22 @@
                                                                           <div class="mt-2 text-xs text-gray-500">
                                                                               File: @fileName
                                                                           </div>
-                                                                          <button @onclick="async () => await RetryDownload(fileName)" 
-                                                                                  class="mt-2 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
-                                                                              Thử lại
-                                                                          </button>
+                                                                          @{
+                                                                              var retryCount = _downloadRetryCount.ContainsKey(fileName) ? _downloadRetryCount[fileName] : 0;
+                                                                          }
+                                                                          @if (retryCount < MAX_DOWNLOAD_RETRIES)
+                                                                          {
+                                                                              <button @onclick="async () => await RetryDownload(fileName)" 
+                                                                                      class="mt-2 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                                                                                  Thử lại (@retryCount/@MAX_DOWNLOAD_RETRIES)
+                                                                              </button>
+                                                                          }
+                                                                          else
+                                                                          {
+                                                                              <div class="mt-2 text-xs text-red-500">
+                                                                                  Đã thử tối đa @MAX_DOWNLOAD_RETRIES lần
+                                                                              </div>
+                                                                          }
                                                                       </div>
                                                                   </div>
                                                               }
@@ -369,7 +402,13 @@
     // Local file cache for CLS results
     private readonly Dictionary<string, string> _localFileCache = new(); // fileName -> local file path
     private readonly Dictionary<string, bool> _downloadingFiles = new(); // track downloading status
+    private readonly Dictionary<string, CancellationTokenSource> _downloadCancellationTokens = new(); // cancellation tokens for downloads
+    private readonly Dictionary<string, bool> _fileNotFound = new(); // cache files that don't exist to avoid retry
+    private readonly Dictionary<string, int> _downloadRetryCount = new(); // track retry attempts per file
     private string _clsImagesFolder => $"/images/cls/{ma_luot_kham}/"; // Local folder for CLS files
+    private bool _isDisposed = false;
+    private const int MAX_DOWNLOAD_RETRIES = 2; // Maximum retry attempts per file
+    private const int DOWNLOAD_TIMEOUT_SECONDS = 30; // Download timeout
 
     #endregion
 
@@ -396,6 +435,8 @@
     /// </summary>
     private async Task InitializePageDataAsync()
     {
+        if (_isDisposed) return;
+        
         try
         {
             _isLoading = true;
@@ -403,16 +444,24 @@
 
             // Load user data first
             await LoadUserDataAsync();
+            
+            if (_isDisposed) return; // Check after async operation
 
             if (CurrentUser != null)
             {
                 // Load medical data if user is authenticated
                 await LoadKetQuaCanLamSangDataAsync();
+                
+                if (_isDisposed) return; // Check after async operation
+                
                 SetProfileImagePlaceholder();
             }
             else
             {
                 await LoadSoKhamSucKhoeDataAsync();
+                
+                if (_isDisposed) return; // Check after async operation
+                
                 if (SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ngay_kham != null && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
                 {
                     _expired_result_page = true;
@@ -425,23 +474,34 @@
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
-            AlertService?.ShowAlert(_errorMessage, "danger");
+            if (!_isDisposed)
+            {
+                _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+                AlertService?.ShowAlert(_errorMessage, "danger");
+            }
         }
         finally
         {
             _isLoading = false;
-            // Use InvokeAsync to avoid render cycle issues
-            await InvokeAsync(StateHasChanged);
+            // Use InvokeAsync to avoid render cycle issues only if not disposed
+            if (!_isDisposed)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
         }
     }
     
 
     private async Task LoadDataWithCccdAsync()
     {
+        if (_isDisposed) return;
+        
         if (string.IsNullOrWhiteSpace(_so_dinh_danh))
         {
-            AlertService?.ShowAlert("Vui lòng nhập CCCD", "warning");
+            if (!_isDisposed)
+            {
+                AlertService?.ShowAlert("Vui lòng nhập CCCD", "warning");
+            }
             return;
         }
 
@@ -451,6 +511,9 @@
             _errorMessage = null;
 
             var userResult = await UserService.GetUserByCCCDAsync(_so_dinh_danh);
+            
+            if (_isDisposed) return; // Check after async operation
+            
             if (userResult?.IsSuccess == true && userResult.Data != null)
             {
                 CurrentUser = userResult.Data;
@@ -458,6 +521,8 @@
 
                 // Load medical data in parallel
                 await LoadKetQuaCanLamSangDataAsync();
+                
+                if (_isDisposed) return; // Check after async operation
 
                 // Validate user matches the medical record
                 if (SoKhamSucKhoeModel != null &&
@@ -469,25 +534,37 @@
                 else
                 {
                     _isShowInputCCCD = true;
-                    AlertService?.ShowAlert("Không tìm thấy mã bệnh nhân với lượt khám này", "danger");
+                    if (!_isDisposed)
+                    {
+                        AlertService?.ShowAlert("Không tìm thấy mã bệnh nhân với lượt khám này", "danger");
+                    }
                 }
             }
             else
             {
-                _errorMessage = $"Không tìm thấy dữ liệu với CCCD: {_so_dinh_danh}";
-                AlertService?.ShowAlert(_errorMessage, "danger");
+                if (!_isDisposed)
+                {
+                    _errorMessage = $"Không tìm thấy dữ liệu với CCCD: {_so_dinh_danh}";
+                    AlertService?.ShowAlert(_errorMessage, "danger");
+                }
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
-            AlertService?.ShowAlert(_errorMessage, "danger");
+            if (!_isDisposed)
+            {
+                _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+                AlertService?.ShowAlert(_errorMessage, "danger");
+            }
         }
         finally
         {
             _isLoading = false;
-            // Use InvokeAsync to avoid render cycle issues
-            await InvokeAsync(StateHasChanged);
+            // Use InvokeAsync to avoid render cycle issues only if not disposed
+            if (!_isDisposed)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
         }
     }
 
@@ -676,9 +753,107 @@
     #region Dispose Method
 
     /// <summary>
-    /// Clean up resources and delete signature images when component is disposed
+    /// Clean up resources, cancel all downloads, and delete temporary files when component is disposed
     /// </summary>
     public void Dispose()
+    {
+        if (_isDisposed) return;
+        
+        _isDisposed = true;
+        
+        try
+        {
+            Console.WriteLine($"Disposing SubclinicalResultDetailPage for ma_luot_kham: {ma_luot_kham}");
+            
+            // 1. Cancel all active download operations
+            CancelAllDownloads();
+            
+            // 2. Clear all caches and tracking dictionaries
+            ClearAllCaches();
+            
+            // 3. Clean up temporary files and folders
+            CleanupAllTemporaryFiles();
+            
+            Console.WriteLine("Successfully disposed all resources");
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't throw exception in Dispose
+            Console.WriteLine($"Error during dispose cleanup: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Cancel all active download operations
+    /// </summary>
+    private void CancelAllDownloads()
+    {
+        try
+        {
+            var cancelledCount = 0;
+            var activeDownloads = _downloadCancellationTokens.ToList(); // Create copy to avoid modification during iteration
+            
+            foreach (var kvp in activeDownloads)
+            {
+                try
+                {
+                    if (!kvp.Value.Token.IsCancellationRequested)
+                    {
+                        kvp.Value.Cancel();
+                        cancelledCount++;
+                        Console.WriteLine($"Cancelled download: {kvp.Key}");
+                    }
+                    kvp.Value.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error cancelling download {kvp.Key}: {ex.Message}");
+                }
+            }
+            
+            if (cancelledCount > 0)
+            {
+                Console.WriteLine($"Cancelled {cancelledCount} active downloads");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during download cancellation: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Clear all caches and tracking dictionaries
+    /// </summary>
+    private void ClearAllCaches()
+    {
+        try
+        {
+            var localCacheCount = _localFileCache.Count;
+            var downloadingCount = _downloadingFiles.Count;
+            var tokenCount = _downloadCancellationTokens.Count;
+            var notFoundCount = _fileNotFound.Count;
+            var retryCount = _downloadRetryCount.Count;
+            
+            // Clear all tracking dictionaries
+            _localFileCache.Clear();
+            _downloadingFiles.Clear();
+            _downloadCancellationTokens.Clear();
+            _fileNotFound.Clear();
+            _downloadRetryCount.Clear();
+            
+            Console.WriteLine($"Cleared caches - Local: {localCacheCount}, Downloading: {downloadingCount}, Tokens: {tokenCount}, NotFound: {notFoundCount}, Retry: {retryCount}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error clearing caches: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Clean up all temporary files and folders
+    /// </summary>
+    private void CleanupAllTemporaryFiles()
     {
         try
         {
@@ -688,14 +863,11 @@
             // Clean up CLS files folder
             CleanupClsImagesFolder();
             
-            // Clear caches
-            _localFileCache.Clear();
-            _downloadingFiles.Clear();
+            Console.WriteLine("Cleaned up all temporary files and folders");
         }
         catch (Exception ex)
         {
-            // Log error but don't throw exception in Dispose
-            Console.WriteLine($"Error during dispose cleanup: {ex.Message}");
+            Console.WriteLine($"Error cleaning up temporary files: {ex.Message}");
         }
     }
 
@@ -767,14 +939,21 @@
     }
 
     /// <summary>
-    /// Download file from FTP and save to local folder
+    /// Download file from FTP and save to local folder with retry limit and file not found cache
     /// </summary>
     private async Task<string> DownloadFileFromFtpToLocal(string ftpFileName)
     {
-        if (string.IsNullOrEmpty(ftpFileName) || !IsValidFileName(ftpFileName)) return string.Empty;
+        if (_isDisposed || string.IsNullOrEmpty(ftpFileName) || !IsValidFileName(ftpFileName)) return string.Empty;
 
         var localFileName = Path.GetFileName(ftpFileName);
         var localPath = _clsImagesFolder + localFileName;
+        
+        // Check if file is already marked as not found - avoid retrying
+        if (_fileNotFound.ContainsKey(ftpFileName) && _fileNotFound[ftpFileName])
+        {
+            Console.WriteLine($"File already marked as not found: {ftpFileName}");
+            return string.Empty;
+        }
         
         // Check if already cached locally
         if (_localFileCache.TryGetValue(ftpFileName, out string? cachedPath))
@@ -787,74 +966,188 @@
         {
             return string.Empty; // Return empty, will show loading
         }
+        
+        // Check retry count
+        var currentRetryCount = _downloadRetryCount.ContainsKey(ftpFileName) ? _downloadRetryCount[ftpFileName] : 0;
+        if (currentRetryCount >= MAX_DOWNLOAD_RETRIES)
+        {
+            Console.WriteLine($"Max retry attempts ({MAX_DOWNLOAD_RETRIES}) reached for file: {ftpFileName}");
+            _fileNotFound[ftpFileName] = true; // Mark as not found
+            _localFileCache[ftpFileName] = string.Empty;
+            return string.Empty;
+        }
+
+        // Increment retry count
+        _downloadRetryCount[ftpFileName] = currentRetryCount + 1;
+
+        // Create cancellation token with timeout
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(DOWNLOAD_TIMEOUT_SECONDS));
+        _downloadCancellationTokens[ftpFileName] = cancellationTokenSource;
 
         try
         {
             _downloadingFiles[ftpFileName] = true;
             
-            Console.WriteLine($"Downloading FTP file: {ftpFileName}");
+            Console.WriteLine($"Downloading FTP file: {ftpFileName} (Attempt {currentRetryCount + 1}/{MAX_DOWNLOAD_RETRIES})");
+            
+            // Check if already disposed or cancelled
+            if (_isDisposed || cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                return string.Empty;
+            }
             
             // Try different FTP paths
             var pathsToTry = new[]
             {
                 $"{CurrentUser?.ma_benh_nhan}/{ma_luot_kham}/{localFileName}",
+                $"{ma_luot_kham}/{localFileName}",
             };
 
             byte[]? fileBytes = null;
             string? successfulPath = null;
+            bool fileExistsAnywhere = false;
 
             foreach (var ftpPath in pathsToTry)
             {
                 try
                 {
+                    // Check for cancellation before each attempt
+                    if (_isDisposed || cancellationTokenSource.Token.IsCancellationRequested)
+                    {
+                        Console.WriteLine($"Download cancelled for: {ftpFileName}");
+                        return string.Empty;
+                    }
+
                     Console.WriteLine($"Trying FTP path: {ftpPath}");
                     
-                    // Check if file exists first
-                    var fileExists = await FtpService.FileExistsAsync(ftpPath);
-                    if (!fileExists) return string.Empty;
+                    // Check if file exists first with timeout
+                    var fileExistsTask = FtpService.FileExistsAsync(ftpPath);
+                    var fileExists = await fileExistsTask.WaitAsync(cancellationTokenSource.Token);
                     
-                    // Download file
-                    fileBytes = await FtpService.DownloadFileAsBytesAsync(ftpPath);
+                    if (!fileExists) 
+                    {
+                        Console.WriteLine($"File not found at: {ftpPath}");
+                        continue;
+                    }
+                    
+                    fileExistsAnywhere = true;
+                    
+                    // Check cancellation again before downloading
+                    if (_isDisposed || cancellationTokenSource.Token.IsCancellationRequested)
+                    {
+                        return string.Empty;
+                    }
+                    
+                    // Download file with timeout
+                    var downloadTask = FtpService.DownloadFileAsBytesAsync(ftpPath);
+                    fileBytes = await downloadTask.WaitAsync(cancellationTokenSource.Token);
+                    
                     if (fileBytes != null && fileBytes.Length > 0)
                     {
                         successfulPath = ftpPath;
                         Console.WriteLine($"Successfully downloaded from: {ftpPath} ({fileBytes.Length} bytes)");
                         break;
                     }
+                    else
+                    {
+                        Console.WriteLine($"Downloaded empty file from: {ftpPath}");
+                    }
+                }
+                catch (TimeoutException)
+                {
+                    Console.WriteLine($"Download timeout for path: {ftpPath}");
+                    continue;
+                }
+                catch (OperationCanceledException)
+                {
+                    Console.WriteLine($"Download cancelled for: {ftpFileName}");
+                    return string.Empty;
                 }
                 catch (Exception pathEx)
                 {
                     Console.WriteLine($"Failed to download from {ftpPath}: {pathEx.Message}");
+                    continue;
                 }
+            }
+            
+            // If file doesn't exist anywhere, mark as not found
+            if (!fileExistsAnywhere)
+            {
+                Console.WriteLine($"File does not exist anywhere: {ftpFileName}");
+                _fileNotFound[ftpFileName] = true;
+                _localFileCache[ftpFileName] = string.Empty;
+                return string.Empty;
+            }
+            
+            // Final cancellation check before saving
+            if (_isDisposed || cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                return string.Empty;
             }
             
             if (fileBytes != null && fileBytes.Length > 0)
             {
                 // Save to local file
                 var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, localFileName);
-                await File.WriteAllBytesAsync(physicalPath, fileBytes);
+                await File.WriteAllBytesAsync(physicalPath, fileBytes, cancellationTokenSource.Token);
                 
                 Console.WriteLine($"Saved local file: {physicalPath}");
-                // Cache the local path
-                _localFileCache[ftpFileName] = localPath;
+                // Cache the local path only if not cancelled
+                if (!_isDisposed && !cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    _localFileCache[ftpFileName] = localPath;
+                    // Reset retry count on success
+                    _downloadRetryCount.Remove(ftpFileName);
+                }
                 return localPath;
             }
             else
             {
-                Console.WriteLine($"Failed to download file: {ftpFileName}");
+                Console.WriteLine($"Failed to download file after {currentRetryCount + 1} attempts: {ftpFileName}");
+                
+                // Mark as not found if reached max retries
+                if (currentRetryCount + 1 >= MAX_DOWNLOAD_RETRIES)
+                {
+                    _fileNotFound[ftpFileName] = true;
+                }
+                
                 _localFileCache[ftpFileName] = string.Empty;
                 return string.Empty;
             }
         }
+        catch (TimeoutException)
+        {
+            Console.WriteLine($"Download timeout for: {ftpFileName}");
+            return string.Empty;
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine($"Download operation cancelled for: {ftpFileName}");
+            return string.Empty;
+        }
         catch (Exception ex)
         {
             Console.WriteLine($"Error downloading file from FTP: {ftpFileName}, Error: {ex.Message}");
+            
+            // Mark as not found if reached max retries
+            if (currentRetryCount + 1 >= MAX_DOWNLOAD_RETRIES)
+            {
+                _fileNotFound[ftpFileName] = true;
+            }
+            
             _localFileCache[ftpFileName] = string.Empty;
             return string.Empty;
         }
         finally
         {
             _downloadingFiles[ftpFileName] = false;
+            
+            // Clean up cancellation token
+            if (_downloadCancellationTokens.ContainsKey(ftpFileName))
+            {
+                _downloadCancellationTokens[ftpFileName].Dispose();
+                _downloadCancellationTokens.Remove(ftpFileName);
+            }
         }
     }
 
@@ -915,10 +1208,16 @@
     }
 
     /// <summary>
-    /// Check if file is available locally
+    /// Check if file is available locally or marked as not found
     /// </summary>
     private bool IsFileAvailableLocally(string fileName)
     {
+        // If file is marked as not found, don't try to load it
+        if (_fileNotFound.ContainsKey(fileName) && _fileNotFound[fileName])
+        {
+            return false;
+        }
+        
         var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, fileName);
         return File.Exists(physicalPath);
     }
@@ -932,35 +1231,73 @@
     }
 
     /// <summary>
+    /// Check if file is marked as not found
+    /// </summary>
+    private bool IsFileNotFound(string fileName)
+    {
+        return _fileNotFound.ContainsKey(fileName) && _fileNotFound[fileName];
+    }
+
+    /// <summary>
     /// Download file directly from FTP without caching
     /// </summary>
     private async Task DownloadFileDirectlyAsync(string fileName)
     {
-        if (IsFileAvailableLocally(fileName) || IsFileCurrentlyDownloading(fileName))
+        if (_isDisposed || IsFileAvailableLocally(fileName) || IsFileCurrentlyDownloading(fileName))
             return;
 
         await DownloadFileFromFtpToLocal(fileName);
-        StateHasChanged(); // Refresh UI after download
+        
+        // Only update UI if not disposed
+        if (!_isDisposed)
+        {
+            StateHasChanged(); // Refresh UI after download
+        }
     }
 
     /// <summary>
-    /// Retry download for failed files
+    /// Retry download for failed files with disposal check and reset not found status
     /// </summary>
     private async Task RetryDownload(string fileName)
     {
-        // Clear any existing cache for this file
-        _localFileCache.Remove(fileName);
-        _downloadingFiles.Remove(fileName);
+        if (_isDisposed) return;
         
-        // Delete local file if exists
-        var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, fileName);
-        if (File.Exists(physicalPath))
+        try
         {
-            File.Delete(physicalPath);
+            Console.WriteLine($"Manual retry for file: {fileName}");
+            
+            // Cancel existing download if any
+            if (_downloadCancellationTokens.TryGetValue(fileName, out var existingToken))
+            {
+                existingToken.Cancel();
+                existingToken.Dispose();
+                _downloadCancellationTokens.Remove(fileName);
+            }
+            
+            // Clear all tracking for this file to start fresh
+            _localFileCache.Remove(fileName);
+            _downloadingFiles.Remove(fileName);
+            _fileNotFound.Remove(fileName); // Reset not found status
+            _downloadRetryCount.Remove(fileName); // Reset retry count
+            
+            // Delete local file if exists
+            var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, fileName);
+            if (File.Exists(physicalPath))
+            {
+                File.Delete(physicalPath);
+                Console.WriteLine($"Deleted existing file for retry: {physicalPath}");
+            }
+            
+            // Download again if not disposed
+            if (!_isDisposed)
+            {
+                await DownloadFileDirectlyAsync(fileName);
+            }
         }
-        
-        // Download again
-        await DownloadFileDirectlyAsync(fileName);
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during retry download for {fileName}: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -970,36 +1307,57 @@
     {
         var localCached = _localFileCache.Count;
         var downloading = _downloadingFiles.Count(x => x.Value);
+        var notFound = _fileNotFound.Count(x => x.Value);
+        var totalRetries = _downloadRetryCount.Values.Sum();
         
-        return $"Local: {localCached} files, Downloading: {downloading} files, CLS Folder: '{_clsImagesFolder}'";
+        return $"Local: {localCached} files, Downloading: {downloading} files, NotFound: {notFound} files, Total Retries: {totalRetries}, CLS Folder: '{_clsImagesFolder}'";
     }
 
     /// <summary>
-    /// Clear all local file caches and delete downloaded files
+    /// Clear all local file caches and delete downloaded files with cancellation
     /// </summary>
     private void ClearFtpCache()
     {
+        if (_isDisposed) return;
+        
         try
         {
             var localCount = _localFileCache.Count;
             var downloadingCount = _downloadingFiles.Count;
+            var tokenCount = _downloadCancellationTokens.Count;
+            var notFoundCount = _fileNotFound.Count;
+            var retryCount = _downloadRetryCount.Count;
             
-            // Clear caches
+            // Cancel all active downloads first
+            CancelAllDownloads();
+            
+            // Clear all caches and tracking
             _localFileCache.Clear();
             _downloadingFiles.Clear();
+            _downloadCancellationTokens.Clear();
+            _fileNotFound.Clear();
+            _downloadRetryCount.Clear();
             
             // Delete local files
             CleanupClsImagesFolder();
             
-            // Recreate folder for future downloads
-            EnsureClsImagesFolderExists();
+            // Recreate folder for future downloads if not disposed
+            if (!_isDisposed)
+            {
+                EnsureClsImagesFolderExists();
+            }
             
-            Console.WriteLine($"Cleared local cache: {localCount} files, {downloadingCount} downloading states");
-            StateHasChanged(); // Refresh UI
+            Console.WriteLine($"Cleared FTP cache: {localCount} local files, {downloadingCount} downloading states, {tokenCount} tokens, {notFoundCount} not found, {retryCount} retry counts");
+            
+            // Refresh UI only if not disposed
+            if (!_isDisposed)
+            {
+                StateHasChanged();
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error clearing local cache: {ex.Message}");
+            Console.WriteLine($"Error clearing FTP cache: {ex.Message}");
         }
     }
 
