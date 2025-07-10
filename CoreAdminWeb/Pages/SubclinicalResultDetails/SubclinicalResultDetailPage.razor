@@ -260,10 +260,15 @@
                                                           </h5>
                                                           <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-green-200 dark:border-green-800">
                                                               @{
-                                                                  // Download file directly from FTP without caching
+                                                                  // Get file info for display
                                                                   var fileName = Path.GetFileName(item.file_cls);
                                                                   var localPath = GetDirectLocalPath(fileName);
-                                                                  _ = DownloadFileDirectlyAsync(fileName);
+                                                                  
+                                                                  // Only attempt download if not already processed
+                                                                  if (!IsFileAvailableLocally(fileName) && !IsFileCurrentlyDownloading(fileName) && !IsFileNotFound(fileName))
+                                                                  {
+                                                                      _ = DownloadFileDirectlyAsync(fileName);
+                                                                  }
                                                               }
                                                               
                                                               @if (IsFileAvailableLocally(fileName))
@@ -405,6 +410,7 @@
     private readonly Dictionary<string, CancellationTokenSource> _downloadCancellationTokens = new(); // cancellation tokens for downloads
     private readonly Dictionary<string, bool> _fileNotFound = new(); // cache files that don't exist to avoid retry
     private readonly Dictionary<string, int> _downloadRetryCount = new(); // track retry attempts per file
+    private readonly Dictionary<string, bool> _fileNotFoundLogged = new(); // track logged not found messages to avoid spam
     private string _clsImagesFolder => $"/images/cls/{ma_luot_kham}/"; // Local folder for CLS files
     private bool _isDisposed = false;
     private const int MAX_DOWNLOAD_RETRIES = 2; // Maximum retry attempts per file
@@ -834,6 +840,7 @@
             var tokenCount = _downloadCancellationTokens.Count;
             var notFoundCount = _fileNotFound.Count;
             var retryCount = _downloadRetryCount.Count;
+            var loggedCount = _fileNotFoundLogged.Count;
             
             // Clear all tracking dictionaries
             _localFileCache.Clear();
@@ -841,8 +848,9 @@
             _downloadCancellationTokens.Clear();
             _fileNotFound.Clear();
             _downloadRetryCount.Clear();
+            _fileNotFoundLogged.Clear();
             
-            Console.WriteLine($"Cleared caches - Local: {localCacheCount}, Downloading: {downloadingCount}, Tokens: {tokenCount}, NotFound: {notFoundCount}, Retry: {retryCount}");
+            Console.WriteLine($"Cleared caches - Local: {localCacheCount}, Downloading: {downloadingCount}, Tokens: {tokenCount}, NotFound: {notFoundCount}, Retry: {retryCount}, Logged: {loggedCount}");
         }
         catch (Exception ex)
         {
@@ -951,7 +959,12 @@
         // Check if file is already marked as not found - avoid retrying
         if (_fileNotFound.ContainsKey(ftpFileName) && _fileNotFound[ftpFileName])
         {
-            Console.WriteLine($"File already marked as not found: {ftpFileName}");
+            // Only log once per file to avoid spam
+            if (!_fileNotFoundLogged.ContainsKey(ftpFileName) || !_fileNotFoundLogged[ftpFileName])
+            {
+                Console.WriteLine($"File already marked as not found: {ftpFileName}");
+                _fileNotFoundLogged[ftpFileName] = true;
+            }
             return string.Empty;
         }
         
@@ -971,8 +984,9 @@
         var currentRetryCount = _downloadRetryCount.ContainsKey(ftpFileName) ? _downloadRetryCount[ftpFileName] : 0;
         if (currentRetryCount >= MAX_DOWNLOAD_RETRIES)
         {
-            Console.WriteLine($"Max retry attempts ({MAX_DOWNLOAD_RETRIES}) reached for file: {ftpFileName}");
+            Console.WriteLine($"Max retry attempts ({MAX_DOWNLOAD_RETRIES}) reached for file: {ftpFileName} - marking as not found");
             _fileNotFound[ftpFileName] = true; // Mark as not found
+            _fileNotFoundLogged[ftpFileName] = false; // Allow logging once when marked
             _localFileCache[ftpFileName] = string.Empty;
             return string.Empty;
         }
@@ -1073,8 +1087,9 @@
             // If file doesn't exist anywhere, mark as not found
             if (!fileExistsAnywhere)
             {
-                Console.WriteLine($"File does not exist anywhere: {ftpFileName}");
+                Console.WriteLine($"File does not exist anywhere: {ftpFileName} - marking as not found");
                 _fileNotFound[ftpFileName] = true;
+                _fileNotFoundLogged[ftpFileName] = false; // Allow logging once when marked
                 _localFileCache[ftpFileName] = string.Empty;
                 return string.Empty;
             }
@@ -1108,7 +1123,9 @@
                 // Mark as not found if reached max retries
                 if (currentRetryCount + 1 >= MAX_DOWNLOAD_RETRIES)
                 {
+                    Console.WriteLine($"Marking {ftpFileName} as not found after {MAX_DOWNLOAD_RETRIES} failed attempts");
                     _fileNotFound[ftpFileName] = true;
+                    _fileNotFoundLogged[ftpFileName] = false; // Allow logging once when marked
                 }
                 
                 _localFileCache[ftpFileName] = string.Empty;
@@ -1132,7 +1149,9 @@
             // Mark as not found if reached max retries
             if (currentRetryCount + 1 >= MAX_DOWNLOAD_RETRIES)
             {
+                Console.WriteLine($"Marking {ftpFileName} as not found after exception on attempt {currentRetryCount + 1}");
                 _fileNotFound[ftpFileName] = true;
+                _fileNotFoundLogged[ftpFileName] = false; // Allow logging once when marked
             }
             
             _localFileCache[ftpFileName] = string.Empty;
@@ -1239,11 +1258,36 @@
     }
 
     /// <summary>
-    /// Download file directly from FTP without caching
+    /// Reset file status to allow re-download
+    /// </summary>
+    private void ResetFileStatus(string fileName)
+    {
+        Console.WriteLine($"Resetting file status for: {fileName}");
+        _localFileCache.Remove(fileName);
+        _downloadingFiles.Remove(fileName);
+        _fileNotFound.Remove(fileName);
+        _downloadRetryCount.Remove(fileName);
+        _fileNotFoundLogged.Remove(fileName);
+        
+        // Cancel any existing download
+        if (_downloadCancellationTokens.TryGetValue(fileName, out var token))
+        {
+            token.Cancel();
+            token.Dispose();
+            _downloadCancellationTokens.Remove(fileName);
+        }
+    }
+
+    /// <summary>
+    /// Download file directly from FTP without caching - with download attempt tracking
     /// </summary>
     private async Task DownloadFileDirectlyAsync(string fileName)
     {
         if (_isDisposed || IsFileAvailableLocally(fileName) || IsFileCurrentlyDownloading(fileName))
+            return;
+            
+        // Don't attempt download if file is already marked as not found
+        if (IsFileNotFound(fileName))
             return;
 
         await DownloadFileFromFtpToLocal(fileName);
@@ -1279,6 +1323,7 @@
             _downloadingFiles.Remove(fileName);
             _fileNotFound.Remove(fileName); // Reset not found status
             _downloadRetryCount.Remove(fileName); // Reset retry count
+            _fileNotFoundLogged.Remove(fileName); // Reset logged status
             
             // Delete local file if exists
             var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, fileName);
@@ -1309,8 +1354,9 @@
         var downloading = _downloadingFiles.Count(x => x.Value);
         var notFound = _fileNotFound.Count(x => x.Value);
         var totalRetries = _downloadRetryCount.Values.Sum();
+        var logged = _fileNotFoundLogged.Count(x => x.Value);
         
-        return $"Local: {localCached} files, Downloading: {downloading} files, NotFound: {notFound} files, Total Retries: {totalRetries}, CLS Folder: '{_clsImagesFolder}'";
+        return $"Local: {localCached}, Downloading: {downloading}, NotFound: {notFound}, Retries: {totalRetries}, Logged: {logged}, Folder: '{_clsImagesFolder}'";
     }
 
     /// <summary>
@@ -1327,6 +1373,7 @@
             var tokenCount = _downloadCancellationTokens.Count;
             var notFoundCount = _fileNotFound.Count;
             var retryCount = _downloadRetryCount.Count;
+            var loggedCount = _fileNotFoundLogged.Count;
             
             // Cancel all active downloads first
             CancelAllDownloads();
@@ -1337,6 +1384,7 @@
             _downloadCancellationTokens.Clear();
             _fileNotFound.Clear();
             _downloadRetryCount.Clear();
+            _fileNotFoundLogged.Clear();
             
             // Delete local files
             CleanupClsImagesFolder();
@@ -1347,7 +1395,7 @@
                 EnsureClsImagesFolderExists();
             }
             
-            Console.WriteLine($"Cleared FTP cache: {localCount} local files, {downloadingCount} downloading states, {tokenCount} tokens, {notFoundCount} not found, {retryCount} retry counts");
+            Console.WriteLine($"Cleared FTP cache: {localCount} local files, {downloadingCount} downloading states, {tokenCount} tokens, {notFoundCount} not found, {retryCount} retry counts, {loggedCount} logged");
             
             // Refresh UI only if not disposed
             if (!_isDisposed)
