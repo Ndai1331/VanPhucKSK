@@ -43,6 +43,11 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
                 name = model.name,
                 description = model.description,
                 sort = model.sort,
+                status = model.status.ToString(),
+                dia_chi = model.dia_chi,
+                email = model.email,
+                dien_thoai = model.dien_thoai,
+                parent_id = model.parent_id
             };
         }
 
