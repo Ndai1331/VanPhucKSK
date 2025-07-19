@@ -1,5 +1,5 @@
-using System.Net;
 using CoreAdminWeb.Model.RequestHttps;
+using System.Net;
 
 namespace CoreAdminWeb.Services.BaseServices
 {
@@ -16,7 +16,7 @@ namespace CoreAdminWeb.Services.BaseServices
     {
         Task<RequestHttpResponse<List<T>>> GetAllAsync(string query, bool isPublic = false);
         Task<RequestHttpResponse<T>> GetByIdAsync(string id);
-        
+
         public static RequestHttpResponse<T> CreateErrorResponse<T>(Exception ex)
         {
             return new RequestHttpResponse<T>
@@ -29,5 +29,5 @@ namespace CoreAdminWeb.Services.BaseServices
 
 
 
-    
-} 
+
+}

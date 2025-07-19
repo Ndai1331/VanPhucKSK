@@ -346,7 +346,7 @@
         IsLoading = true;
 
         BuildPaginationQuery(Page, PageSize);
-        BuilderQuery += $"&filter[_and][0][active][_eq]=true";
+        BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
         if (!string.IsNullOrEmpty(_searchString))
         {
             BuilderQuery += $"&filter[_and][1][_or][0][code][_contains]={_searchString}";

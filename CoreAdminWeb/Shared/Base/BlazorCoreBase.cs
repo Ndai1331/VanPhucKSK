@@ -36,7 +36,7 @@ namespace CoreAdminWeb.Shared.Base
 
         protected bool IsAuthenticated { get; private set; }
         public bool IsLoading { get; set; } = false;
-        public int ExpiredResultPage  { get; set; } = 10;
+        public int ExpiredResultPage { get; set; } = 10;
 
         // Pagination properties with better initialization
         public int Page { get; set; } = 1;
@@ -45,15 +45,15 @@ namespace CoreAdminWeb.Shared.Base
         public int TotalPages { get; set; }
         public int TotalItems { get; set; }
         public string BuilderQuery { get; set; } = "";
-        
+
         // Cached file types string
         public string AcceptFileTypes { get; set; } = "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/pdf,application/zip, application/x-7z-compressed, application/x-rar-compressed, application/x-tar, application/x-gzip, application/x-bzip2, application/x-compressed, application/x-compressed-tar, application/x-compressed-zip, application/x-compressed-rar, application/x-compressed-7z";
 
         // Cached status list - created once
-        public static readonly List<Model.Base.Status> StatusList = new() 
-        { 
+        public static readonly List<Model.Base.Status> StatusList = new()
+        {
             Model.Base.Status.draft,
-            Model.Base.Status.published 
+            Model.Base.Status.published
         };
 
         protected List<MenuResponse> Menus { get; set; } = new List<MenuResponse>();
@@ -67,11 +67,7 @@ namespace CoreAdminWeb.Shared.Base
             await base.OnInitializedAsync();
             await IsAuthenticatedAsync();
             await GetSettingAsync();
-            // Only reset page if not already initialized properly
-            if (Page <= 0 || PageSize <= 0)
-            {
-                ResetPage();
-            }
+            ResetPage();
         }
 
         /// <summary>
@@ -104,7 +100,7 @@ namespace CoreAdminWeb.Shared.Base
         public async Task<bool> IsAuthenticatedAsync()
         {
             // Return cached result if still valid
-            if (_cachedIsAuthenticated.HasValue && 
+            if (_cachedIsAuthenticated.HasValue &&
                 DateTime.UtcNow - _authCacheTime < AuthCacheTimeout)
             {
                 return _cachedIsAuthenticated.Value;
@@ -114,12 +110,12 @@ namespace CoreAdminWeb.Shared.Base
             {
                 var authState = await AuthStateProvider.GetAuthenticationStateAsync();
                 var isAuthenticated = authState?.User?.Identity?.IsAuthenticated ?? false;
-                
+
                 // Cache the result
                 _cachedIsAuthenticated = isAuthenticated;
                 _authCacheTime = DateTime.UtcNow;
                 IsAuthenticated = isAuthenticated;
-                
+
                 return isAuthenticated;
             }
             catch (Exception ex)
@@ -159,7 +155,7 @@ namespace CoreAdminWeb.Shared.Base
         {
             // Create cache key
             var cacheKey = $"{page}_{pageSize}_{sort}_{isAsc}";
-            
+
             // Return cached query if available
             if (_queryCache.TryGetValue(cacheKey, out var cachedQuery))
             {
@@ -170,7 +166,7 @@ namespace CoreAdminWeb.Shared.Base
             // Build query using StringBuilder for better performance
             _queryBuilder.Clear();
             _queryBuilder.Append($"limit={pageSize}&offset={(page - 1) * pageSize}&meta=filter_count");
-            
+
             if (!isAsc)
             {
                 _queryBuilder.Append($"&sort=-{sort}");
@@ -181,7 +177,7 @@ namespace CoreAdminWeb.Shared.Base
             }
 
             var query = _queryBuilder.ToString();
-            
+
             // Cache the result (limit cache size to prevent memory issues)
             if (_queryCache.Count < 100)
             {
@@ -220,9 +216,9 @@ namespace CoreAdminWeb.Shared.Base
         /// Load typeahead data with improved caching and error handling
         /// </summary>
         public async Task<IEnumerable<T>> LoadBlazorTypeaheadData<T>(
-            string searchText, 
-            IBaseService<T> service, 
-            string? otherQuery = "", 
+            string searchText,
+            IBaseService<T> service,
+            string? otherQuery = "",
             bool isIgnoreCheck = false)
         {
             try
@@ -250,13 +246,13 @@ namespace CoreAdminWeb.Shared.Base
         private string BuildBaseQuery(string searchText = "", bool isIgnoreCheck = false)
         {
             _queryBuilder.Clear();
-            _queryBuilder.Append("filter[_and][][active][_eq]=true&sort=-id");
-            
+            _queryBuilder.Append("filter[_and][][deleted][_eq]=false&sort=-id");
+
             if (!string.IsNullOrEmpty(searchText))
             {
                 _queryBuilder.Append($"&filter[_and][][name][_contains]={Uri.EscapeDataString(searchText)}");
             }
-            
+
             return _queryBuilder.ToString();
         }
 
@@ -265,14 +261,17 @@ namespace CoreAdminWeb.Shared.Base
         /// </summary>
         public async Task OnPageSizeChanged(Func<Task> loadData)
         {
-            if (PageSize <= 0) return;
-            
+            if (PageSize <= 0)
+            {
+                return;
+            }
+
             Page = 1;
             TotalItems = 0;
-            
+
             // Clear query cache since page size changed
             _queryCache.Clear();
-            
+
             try
             {
                 await loadData();
@@ -309,11 +308,14 @@ namespace CoreAdminWeb.Shared.Base
         /// </summary>
         public async Task SelectedPage(int page, Func<Task> loadData)
         {
-            if (page < 1 || page > TotalPages) return;
-            
+            if (page < 1 || page > TotalPages)
+            {
+                return;
+            }
+
             var previousPage = Page;
             Page = page;
-            
+
             try
             {
                 await loadData();
