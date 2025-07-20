@@ -1,7 +1,9 @@
 using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Contract;
 using CoreAdminWeb.Services.DanhMucDungChung;
 using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.FTP;
@@ -40,6 +42,8 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseService<DinhMucModel>, DinhMucService>();
             services.AddScoped<IBaseService<ContractTypeModel>, ContractTypeService>();
             services.AddScoped<IBaseService<CongTyModel>, CongTyService>();
+            services.AddScoped<IBaseService<ContractModel>, ContractService>();
+            services.AddScoped<IContractDinhMucService, ContractDinhMucService>();
             services.AddScoped<AlertService>();
             // PDF Service Configuration
             services.AddScoped<IPdfService, PdfService>();
