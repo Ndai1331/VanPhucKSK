@@ -13,6 +13,7 @@ namespace CoreAdminWeb.Extensions
             return attribute != null ? attribute.Description : value.ToString();
         }
 
+
         public static string GetDescriptionFromNumber<TEnum>(this int value) where TEnum : Enum
         {
             // Check if the value is defined in the enum
