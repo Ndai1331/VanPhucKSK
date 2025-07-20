@@ -11,7 +11,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
     /// </summary>
     public class CongTyService : IBaseService<CongTyModel>
     {
-        private readonly string _collection = "cong_ty";
+        private readonly string _collection = "CongTy";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
         private readonly IHttpClientService _httpClientService;
 
@@ -47,7 +47,8 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
                 dia_chi = model.dia_chi,
                 email = model.email,
                 dien_thoai = model.dien_thoai,
-                parent_id = model.parent_id
+                parent_id = model.parent_id,
+                nguoi_lien_he = model.nguoi_lien_he
             };
         }
 
@@ -116,7 +117,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}?fields={Fields}", createModel);
 
                 if (!response.IsSuccess)
                 {
@@ -156,7 +157,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}/{model.id}?fields={Fields}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
@@ -187,7 +188,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
 
             try
             {
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<CongTyCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<CongTyModel>>($"items/{_collection}/{model.id}?fields={Fields}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {

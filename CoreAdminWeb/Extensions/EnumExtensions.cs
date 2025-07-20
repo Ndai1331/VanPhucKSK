@@ -8,7 +8,11 @@ namespace CoreAdminWeb.Extensions
         public static string GetDescription(this Enum value)
         {
             FieldInfo? field = value.GetType().GetField(value.ToString());
-            if (field == null) return value.ToString();
+            if (field == null)
+            {
+                return value.ToString();
+            }
+
             DescriptionAttribute? attribute = field.GetCustomAttribute<DescriptionAttribute>();
             return attribute != null ? attribute.Description : value.ToString();
         }
@@ -40,7 +44,9 @@ namespace CoreAdminWeb.Extensions
 
             var enumType = typeof(TEnum);
             if (!enumType.IsEnum)
+            {
                 throw new ArgumentException("Type must be an enum", nameof(enumType));
+            }
 
             if (Enum.TryParse(enumType, value, true, out var enumValue))
             {
@@ -61,7 +67,9 @@ namespace CoreAdminWeb.Extensions
                 {
                     var attr = field.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>();
                     if (attr != null)
+                    {
                         return attr.Description;
+                    }
                 }
             }
             return enumValue.ToString() ?? string.Empty;
@@ -69,7 +77,10 @@ namespace CoreAdminWeb.Extensions
 
         public static string GetEnumDescription(this object? value, Type enumType)
         {
-            if (value == null) return string.Empty;
+            if (value == null)
+            {
+                return string.Empty;
+            }
 
             if (value is Enum)
             {
@@ -90,6 +101,35 @@ namespace CoreAdminWeb.Extensions
             }
 
             return value.ToString() ?? string.Empty;
+        }
+        public static TEnum ToEnum<TEnum>(this string value, TEnum defaultValue = default) where TEnum : struct, Enum
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return defaultValue;
+            }
+
+            if (Enum.TryParse<TEnum>(value, true, out var result))
+            {
+                return result;
+            }
+
+            if (int.TryParse(value, out int intValue) && Enum.IsDefined(typeof(TEnum), intValue))
+            {
+                return (TEnum)Enum.ToObject(typeof(TEnum), intValue);
+            }
+
+            return defaultValue;
+        }
+
+        public static TEnum ToEnum<TEnum>(this int value, TEnum defaultValue = default) where TEnum : struct, Enum
+        {
+            if (Enum.IsDefined(typeof(TEnum), value))
+            {
+                return (TEnum)Enum.ToObject(typeof(TEnum), value);
+            }
+
+            return defaultValue;
         }
     }
 }
