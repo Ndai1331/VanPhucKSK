@@ -92,7 +92,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private async Task LoadDetailData()
         {
             var buildQuery = $"sort=sort";
-            buildQuery += $"&filter[_and][][contract_id][_eq]={SelectedItem.id}";
+            buildQuery += $"&filter[_and][][contract][_eq]={SelectedItem.id}";
             buildQuery += $"&filter[_and][][deleted][_eq]=false";
             var result = await ContractDinhMucService.GetAllAsync(buildQuery);
             SelectedItemsDetail = result.Data ?? new List<ContractDinhMucModel>();
@@ -249,7 +249,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 var result = await MainService.CreateAsync(SelectedItem);
                 if (result.IsSuccess)
                 {
-                    var chiTieuChitietList = SelectedItemsDetail
+                    var chiTietList = SelectedItemsDetail
                         .Where(c => c.deleted == false || c.deleted == null)
                         .Select(c =>
                         {
@@ -258,7 +258,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                         })
                         .ToList();
 
-                    var detailResult = await ContractDinhMucService.CreateAsync(chiTieuChitietList);
+                    var detailResult = await ContractDinhMucService.CreateAsync(chiTietList);
                     if (!detailResult.IsSuccess)
                     {
                         AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");

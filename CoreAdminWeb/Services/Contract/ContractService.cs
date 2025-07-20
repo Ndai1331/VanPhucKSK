@@ -130,21 +130,14 @@ namespace CoreAdminWeb.Services.Contract
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<ContractCRUDModel>>($"items/{_collection}?fields={Fields}", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<ContractModel>>($"items/{_collection}?fields={Fields}", createModel);
 
                 if (!response.IsSuccess)
                 {
                     return new RequestHttpResponse<ContractModel> { Errors = response.Errors };
                 }
 
-                return new RequestHttpResponse<ContractModel>
-                {
-                    Data = new()
-                    {
-                        code = response.Data?.Data?.code,
-                        name = response.Data?.Data?.name
-                    }
-                };
+                return response.Data ?? new RequestHttpResponse<ContractModel>();
             }
             catch (Exception ex)
             {
@@ -170,7 +163,7 @@ namespace CoreAdminWeb.Services.Contract
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<ContractCRUDModel>>($"items/{_collection}/{model.id}?fields={Fields}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<ContractModel>>($"items/{_collection}/{model.id}?fields={Fields}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
