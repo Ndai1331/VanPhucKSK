@@ -18,8 +18,7 @@ namespace CoreAdminWeb.Model.Base
         public UserModel? user_created { get; set; }
         public DateTime date_created { get; set; } = DateTime.Now;
         public UserModel? user_updated { get; set; }
-        public DateTime? date_updated { get; set; } 
-        public bool? active { get; set; } = true;
+        public DateTime? date_updated { get; set; }
     }
 
     public class BaseDetailModel

@@ -41,6 +41,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseService<ContractTypeModel>, ContractTypeService>();
             services.AddScoped<IBaseService<CongTyModel>, CongTyService>();
             services.AddScoped<IBaseService<PhanLoaiSucKhoeModel>, PhanLoaiSucKhoeService>();
+            services.AddScoped<IBaseService<KhamSucKhoeCongTyModel>, KhamSucKhoeCongTyService>();
             services.AddScoped<AlertService>();
             // PDF Service Configuration
             services.AddScoped<IPdfService, PdfService>();
