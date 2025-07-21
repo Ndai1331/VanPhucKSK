@@ -19,32 +19,43 @@ namespace CoreAdminWeb.Model
     }
     public class LoaiDinhMucModel : BaseModel<int>
     {
-        public bool? active { get; set; } = true;
+        public new bool? active { get; set; } = true;
     }
     public class LoaiDinhMucCRUDModel : BaseDetailModel
     {
-        public bool? active { get; set; } = true;
-        public string status { get; set; } = Status.published.ToString();
+        public new bool? active { get; set; } = true;
+        public new string status { get; set; } = Status.published.ToString();
+    }
+    public class PhanLoaiSucKhoeModel : BaseModel<int>
+    {
+        public new bool? active { get; set; } = true;
+    }
+    public class PhanLoaiSucKhoeCRUDModel : BaseDetailModel
+    {
+        public new bool? active { get; set; } = true;
+        public new string status { get; set; } = Status.published.ToString();
     }
     public class DinhMucModel : BaseModel<int>
     {
-        public decimal? du_kien_chi_phi { get; set; }
-        public bool? active { get; set; } = true;
+        public decimal? DinhMuc { get; set; }
+        public decimal? DonGia { get; set; }
+        public new bool? active { get; set; } = true;
         public LoaiDinhMucModel? loai_dinh_muc { get; set; }
     }
     public class DinhMucCRUDModel : BaseDetailModel
     {
-        public decimal? du_kien_chi_phi { get; set; }
-        public bool? active { get; set; } = true;
+        public decimal? DinhMuc { get; set; }
+        public decimal? DonGia { get; set; }
+        public new bool? active { get; set; } = true;
         public int? loai_dinh_muc { get; set; }
-        public string status { get; set; } = Status.published.ToString();
+        public new string status { get; set; } = Status.published.ToString();
     }
     public class ContractTypeModel : BaseModel<int>
     {
     }
     public class ContractTypeCRUDModel : BaseDetailModel
     {
-        public bool? active { get; set; } = true;
-        public string status { get; set; } = Status.published.ToString();
+        public new bool? active { get; set; } = true;
+        public new string status { get; set; } = Status.published.ToString();
     }
 }

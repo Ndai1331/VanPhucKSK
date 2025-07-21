@@ -1,4 +1,4 @@
-@page "/admin/danh-muc-dinh-muc"
+@page "/admin/phan-loai-suc-khoe"
 @using CoreAdminWeb.Commons.Utils
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Helpers
@@ -8,7 +8,7 @@
 @inherits BlazorCoreBase
 @layout Shared.Layout.AdminLayout
 
-<PageHeader Title="Danh mục định mức" pTitle="Danh mục định mức"></PageHeader>
+<PageHeader Title="Phân loại sức khỏe" pTitle="Phân loại sức khỏe"></PageHeader>
 
 <!-- Start All Card -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
@@ -39,7 +39,6 @@
                                        @bind-value="@_searchString"
                                        @bind-value:event="oninput"
                                        @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadData)">
-
                                 <MudButton OnClick="LoadData" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
                                         <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z" fill="currentColor"></path>
@@ -77,12 +76,10 @@
                     <tr>
                         <th>STT</th>
                         <th>Ngày tạo</th>
-                        <th>Mã định mức</th>
-                        <th>Tên định mức</th>
-                        <th>Loại định mức</th>
-                        <th>Dự kiến chi phí</th>
+                        <th>Mã loại</th>
+                        <th>Tên phân loại</th>
                         <th>Trạng thái</th>
-                        <th class="flex items-center gap-2">Thao tác</th>
+                        <th class="flex items-center gap-2">Tác vụ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,11 +87,9 @@
                     {
                         <tr>
                             <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                            <td>@item.Data.date_created</td>
+                            <td>@item.Data.date_created.ToString("dd/MM/yyyy")</td>
                             <td>@item.Data.code</td>
                             <td>@item.Data.name</td>
-                            <td>@item.Data.loai_dinh_muc?.name</td>
-                            <td>@item.Data.DinhMuc?.ToString("N0")</td>
                             <td>@((MarkupString)item.Data.active.GetTrangThai())</td>
                             <td class="flex items-center gap-2">
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
@@ -109,7 +104,7 @@
                         </tr>
                     }
                 </tbody>
-
+                
             </table>
         </div>
         <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
@@ -147,7 +142,7 @@
 {
     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
         <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseAddOrUpdateModal">
-            <div class="relative w-full max-w-xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+            <div class="relative w-full max-w-lg p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
                 <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
                     <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">@_titleAddOrUpdate</MudText>
                     <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseAddOrUpdateModal">
@@ -160,55 +155,25 @@
                 <div class="p-5">
                     <EditForm Model="@SelectedItem" OnValidSubmit="OnValidSubmit">
                         <div class="text-black dark:text-muted">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-2 py-3">
-                                <div class="space-y-2 xs:col-span-1 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                    <label>Mã định mức</label>
-                                    <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Nhập mã định mức" />
-                                </div>
-                                <div class="space-y-2 xs:col-span-1 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                    <label>Loại định mức</label>
-                                    <BlazoredTypeahead EnableDropDown="true"
-                                                       ShowDropDownOnFocus="true"
-                                                       MinimumLength="0"
-                                                       TItem="LoaiDinhMucModel"
-                                                       TValue="LoaiDinhMucModel"
-                                                       SearchMethod="LoadLoaiDinhMucData"
-                                                       @bind-Value="SelectedItem.loai_dinh_muc"
-                                                       placeholder="Chọn loại định mức"
-                                                       Class="form-select">
-                                        <SelectedTemplate Context="item">
-                                            @item.name
-                                        </SelectedTemplate>
-                                        <ResultTemplate Context="item">
-                                            @item.name
-                                        </ResultTemplate>
-                                        <NotFoundTemplate Context="item">
-                                            Không tìm thấy dữ liệu
-                                        </NotFoundTemplate>
-                                    </BlazoredTypeahead>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                    <label>Mã loại</label>
+                                    <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Nhập mã loại" />
                                 </div>
                                 <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Ngày tạo</label>
                                     <input type="text" class="form-input" readonly value="@SelectedItem.date_created.ToString("dd/MM/yyyy")" Label="Ngày tạo" />
                                 </div>
-                                <div class="space-y-2 xs:col-span-3 sm:col-span-3 md:col-span-3 xl:col-span-3">
-                                    <label>Tên định mức</label>
-                                    <input type="text" class="form-input" @bind-value="@SelectedItem.name" Label="Nhập tên định mức" />
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                    <label>Tên phân loại</label>
+                                    <input type="text" class="form-input" @bind-value="@SelectedItem.name" Label="Nhập tên phân loại" />
                                 </div>
-                                <div class="space-y-2 xs:col-span-3 sm:col-span-3 md:col-span-3 xl:col-span-3">
-                                    <label>Dự kiến chi phí (VNĐ)</label>
-                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.DinhMuc" Label="Nhập dự kiến chi phí" />
-                                </div>
-                                <div class="space-y-2 xs:col-span-3 sm:col-span-3 md:col-span-3 xl:col-span-3">
-                                    <label>Đơn giá (VNĐ)</label>
-                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.DonGia" Label="Nhập đơn giá" />
-                                </div>
-                                <div class="space-y-2 xs:col-span-3 sm:col-span-3 md:col-span-3 xl:col-span-3">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
                                     <label>Ghi chú</label>
                                     <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" placeholder="Nhập ghi chú"></textarea>
                                 </div>
 
-                                <div class="space-y-2 xs:col-span-3 sm:col-span-3 md:col-span-3 xl:col-span-3">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
                                     <label>Trạng thái</label>
                                     <select class="form-select" @bind="@_selectedStatusString" @bind:event="oninput" @onchange="OnStatusChanged">
                                         <option value="True" selected="@(_selectedStatusString == "true")">Đang hoạt động</option>

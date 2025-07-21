@@ -5,9 +5,12 @@
     height:40px !important;
 }
 
-.form-textarea
-{
-    height:unset !important;
+.form-textarea {
+    height: unset !important;
+}
+
+.form-select {
+    min-width: 150px;
 }
 
 .top-4 {

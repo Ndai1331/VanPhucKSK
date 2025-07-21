@@ -9,13 +9,13 @@ namespace CoreAdminWeb.Services
     /// <summary>
     /// Service for managing fertilizer production facilities
     /// </summary>
-    public class DinhMucService : IBaseService<DinhMucModel>
+    public class PhanLoaiSucKhoeService : IBaseService<PhanLoaiSucKhoeModel>
     {
-        private readonly string _collection = "danh_muc_dinh_muc";
-        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,loai_dinh_muc.name,loai_dinh_muc.code,loai_dinh_muc.id";
+        private readonly string _collection = "PhanLoaiSucKhoe";
+        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
         private readonly IHttpClientService _httpClientService;
 
-        public DinhMucService(IHttpClientService httpClientService)
+        public PhanLoaiSucKhoeService(IHttpClientService httpClientService)
         {
             _httpClientService = httpClientService;
         }
@@ -35,7 +35,7 @@ namespace CoreAdminWeb.Services
         /// <summary>
         /// Maps a model to CRUD model
         /// </summary>
-        private static DinhMucCRUDModel MapToCRUDModel(DinhMucModel model)
+        private static PhanLoaiSucKhoeCRUDModel MapToCRUDModel(PhanLoaiSucKhoeModel model)
         {
             return new()
             {
@@ -44,41 +44,38 @@ namespace CoreAdminWeb.Services
                 description = model.description,
                 sort = model.sort,
                 active = model.active,
-                status = model.status.ToString(),
-                loai_dinh_muc = model.loai_dinh_muc?.id,
-                DinhMuc = model.DinhMuc,
-                DonGia = model.DonGia
+                status = model.status.ToString()
             };
         }
 
         /// <summary>
         /// Gets all fertilizer production facilities
         /// </summary>
-        public async Task<RequestHttpResponse<List<DinhMucModel>>> GetAllAsync(string query)
+        public async Task<RequestHttpResponse<List<PhanLoaiSucKhoeModel>>> GetAllAsync(string query)
         {
             try
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
-                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<DinhMucModel>>>(url);
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<PhanLoaiSucKhoeModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<DinhMucModel>> { Data = response.Data?.Data }
-                    : new RequestHttpResponse<List<DinhMucModel>> { Errors = response.Errors };
+                    ? new RequestHttpResponse<List<PhanLoaiSucKhoeModel>> { Data = response.Data?.Data }
+                    : new RequestHttpResponse<List<PhanLoaiSucKhoeModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return CreateErrorResponse<List<DinhMucModel>>(ex);
+                return CreateErrorResponse<List<PhanLoaiSucKhoeModel>>(ex);
             }
         }
 
         /// <summary>
         /// Gets a fertilizer production facility by ID
         /// </summary>
-        public async Task<RequestHttpResponse<DinhMucModel>> GetByIdAsync(string id)
+        public async Task<RequestHttpResponse<PhanLoaiSucKhoeModel>> GetByIdAsync(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
-                return new RequestHttpResponse<DinhMucModel>
+                return new RequestHttpResponse<PhanLoaiSucKhoeModel>
                 {
                     Errors = new List<ErrorResponse> { new() { Message = "ID không được để trống" } },
                     StatusCode = HttpStatusCode.BadRequest
@@ -87,26 +84,26 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<DinhMucModel>>($"items/{_collection}/{id}?fields={Fields}");
+                var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<PhanLoaiSucKhoeModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<DinhMucModel> { Data = response.Data?.Data }
-                    : new RequestHttpResponse<DinhMucModel> { Errors = response.Errors };
+                    ? new RequestHttpResponse<PhanLoaiSucKhoeModel> { Data = response.Data?.Data }
+                    : new RequestHttpResponse<PhanLoaiSucKhoeModel> { Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return CreateErrorResponse<DinhMucModel>(ex);
+                return CreateErrorResponse<PhanLoaiSucKhoeModel>(ex);
             }
         }
 
         /// <summary>
         /// Creates a new fertilizer production facility
         /// </summary>
-        public async Task<RequestHttpResponse<DinhMucModel>> CreateAsync(DinhMucModel model)
+        public async Task<RequestHttpResponse<PhanLoaiSucKhoeModel>> CreateAsync(PhanLoaiSucKhoeModel model)
         {
             if (model == null)
             {
-                return new RequestHttpResponse<DinhMucModel>
+                return new RequestHttpResponse<PhanLoaiSucKhoeModel>
                 {
                     Errors = new List<ErrorResponse> { new() { Message = "Vui lòng nhập đầy đủ thông tin" } },
                     StatusCode = HttpStatusCode.BadRequest
@@ -116,14 +113,14 @@ namespace CoreAdminWeb.Services
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<PhanLoaiSucKhoeCRUDModel>>($"items/{_collection}", createModel);
 
                 if (!response.IsSuccess)
                 {
-                    return new RequestHttpResponse<DinhMucModel> { Errors = response.Errors };
+                    return new RequestHttpResponse<PhanLoaiSucKhoeModel> { Errors = response.Errors };
                 }
 
-                return new RequestHttpResponse<DinhMucModel>
+                return new RequestHttpResponse<PhanLoaiSucKhoeModel>
                 {
                     Data = new()
                     {
@@ -134,14 +131,14 @@ namespace CoreAdminWeb.Services
             }
             catch (Exception ex)
             {
-                return CreateErrorResponse<DinhMucModel>(ex);
+                return CreateErrorResponse<PhanLoaiSucKhoeModel>(ex);
             }
         }
 
         /// <summary>
         /// Updates an existing fertilizer production facility
         /// </summary>
-        public async Task<RequestHttpResponse<bool>> UpdateAsync(DinhMucModel model)
+        public async Task<RequestHttpResponse<bool>> UpdateAsync(PhanLoaiSucKhoeModel model)
         {
             if (model == null || model.id == 0)
             {
@@ -156,7 +153,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<PhanLoaiSucKhoeCRUDModel>>($"items/{_collection}/{model.id}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
@@ -173,7 +170,7 @@ namespace CoreAdminWeb.Services
         /// <summary>
         /// Deletes a fertilizer production facility
         /// </summary>
-        public async Task<RequestHttpResponse<bool>> DeleteAsync(DinhMucModel model)
+        public async Task<RequestHttpResponse<bool>> DeleteAsync(PhanLoaiSucKhoeModel model)
         {
             if (model == null || model.id == 0)
             {
@@ -187,7 +184,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<PhanLoaiSucKhoeCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {
