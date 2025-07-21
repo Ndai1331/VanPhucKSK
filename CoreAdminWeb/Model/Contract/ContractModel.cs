@@ -20,6 +20,7 @@ namespace CoreAdminWeb.Model.Contract
         public string? nguoi_gioi_thieu { get; set; }
         public string? dien_thoai { get; set; }
         public string? email { get; set; }
+        public FileModel? file_hd { get; set; }
     }
     public class ContractCRUDModel : BaseDetailModel
     {
@@ -40,5 +41,6 @@ namespace CoreAdminWeb.Model.Contract
         public string? nguoi_gioi_thieu { get; set; }
         public string? dien_thoai { get; set; }
         public string? email { get; set; }
+        public string? file_hd { get; set; }
     }
 }

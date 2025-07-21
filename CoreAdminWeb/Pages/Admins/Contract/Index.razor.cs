@@ -6,6 +6,9 @@ using CoreAdminWeb.Services.Contract;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using CoreAdminWeb.Services.Files;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace CoreAdminWeb.Pages.Admins.Contract
 {
@@ -14,7 +17,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         IContractDinhMucService ContractDinhMucService,
         IBaseService<CongTyModel> CongTyService,
         IBaseService<ContractTypeModel> ContractTypeService,
-        IBaseService<DinhMucModel> DinhMucService
+        IBaseService<DinhMucModel> DinhMucService,
+        IFileService _fileService
     ) : BlazorCoreBase
     {
         private List<ContractModel> MainModels { get; set; } = new();
@@ -28,6 +32,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private string _searchStatusString = "";
         private string _titleAddOrUpdate = "Thêm mới";
         private string activeDefTab { get; set; } = "tab1";
+        private IBrowserFile SelectedFile { get; set; } = default!;
+        private string fileContent { get; set; } = string.Empty;
 
         protected override async Task OnInitializedAsync()
         {
@@ -97,7 +103,6 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             var result = await ContractDinhMucService.GetAllAsync(buildQuery);
             SelectedItemsDetail = result.Data ?? new List<ContractDinhMucModel>();
         }
-
 
         private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
         {
@@ -212,6 +217,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
             SelectedItemsDetail = new List<ContractDinhMucModel>();
             activeDefTab = "tab1";
+            ClearImageUpload();
+            
             if (SelectedItem.id > 0)
             {
                 await LoadDetailData();
@@ -244,6 +251,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 return;
             }
+            await UpdateImageAsync();
             if (SelectedItem.id == 0)
             {
                 var result = await MainService.CreateAsync(SelectedItem);
@@ -486,6 +494,126 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
             }
+        }
+
+        private async Task HandleFileSelect(InputFileChangeEventArgs e)
+        {
+            var files = e.GetMultipleFiles();
+            if (files != null && files.Any())
+            {
+                await ProcessFile(files[0]);
+            }
+        }
+
+        private async Task HandleDrop(DragEventArgs e)
+        {
+            var files = await JsRuntime.InvokeAsync<IReadOnlyList<IBrowserFile>>("getDroppedFiles", e);
+            if (files?.Count > 0)
+            {
+                await ProcessFile(files[0]);
+            }
+        }
+
+        private async Task ProcessFile(IBrowserFile file)
+        {
+            SelectedFile = file;
+
+            if (SelectedFile != null)
+            {
+                var maxAllowSize = 5 * 1024 * 1024;
+                if (SelectedFile.Size <= maxAllowSize) // 5MB max size
+                {
+                    try
+                    {
+                        var buffer = new byte[SelectedFile.Size];
+                        await SelectedFile.OpenReadStream(maxAllowSize).ReadExactlyAsync(buffer);
+                        var base64 = Convert.ToBase64String(buffer);
+                        fileContent = $"data:{SelectedFile.ContentType};base64,{base64}";
+                    }
+                    catch (Exception ex)
+                    {
+                        await JsRuntime.InvokeVoidAsync("alert", $"Error processing image: {ex.Message}");
+                    }
+                    finally
+                    {
+                        StateHasChanged();
+                    }
+                }
+                else
+                {
+                    await JsRuntime.InvokeVoidAsync("alert", "File size exceeds 5MB limit");
+                }
+            }
+            else
+            {
+                await JsRuntime.InvokeVoidAsync("alert", "Invalid image format");
+            }
+        }
+
+        async Task DownloadFile()
+        {
+            await JsRuntime.InvokeVoidAsync("downloadFile", fileContent, SelectedFile.Name);
+        }
+
+        private Task HandleDragOver(DragEventArgs e)
+        {
+            e.DataTransfer.DropEffect = "copy";
+            return Task.CompletedTask;
+        }
+
+        private Task HandleDragEnter(DragEventArgs e)
+        {
+            // Optional: Add visual feedback for drag enter
+            return Task.CompletedTask;
+        }
+
+        private Task HandleDragLeave(DragEventArgs e)
+        {
+            // Optional: Remove visual feedback for drag leave
+            return Task.CompletedTask;
+        }
+        private async Task UpdateImageAsync()
+        {
+            if (SelectedFile != null)
+            {
+                try
+                {
+                    var fileUploaded = await _fileService.UploadFileAsync(SelectedFile);
+
+                    if (
+                        fileUploaded != null
+                        && fileUploaded.IsSuccess
+                        && fileUploaded.Data != null
+                        && !string.IsNullOrEmpty(fileUploaded.Data.filename_download)
+                    )
+                    {
+                        SelectedItem.file_hd = fileUploaded.Data;
+                        // await MainService.UpdateAsync(SelectedItem);;
+
+                        fileContent = string.Empty;
+                        SelectedFile = default!;
+                        // await LoadData();
+                    }
+                    else
+                    {
+                        await JsRuntime.InvokeVoidAsync("alert", "Failed to upload image.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await JsRuntime.InvokeVoidAsync("alert", $"Error saving image: {ex.Message}");
+                }
+                finally
+                {
+                    StateHasChanged();
+                }
+            }
+        }
+
+        private void ClearImageUpload()
+        {
+            fileContent = string.Empty;
+            SelectedFile = default!;
         }
     }
 }

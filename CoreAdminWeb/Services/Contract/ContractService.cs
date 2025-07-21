@@ -3,6 +3,8 @@ using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
 using System.Net;
+using CoreAdminWeb.Model.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace CoreAdminWeb.Services.Contract
 {
@@ -14,12 +16,15 @@ namespace CoreAdminWeb.Services.Contract
         private readonly string _collection = "contract";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
             + ",cong_ty.id,cong_ty.name"
-            + ",contract_type.id,contract_type.code";
+            + ",contract_type.id,contract_type.code"
+            + ",file_hd.id,file_hd.filename_disk,file_hd.filename_download";
         private readonly IHttpClientService _httpClientService;
+         private readonly IOptions<DrCoreApi> _appSettings;
 
-        public ContractService(IHttpClientService httpClientService)
+        public ContractService(IHttpClientService httpClientService, IOptions<DrCoreApi> appSettings)
         {
             _httpClientService = httpClientService;
+            _appSettings = appSettings;
         }
 
         /// <summary>
@@ -62,6 +67,7 @@ namespace CoreAdminWeb.Services.Contract
                 nguoi_gioi_thieu = model.nguoi_gioi_thieu,
                 dien_thoai = model.dien_thoai,
                 email = model.email,
+                file_hd = model.file_hd?.id.ToString()
             };
         }
 
@@ -74,6 +80,24 @@ namespace CoreAdminWeb.Services.Contract
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<ContractModel>>>(url);
+
+                if (response?.Data != null)
+                {
+                    if (response.Data.Data != null) {
+                        foreach (var item in response.Data.Data)
+                        {
+                            if (item.file_hd != null)
+                            {
+                                item.file_hd.filename_disk = $"{_appSettings.Value.BaseUrl}assets/{item.file_hd.id}?download=";
+                                item.file_hd.filename_download = $"{item.file_hd.filename_download}";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        response.Data.Data = new List<ContractModel>();
+                    }
+                }
 
                 return response.IsSuccess
                     ? new RequestHttpResponse<List<ContractModel>> { Data = response.Data?.Data }
@@ -102,7 +126,15 @@ namespace CoreAdminWeb.Services.Contract
             try
             {
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<ContractModel>>($"items/{_collection}/{id}?fields={Fields}");
-
+                if (response?.Data != null)
+                {
+                    if (response.Data.Data != null && response.Data.Data.file_hd != null)
+                    {
+                        response.Data.Data.file_hd.filename_disk = $"{_appSettings.Value.BaseUrl}assets/{response.Data?.Data?.file_hd?.id}?download=";
+                        response.Data!.Data.file_hd.filename_download = $"{response.Data?.Data?.file_hd?.filename_download}";
+                    }
+                }
+                
                 return response.IsSuccess
                     ? new RequestHttpResponse<ContractModel> { Data = response.Data?.Data }
                     : new RequestHttpResponse<ContractModel> { Errors = response.Errors };

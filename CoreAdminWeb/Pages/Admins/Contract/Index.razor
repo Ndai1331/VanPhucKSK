@@ -299,6 +299,52 @@
                                                         }
                                                     </select>
                                                 </div>
+
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <label>File hợp đồng (PDF scan)</label>
+                                                    <div id="FileUpload" class="relative block w-full p-4 border-2 border-dashed rounded appearance-none cursor-pointer border-primary bg-light/20 dark:bg-white/5 dark:border-darkborder"
+                                                        @ondrop="HandleDrop"
+                                                        @ondragover="HandleDragOver"
+                                                        @ondragenter="HandleDragEnter"
+                                                        @ondragleave="HandleDragLeave">
+                                                        <InputFile id="fileInput"
+                                                                accept="application/pdf"
+                                                                OnChange="HandleFileSelect"
+                                                                class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer" />
+                                                        <div class="flex flex-col items-center justify-center space-y-3 dark:text-darkmuted">
+                                                            <span class="flex items-center justify-center rounded-full h-14 w-14 bg-light/50 dark:bg-white/10 dark:text-white">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="inline-block w-5 h-5">
+                                                                    <path fill="currentColor" d="M4 19H20V12H22V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V12H4V19ZM13 9V16H11V9H6L12 3L18 9H13Z"></path>
+                                                                </svg>
+                                                            </span>
+                                                            <MudText><span class="text-purple">Click to upload</span> or drag and drop</MudText>
+                                                            <MudText>PDF</MudText>
+                                                            <MudText>(max, 100 MB)</MudText>
+                                                        </div>
+                                                    </div>
+                                                    @if (SelectedFile != null)
+                                                    {
+                                                        <div class="title mt-4">
+                                                            <MudText Typo="Typo.h5" Class="text-lg font-bold dark:text-white">@SelectedFile.Name</MudText>
+                                                        </div>
+                                                        <div>
+                                                            <MudButton @onclick="DownloadFile" target="_blank">
+                                                                <span class="text-purple material-symbols-outlined">download</span>
+                                                            </MudButton>
+                                                        </div>
+                                                    }
+                                                    else if (!string.IsNullOrEmpty(SelectedItem.file_hd?.filename_download))
+                                                    {
+                                                        <div class="title mt-4">
+                                                            <MudText Typo="Typo.h5" Class="text-lg font-bold dark:text-white">@SelectedItem.file_hd?.filename_download</MudText>
+                                                        </div>
+                                                        <div>
+                                                            <a @onclick:stopPropagation href="@SelectedItem.file_hd?.filename_disk" target="_blank">
+                                                                <span class="text-purple material-symbols-outlined">download</span>
+                                                            </a>
+                                                        </div>
+                                                    }
+                                                </div>
                                             </div>
                                         </div>
                                         break;
