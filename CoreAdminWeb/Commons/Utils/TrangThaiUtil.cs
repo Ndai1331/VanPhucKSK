@@ -28,5 +28,20 @@ namespace CoreAdminWeb.Commons.Utils
             };
             return $"<span style=\"padding: 4px 12px;border-radius: 12px;font-size: 13px;font-weight: 600;{strStyle}\">{description}</span>";
         }
+        public static string GetTrangThai(this bool? active)
+        {
+            if (active == null)
+            {
+                return "<span class=\"text-muted\">Chưa xác định</span>";
+            }
+
+            string strStyle = active switch
+            {
+                true => "background: #e0f7e9;color: #1abc9c;",
+                false => "background: #ffeaea;color: #e74c3c;",
+                _ => ""
+            };
+            return $"<span style=\"padding: 4px 12px;border-radius: 12px;font-size: 13px;font-weight: 600;{strStyle}\">{(active.Value ? "Đang hoạt động" : "Ngừng hoạt động")}</span>";
+        }
     }
 }

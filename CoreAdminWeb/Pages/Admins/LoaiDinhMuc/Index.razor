@@ -5,7 +5,6 @@
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
-@inject IBaseService<LoaiDinhMucModel> MainService
 @inherits BlazorCoreBase
 @layout Shared.Layout.AdminLayout
 
@@ -40,7 +39,6 @@
                                        @bind-value="@_searchString"
                                        @bind-value:event="oninput"
                                        @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadData)">
-
                                 <MudButton OnClick="LoadData" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
                                         <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z" fill="currentColor"></path>
@@ -54,10 +52,8 @@
                             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Trạng thái</MudText>
                             <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
                                 <option value="">Tất cả</option>
-                                @foreach (var item in StatusList)
-                                {
-                                    <option value="@item">@item.GetDescription()</option>
-                                }
+                                <option value="true" selected="@(_searchStatusString == "true")">Đang hoạt động</option>
+                                <option value="false" selected="@(_searchStatusString == "false")">Ngừng hoạt động</option>
                             </select>
                         </MudForm>
                     </div>
@@ -78,28 +74,30 @@
             <table id="example" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Mã</th>
-                        <th>Tên</th>
-                        <th>Ghi chú</th>
+                        <th>STT</th>
+                        <th>Ngày tạo</th>
+                        <th>Mã loại định mức</th>
+                        <th>Tên loại định mức</th>
                         <th>Trạng thái</th>
                         <th class="flex items-center gap-2">Tác vụ</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in MainModels)
+                    @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
                     {
                         <tr>
-                            <td>@item.code</td>
-                            <td>@item.name</td>
-                            <td>@item.description</td>
-                            <td>@((MarkupString)item.status.GetTrangThai())</td>
+                            <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                            <td>@item.Data.date_created.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Data.code</td>
+                            <td>@item.Data.name</td>
+                            <td>@((MarkupString)item.Data.active.GetTrangThai())</td>
                             <td class="flex items-center gap-2">
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                           @onclick="@(e => OpenAddOrUpdateModal(item))">
+                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
                                     <i class="ri-edit-line"></i>
                                 </MudButton>
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                           @onclick="@(e => OpenDeleteModal(item))">
+                                           @onclick="@(e => OpenDeleteModal(item.Data))">
                                     <i class="ri-delete-bin-line"></i>
                                 </MudButton>
                             </td>
@@ -109,80 +107,7 @@
                 
             </table>
         </div>
-
-        <div class="w-full grid grid-cols-1 pb-2">
-                <div class="flex items-center justify-between p-4">
-                    <div class="flex items-center gap-2">
-                        <span>Hiển thị</span>
-                        <select class="form-select" @bind="PageSize" @bind:event="oninput" @onchange="async (e) => await OnPageSizeChanged(LoadData)">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                        <span>mục</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-
-                        <div>
-                            <ul class="inline-flex my-2 -space-x-px list-inside">
-                                <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-l-lg rtl:rounded-r-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await PreviousPage(LoadData)" disabled="@(Page <= 1)">Trước</MudLink></li>
-                                @{
-                                    var startPage = Math.Max(1, Page - 1);
-                                    var endPage = Math.Min(TotalPages, Page + 1);
-
-                                    // Always show first page
-                                    <li>
-                                        <a href="#"
-                                            class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
-                                            @onclick="async (e) => await SelectedPage(1, LoadData)">1</a>
-                                    </li>
-
-                                    // Show ellipsis if needed
-                                    if (startPage > 2)
-                                    {
-                                        <li><span class="px-3 py-2">...</span></li>
-                                    }
-
-                                    // Show pages around current page
-                                    for (int i = startPage; i <= endPage; i++)
-                                    {
-                                        if (i > 1 && i < TotalPages)
-                                        {   
-                                            var currentPage = i; // Local variable to avoid closure issues
-                                            <li>
-                                                <a href="#"
-                                                    class="px-3 py-2 text-black  border border-black/10
-                                                    hover:bg-purple hover:text-white dark:bg-transparent
-                                                    dark:text-white dark:border-darkborder dark:hover:bg-purple
-                                                    dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
-                                                    @onclick="async (e) => await SelectedPage(currentPage, LoadData)">@i</a>
-                                            </li>
-                                        }
-                                    }
-
-                                    // Show ellipsis if needed
-                                    if (endPage < TotalPages - 1)
-                                    {
-                                        <li><span class="px-3 py-2">...</span></li>
-                                    }
-
-                                    // Always show last page if there is more than one page
-                                    if (TotalPages > 1)
-                                    {
-                                        <li>
-                                            <a href="#"
-                                                class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
-                                                @onclick="async (e) => await SelectedPage(TotalPages, LoadData)">@TotalPages</a>
-                                        </li>
-                                    }
-                                }
-                                <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-r-lg rtl:rounded-l-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await NextPage(LoadData)" disabled="@(Page >= TotalPages)">Sau</MudLink></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
     </div>
 </div>
 <!-- End All Card -->
@@ -230,34 +155,30 @@
                 <div class="p-5">
                     <EditForm Model="@SelectedItem" OnValidSubmit="OnValidSubmit">
                         <div class="text-black dark:text-muted">
-                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div class="space-y-2 md:col-span-2">
-                                    <label>Mã</label>
-                                    <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Mã" />
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                    <label>Mã loại định mức</label>
+                                    <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Nhập mã loại định mức" />
                                 </div>
-                                <div class="space-y-2 md:col-span-2">
-                                    <label>Tên</label>
-                                    <input type="text" class="form-input" @bind-value="@SelectedItem.name" Label="Tên" />
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                    <label>Ngày tạo</label>
+                                    <input type="text" class="form-input" readonly value="@SelectedItem.date_created.ToString("dd/MM/yyyy")" Label="Ngày tạo" />
                                 </div>
-                                <div class="space-y-2 md:col-span-2">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                    <label>Tên loại định mức</label>
+                                    <input type="text" class="form-input" @bind-value="@SelectedItem.name" Label="Nhập tên loại định mức" />
+                                </div>
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
                                     <label>Ghi chú</label>
-                                    <input type="text" class="form-input" @bind-value="@SelectedItem.description" Label="Ghi chú" />
-                                </div>
-                              
-                                <div class="space-y-2 md:col-span-2">
-                                    <label>Trạng thái</label>
-                                    <select class="form-select" @bind-value="@SelectedItem.status" @bind-value:event="onchange">
-                                        @foreach (var item in StatusList)
-                                        {
-                                            <option value="@item">@item.GetDescription()</option>
-                                        }
-                                    </select>
+                                    <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" placeholder="Nhập ghi chú"></textarea>
                                 </div>
 
-                                <div class="hidden space-y-2 md:col-span-2">
-                                    <label>Kích hoạt</label>
-                                    <input type="checkbox" class="form-checkbox outborder-purple"
-                                           checked="@(SelectedItem.active)" >
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                    <label>Trạng thái</label>
+                                    <select class="form-select" @bind="@_selectedStatusString" @bind:event="oninput" @onchange="OnStatusChanged">
+                                        <option value="True" selected="@(_selectedStatusString == "true")">Đang hoạt động</option>
+                                        <option value="False" selected="@(_selectedStatusString == "false")">Ngừng hoạt động</option>
+                                    </select>
                                 </div>
 
                                 <div class="hidden space-y-2 md:col-span-2">
@@ -282,162 +203,4 @@
             </div>
         </div>
     </div>
-}
-
-@code {
-    private IJSObjectReference _module;
-    private List<LoaiDinhMucModel> MainModels { get; set; } = new();
-    private bool openDeleteModal = false;
-    private bool openAddOrUpdateModal = false;
-    private LoaiDinhMucModel SelectedItem { get; set; } = new LoaiDinhMucModel();
-    private string _searchString = "";
-    private string _searchStatusString = "";
-    private string _titleAddOrUpdate = "Thêm mới";
-
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await LoadData();
-            StateHasChanged();
-        }
-    }
-
-    private async Task LoadData()
-    {
-        IsLoading = true;
-
-        BuildPaginationQuery(Page, PageSize);
-        BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-        if (!string.IsNullOrEmpty(_searchString))
-        {
-            BuilderQuery += $"&filter[_and][1][_or][0][code][_contains]={_searchString}";
-            BuilderQuery += $"&filter[_and][1][_or][1][name][_contains]={_searchString}";
-        }
-        if (!string.IsNullOrEmpty(_searchStatusString))
-        {
-            BuilderQuery += $"&filter[_and][2][status][_eq]={_searchStatusString}";
-        }
-        var result = await MainService.GetAllAsync(BuilderQuery);
-        if (result.IsSuccess)
-        {
-            MainModels = result.Data ?? new List<LoaiDinhMucModel>();
-            if (result.Meta != null)
-            {
-                TotalItems = result.Meta.filter_count ?? 0;
-                TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
-            }
-        }
-        else
-        {
-            MainModels = new List<LoaiDinhMucModel>();
-        }
-        IsLoading = false;
-    }
-   
-
-
-    private void OpenDeleteModal(LoaiDinhMucModel item)
-    {
-        SelectedItem = item;
-        openDeleteModal = true;
-    }
-
-    private async Task OnDelete()
-    {
-        var result = await MainService.DeleteAsync(SelectedItem);
-        if (result.IsSuccess && result.Data)
-        {
-            await LoadData();
-            AlertService.ShowAlert("Xoá thành công!", "success");
-            openDeleteModal = false;
-        }
-        else
-        {
-            AlertService.ShowAlert(result.Message ?? "Lỗi khi xóa dữ liệu", "danger");
-        }
-    }
-
-    private void CloseDeleteModal()
-    {
-        SelectedItem = new LoaiDinhMucModel();
-        openDeleteModal = false;
-    }
-
-    private void OpenAddOrUpdateModal(LoaiDinhMucModel? item)
-    {
-        _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
-        SelectedItem = item != null ? item.DeepClone() : new LoaiDinhMucModel();
-        openAddOrUpdateModal = true;
-    }
-
-    private async Task OnValidSubmit()
-    {
-        if (string.IsNullOrEmpty(SelectedItem.code))
-        {
-            AlertService.ShowAlert("Mã là bắt buộc", "danger");
-            return;
-        }
-
-        if (string.IsNullOrEmpty(SelectedItem.name))
-        {
-            AlertService.ShowAlert("Tên là bắt buộc", "danger");
-            return;
-        }
-
-        if (SelectedItem.id == 0)
-        {
-            var result = await MainService.CreateAsync(SelectedItem);
-            if (result.IsSuccess)
-            {
-                await LoadData();
-                openAddOrUpdateModal = false;
-                AlertService.ShowAlert("Thêm mới thành công!", "success");
-            }
-            else
-            {
-                AlertService.ShowAlert(result.Message ?? "Lỗi khi thêm mới dữ liệu", "danger");
-            }
-        }
-        else
-        {
-            var result = await MainService.UpdateAsync(SelectedItem);
-            if (result.IsSuccess)
-            {
-                await LoadData();
-                openAddOrUpdateModal = false;
-                AlertService.ShowAlert("Cập nhật thành công!", "success");
-            }
-            else
-            {
-                AlertService.ShowAlert(result.Message ?? "Lỗi khi cập nhật dữ liệu", "danger");
-            }
-        }
-    }
-
-    private void CloseAddOrUpdateModal()
-    {
-        SelectedItem = new LoaiDinhMucModel();
-        openAddOrUpdateModal = false;
-    }
-
-    private async Task OnStatusFilterChanged(ChangeEventArgs? selected)
-    {
-        _searchStatusString = selected?.Value?.ToString() ?? string.Empty;
-
-        await LoadData();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_module != null)
-        {
-            await _module.DisposeAsync();
-        }
-    }
 }

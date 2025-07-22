@@ -42,6 +42,8 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseService<DinhMucModel>, DinhMucService>();
             services.AddScoped<IBaseService<ContractTypeModel>, ContractTypeService>();
             services.AddScoped<IBaseService<CongTyModel>, CongTyService>();
+            services.AddScoped<IBaseService<PhanLoaiSucKhoeModel>, PhanLoaiSucKhoeService>();
+            services.AddScoped<IBaseService<KhamSucKhoeCongTyModel>, KhamSucKhoeCongTyService>();
             services.AddScoped<IBaseService<ContractModel>, ContractService>();
             services.AddScoped<IContractDinhMucService, ContractDinhMucService>();
             services.AddScoped<AlertService>();

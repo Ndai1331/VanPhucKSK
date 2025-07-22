@@ -184,7 +184,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<LoaiDinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = false });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<LoaiDinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {

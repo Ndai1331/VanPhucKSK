@@ -46,7 +46,8 @@ namespace CoreAdminWeb.Services
                 active = model.active,
                 status = model.status.ToString(),
                 loai_dinh_muc = model.loai_dinh_muc?.id,
-                du_kien_chi_phi = model.du_kien_chi_phi
+                DinhMuc = model.DinhMuc,
+                DonGia = model.DonGia
             };
         }
 
@@ -186,7 +187,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = false });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<DinhMucCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {

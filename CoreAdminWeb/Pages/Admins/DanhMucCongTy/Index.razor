@@ -93,7 +93,7 @@
                     {
                         <tr>
                             <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                            <td>@item.Data.date_created</td>
+                            <td>@item.Data.date_created.ToString("dd/MM/yyyy")</td>
                             <td>@item.Data.code</td>
                             <td>@item.Data.name</td>
                             <td>@item.Data.dia_chi</td>
