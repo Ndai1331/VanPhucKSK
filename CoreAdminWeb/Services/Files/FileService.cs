@@ -114,7 +114,7 @@ namespace CoreAdminWeb.Services.Files
             var response = new RequestHttpResponse<FileModel>();
             try
             {
-                var result = await _httpClientService.PostAPIWithFileAsync<RequestHttpResponse<FileModel>>($"files", file);
+                var result = await _httpClientService.PostAPIWithFileAsync<RequestHttpResponse<FileModel>>($"files", file,model);
                 if (result.IsSuccess)
                 {
                     response.Data = result.Data.Data;
@@ -122,7 +122,9 @@ namespace CoreAdminWeb.Services.Files
                     response.Data.filename_download = $"{_appSettings.Value.BaseUrl}assets/{result.Data.Data.filename_download}";
                     if(model != null)
                     {
-                        await _httpClientService.PatchAPIAsync<RequestHttpResponse<FileModel>>($"files/{response.Data.id}", model);
+                        await _httpClientService.PatchAPIAsync<RequestHttpResponse<FileModel>>($"files/{response.Data.id}", new {
+                            folder = model.folder,
+                        });
                     }
                 }
                 else if (result?.Errors != null)
