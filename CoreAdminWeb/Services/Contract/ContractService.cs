@@ -1,10 +1,10 @@
+using CoreAdminWeb.Model.Configuration;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
-using System.Net;
-using CoreAdminWeb.Model.Configuration;
 using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace CoreAdminWeb.Services.Contract
 {
@@ -15,11 +15,11 @@ namespace CoreAdminWeb.Services.Contract
     {
         private readonly string _collection = "contract";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
-            + ",cong_ty.id,cong_ty.name"
+            + ",cong_ty.id,cong_ty.name,cong_ty.code"
             + ",contract_type.id,contract_type.code"
             + ",file_hd.id,file_hd.filename_disk,file_hd.filename_download";
         private readonly IHttpClientService _httpClientService;
-         private readonly IOptions<DrCoreApi> _appSettings;
+        private readonly IOptions<DrCoreApi> _appSettings;
 
         public ContractService(IHttpClientService httpClientService, IOptions<DrCoreApi> appSettings)
         {
@@ -83,7 +83,8 @@ namespace CoreAdminWeb.Services.Contract
 
                 if (response?.Data != null)
                 {
-                    if (response.Data.Data != null) {
+                    if (response.Data.Data != null)
+                    {
                         foreach (var item in response.Data.Data)
                         {
                             if (item.file_hd != null)
@@ -134,7 +135,7 @@ namespace CoreAdminWeb.Services.Contract
                         response.Data!.Data.file_hd.filename_download = $"{response.Data?.Data?.file_hd?.filename_download}";
                     }
                 }
-                
+
                 return response.IsSuccess
                     ? new RequestHttpResponse<ContractModel> { Data = response.Data?.Data }
                     : new RequestHttpResponse<ContractModel> { Errors = response.Errors };

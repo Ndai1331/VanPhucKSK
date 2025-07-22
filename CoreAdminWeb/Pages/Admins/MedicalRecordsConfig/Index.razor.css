@@ -1,0 +1,119 @@
+﻿.doctor-section {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.doctor-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 8px;
+}
+
+.doctor-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.doctor-label {
+    width: 170px;
+    min-width: 170px;
+    max-width: 170px;
+    font-weight: 500;
+    margin-bottom: 0;
+    font-size: 16px;
+    text-align: left;
+}
+
+.doctor-select {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+    margin-right: 0;
+    margin-left: 0;
+    text-align: left;
+    padding: 7px 12px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    font-size: 15px;
+    font-family: inherit;
+    background: #fff;
+    height: 38px;
+    box-sizing: border-box;
+}
+
+.signature-label {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    margin-bottom: 0;
+    font-size: 16px;
+    text-align: left;
+    margin-left: 0;
+    flex-shrink: 0;
+}
+
+.signature-display {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 15px;
+    color: #6c757d;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    justify-content: flex-end;
+    margin-left: 0;
+}
+
+@media (max-width: 768px) {
+    .doctor-row {
+        flex-wrap: wrap;
+    }
+
+    .signature-label,
+    .signature-display {
+        width: 100%;
+        min-width: unset;
+        max-width: unset;
+        margin-top: 8px;
+    }
+
+    .signature-label {
+        margin-left: 0;
+    }
+
+    .signature-display {
+        margin-left: 0;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 420px) {
+    .doctor-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .doctor-label,
+    .doctor-select,
+    .signature-label,
+    .signature-display {
+        width: 100%;
+        min-width: unset;
+        max-width: unset;
+    }
+}

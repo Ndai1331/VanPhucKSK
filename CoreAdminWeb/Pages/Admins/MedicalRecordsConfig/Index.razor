@@ -1,0 +1,667 @@
+@page "/admin/config-ksk"
+@using CoreAdminWeb.Commons.Utils
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.Contract;
+@using CoreAdminWeb.Model.User;
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Shared.Base
+@inherits BlazorCoreBase
+@layout Shared.Layout.AdminLayout
+
+<PageHeader Title="Cấu hình hồ sơ khám sức khỏe" pTitle="Cấu hình hồ sơ khám sức khỏe"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            @if (IsLoading)
+            {
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <div class="w-full h-4 rounded-full bg-gray-200">
+                        <div class="h-4 rounded-full bg-success animate-progress"
+                             style="background-image: linear-gradient(45deg,hsla(0,0%,100%,.15) 25%,transparent 0,transparent 50%,hsla(0,0%,100%,.15) 0,hsla(0,0%,100%,.15) 75%,transparent 0,transparent); background-size: 1rem 1rem;">
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="flex items-end justify-between flex-1 gap-2 sm:gap-4">
+                <!-- Left: Filter Area -->
+                <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-2">
+                        <MudForm class="flex-1">
+                            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tìm kiếm</MudText>
+                            <div class="relative">
+                                <input type="text" id="search"
+                                       class="border-black/10 dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30 focus:border-black/30 placeholder:text-black/50 border text-black text-sm rounded block w-full ltr:pl-3 rtl:pr-3 ltr:pr-7 rtl:pl-7 h-10 bg-[#f9fbfd] focus:ring-0 focus:outline-0"
+                                       placeholder="Tìm kiếm..."
+                                       required=""
+                                       @bind-value="@_searchString"
+                                       @bind-value:event="oninput"
+                                       @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadData)">
+                                <MudButton OnClick="LoadData" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
+                                        <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z" fill="currentColor"></path>
+                                    </svg>
+                                </MudButton>
+                            </div>
+                        </MudForm>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudForm class="flex-1">
+                            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Trạng thái</MudText>
+                            <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
+                                <option value="">Tất cả</option>
+                                <option value="true" selected="@(_searchStatusString == "true")">Đang hoạt động</option>
+                                <option value="false" selected="@(_searchStatusString == "false")">Ngừng hoạt động</option>
+                            </select>
+                        </MudForm>
+                    </div>
+
+                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
+                        <div>
+                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            bg-success border-success text-white hover:bg-success/[0.85]
+                            hover:border-success/[0.85] text-nowrap" @onclick="@(e => OpenAddOrUpdateModal(null))">
+                                <i class="ri-add-line"></i>
+                                Thêm mới
+                            </MudButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <table id="example" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã hồ sơ</th>
+                        <th>Tên công ty</th>
+                        <th>Mã hợp đồng</th>
+                        <th>Số lượng DK</th>
+                        <th>Số lượng TT</th>
+                        <th>Ngày dự kiến</th>
+                        <th>Ngày kết thúc</th>
+                        <th>Trạng thái</th>
+                        <th class="flex items-center gap-2">Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                    {
+                        <tr>
+                            <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                            <td>@item.Data.code</td>
+                            <td>@item.Data.contract?.cong_ty?.name</td>
+                            <td>@item.Data.contract?.code</td>
+                            <td>@item.Data.so_luong_du_kien?.ToString("N0")</td>
+                            <td>@item.Data.so_luong_thuc_te?.ToString("N0")</td>
+                            <td>@item.Data.ngay_du_kien_kham?.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Data.ngay_ket_thuc?.ToString("dd/MM/yyyy")</td>
+                            <td>@((MarkupString)item.Data.active.GetTrangThai())</td>
+                            <td class="flex items-center gap-2">
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
+                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                    <i class="ri-eye-line"></i>
+                                </MudButton>
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                    <i class="ri-edit-line"></i>
+                                </MudButton>
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                           @onclick="@(e => OpenDeleteModal(item.Data))">
+                                    <i class="ri-delete-bin-line"></i>
+                                </MudButton>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+        <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
+    </div>
+</div>
+<!-- End All Card -->
+@if (openDeleteModal)
+{
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseDeleteModal">
+            <div class="relative w-full max-w-lg p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+                <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Xóa</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseDeleteModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
+                            <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
+                        </svg>
+                    </MudButton>
+                </div>
+                <div class="p-5">
+                    <div class="text-black dark:text-muted">
+                        <h3>Bạn có chắc chắn muốn xóa dữ liệu này không?</h3>
+                    </div>
+                    <div class="flex items-center justify-end gap-2">
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseDeleteModal">Huỷ</MudButton>
+                        <MudButton OnClick="async () => await OnDelete()" Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white">Xóa</MudButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (openAddOrUpdateModal)
+{
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseAddOrUpdateModal">
+            <div class="relative w-full max-w-5xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+                <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">@_titleAddOrUpdate</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseAddOrUpdateModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
+                            <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
+                        </svg>
+                    </MudButton>
+                </div>
+                <div class="p-5">
+                    <EditForm Model="@SelectedItem" OnValidSubmit="OnValidSubmit">
+                        <div class="text-black dark:text-muted">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 py-2">
+                                <div class="space-y-2 sm:col-span-1 md:col-span-2 xl:col-span-2">
+                                    <label>Tên công ty</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="CongTyModel"
+                                                       TValue="CongTyModel"
+                                                       SearchMethod="LoadCongTyData"
+                                                       Value="SelectedCongTy"
+                                                       ValueExpression="@(() => SelectedCongTy)"
+                                                       ValueChanged="OnCongTyChanged"
+                                                       placeholder="Chọn công ty"
+                                                       Class="form-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                </div>
+                                <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                    <label>Mã hợp đồng</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="ContractModel"
+                                                       TValue="ContractModel"
+                                                       SearchMethod="LoadHopDongData"
+                                                       Value="SelectedItem.contract"
+                                                       ValueExpression="@(() => SelectedItem.contract)"
+                                                       ValueChanged="OnHopDongChanged"
+                                                       placeholder="Chọn hợp đồng"
+                                                       Class="form-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                </div>
+                                <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                    <label>Mã hồ sơ</label>
+                                    <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Nhập mã hồ sơ" />
+                                </div>
+                                <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                    <label>Số lượng dự kiến</label>
+                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.so_luong_du_kien" Label="Nhập số lượng dự kiến" />
+                                </div>
+                                <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                    <label>Số lượng thực tế</label>
+                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.name" Label="Nhập số lượng thực tế" />
+                                </div>
+                                <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                    <label>Ngày dự kiến khám</label>
+                                    <input type="text"
+                                           class="form-input date-picker"
+                                           placeholder="Chọn ngày"
+                                           value="@(SelectedItem.ngay_du_kien_kham?.ToString("dd/MM/yyyy"))"
+                                           @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_du_kien_kham)))" required />
+                                </div>
+                                <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                    <label>Ngày kết thúc</label>
+                                    <input type="text"
+                                           class="form-input date-picker"
+                                           placeholder="Chọn ngày"
+                                           value="@(SelectedItem.ngay_ket_thuc?.ToString("dd/MM/yyyy"))"
+                                           @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_ket_thuc)))" required />
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4 py-2">
+                                <div class="space-y-2">
+                                    <label>Ghi chú</label>
+                                    <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" placeholder="Nhập ghi chú"></textarea>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label>Trạng thái</label>
+                                    <select class="form-select" @bind="@_selectedStatusString" @bind:event="oninput" @onchange="OnStatusChanged">
+                                        <option value="True" selected="@(_selectedStatusString == "true")">Đang hoạt động</option>
+                                        <option value="False" selected="@(_selectedStatusString == "false")">Ngừng hoạt động</option>
+                                    </select>
+                                </div>
+
+                                <div class="hidden space-y-2 md:col-span-2">
+                                    <label>Sắp xếp</label>
+                                    <input type="number" class="form-input" @bind-value="@SelectedItem.sort" Label="Sắp xếp" min="0" max="100" />
+                                </div>
+                            </div>
+
+                            <div class="doctor-section">
+                                <div class="doctor-section-title">Các thông tin về bác sĩ khám sức khỏe</div>
+                                <div class="doctor-row">
+                                    <label class="doctor-label">1. Bác sĩ tuần hoàn:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiTuanHoan"
+                                                       ValueExpression="@(() => SelectedBacSiTuanHoan)"
+                                                       ValueChanged="OnBacSiTuanHoanChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_tuan_hoan" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">2. Bác sĩ hô hấp:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiHoHap"
+                                                       ValueExpression="@(() => SelectedBacSiHoHap)"
+                                                       ValueChanged="OnBacSiHoHapChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_ho_hap" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">3. Bác sĩ tiêu hóa:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiTieuHoa"
+                                                       ValueExpression="@(() => SelectedBacSiTieuHoa)"
+                                                       ValueChanged="OnBacSiTieuHoaChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_tieu_hoa" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">4. Bác sĩ thận - tiết niệu:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiThanTietNieu"
+                                                       ValueExpression="@(() => SelectedBacSiThanTietNieu)"
+                                                       ValueChanged="OnBacSiThanTietNieuChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_than_tiet_nieu" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">5. Bác sĩ nội tiết:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiNoiTiet"
+                                                       ValueExpression="@(() => SelectedBacSiNoiTiet)"
+                                                       ValueChanged="OnBacSiNoiTietChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_noi_tiet" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">6. Bác sĩ cơ xương khớp:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiCoXuongKhop"
+                                                       ValueExpression="@(() => SelectedBacSiCoXuongKhop)"
+                                                       ValueChanged="OnBacSiCoXuongKhopChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_co_xuong_khop" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">7. Bác sĩ thần kinh:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiThanKinh"
+                                                       ValueExpression="@(() => SelectedBacSiThanKinh)"
+                                                       ValueChanged="OnBacSiThanKinhChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_than_kinh" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">8. Bác sĩ tâm thần:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiTamThan"
+                                                       ValueExpression="@(() => SelectedBacSiTamThan)"
+                                                       ValueChanged="OnBacSiTamThanChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_tam_than" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">9. Bác sĩ ngoại khoa:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiNgoaiKhoa"
+                                                       ValueExpression="@(() => SelectedBacSiNgoaiKhoa)"
+                                                       ValueChanged="OnBacSiNgoaiKhoaChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_ngoai_khoa" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">10. Bác sĩ sản phụ khoa:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiSanPhuKhoa"
+                                                       ValueExpression="@(() => SelectedBacSiSanPhuKhoa)"
+                                                       ValueChanged="OnBacSiSanPhuKhoaChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_san_phu_khoa" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">11. Bác sĩ mắt:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiMat"
+                                                       ValueExpression="@(() => SelectedBacSiMat)"
+                                                       ValueChanged="OnBacSiMatChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_mat" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">12. Bác sĩ tai mũi họng:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiTaiMuiHong"
+                                                       ValueExpression="@(() => SelectedBacSiTaiMuiHong)"
+                                                       ValueChanged="OnBacSiTaiMuiHongChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_tai_mui_hong" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">13. Bác sĩ răng hàm mặt:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiRangHamMat"
+                                                       ValueExpression="@(() => SelectedBacSiRangHamMat)"
+                                                       ValueChanged="OnBacSiRangHamMatChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_rang_ham_mat" Label="Chữ ký" />
+                                </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">14. Bác sĩ kết luận:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       Value="SelectedBacSiKetLuan"
+                                                       ValueExpression="@(() => SelectedBacSiKetLuan)"
+                                                       ValueChanged="OnBacSiKetLuanChanged"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_ket_luan" Label="Chữ ký" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-2 py-4">
+                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseAddOrUpdateModal">
+                                <i class="ri-close-line"></i>
+                                Huỷ
+                            </MudButton>
+                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                       OnClick="OnValidSubmit">
+                                <i class="ri-save-line"></i>
+                                Lưu
+                            </MudButton>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}

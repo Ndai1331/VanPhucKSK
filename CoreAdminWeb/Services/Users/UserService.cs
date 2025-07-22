@@ -1,12 +1,13 @@
+using Blazored.LocalStorage;
+using CoreAdminWeb.Helpers;
+using CoreAdminWeb.Http;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.User;
-using CoreAdminWeb.Http;
-using LoginResponse = CoreAdminWeb.Model.User.LoginResponse;
-using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
 using CoreAdminWeb.Providers;
-using CoreAdminWeb.Helpers;
+using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
+using Microsoft.AspNetCore.Components.Authorization;
+using LoginResponse = CoreAdminWeb.Model.User.LoginResponse;
 
 namespace CoreAdminWeb.Services.Users
 {
@@ -22,6 +23,7 @@ namespace CoreAdminWeb.Services.Users
         string GetAccessTokenAsync();
         string GetRefreshTokenAsync();
         Task<bool> RefreshTokenAsync();
+        Task<RequestHttpResponse<List<UserModel>>> GetAllAsync(string query, bool isPublic = false);
     }
 
     public class UserService : IUserService
@@ -32,7 +34,7 @@ namespace CoreAdminWeb.Services.Users
         private readonly IHttpClientService _httpClientService;
         private string _accessToken;
         private string _refreshToken;
-        
+
         public UserService(
             ILocalStorageService localStorage,
             AuthenticationStateProvider authenticationStateProvider,
@@ -42,7 +44,7 @@ namespace CoreAdminWeb.Services.Users
             _localStorage = localStorage;
             _authenticationStateProvider = authenticationStateProvider;
             _httpClientService = httpClientService;
-            
+
             // Set up circular reference for token refresh
             if (_httpClientService is HttpClientService httpService)
             {
@@ -53,9 +55,9 @@ namespace CoreAdminWeb.Services.Users
         private async Task<string> GetEmailFromPhone(string phone)
         {
             var response = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?filter[_and][0][_and][0][so_dien_thoai][_eq]={phone}");
-            if(response.IsSuccess && response.Data != null && response.Data.Data != null && response.Data.Data.Count > 0)
+            if (response.IsSuccess && response.Data != null && response.Data.Data != null && response.Data.Data.Count > 0)
             {
-                return response.Data.Data[0].email; 
+                return response.Data.Data[0].email;
             }
             return string.Empty;
         }
@@ -66,7 +68,7 @@ namespace CoreAdminWeb.Services.Users
             try
             {
                 var email = await GetEmailFromPhone(phone);
-                if(string.IsNullOrEmpty(email))
+                if (string.IsNullOrEmpty(email))
                 {
                     response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = "Không tìm thấy user" } };
                     return response;
@@ -83,7 +85,7 @@ namespace CoreAdminWeb.Services.Users
                     var claim = ClaimHepler.GetListClaim(_accessToken);
 
                     var currentUserAsync = await GetCurrentUserAsync();
-                    if(currentUserAsync.Data != null)
+                    if (currentUserAsync.Data != null)
                     {
                         await _localStorage.SetItemAsync("accessToken", _accessToken);
                         await _localStorage.SetItemAsync("userName", currentUserAsync.Data.email);
@@ -93,10 +95,14 @@ namespace CoreAdminWeb.Services.Users
                         (
                             (ApiAuthenticationStateProvider)_authenticationStateProvider
                         ).MarkUserAsAuthenticated(currentUserAsync.Data.email);
-                    }else{
+                    }
+                    else
+                    {
                         response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = "Không tìm thấy user" } };
                     }
-                }else{
+                }
+                else
+                {
                     response.Errors = result.Errors;
                 }
             }
@@ -123,7 +129,7 @@ namespace CoreAdminWeb.Services.Users
                     var claim = ClaimHepler.GetListClaim(_accessToken);
 
                     var currentUserAsync = await GetCurrentUserAsync();
-                    if(currentUserAsync.Data != null)
+                    if (currentUserAsync.Data != null)
                     {
                         await _localStorage.SetItemAsync("accessToken", _accessToken);
                         await _localStorage.SetItemAsync("userName", currentUserAsync.Data.email);
@@ -133,10 +139,14 @@ namespace CoreAdminWeb.Services.Users
                         (
                             (ApiAuthenticationStateProvider)_authenticationStateProvider
                         ).MarkUserAsAuthenticated(currentUserAsync.Data.email);
-                    }else{
+                    }
+                    else
+                    {
                         response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = "Không tìm thấy user" } };
                     }
-                }else{
+                }
+                else
+                {
                     response.Errors = result.Errors;
                 }
             }
@@ -175,7 +185,7 @@ namespace CoreAdminWeb.Services.Users
             var response = new RequestHttpResponse<UserModel>();
             try
             {
-                string filter= $"filter[_or][0][so_dinh_danh][_eq]={strFilter}" + 
+                string filter = $"filter[_or][0][so_dinh_danh][_eq]={strFilter}" +
                 $"&filter[_or][1][so_dien_thoai][_eq]={strFilter}";
                 var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?{filter}");
                 if (result.IsSuccess)
@@ -187,7 +197,7 @@ namespace CoreAdminWeb.Services.Users
                     response.Errors = result.Errors;
                 }
             }
-            catch (Exception ex)    
+            catch (Exception ex)
             {
                 response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = ex.Message } };
             }
@@ -269,8 +279,11 @@ namespace CoreAdminWeb.Services.Users
                 dynamic request;
 
                 if (!string.IsNullOrEmpty(req.password))
+                {
                     request = new { req.password };
+                }
                 else
+                {
                     request = new
                     {
                         req.id,
@@ -283,6 +296,7 @@ namespace CoreAdminWeb.Services.Users
                         req.avatar,
                         req.language
                     };
+                }
 
                 var result = await _httpClientService.PatchAPIAsync<RequestHttpResponse<UserModel>>("users/me", request);
                 if (result.IsSuccess)
@@ -315,7 +329,9 @@ namespace CoreAdminWeb.Services.Users
             try
             {
                 if (string.IsNullOrEmpty(_refreshToken))
+                {
                     return false;
+                }
 
                 // Call refresh token endpoint
                 var response = await PublicRequestClient.PostAPIAsync<RequestHttpResponse<LoginResponse>>(
@@ -328,7 +344,7 @@ namespace CoreAdminWeb.Services.Users
                     // Update tokens
                     _accessToken = response.Data.Data.access_token;
                     _refreshToken = response.Data.Data.refresh_token;
-                    
+
                     // Update token in localStorage and HttpClientService
                     await _localStorage.SetItemAsync("accessToken", _accessToken);
                     _httpClientService.AttachToken(_accessToken);
@@ -341,5 +357,25 @@ namespace CoreAdminWeb.Services.Users
             }
             return false;
         }
+
+        public async Task<RequestHttpResponse<List<UserModel>>> GetAllAsync(string query, bool isPublic = false)
+        {
+            try
+            {
+                string url = $"users?{query}";
+                var response = isPublic
+                    ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>(url)
+                    : await _httpClientService.GetAPIAsync<RequestHttpResponse<List<UserModel>>>(url);
+
+                return response.IsSuccess
+                    ? new RequestHttpResponse<List<UserModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
+                    : new RequestHttpResponse<List<UserModel>> { Errors = response.Errors };
+            }
+            catch (Exception ex)
+            {
+                return IBaseGetService<UserModel>.CreateErrorResponse<List<UserModel>>(ex);
+            }
+        }
+
     }
 }

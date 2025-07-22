@@ -1,4 +1,5 @@
 using CoreAdminWeb.Model.Base;
+using CoreAdminWeb.Model.Contract;
 
 namespace CoreAdminWeb.Model
 {
@@ -39,6 +40,8 @@ namespace CoreAdminWeb.Model
         public string? bs_ket_luan { get; set; }
         public string? chu_ky_ket_luan { get; set; }
         public string? Ksk_status { get; set; }
+
+        public ContractModel? contract { get; set; }
     }
     public class KhamSucKhoeCongTyCRUDModel : BaseDetailModel
     {
@@ -77,5 +80,7 @@ namespace CoreAdminWeb.Model
         public string? bs_ket_luan { get; set; }
         public string? chu_ky_ket_luan { get; set; }
         public string? Ksk_status { get; set; }
+
+        public int? contract { get; set; }
     }
 }

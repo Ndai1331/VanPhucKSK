@@ -12,7 +12,9 @@ namespace CoreAdminWeb.Services
     public class KhamSucKhoeCongTyService : IBaseService<KhamSucKhoeCongTyModel>
     {
         private readonly string _collection = "kham_suc_khoe_cong_ty";
-        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
+                + ",contract.code,contract.name"
+                + ",contract.cong_ty.code,contract.cong_ty.name";
         private readonly IHttpClientService _httpClientService;
 
         public KhamSucKhoeCongTyService(IHttpClientService httpClientService)
@@ -79,7 +81,8 @@ namespace CoreAdminWeb.Services
                 chu_ky_san_phu_khoa = model.chu_ky_san_phu_khoa,
                 bs_ket_luan = model.bs_ket_luan,
                 chu_ky_ket_luan = model.chu_ky_ket_luan,
-                Ksk_status = model.Ksk_status
+                Ksk_status = model.Ksk_status,
+                contract = model.contract?.id
             };
         }
 
@@ -148,7 +151,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var createModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<KhamSucKhoeCongTyCRUDModel>>($"items/{_collection}?fields={Fields}", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<KhamSucKhoeCongTyModel>>($"items/{_collection}?fields={Fields}", createModel);
 
                 if (!response.IsSuccess)
                 {
@@ -188,7 +191,7 @@ namespace CoreAdminWeb.Services
             try
             {
                 var updateModel = MapToCRUDModel(model);
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<KhamSucKhoeCongTyCRUDModel>>($"items/{_collection}/{model.id}?fields={Fields}", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<KhamSucKhoeCongTyModel>>($"items/{_collection}/{model.id}?fields={Fields}", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {

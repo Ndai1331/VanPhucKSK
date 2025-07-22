@@ -218,12 +218,11 @@ namespace CoreAdminWeb.Shared.Base
         public async Task<IEnumerable<T>> LoadBlazorTypeaheadData<T>(
             string searchText,
             IBaseService<T> service,
-            string? otherQuery = "",
-            bool isIgnoreCheck = false)
+            string? otherQuery = "")
         {
             try
             {
-                var query = BuildBaseQuery(searchText, isIgnoreCheck);
+                var query = BuildBaseQuery(searchText);
 
                 if (!string.IsNullOrEmpty(otherQuery))
                 {
@@ -243,7 +242,7 @@ namespace CoreAdminWeb.Shared.Base
         /// <summary>
         /// Build base query with optimized string building
         /// </summary>
-        private string BuildBaseQuery(string searchText = "", bool isIgnoreCheck = false)
+        private string BuildBaseQuery(string searchText = "")
         {
             _queryBuilder.Clear();
             _queryBuilder.Append("filter[_and][][deleted][_eq]=false&sort=-id");
