@@ -61,5 +61,6 @@ namespace CoreAdminWeb.Model.RequestHttps
         public int? offset { get; set; }
         [JsonPropertyName("fields")]
         public string? fields { get; set; }
+        
     }
 } 
