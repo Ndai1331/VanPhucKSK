@@ -94,16 +94,15 @@
                         <tr>
                             <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                             <td>@item.Data.code</td>
-                            <td>@item.Data.contract?.cong_ty?.name</td>
-                            <td>@item.Data.contract?.code</td>
+                            <td>@item.Data.ma_hop_dong_ksk?.cong_ty?.name</td>
+                            <td>@item.Data.ma_hop_dong_ksk?.code</td>
                             <td>@item.Data.so_luong_du_kien?.ToString("N0")</td>
                             <td>@item.Data.so_luong_thuc_te?.ToString("N0")</td>
                             <td>@item.Data.ngay_du_kien_kham?.ToString("dd/MM/yyyy")</td>
                             <td>@item.Data.ngay_ket_thuc?.ToString("dd/MM/yyyy")</td>
                             <td>@((MarkupString)item.Data.active.GetTrangThai())</td>
                             <td class="flex items-center gap-2">
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
-                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white">
                                     <i class="ri-eye-line"></i>
                                 </MudButton>
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
@@ -202,8 +201,8 @@
                                                        TItem="ContractModel"
                                                        TValue="ContractModel"
                                                        SearchMethod="LoadHopDongData"
-                                                       Value="SelectedItem.contract"
-                                                       ValueExpression="@(() => SelectedItem.contract)"
+                                                       Value="SelectedItem.ma_hop_dong_ksk"
+                                                       ValueExpression="@(() => SelectedItem.ma_hop_dong_ksk)"
                                                        ValueChanged="OnHopDongChanged"
                                                        placeholder="Chọn hợp đồng"
                                                        Class="form-select">

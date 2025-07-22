@@ -208,7 +208,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
         {
             _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
             SelectedItem = item != null ? item.DeepClone() : new KhamSucKhoeCongTyModel();
-            SelectedCongTy = SelectedItem.contract?.cong_ty;
+            SelectedCongTy = SelectedItem.ma_hop_dong_ksk?.cong_ty;
 
             if (SelectedCongTy == null && SelectedItem.ma_don_vi != null)
             {
@@ -241,7 +241,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 return;
             }
 
-            if (SelectedItem.contract == null)
+            if (SelectedItem.ma_hop_dong_ksk == null)
             {
                 AlertService.ShowAlert("Mã hợp đồng là bắt buộc", "danger");
                 return;
@@ -342,12 +342,12 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
         private void OnCongTyChanged(CongTyModel? selected)
         {
             SelectedCongTy = selected;
-            SelectedItem.contract = null;
+            SelectedItem.ma_hop_dong_ksk = null;
         }
 
         private void OnHopDongChanged(ContractModel? selected)
         {
-            SelectedItem.contract = selected;
+            SelectedItem.ma_hop_dong_ksk = selected;
             if (selected?.cong_ty != null)
             {
                 SelectedCongTy = selected.cong_ty;
