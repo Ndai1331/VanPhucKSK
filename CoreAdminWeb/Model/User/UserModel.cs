@@ -1,5 +1,5 @@
-using System.Text.Json.Serialization;
 using CoreAdminWeb.Enums;
+using System.Text.Json.Serialization;
 
 namespace CoreAdminWeb.Model.User
 {
@@ -40,19 +40,19 @@ namespace CoreAdminWeb.Model.User
 
         [JsonPropertyName("password")]
         public string password { get; set; }
-        
+
         [JsonPropertyName("location")]
         public string location { get; set; }
 
         [JsonPropertyName("title")]
         public string title { get; set; }
-        
+
         [JsonPropertyName("description")]
         public string description { get; set; }
 
         [JsonPropertyName("tags")]
         public List<string>? tags { get; set; }
-        
+
         [JsonPropertyName("avatar")]
         public string avatar { get; set; }
 
@@ -61,21 +61,24 @@ namespace CoreAdminWeb.Model.User
 
         [JsonPropertyName("status")]
         public string status { get; set; }
-        
+
         [JsonPropertyName("role")]
         public string role { get; set; }
-        
+
         [JsonPropertyName("token")]
         public string token { get; set; }
-        
+
         [JsonPropertyName("last_access")]
         public string last_access { get; set; }
 
         [JsonPropertyName("last_page")]
         public string last_page { get; set; }
 
+        [JsonPropertyName("chu_ky_bac_si")]
+        public string? chu_ky_bac_si { get; set; }
+
         [JsonPropertyName("policies")]
         public List<string> policies { get; set; }
 
     }
-} 
+}

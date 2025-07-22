@@ -1,11 +1,11 @@
 using CoreAdminWeb.Model.Base;
+using CoreAdminWeb.Model.Contract;
 
 namespace CoreAdminWeb.Model
 {
     public class KhamSucKhoeCongTyModel : BaseModel<int>
     {
         public int? ma_don_vi { get; set; }
-        public int? ma_hop_dong_ksk { get; set; }
         public int? so_luong_du_kien { get; set; }
         public int? so_luong_thuc_te { get; set; }
         public DateTime? ngay_du_kien_kham { get; set; }
@@ -39,11 +39,12 @@ namespace CoreAdminWeb.Model
         public string? bs_ket_luan { get; set; }
         public string? chu_ky_ket_luan { get; set; }
         public string? Ksk_status { get; set; }
+
+        public ContractModel? ma_hop_dong_ksk { get; set; }
     }
     public class KhamSucKhoeCongTyCRUDModel : BaseDetailModel
     {
         public int? ma_don_vi { get; set; }
-        public int? ma_hop_dong_ksk { get; set; }
         public int? so_luong_du_kien { get; set; }
         public int? so_luong_thuc_te { get; set; }
         public DateTime? ngay_du_kien_kham { get; set; }
@@ -77,5 +78,7 @@ namespace CoreAdminWeb.Model
         public string? bs_ket_luan { get; set; }
         public string? chu_ky_ket_luan { get; set; }
         public string? Ksk_status { get; set; }
+
+        public int? ma_hop_dong_ksk { get; set; }
     }
 }
