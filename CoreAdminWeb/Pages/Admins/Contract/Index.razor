@@ -384,7 +384,7 @@
                                                                                 SearchMethod="LoadDinhMucData"
                                                                                 Value="item.Data.dinh_muc"
                                                                                 ValueExpression="@(() => item.Data.dinh_muc)"
-                                                                                ValueChanged="@(e => item.Data.dinh_muc = e)"
+                                                                                ValueChanged="@(e => OnDinhMucChanged(item.Data, e))"
                                                                                 placeholder="Chọn định mức"
                                                                                 Class="form-select">
                                                                                 <SelectedTemplate Context="item">

@@ -459,6 +459,32 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 });
             }
         }
+        private void OnDinhMucChanged(ContractDinhMucModel item, DinhMucModel? selected)
+        {
+            if (selected == null)
+            {
+                item.dinh_muc = null;
+                item.don_gia_tt = null;
+                item.don_gia_dm = null;
+                item.thanh_tien_tt = null;
+                item.thanh_tien_dm = null;
+                return;
+            }
+            item.don_gia_tt = selected.DonGia ?? 0;
+            item.don_gia_dm = selected.DinhMuc ?? 0;
+            item.dinh_muc = selected;
+
+            if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
+            {
+                item.thanh_tien_tt = item.so_luong * item.don_gia_tt;
+            }
+
+            if (item.so_luong.HasValue && item.don_gia_dm.HasValue)
+            {
+                item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
+            }
+        }
+
         private void UpdateThanhTien(ChangeEventArgs e, ContractDinhMucModel item, string field)
         {
             if (!decimal.TryParse(e.Value?.ToString(), out decimal value))
