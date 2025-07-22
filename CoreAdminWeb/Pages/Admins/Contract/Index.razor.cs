@@ -9,6 +9,7 @@ using Microsoft.JSInterop;
 using CoreAdminWeb.Services.Files;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using CoreAdminWeb.Commons;
 
 namespace CoreAdminWeb.Pages.Admins.Contract
 {
@@ -34,6 +35,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private string activeDefTab { get; set; } = "tab1";
         private IBrowserFile SelectedFile { get; set; } = default!;
         private string fileContent { get; set; } = string.Empty;
+        private FileCRUDModel UploadFileCRUD { get; set; } = new FileCRUDModel();
+
 
         protected override async Task OnInitializedAsync()
         {
@@ -218,7 +221,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             SelectedItemsDetail = new List<ContractDinhMucModel>();
             activeDefTab = "tab1";
             ClearImageUpload();
-            
+
             if (SelectedItem.id > 0)
             {
                 await LoadDetailData();
@@ -578,7 +581,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 try
                 {
-                    var fileUploaded = await _fileService.UploadFileAsync(SelectedFile);
+                    UploadFileCRUD.folder = Guid.Parse(GlobalConstant.CONTRACT_FOLDER_ID);
+                    var fileUploaded = await _fileService.UploadFileAsync(SelectedFile, UploadFileCRUD);
 
                     if (
                         fileUploaded != null
@@ -590,8 +594,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                         SelectedItem.file_hd = fileUploaded.Data;
                         // await MainService.UpdateAsync(SelectedItem);;
 
-                        fileContent = string.Empty;
-                        SelectedFile = default!;
+                        // fileContent = string.Empty;
+                        // SelectedFile = default!;
                         // await LoadData();
                     }
                     else
