@@ -1,0 +1,890 @@
+@page "/admin/ket-qua-kham-suc-khoe-tt32"
+@using CoreAdminWeb.Commons.Utils
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Shared.Base
+@inherits BlazorCoreBase
+@layout Shared.Layout.AdminLayout
+
+<PageHeader Title="Kết quả khám sức khỏe - TT32" pTitle="Kết quả khám sức khỏe - TT32"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    @if (IsLoading)
+    {
+        <div class="flex flex-col items-center justify-center gap-3">
+            <div class="w-full h-4 rounded-full bg-gray-200">
+                <div class="h-4 rounded-full bg-success animate-progress"
+                     style="background-image: linear-gradient(45deg,hsla(0,0%,100%,.15) 25%,transparent 0,transparent 50%,hsla(0,0%,100%,.15) 0,hsla(0,0%,100%,.15) 75%,transparent 0,transparent); background-size: 1rem 1rem;">
+                </div>
+            </div>
+        </div>
+    }
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-4 py-3">
+        <div class="space-y-2 sm:col-span-1 md:col-span-1">
+            <div class="card space-y-2">
+                <MudText Typo="Typo.h4" Class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thông tin danh sách khám sức khỏe:</MudText>
+                <div class="space-y-2">
+                    <MudText Typo="Typo.h4" Class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày khám</MudText>
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <input type="text"
+                               class="form-input date-picker w-1/2"
+                               placeholder="Chọn ngày bắt đầu" />
+                        <span class="mx-2 flex items-center text-gray-500">-</span>
+                        <input type="text"
+                               class="form-input date-picker w-1/2"
+                               placeholder="Chọn ngày kết thúc" />
+                    </div>
+                </div>
+                <BlazoredTypeahead EnableDropDown="true"
+                                   ShowDropDownOnFocus="true"
+                                   MinimumLength="0"
+                                   TItem="LoaiDinhMucModel"
+                                   TValue="LoaiDinhMucModel"
+                                   SearchMethod="LoadLoaiDinhMucData"
+                                   @bind-Value="SelectedItem.loai_dinh_muc"
+                                   placeholder="Chọn loại định mức"
+                                   Class="form-select">
+                    <SelectedTemplate Context="item">
+                        @item.name
+                    </SelectedTemplate>
+                    <ResultTemplate Context="item">
+                        @item.name
+                    </ResultTemplate>
+                    <NotFoundTemplate Context="item">
+                        Không tìm thấy dữ liệu
+                    </NotFoundTemplate>
+                </BlazoredTypeahead>
+                <BlazoredTypeahead EnableDropDown="true"
+                                   ShowDropDownOnFocus="true"
+                                   MinimumLength="0"
+                                   TItem="LoaiDinhMucModel"
+                                   TValue="LoaiDinhMucModel"
+                                   SearchMethod="LoadLoaiDinhMucData"
+                                   @bind-Value="SelectedItem.loai_dinh_muc"
+                                   placeholder="Chọn loại định mức"
+                                   Class="form-select">
+                    <SelectedTemplate Context="item">
+                        @item.name
+                    </SelectedTemplate>
+                    <ResultTemplate Context="item">
+                        @item.name
+                    </ResultTemplate>
+                    <NotFoundTemplate Context="item">
+                        Không tìm thấy dữ liệu
+                    </NotFoundTemplate>
+                </BlazoredTypeahead>
+                <BlazoredTypeahead EnableDropDown="true"
+                                   ShowDropDownOnFocus="true"
+                                   MinimumLength="0"
+                                   TItem="LoaiDinhMucModel"
+                                   TValue="LoaiDinhMucModel"
+                                   SearchMethod="LoadLoaiDinhMucData"
+                                   @bind-Value="SelectedItem.loai_dinh_muc"
+                                   placeholder="Chọn loại định mức"
+                                   Class="form-select w-1/2">
+                    <SelectedTemplate Context="item">
+                        @item.name
+                    </SelectedTemplate>
+                    <ResultTemplate Context="item">
+                        @item.name
+                    </ResultTemplate>
+                    <NotFoundTemplate Context="item">
+                        Không tìm thấy dữ liệu
+                    </NotFoundTemplate>
+                </BlazoredTypeahead>
+
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <input type="text"
+                               class="form-input w-1/2"
+                               placeholder="Mã điều trị" />
+                        <input type="text"
+                               class="form-input  w-1/2"
+                               placeholder="Mã bệnh nhân" />
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <input type="text"
+                               class="form-input"
+                               placeholder="Tên bệnh nhân" />
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap">
+                            Tìm kiếm
+                        </MudButton>
+                    </div>
+                </div>
+
+                <div class="space-y-2 ksk">
+                    <div class="overflow-auto">
+                        <table id="example" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>STT</th>
+                                    <th>Mã bệnh nhân</th>
+                                    <th>Mã điều trị</th>
+                                    <th>Tên khách hàng</th>
+                                    <th>SĐT</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Giới tính</th>
+                                    <th>CCCD</th>
+                                    <th>Địa chỉ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                                    <td style="text-align: center; white-space: nowrap;">1</td>
+                                    <td style="text-align: center; white-space: nowrap;">BN001</td>
+                                    <td style="text-align: center; white-space: nowrap;">DT001</td>
+                                    <td style="white-space: nowrap;">Nguyễn Văn A</td>
+                                    <td style="text-align: center; white-space: nowrap;">0912345678</td>
+                                    <td style="text-align: center; white-space: nowrap;">01/01/1990</td>
+                                    <td style="text-align: center; white-space: nowrap;">Nam</td>
+                                    <td style="text-align: center; white-space: nowrap;">123456789012</td>
+                                    <td style="white-space: nowrap;">Hà Nội</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                                    <td style="text-align: center; white-space: nowrap;">2</td>
+                                    <td style="text-align: center; white-space: nowrap;">BN002</td>
+                                    <td style="text-align: center; white-space: nowrap;">DT002</td>
+                                    <td style="white-space: nowrap;">Trần Thị B</td>
+                                    <td style="text-align: center; white-space: nowrap;">0987654321</td>
+                                    <td style="text-align: center; white-space: nowrap;">15/05/1985</td>
+                                    <td style="text-align: center; white-space: nowrap;">Nữ</td>
+                                    <td style="text-align: center; white-space: nowrap;">987654321098</td>
+                                    <td style="white-space: nowrap;">Đà Nẵng</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" PagingConf="false" />
+                </div>
+            </div>
+        </div>
+        <div class="space-y-2 sm:col-span-1 md:col-span-3">
+            <div class="card space-y-2">
+                <MudText Typo="Typo.h4" Class="font-bold">Thông tin danh sách khám sức khỏe:</MudText>
+            </div>
+            <div class="card space-y-2">
+                <MudText Typo="Typo.h4" Class="font-bold">Thông tin danh sách khám sức khỏe:</MudText>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    @* 
+    <div class="tt32-flex-row" style="display:flex;gap:18px;align-items:stretch;min-height:calc(100vh - 210px);">
+        <!-- Panel trái -->
+        <div class="tt32-panel tt32-panel-left">
+            <div class="tt32-panel-title">Thông tin danh sách khám sức khỏe:</div>
+            <div style="margin-bottom: 18px;">
+                <div class="row g-2 align-items-end">
+                    <div class="col-5">
+                        <label for="ngay-kham-tu" class="form-label mb-1" style="font-weight: 500; color: #333; font-size: 15px;">Ngày khám từ</label>
+                        <input type="date" id="ngay-kham-tu" name="ngay-kham-tu" class="form-control form-control-sm" style="max-width: 100%;">
+                    </div>
+                    <div class="col-1 text-center">
+                        <span style="font-weight: 600; color: #888; font-size: 18px;">-</span>
+                    </div>
+                    <div class="col-6">
+                        <label for="ngay-kham-den" class="form-label mb-1" style="font-weight: 500; color: #333; font-size: 15px;">Đến</label>
+                        <input type="date" id="ngay-kham-den" name="ngay-kham-den" class="form-control form-control-sm" style="max-width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label for="hop-dong-select" style="font-weight: 500; color: #333; margin-bottom: 6px; font-size: 15px; display: none;">Hợp đồng</label>
+                <select id="hop-dong-select" name="hop-dong-select" style="width: 100%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; font-family: inherit;">
+                    <option value="" disabled selected hidden>Chọn hợp đồng</option>
+                    <!-- Ví dụ option, sẽ thay bằng dữ liệu động nếu cần -->
+                    <option value="hd1">HĐ001 - Công ty ABC</option>
+                    <option value="hd2">HĐ002 - Công ty XYZ</option>
+                    <option value="hd3">HĐ003 - Công ty DEF</option>
+                </select>
+            </div>
+            <!-- Dòng 3: Mã hồ sơ khám sức khỏe & Trạng thái -->
+            <div class="row g-2 mb-2">
+                <div class="col-12 col-md-6">
+                    <select id="ma-hoso-select" name="ma-hoso-select" class="form-select form-select-sm" style="max-width: 100%;">
+                        <option value="" disabled selected hidden>Mã hồ sơ khám sức khỏe</option>
+                        <option value="hs1">HSKSK001</option>
+                        <option value="hs2">HSKSK002</option>
+                        <option value="hs3">HSKSK003</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-6">
+                    <select id="trang-thai-select" name="trang-thai-select" class="form-select form-select-sm" style="max-width: 100%;">
+                        <option value="" disabled selected hidden>Trạng thái</option>
+                        <option value="moi">Mới</option>
+                        <option value="dang-xu-ly">Đang xử lý</option>
+                        <option value="hoan-thanh">Hoàn thành</option>
+                        <option value="huy">Hủy</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Dòng 4: Mã điều trị & Mã bệnh nhân -->
+            <div class="row g-2 mb-2">
+                <div class="col-12 col-md-6">
+                    <input type="text" id="ma-dieutri-search" name="ma-dieutri-search" placeholder="Mã điều trị" class="form-control form-control-sm" style="max-width: 100%;">
+                </div>
+                <div class="col-12 col-md-6">
+                    <input type="text" id="ma-benhnhan-search" name="ma-benhnhan-search" placeholder="Mã bệnh nhân" class="form-control form-control-sm" style="max-width: 100%;">
+                </div>
+            </div>
+            <!-- Dòng 5: Tên bệnh nhân & Button Tìm kiếm -->
+            <div class="row g-2 mb-3 align-items-end">
+                <div class="col-12 col-md-8">
+                    <input type="text" id="ten-benhnhan-search" name="ten-benhnhan-search" placeholder="Tên bệnh nhân" class="form-control form-control-sm" style="max-width: 100%;">
+                </div>
+                <div class="col-12 col-md-4">
+                    <button id="btn-tim-kiem" class="btn btn-success btn-sm w-100">Tìm kiếm</button>
+                </div>
+            </div>
+            <!-- Bảng dữ liệu Danh sách đoàn khám -->
+            <div style="margin-bottom: 12px; display: flex; gap: 8px;">
+                <button id="btn-them-dong" style="flex:1; padding: 7px 0; background: #00b894; color: #fff; border: none; border-radius: 5px; font-weight: 600; font-size: 15px; cursor: pointer; display:none;"><i class='fas fa-plus'></i> Thêm dòng</button>
+                <button id="btn-import-excel" style="flex:1; padding: 7px 0; background: #ffb300; color: #fff; border: none; border-radius: 5px; font-weight: 600; font-size: 15px; cursor: pointer; display:none;"><i class='fas fa-file-import'></i> Import excel</button>
+            </div>
+            <div style="overflow-x: auto; overflow-y: auto; height: 48vh; min-height: 200px; border: 1px solid #e0e0e0; border-radius: 6px; background: #fff;">
+                <table style="min-width: 900px; width: 100%; border-collapse: collapse; font-size: 15px;">
+                    <thead style="background: #f6f8fa; position: sticky; top: 0; z-index: 1;">
+                        <tr>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;"><input type="checkbox" /></th>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;">STT</th>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;">Mã bệnh nhân</th>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;">Mã điều trị</th>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;">Tên khách hàng</th>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;">SĐT</th>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;">Ngày sinh</th>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;">Giới tính</th>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;">CCCD</th>
+                            <th style="padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center;">Địa chỉ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dữ liệu mẫu, sẽ thay bằng dữ liệu động nếu cần -->
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">1</td>
+                            <td style="text-align: center; white-space: nowrap;">BN001</td>
+                            <td style="text-align: center; white-space: nowrap;">DT001</td>
+                            <td style="white-space: nowrap;">Nguyễn Văn A</td>
+                            <td style="text-align: center; white-space: nowrap;">0912345678</td>
+                            <td style="text-align: center; white-space: nowrap;">01/01/1990</td>
+                            <td style="text-align: center; white-space: nowrap;">Nam</td>
+                            <td style="text-align: center; white-space: nowrap;">123456789012</td>
+                            <td style="white-space: nowrap;">Hà Nội</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">2</td>
+                            <td style="text-align: center; white-space: nowrap;">BN002</td>
+                            <td style="text-align: center; white-space: nowrap;">DT002</td>
+                            <td style="white-space: nowrap;">Trần Thị B</td>
+                            <td style="text-align: center; white-space: nowrap;">0987654321</td>
+                            <td style="text-align: center; white-space: nowrap;">15/05/1985</td>
+                            <td style="text-align: center; white-space: nowrap;">Nữ</td>
+                            <td style="text-align: center; white-space: nowrap;">987654321098</td>
+                            <td style="white-space: nowrap;">Đà Nẵng</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">3</td>
+                            <td style="text-align: center; white-space: nowrap;">BN003</td>
+                            <td style="text-align: center; white-space: nowrap;">DT003</td>
+                            <td style="white-space: nowrap;">Lê Văn C</td>
+                            <td style="text-align: center; white-space: nowrap;">0901234567</td>
+                            <td style="text-align: center; white-space: nowrap;">20/03/1980</td>
+                            <td style="text-align: center; white-space: nowrap;">Nam</td>
+                            <td style="text-align: center; white-space: nowrap;">321654987012</td>
+                            <td style="white-space: nowrap;">Hải Phòng</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">4</td>
+                            <td style="text-align: center; white-space: nowrap;">BN004</td>
+                            <td style="text-align: center; white-space: nowrap;">DT004</td>
+                            <td style="white-space: nowrap;">Phạm Thị D</td>
+                            <td style="text-align: center; white-space: nowrap;">0911222333</td>
+                            <td style="text-align: center; white-space: nowrap;">12/12/1992</td>
+                            <td style="text-align: center; white-space: nowrap;">Nữ</td>
+                            <td style="text-align: center; white-space: nowrap;">654987321012</td>
+                            <td style="white-space: nowrap;">Cần Thơ</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">5</td>
+                            <td style="text-align: center; white-space: nowrap;">BN005</td>
+                            <td style="text-align: center; white-space: nowrap;">DT005</td>
+                            <td style="white-space: nowrap;">Đỗ Văn E</td>
+                            <td style="text-align: center; white-space: nowrap;">0933445566</td>
+                            <td style="text-align: center; white-space: nowrap;">05/07/1975</td>
+                            <td style="text-align: center; white-space: nowrap;">Nam</td>
+                            <td style="text-align: center; white-space: nowrap;">789456123098</td>
+                            <td style="white-space: nowrap;">Bắc Ninh</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">6</td>
+                            <td style="text-align: center; white-space: nowrap;">BN006</td>
+                            <td style="text-align: center; white-space: nowrap;">DT006</td>
+                            <td style="white-space: nowrap;">Ngô Thị F</td>
+                            <td style="text-align: center; white-space: nowrap;">0977889900</td>
+                            <td style="text-align: center; white-space: nowrap;">30/09/1995</td>
+                            <td style="text-align: center; white-space: nowrap;">Nữ</td>
+                            <td style="text-align: center; white-space: nowrap;">456789123654</td>
+                            <td style="white-space: nowrap;">Huế</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">7</td>
+                            <td style="text-align: center; white-space: nowrap;">BN007</td>
+                            <td style="text-align: center; white-space: nowrap;">DT007</td>
+                            <td style="white-space: nowrap;">Vũ Văn G</td>
+                            <td style="text-align: center; white-space: nowrap;">0955667788</td>
+                            <td style="text-align: center; white-space: nowrap;">22/11/1988</td>
+                            <td style="text-align: center; white-space: nowrap;">Nam</td>
+                            <td style="text-align: center; white-space: nowrap;">963852741012</td>
+                            <td style="white-space: nowrap;">Quảng Ninh</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">8</td>
+                            <td style="text-align: center; white-space: nowrap;">BN008</td>
+                            <td style="text-align: center; white-space: nowrap;">DT008</td>
+                            <td style="white-space: nowrap;">Lý Thị H</td>
+                            <td style="text-align: center; white-space: nowrap;">0944556677</td>
+                            <td style="text-align: center; white-space: nowrap;">18/04/1993</td>
+                            <td style="text-align: center; white-space: nowrap;">Nữ</td>
+                            <td style="text-align: center; white-space: nowrap;">852741963258</td>
+                            <td style="white-space: nowrap;">Nghệ An</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">9</td>
+                            <td style="text-align: center; white-space: nowrap;">BN009</td>
+                            <td style="text-align: center; white-space: nowrap;">DT009</td>
+                            <td style="white-space: nowrap;">Phan Văn I</td>
+                            <td style="text-align: center; white-space: nowrap;">0933221100</td>
+                            <td style="text-align: center; white-space: nowrap;">09/09/1982</td>
+                            <td style="text-align: center; white-space: nowrap;">Nam</td>
+                            <td style="text-align: center; white-space: nowrap;">741852963147</td>
+                            <td style="white-space: nowrap;">Bình Dương</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">10</td>
+                            <td style="text-align: center; white-space: nowrap;">BN010</td>
+                            <td style="text-align: center; white-space: nowrap;">DT010</td>
+                            <td style="white-space: nowrap;">Đặng Thị K</td>
+                            <td style="text-align: center; white-space: nowrap;">0922113344</td>
+                            <td style="text-align: center; white-space: nowrap;">25/12/1997</td>
+                            <td style="text-align: center; white-space: nowrap;">Nữ</td>
+                            <td style="text-align: center; white-space: nowrap;">159357258456</td>
+                            <td style="white-space: nowrap;">Vũng Tàu</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">11</td>
+                            <td style="text-align: center; white-space: nowrap;">BN011</td>
+                            <td style="text-align: center; white-space: nowrap;">DT011</td>
+                            <td style="white-space: nowrap;">Trịnh Văn L</td>
+                            <td style="text-align: center; white-space: nowrap;">0911002233</td>
+                            <td style="text-align: center; white-space: nowrap;">11/11/1981</td>
+                            <td style="text-align: center; white-space: nowrap;">Nam</td>
+                            <td style="text-align: center; white-space: nowrap;">258456159357</td>
+                            <td style="white-space: nowrap;">Long An</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                            <td style="text-align: center; white-space: nowrap;">12</td>
+                            <td style="text-align: center; white-space: nowrap;">BN012</td>
+                            <td style="text-align: center; white-space: nowrap;">DT012</td>
+                            <td style="white-space: nowrap;">Bùi Thị M</td>
+                            <td style="text-align: center; white-space: nowrap;">0900112233</td>
+                            <td style="text-align: center; white-space: nowrap;">02/02/1994</td>
+                            <td style="text-align: center; white-space: nowrap;">Nữ</td>
+                            <td style="text-align: center; white-space: nowrap;">357159258456</td>
+                            <td style="white-space: nowrap;">Bình Thuận</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="tong-so-record" style="font-size: 14px; color: #555; margin-top: 4px; margin-bottom: 8px; text-align: left;">Tổng số hồ sơ: 12</div>
+        </div>
+        <!-- Panel phải (gồm giữa + phải) -->
+        <div class="tt32-flex-col" style="flex:1;display:flex;flex-direction:column;gap:18px;min-width:0;">
+            <!-- Panel giữa -->
+            <div class="tt32-panel tt32-panel-mid mb-2">
+                <div class="tt32-panel-title">Thông tin bệnh nhân:</div>
+                <div class="row g-2 align-items-start">
+                    <div class="col-12 col-md-9">
+                        <div class="row g-2 mb-1">
+                            <div class="col-12 col-md-4">Mã bệnh nhân: <span id="view-ma-benhnhan">-</span></div>
+                            <div class="col-12 col-md-4">Mã điều trị: <span id="view-ma-dieutri">-</span></div>
+                            <div class="col-12 col-md-4">Số thứ tự: <span id="view-stt">-</span></div>
+                        </div>
+                        <div class="row g-2 mb-1">
+                            <div class="col-12 col-md-4">Họ và tên: <span id="view-ten-benhnhan">-</span></div>
+                            <div class="col-12 col-md-4">Giới tính: <span id="view-gioi-tinh">-</span></div>
+                            <div class="col-12 col-md-4">Ngày sinh: <span id="view-ngay-sinh">-</span></div>
+                        </div>
+                        <div class="row g-2 mb-1">
+                            <div class="col-12 col-md-4">Thời gian khám: <span id="view-thoi-gian-kham">-</span></div>
+                            <div class="col-12 col-md-4">Hợp đồng: <span id="view-hop-dong">-</span></div>
+                            <div class="col-12 col-md-4">Mã hồ sơ: <span id="view-ma-hoso">-</span></div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3 d-flex justify-content-center align-items-start" style="margin-top: -20px;">
+                        <div id="patient-photo-box" class="border border-2 rounded-3 d-flex flex-column align-items-center justify-content-center bg-white position-relative" style="width: 110px; height: 130px; background: #fafbfc; overflow: hidden; cursor: pointer;">
+                            <img id="patient-photo" src="https://via.placeholder.com/90x120/f0f0f0/999999?text=" alt="" class="img-fluid rounded" style="max-width: 90px; max-height: 120px; object-fit: cover; display: block; margin: auto;">
+                            <!-- Icon upload hint -->
+                            <div class="position-absolute bottom-0 end-0 bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; margin: 4px;">
+                                <i class="fas fa-camera text-white" style="font-size: 10px;"></i>
+                            </div>
+                            <!-- Overlay khi hover -->
+                            <div id="photo-overlay" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #666; font-size: 22px; background: rgba(255,255,255,0.6); opacity: 0; transition: opacity 0.2s; pointer-events: none;">
+                                <i class='fas fa-upload'></i>
+                            </div>
+                        </div>
+                        <input type="file" id="upload-photo" accept="image/*" style="display:none;">
+                    </div>
+                </div>
+            </div>
+            <!-- Panel phải (tab) -->
+            <div class="tt32-panel tt32-panel-right">
+                <div class="tt32-tabs">
+                    <div class="tt32-tab" id="tab-tiensu">Tiền sử bệnh</div>
+                    <div class="tt32-tab active" id="tab-kham-chung">Khám chung</div>
+                    <div class="tt32-tab" id="tab-cls">Khám CLS/Kết luận</div>
+                </div>
+                <div class="tt32-tab-content" id="tab-content-tiensu" style="display:flex;flex-direction:column;height:100%;min-height:320px;overflow-y:auto;max-height:60vh;">
+                    <form id="form-tiensu" autocomplete="off" class="p-0 pb-2">
+                        <div class="fw-bold mb-2">I. Tiền sử bệnh tật gia đình:</div>
+                        <textarea class="form-control mb-3" rows="2" style="width:100%;resize:vertical;"></textarea>
+                        <div class="fw-bold mb-2">II. Tiền sử bệnh, tật của bản thân</div>
+                        <div class="mb-2">Tiền sử bệnh, tật:</div>
+                        <textarea class="form-control mb-3" rows="2" style="width:100%;resize:vertical;"></textarea>
+                        <div class="table-responsive mb-3">
+                            <table class="table table-bordered align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:28%">Tên bệnh</th>
+                                        <th style="width:14%">Năm phát hiện</th>
+                                        <th style="width:28%">Tên bệnh nghề nghiệp</th>
+                                        <th style="width:14%">Năm phát hiện</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="fw-bold mb-2">Tiền sử sản phụ khoa</div>
+                        <div class="row g-2 mb-2 align-items-center">
+                            <div class="col-12 col-md-6 d-flex align-items-center mb-2 mb-md-0">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:220px;">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100px;">
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2 align-items-center">
+                            <div class="col-12 col-md-6 d-flex align-items-center mb-2 mb-md-0">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:140px;">Tính chất kinh nguyệt:</label>
+                                <div class="form-check form-check-inline mb-0">
+                                    <input class="form-check-input" type="checkbox" id="kinh-deu">
+                                    <label class="form-check-label" for="kinh-deu">Đều</label>
+                                </div>
+                                <div class="form-check form-check-inline mb-0 ms-2">
+                                    <input class="form-check-input" type="checkbox" id="kinh-khong-deu">
+                                    <label class="form-check-label" for="kinh-khong-deu">Không đều</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2 align-items-center">
+                            <div class="col-12 col-md-4 d-flex align-items-center mb-2 mb-md-0">
+                                <label class="form-label mb-0 me-2 flex-shrink-0">Chu kỳ kinh:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:70px;">
+                                <span class="ms-2">ngày</span>
+                            </div>
+                            <div class="col-12 col-md-4 d-flex align-items-center mb-2 mb-md-0">
+                                <label class="form-label mb-0 me-2 flex-shrink-0">Lượng kinh:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:70px;">
+                                <span class="ms-2">ngày</span>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2 align-items-center">
+                            <div class="col-12 col-md-4 d-flex align-items-center mb-2 mb-md-0">
+                                <label class="form-label mb-0 me-2 flex-shrink-0">Đau bụng kinh:</label>
+                                <div class="form-check form-check-inline mb-0">
+                                    <input class="form-check-input" type="checkbox" id="dau-co">
+                                    <label class="form-check-label" for="dau-co">Có</label>
+                                </div>
+                                <div class="form-check form-check-inline mb-0 ms-2">
+                                    <input class="form-check-input" type="checkbox" id="dau-khong">
+                                    <label class="form-check-label" for="dau-khong">Không</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2 align-items-center">
+                            <div class="col-12 col-md-4 d-flex align-items-center mb-2 mb-md-0">
+                                <label class="form-label mb-0 me-2 flex-shrink-0">PARA:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:40px;">
+                                <input type="text" class="form-control form-control-sm ms-1" style="width:40px;">
+                                <input type="text" class="form-control form-control-sm ms-1" style="width:40px;">
+                                <input type="text" class="form-control form-control-sm ms-1" style="width:40px;">
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2 align-items-center">
+                            <div class="col-12 col-md-6 d-flex align-items-center mb-2 mb-md-0">
+                                <label class="form-label mb-0 me-2 flex-shrink-0">Số lần mổ sản phụ khoa:</label>
+                                <div class="form-check form-check-inline mb-0">
+                                    <input class="form-check-input" type="checkbox" id="mo-co">
+                                    <label class="form-check-label" for="mo-co">Có</label>
+                                </div>
+                                <span class="ms-2">Ghi rõ:</span>
+                                <input type="text" class="form-control form-control-sm ms-1" style="width:180px;">
+                                <div class="form-check form-check-inline mb-0 ms-2">
+                                    <input class="form-check-input" type="checkbox" id="mo-khong">
+                                    <label class="form-check-label" for="mo-khong">Không</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2 align-items-center">
+                            <div class="col-12 col-md-6 d-flex align-items-center mb-2 mb-md-0">
+                                <label class="form-label mb-0 me-2 flex-shrink-0">Có đang áp dụng BPTT không:</label>
+                                <div class="form-check form-check-inline mb-0">
+                                    <input class="form-check-input" type="checkbox" id="bptt-co">
+                                    <label class="form-check-label" for="bptt-co">Có</label>
+                                </div>
+                                <span class="ms-2">Ghi rõ:</span>
+                                <input type="text" class="form-control form-control-sm ms-1" style="width:180px;">
+                                <div class="form-check form-check-inline mb-0 ms-2">
+                                    <input class="form-check-input" type="checkbox" id="bptt-khong">
+                                    <label class="form-check-label" for="bptt-khong">Không</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tt32-actions d-flex justify-content-end gap-2 mt-3">
+                            <button class="btn-tt32 btn-save"><i class="fas fa-save"></i> Lưu</button>
+                            <button class="btn-tt32 btn-finish"><i class="fas fa-check"></i> Kết thúc</button>
+                            <button class="btn-tt32 btn-export"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="tt32-tab-content" id="tab-content-kham-chung" style="display:flex;flex-direction:column;height:100%;min-height:320px;overflow-y:auto;max-height:60vh;">
+                    <form id="form-kham-chung" autocomplete="off" class="p-0 pb-2">
+                        <div class="border-bottom mb-3 pb-1"></div>
+                        <div class="fw-bold mb-2">I. KHÁM THỂ LỰC</div>
+                        <div class="row mb-2 g-3 align-items-end">
+                            <div class="col-12 col-md-2">
+                                <label class="form-label mb-1" for="chieu-cao">Chiều cao (cm):</label>
+                                <input id="chieu-cao" type="text" class="form-control form-control-sm text-end" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label mb-1" for="can-nang">Cân nặng (kg):</label>
+                                <input id="can-nang" type="text" class="form-control form-control-sm text-end" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label mb-1" for="bmi">BMI:</label>
+                                <input id="bmi" type="text" class="form-control form-control-sm text-end" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label mb-1" for="abi">ABI:</label>
+                                <input id="abi" type="text" class="form-control form-control-sm text-end" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label mb-1" for="huyet-ap">Huyết áp (mmHg):</label>
+                                <input id="huyet-ap" type="text" class="form-control form-control-sm text-end" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label mb-1" for="nhip-tho">Nhịp thở (lần/phút):</label>
+                                <input id="nhip-tho" type="text" class="form-control form-control-sm text-end" style="width:100%;">
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-3 align-items-end">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label mb-1" for="phan-loai-the-luc">Phân loại thể lực:</label>
+                                <input id="phan-loai-the-luc" type="text" class="form-control form-control-sm text-end" style="width:100%;">
+                            </div>
+                        </div>
+                        <div class="fw-bold mb-2">II. KHÁM CHUYÊN KHOA:</div>
+                        <div class="fw-bold mb-2">Nội khoa:</div>
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">1. Tuần hoàn:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">2. Hô hấp:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">3. Tiêu hóa:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">4. Thận - TN:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">5. Nội tiết:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">6. CXK:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-2 align-items-center mb-3">
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">7. Thần kinh:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">8. Tâm thần:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="fw-bold mb-2">Ngoại khoa - Da liễu:</div>
+                        <div class="row g-2 align-items-center mb-3">
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">9. Ngoại khoa:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">10. Da liễu:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="fw-bold mb-2">Sản phụ khoa:</div>
+                        <div class="row g-2 align-items-center mb-3">
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">11. Sản PK:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="fw-bold mb-2">Mắt:</div>
+                        <div class="row g-3 align-items-end mb-2">
+                            <div class="col-12 col-md-2 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:90px;white-space:nowrap;">Trái - Có kính:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:90px;white-space:nowrap;">Phải - Có kính:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:110px;white-space:nowrap;">Trái - không kính:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:110px;white-space:nowrap;">Phải - không kính:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                        </div>
+                        <div class="row g-3 align-items-end mb-2">
+                            <div class="col-12 col-md-6 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:110px;white-space:nowrap;">Bệnh về mắt:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <select class="form-select form-select-sm" style="width:100%;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="fw-bold mb-2">Tai - mũi - họng:</div>
+                        <div class="row g-3 align-items-end mb-2">
+                            <div class="col-12 col-md-2 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:90px;white-space:nowrap;">Trái - thường:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:90px;white-space:nowrap;">Trái - thầm:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:110px;white-space:nowrap;">Phải - thường:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:110px;white-space:nowrap;">Phải - thầm:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                        </div>
+                        <div class="row g-3 align-items-end mb-2">
+                            <div class="col-12 col-md-6 d-flex align-items-center">
+                                <label class="form-label mb-0 me-2 flex-shrink-0" style="min-width:110px;white-space:nowrap;">Bệnh về TMH:</label>
+                                <input type="text" class="form-control form-control-sm" style="width:100%;">
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <select class="form-select form-select-sm" style="width:100%;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="fw-bold mb-2">Răng - hàm - mặt:</div>
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">Hàm trên:</span>
+                                <input type="text" class="form-control form-control-sm" style="width:80px;">
+                                <span style="min-width:90px;">Hàm dưới:</span>
+                                <input type="text" class="form-control form-control-sm" style="width:80px;">
+                            </div>
+                        </div>
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                                <span style="min-width:90px;">Bệnh về RHM:</span>
+                                <input type="text" class="form-control form-control-sm flex-fill">
+                                <select class="form-select form-select-sm" style="width:120px;">
+                                    <option>Phân loại</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="tt32-actions d-flex justify-content-end gap-2 mt-3">
+                            <button class="btn-tt32 btn-save"><i class="fas fa-save"></i> Lưu</button>
+                            <button class="btn-tt32 btn-finish"><i class="fas fa-check"></i> Kết thúc</button>
+                            <button class="btn-tt32 btn-export"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="tt32-tab-content" id="tab-content-cls" style="display:none;flex-direction:column;height:100%;min-height:320px;overflow-y:auto;max-height:60vh;">
+                    <form id="form-cls-ketluan" autocomplete="off" class="p-0 pb-2">
+                        <div class="fw-bold mb-2">I. KHÁM CẬN LÂM SÀNG</div>
+                        <div class="row g-3 mb-2">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-normal">CDHA - TDCN:</label>
+                                <textarea class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-normal">XN Công thức máu:</label>
+                                <textarea class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-normal">XN nước tiểu:</label>
+                                <textarea class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-normal">XN khác:</label>
+                                <textarea class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mb-2">
+                            <button type="button" class="btn btn-info btn-sm" onclick="alert('Đồng bộ dữ liệu!')">
+                                <i class="fas fa-sync-alt"></i> Đồng bộ
+                            </button>
+                        </div>
+                        <div class="fw-bold my-2">II. KẾT LUẬN</div>
+                        <div class="row g-3 mb-2 align-items-center">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-normal">Phân loại sức khỏe:</label>
+                                <select class="form-select">
+                                    <option>Phân loại</option>
+                                    <option>Loại 1</option>
+                                    <option>Loại 2</option>
+                                    <option>Loại 3</option>
+                                    <option>Loại 4</option>
+                                    <option>Loại 5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label fw-normal">Bệnh tật (nếu có):</label>
+                            <textarea class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label fw-normal">Đề nghị:</label>
+                            <textarea class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="row g-3 align-items-center mb-2">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-normal">Ngày kết luận</label>
+                                <input type="date" class="form-control">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-normal">Người kết luận:</label>
+                                <select class="form-select">
+                                    <option value="" disabled selected hidden>Chọn bác sĩ kết luận</option>
+                                    <option>Bác sĩ A</option>
+                                    <option>Bác sĩ B</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="tt32-actions d-flex justify-content-end gap-2 mt-3">
+                            <button class="btn-tt32 btn-save"><i class="fas fa-save"></i> Lưu</button>
+                            <button class="btn-tt32 btn-finish"><i class="fas fa-check"></i> Kết thúc</button>
+                            <button class="btn-tt32 btn-export"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="tt32-actions" style="display:flex;justify-content:flex-end;gap:12px;margin-top:18px;">
+                    <!-- Đã xóa các button Lưu/Kết thúc/Export PDF ở đây vì đã có ở bottom chung -->
+                </div>
+            </div>
+        </div>
+    </div> *@
+</div>
