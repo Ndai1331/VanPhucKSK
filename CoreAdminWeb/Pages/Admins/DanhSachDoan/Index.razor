@@ -1,0 +1,351 @@
+@page "/admin/danh-sach-doan"
+@using CoreAdminWeb.Commons.Helpers
+@using CoreAdminWeb.Commons.Utils
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Shared.Base
+@inherits BlazorCoreBase
+@layout Shared.Layout.AdminLayout
+
+<PageHeader Title="Danh sách đoàn" pTitle="Danh sách đoàn"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            @if (IsLoading)
+            {
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <div class="w-full h-4 rounded-full bg-gray-200">
+                        <div class="h-4 rounded-full bg-success animate-progress"
+                             style="background-image: linear-gradient(45deg,hsla(0,0%,100%,.15) 25%,transparent 0,transparent 50%,hsla(0,0%,100%,.15) 0,hsla(0,0%,100%,.15) 75%,transparent 0,transparent); background-size: 1rem 1rem;">
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="flex items-end justify-between flex-1 gap-2 sm:gap-4">
+                <!-- Left: Filter Area -->
+                <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-3 xl:col-span-3">
+                        <MudForm class="flex-1">
+                            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tìm kiếm</MudText>
+                            <div class="relative">
+                                <input type="text" id="search"
+                                       class="border-black/10 dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30 focus:border-black/30 placeholder:text-black/50 border text-black text-sm rounded block w-full ltr:pl-3 rtl:pr-3 ltr:pr-7 rtl:pl-7 h-10 bg-[#f9fbfd] focus:ring-0 focus:outline-0"
+                                       placeholder="Tìm kiếm..."
+                                       required=""
+                                       @bind-value="@_searchString"
+                                       @bind-value:event="oninput"
+                                       @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadData)">
+
+                                <MudButton OnClick="LoadData" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
+                                        <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z" fill="currentColor"></path>
+                                    </svg>
+                                </MudButton>
+                            </div>
+                        </MudForm>
+                    </div>
+
+                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
+                        <div>
+                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            bg-success border-success text-white hover:bg-success/[0.85]
+                            hover:border-success/[0.85] text-nowrap" @onclick="@(e => OpenAddOrUpdateModal(null))">
+                                <i class="ri-add-line"></i>
+                                Thêm mới
+                            </MudButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <table id="example" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã đoàn</th>
+                        <th>Tên công ty</th>
+                        <th>Ngày khám</th>
+                        <th>Số lượng khám</th>
+                        <th>Người lập sổ</th>
+                        <th>Người xác nhận</th>
+                        <th class="flex items-center gap-2">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                    {
+                        <tr>
+                            <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                            <td>@item.Data.code</td>
+                            <td>@item.Data.cong_ty?.name</td>
+                            <td>@item.Data.ngay_kham?.ToString("dd/MM/yyyy")</td>
+                            <td>0</td>
+                            <td>@item.Data.nguoi_lap_so</td>
+                            <td>@item.Data.nguoi_xac_nhan</td>
+                            <td class="flex items-center gap-2">
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                    <i class="ri-edit-line"></i>
+                                </MudButton>
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                           @onclick="@(e => OpenDeleteModal(item.Data))">
+                                    <i class="ri-delete-bin-line"></i>
+                                </MudButton>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+        <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
+    </div>
+</div>
+<!-- End All Card -->
+@if (openDeleteModal)
+{
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseDeleteModal">
+            <div class="relative w-full max-w-lg p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+                <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Xóa</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseDeleteModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
+                            <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
+                        </svg>
+                    </MudButton>
+                </div>
+                <div class="p-5">
+                    <div class="text-black dark:text-muted">
+                        <h3>Bạn có chắc chắn muốn xóa dữ liệu này không?</h3>
+                    </div>
+                    <div class="flex items-center justify-end gap-2">
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseDeleteModal">Huỷ</MudButton>
+                        <MudButton OnClick="OnDelete" Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white">Xóa</MudButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (openAddOrUpdateModal)
+{
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseAddOrUpdateModal">
+            <div class="relative w-full max-w-5xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+                <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">@_titleAddOrUpdate</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseAddOrUpdateModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
+                            <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
+                        </svg>
+                    </MudButton>
+                </div>
+                <div class="p-5 space-y-4">
+                    <EditForm Model="@SelectedItem" OnValidSubmit="OnValidSubmit">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <label>Mã đoàn</label>
+                                <input type="text" class="form-input" @bind-value="@SelectedItem.code" required />
+                            </div>
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <label>Công ty:</label>
+                                <BlazoredTypeahead EnableDropDown="true"
+                                                    ShowDropDownOnFocus="true"
+                                                    MinimumLength="0"
+                                                    TItem="CongTyModel"
+                                                    TValue="CongTyModel"
+                                                    SearchMethod="LoadCongTyData"
+                                                    Value="SelectedItem.cong_ty"
+                                                    ValueExpression="@(() => SelectedItem.cong_ty)"
+                                                    ValueChanged="OnCongTyChanged"
+                                                    placeholder="Chọn công ty"
+                                                    Class="form-select">
+                                    <SelectedTemplate Context="item">
+                                        @item.name
+                                    </SelectedTemplate>
+                                    <ResultTemplate Context="item">
+                                        @item.name
+                                    </ResultTemplate>
+                                    <NotFoundTemplate Context="item">
+                                        Không tìm thấy dữ liệu
+                                    </NotFoundTemplate>
+                                </BlazoredTypeahead>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-3 py-3">
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <label>Mã hồ sơ khám sức khỏe:</label>
+                                <BlazoredTypeahead EnableDropDown="true"
+                                                    ShowDropDownOnFocus="true"
+                                                    MinimumLength="0"
+                                                    TItem="KhamSucKhoeCongTyModel"
+                                                    TValue="KhamSucKhoeCongTyModel"
+                                                    SearchMethod="LoadKhamSucKhoeCongTyData"
+                                                    Value="SelectedItem.ma_ho_so_kham_suc_khoe"
+                                                    ValueExpression="@(() => SelectedItem.ma_ho_so_kham_suc_khoe)"
+                                                    ValueChanged="OnKhamSucKhoeCongTyChanged"
+                                                    placeholder="Chọn mã hồ sơ khám sức khỏe"
+                                                    Class="form-select">
+                                    <SelectedTemplate Context="item">
+                                        @item.code
+                                    </SelectedTemplate>
+                                    <ResultTemplate Context="item">
+                                        @item.code
+                                    </ResultTemplate>
+                                    <NotFoundTemplate Context="item">
+                                        Không tìm thấy dữ liệu
+                                    </NotFoundTemplate>
+                                </BlazoredTypeahead>
+                            </div>
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <label>Ngày khám:</label>
+                                <input type="text"
+                                        class="form-input date-picker"
+                                        placeholder="Chọn ngày khám"
+                                        value="@(SelectedItem.ngay_kham?.ToString("dd/MM/yyyy"))"
+                                        @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_kham)))" />
+                            </div>
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <label>Ngày lập sổ:</label>
+                                <input type="text"
+                                        class="form-input date-picker"
+                                        placeholder="Chọn ngày lập sổ"
+                                        value="@(SelectedItem.ngay_lap_so?.ToString("dd/MM/yyyy"))"
+                                        @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_lap_so)))" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <label>Người lập sổ:</label>
+                                <input type="text" class="form-input" @bind-value="@SelectedItem.nguoi_lap_so" Label="Người lập sổ" />
+                            </div>
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <label>Người xác nhận:</label>
+                                <input type="text" class="form-input" @bind-value="@SelectedItem.nguoi_xac_nhan" Label="Người xác nhận" />
+                            </div>
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                <label>Ghi chú:</label>
+                                <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" placeholder="Nhập ghi chú"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-4 md:grid-cols-4 xl:grid-cols-4 py-4">
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <label>Đã gửi thông báo:</label>
+                                <input type="checkbox" class="form-checkbox outborder-purple"
+                                       checked="@(SelectedItem.da_gui_thong_bao)" @onchange="@(e => OnCheckedChanged(e, nameof(SelectedItem.da_gui_thong_bao)))" />
+                            </div>
+                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <label>Đã gửi mail:</label>
+                                <input type="checkbox" class="form-checkbox outborder-purple"
+                                       checked="@(SelectedItem.da_gui_mail)" @onchange="@(e => OnCheckedChanged(e, nameof(SelectedItem.da_gui_mail)))" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+                            <div class="space-y-2 md:col-span-2">
+                                <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Danh sách đoàn khám</MudText>
+                            </div>
+                            <div class="space-y-2 md:col-span-2">
+                                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" style="width:100%">
+                                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Mã khách hàng</th>
+                                                <th>Tên khách hàng</th>
+                                                <th>Mã điều trị</th>
+                                                <th>Ngày khám</th>
+                                                <th>Ghi chú</th>
+                                                <th class="flex items-center gap-2">Tác vụ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in SelectedItemsDetail.Where(c => c.deleted == null || c.deleted == false).Select((v, i) => new { Data = v, Index = i }))
+                                            {
+                                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
+                                                    <td>@(item.Index + 1)</td>
+                                                    <td>
+                                                        <input type="text" class="form-input" @bind-value="@item.Data.ma_khach" Label="Mã khách hàng" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-input" @bind-value="@item.Data.ten_khach" Label="Tên khách hàng" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-input" @bind-value="@item.Data.ma_dieu_tri" Label="Mã điều trị" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-input date-picker" value="@(item.Data.ngay_kham?.ToString("dd/MM/yyyy"))" @onchange="@(e => OnDateChangedDetail(e, item.Data, nameof(item.Data.ngay_kham)))" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-input w-40" @bind-value="@item.Data.description" Label="Ghi chú" />
+                                                    </td>
+                                                    <td>
+                                                        <div class="flex items-center justify-end gap-2">
+                                                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                                                        @onclick="@(e => OpenDetailDeleteModal(item.Data))">
+                                                                <i class="ri-delete-bin-line"></i>
+                                                            </MudButton>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="w-full flex items-center justify-end mt-2">
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnAddChiTiet">Thêm dòng</MudButton>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-2 py-4">
+                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseAddOrUpdateModal">Huỷ</MudButton>
+                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                       OnClick="OnValidSubmit">Lưu</MudButton>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (openDetailDeleteModal)
+{
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseDetailDeleteModal">
+            <div class="relative w-full max-w-lg p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+                <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Xóa</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseDetailDeleteModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
+                            <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
+                        </svg>
+                    </MudButton>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="text-black dark:text-muted">
+                        <h3>Bạn có chắc chắn muốn xóa dữ liệu này không?</h3>
+                    </div>
+                    <div class="flex items-center justify-end gap-2">
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseDetailDeleteModal">Huỷ</MudButton>
+                        <MudButton OnClick="OnDetailDelete" Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white">Xóa</MudButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
