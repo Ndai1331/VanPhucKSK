@@ -1,17 +1,33 @@
 ﻿using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.Contract;
+using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 {
-    public partial class Index(IBaseService<DinhMucModel> MainService, IBaseService<LoaiDinhMucModel> LoaiDinhMucService) : BlazorCoreBase
+    public partial class Index(IBaseService<DinhMucModel> MainService,
+                               IBaseService<LoaiDinhMucModel> LoaiDinhMucService,
+                               IBaseService<PhanLoaiSucKhoeModel> PhanLoaiSucKhoaService,
+                               IUserService UserService,
+                               IBaseService<ContractModel> ContractService,
+                               IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService) : BlazorCoreBase
     {
         private List<DinhMucModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
         private bool openAddOrUpdateModal = false;
+        private string activeDefTab = "tab1";
+
         private DinhMucModel SelectedItem { get; set; } = new DinhMucModel();
+        private PhanLoaiSucKhoeModel? SelectedPhanLoaiItem { get; set; }
+        private ContractModel? SelectedContractItem { get; set; }
+        private KhamSucKhoeCongTyModel? SelectedKhamSucKhoeCongTyItem { get; set; }
+
+        private UserModel? SelectedBacSiItem { get; set; }
         private string _searchString = "";
         private string _searchStatusString = "";
         private string _titleAddOrUpdate = "Thêm mới";
@@ -27,7 +43,15 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             if (firstRender)
             {
                 await LoadData();
+                await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
+
+                // Wait for modal to render
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(500);
+                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
+                });
             }
         }
 
@@ -82,6 +106,45 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             return await LoadBlazorTypeaheadData(searchText, LoaiDinhMucService, "filter[_and][][active][_eq]=true");
         }
 
+        private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeData(string searchText)
+        {
+            return await LoadBlazorTypeaheadData(searchText, PhanLoaiSucKhoaService, "filter[_and][][active][_eq]=true");
+        }
+
+        private async Task<IEnumerable<ContractModel>> LoadContractData(string searchText)
+        {
+            return await LoadBlazorTypeaheadData(searchText, ContractService, "filter[_and][][active][_eq]=true");
+        }
+
+        private async Task<IEnumerable<KhamSucKhoeCongTyModel>> LoadKhamSucKhoeCongTyData(string searchText)
+        {
+            return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService, "filter[_and][][active][_eq]=true");
+        }
+
+        private async Task<IEnumerable<UserModel>> LoadBacSiData(string searchText)
+        {
+            try
+            {
+                var query = "sort=-id";
+
+                query += "&filter[_and][][status][_eq]=active";
+                query += "&filter[_and][][role][_eq]=87D650A9-0BD2-41DC-ADF2-B0A248AD9A3B";
+
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(searchText)}";
+                }
+
+                var result = await UserService.GetAllAsync(query);
+                return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<UserModel>() : Enumerable.Empty<UserModel>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading typeahead data: {ex.Message}");
+                return Enumerable.Empty<UserModel>();
+            }
+        }
 
         private void OpenDeleteModal(DinhMucModel item)
         {
@@ -199,6 +262,21 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             if (bool.TryParse(_selectedStatusString, out bool activeValue))
             {
                 SelectedItem.active = activeValue;
+            }
+        }
+
+        private void OnTabChanged(string tab)
+        {
+            activeDefTab = tab;
+
+            if (activeDefTab == "tab3")
+            {
+                // Wait for modal to render
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(500);
+                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
+                });
             }
         }
     }
