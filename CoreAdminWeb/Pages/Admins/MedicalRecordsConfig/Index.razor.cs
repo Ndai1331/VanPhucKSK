@@ -27,6 +27,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
 
         private string _selectedStatusString = "";
 
+        private bool readOnly { get; set; } = false;
         private UserModel? SelectedBacSiTuanHoan { get; set; } = null;
         private UserModel? SelectedBacSiHoHap { get; set; } = null;
         private UserModel? SelectedBacSiTieuHoa { get; set; } = null;
@@ -127,11 +128,12 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
-                //query += "&filter[_and][][chu_ky_bac_si][_nnull]=true";
+                query += "&filter[_and][][role][_eq]=87D650A9-0BD2-41DC-ADF2-B0A248AD9A3B";
 
                 if (!string.IsNullOrEmpty(searchText))
                 {
-                    query += $"&filter[_and][][name][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(searchText)}";
                 }
 
                 var result = await UserService.GetAllAsync(query);
@@ -204,9 +206,15 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             openDeleteModal = false;
         }
 
-        private async Task OpenAddOrUpdateModal(KhamSucKhoeCongTyModel? item)
+        private async Task OpenAddOrUpdateModal(KhamSucKhoeCongTyModel? item, bool isReadOnly = false)
         {
+            readOnly = isReadOnly;
             _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
+            if (readOnly)
+            {
+                _titleAddOrUpdate = "Thông tin hồ sơ: ";
+            }
+
             SelectedItem = item != null ? item.DeepClone() : new KhamSucKhoeCongTyModel();
             SelectedCongTy = SelectedItem.ma_hop_dong_ksk?.cong_ty;
 
@@ -221,6 +229,11 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             }
 
             _selectedStatusString = SelectedItem.active?.ToString() ?? "True";
+            if (readOnly)
+            {
+                _titleAddOrUpdate = $"Thông tin hồ sơ: {SelectedItem.code}";
+            }
+
             openAddOrUpdateModal = true;
 
             await LoadUserInfo();

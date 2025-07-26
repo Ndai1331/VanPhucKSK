@@ -1,0 +1,1001 @@
+@page "/admin/ket-qua-kham-suc-khoe-tt32"
+@using CoreAdminWeb.Commons.Helpers
+@using CoreAdminWeb.Commons.Utils
+@using CoreAdminWeb.Enums
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Model.Contract
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Shared.Base
+@inherits BlazorCoreBase
+@layout Shared.Layout.AdminLayout
+
+<PageHeader Title="Kết quả khám sức khỏe - TT32" pTitle="Kết quả khám sức khỏe - TT32"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    @if (IsLoading)
+    {
+        <div class="flex flex-col items-center justify-center gap-3">
+            <div class="w-full h-4 rounded-full bg-gray-200">
+                <div class="h-4 rounded-full bg-success animate-progress"
+                     style="background-image: linear-gradient(45deg,hsla(0,0%,100%,.15) 25%,transparent 0,transparent 50%,hsla(0,0%,100%,.15) 0,hsla(0,0%,100%,.15) 75%,transparent 0,transparent); background-size: 1rem 1rem;">
+                </div>
+            </div>
+        </div>
+    }
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-4 py-3">
+        <div class="space-y-2 sm:col-span-1 md:col-span-1">
+            <div class="card space-y-2">
+                <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Thông tin danh sách khám sức khỏe:</MudText>
+                <div class="space-y-2">
+                    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày khám</MudText>
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <input type="text"
+                               class="form-input date-picker w-1/2"
+                               placeholder="Chọn ngày bắt đầu" />
+                        <span class="mx-2 flex items-center text-gray-500">-</span>
+                        <input type="text"
+                               class="form-input date-picker w-1/2"
+                               placeholder="Chọn ngày kết thúc" />
+                    </div>
+                </div>
+                <BlazoredTypeahead EnableDropDown="true"
+                                   ShowDropDownOnFocus="true"
+                                   MinimumLength="0"
+                                   TItem="ContractModel"
+                                   TValue="ContractModel"
+                                   SearchMethod="LoadContractData"
+                                   @bind-Value="SelectedContractItem"
+                                   placeholder="Chọn hơp đồng"
+                                   class="form-select">
+                    <SelectedTemplate Context="item">
+                        @item.name
+                    </SelectedTemplate>
+                    <ResultTemplate Context="item">
+                        @item.name
+                    </ResultTemplate>
+                    <NotFoundTemplate Context="item">
+                        Không tìm thấy dữ liệu
+                    </NotFoundTemplate>
+                </BlazoredTypeahead>
+                <BlazoredTypeahead EnableDropDown="true"
+                                   ShowDropDownOnFocus="true"
+                                   MinimumLength="0"
+                                   TItem="KhamSucKhoeCongTyModel"
+                                   TValue="KhamSucKhoeCongTyModel"
+                                   SearchMethod="LoadKhamSucKhoeCongTyData"
+                                   @bind-Value="SelectedKhamSucKhoeCongTyItem"
+                                   placeholder="Mã hồ sơ khám"
+                                   class="form-select">
+                    <SelectedTemplate Context="item">
+                        @item.name
+                    </SelectedTemplate>
+                    <ResultTemplate Context="item">
+                        @item.name
+                    </ResultTemplate>
+                    <NotFoundTemplate Context="item">
+                        Không tìm thấy dữ liệu
+                    </NotFoundTemplate>
+                </BlazoredTypeahead>
+                
+                <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
+                    <option value="">Trạng thái</option>
+                    @foreach (var item in EnumHelper.ToList<TrangThaiHoSo>())
+                    {
+                        <option value="@item.Name" selected="@(_searchStatusString == item.Name)">@item.Description</option>
+                    }
+                </select>
+
+                <BlazoredTypeahead EnableDropDown="true"
+                                   ShowDropDownOnFocus="true"
+                                   MinimumLength="0"
+                                   TItem="LoaiDinhMucModel"
+                                   TValue="LoaiDinhMucModel"
+                                   SearchMethod="LoadLoaiDinhMucData"
+                                   @bind-Value="SelectedItem.loai_dinh_muc"
+                                   placeholder="Trạng thái"
+                                   Class="form-select w-1/2">
+                    <SelectedTemplate Context="item">
+                        @item.name
+                    </SelectedTemplate>
+                    <ResultTemplate Context="item">
+                        @item.name
+                    </ResultTemplate>
+                    <NotFoundTemplate Context="item">
+                        Không tìm thấy dữ liệu
+                    </NotFoundTemplate>
+                </BlazoredTypeahead>
+
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <input type="text"
+                               class="form-input w-1/2"
+                               placeholder="Mã điều trị" />
+                        <input type="text"
+                               class="form-input  w-1/2"
+                               placeholder="Mã bệnh nhân" />
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <input type="text"
+                               class="form-input"
+                               placeholder="Tên bệnh nhân" />
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap">
+                            Tìm kiếm
+                        </MudButton>
+                    </div>
+                </div>
+
+                <div class="space-y-2 ksk">
+                    <div class="overflow-auto">
+                        <table id="example" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>STT</th>
+                                    <th>Mã bệnh nhân</th>
+                                    <th>Mã điều trị</th>
+                                    <th>Tên khách hàng</th>
+                                    <th>SĐT</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Giới tính</th>
+                                    <th>CCCD</th>
+                                    <th>Địa chỉ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                                    <td style="text-align: center; white-space: nowrap;">1</td>
+                                    <td style="text-align: center; white-space: nowrap;">BN001</td>
+                                    <td style="text-align: center; white-space: nowrap;">DT001</td>
+                                    <td style="white-space: nowrap;">Nguyễn Văn A</td>
+                                    <td style="text-align: center; white-space: nowrap;">0912345678</td>
+                                    <td style="text-align: center; white-space: nowrap;">01/01/1990</td>
+                                    <td style="text-align: center; white-space: nowrap;">Nam</td>
+                                    <td style="text-align: center; white-space: nowrap;">123456789012</td>
+                                    <td style="white-space: nowrap;">Hà Nội</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                                    <td style="text-align: center; white-space: nowrap;">2</td>
+                                    <td style="text-align: center; white-space: nowrap;">BN002</td>
+                                    <td style="text-align: center; white-space: nowrap;">DT002</td>
+                                    <td style="white-space: nowrap;">Trần Thị B</td>
+                                    <td style="text-align: center; white-space: nowrap;">0987654321</td>
+                                    <td style="text-align: center; white-space: nowrap;">15/05/1985</td>
+                                    <td style="text-align: center; white-space: nowrap;">Nữ</td>
+                                    <td style="text-align: center; white-space: nowrap;">987654321098</td>
+                                    <td style="white-space: nowrap;">Đà Nẵng</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" PagingConf="false" />
+                </div>
+            </div>
+        </div>
+        <div class="space-y-2 sm:col-span-1 md:col-span-3">
+            <div class="card space-y-2">
+                <MudText Typo="Typo.h4" Class="font-bold">Thông tin bệnh nhân:</MudText>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-start">
+                    <div class="col-span-1 md:col-span-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-1">
+                            <div class="col-span-3 md:col-span-1">Mã bệnh nhân: <span id="view-ma-benhnhan">-</span></div>
+                            <div class="col-span-3 md:col-span-1">Mã điều trị: <span id="view-ma-dieutri">-</span></div>
+                            <div class="col-span-3 md:col-span-1">Số thứ tự: <span id="view-stt">-</span></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-1">
+                            <div class="col-span-3 md:col-span-1">Họ và tên: <span id="view-ten-benhnhan">-</span></div>
+                            <div class="col-span-3 md:col-span-1">Giới tính: <span id="view-gioi-tinh">-</span></div>
+                            <div class="col-span-3 md:col-span-1">Ngày sinh: <span id="view-ngay-sinh">-</span></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-1">
+                            <div class="col-span-3 md:col-span-1">Thời gian khám: <span id="view-thoi-gian-kham">-</span></div>
+                            <div class="col-span-3 md:col-span-1">Hợp đồng: <span id="view-hop-dong">-</span></div>
+                            <div class="col-span-3 md:col-span-1">Mã hồ sơ: <span id="view-ma-hoso">-</span></div>
+                        </div>
+                    </div>
+                    <div class="col-span-1 md:col-span-1 flex justify-center items-start -mt-5">
+                        <div class="avatar-container" onclick="document.getElementById('avatarInput').click()">
+                            <img id="avatarPreview" src="/images/placeholder.png" alt="Avatar Preview" class="avatar-img" />
+                            <div class="upload-overlay">
+                                <i class="ri-upload-line ri-font-size-3 upload-icon"></i>
+                            </div>
+                        </div>
+                        <input type="file" id="avatarInput" accept="image/*" onchange="previewImage(this)" />
+                    </div>
+                </div>
+            </div>
+            <div class="card space-y-2 p-0">
+                <div class="w-full">
+                    <ul class="flex flex-wrap text-sm text-center border-b border-black/10 dark:border-darkborder">
+                        <li>
+                            <MudLink Href="javascript:void(0);"
+                                     OnClick="@(() => {OnTabChanged("tab1");})"
+                                     Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab1" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
+                                Tiền sử bệnh
+                            </MudLink>
+                        </li>
+                        <li>
+                            <MudLink Href="javascript:void(0);"
+                                     OnClick="@(() => {OnTabChanged("tab2");})"
+                                     Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab2" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
+                                Khám chung
+                            </MudLink>
+                        </li>
+                        <li>
+                            <MudLink Href="javascript:void(0);"
+                                     OnClick="@(() => {OnTabChanged("tab3");})"
+                                     Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab3" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
+                                Khám CLS/Kết luận
+                            </MudLink>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3 text-[13px] px-3">
+                        <div class="overflow-auto">
+                            @switch (activeDefTab)
+                            {
+                                case "tab1":
+                                    <div class="text-black dark:text-muted">
+                                        <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. Tiền sử bệnh tật gia đình:</MudText>
+                                                <textarea rows="2" class="form-input form-textarea"></textarea>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. Tiền sử bệnh, tật của bản thân</MudText>
+                                                <MudText Typo="Typo.body1" Class="mb-4 capitalize text-slate-800 dark:text-slate-100">Tiền sử bệnh, tật:</MudText>
+                                                <div class="overflow-auto">
+                                                    <table class="display" style="width:100%">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Tên bệnh</th>
+                                                                <th>Năm phát hiện</th>
+                                                                <th>Tên bệnh nghề nghiệp</th>
+                                                                <th>Năm phát hiện</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" /></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tiền sử sản phụ khoa</MudText>
+                                                <div class="flex items-center gap-2">
+                                                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</MudText>
+                                                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width: 150px;" />
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Tính chất kinh nguyệt:</MudText>
+
+                                                    <div class="flex items-center gap-5">
+                                                        <div>
+                                                            <input type="checkbox" class="form-check-input" id="cbx1">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx1">
+                                                                Đều
+                                                            </label>
+                                                        </div>
+                                                        <div>
+                                                            <input type="checkbox" class="form-check-input" id="cbx2">
+                                                            <label class="form-check-label" for="cbx2">
+                                                                Không đều
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-5">
+                                                    <div class="flex items-center gap-2">
+                                                        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
+                                                            Chu kỳ kinh:
+                                                        </MudText>
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" />
+                                                        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
+                                                            ngày
+                                                        </MudText>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
+                                                            Lượng kinh:
+                                                        </MudText>
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" />
+                                                        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
+                                                            ngày
+                                                        </MudText>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Đau bụng kinh:</MudText>
+
+                                                    <div class="flex items-center gap-5">
+                                                        <div>
+                                                            <input type="checkbox" class="form-check-input" id="cbx3">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx3">
+                                                                Có
+                                                            </label>
+                                                        </div>
+                                                        <div>
+                                                            <input type="checkbox" class="form-check-input" id="cbx4">
+                                                            <label class="form-check-label" for="cbx4">
+                                                                Không
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
+                                                        PARA:
+                                                    </MudText>
+
+                                                    <div class="flex items-center gap-1">
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
+                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
+                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
+                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Số lần mổ sản phụ khoa:</MudText>
+
+                                                    <div class="flex items-center gap-5">
+                                                        <div class="flex items-center gap-2">
+                                                            <input type="checkbox" class="form-check-input" id="cbx5">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx5">
+                                                                Có
+                                                            </label>
+                                                            <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
+                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <input type="checkbox" class="form-check-input" id="cbx6">
+                                                            <label class="form-check-label" for="cbx6">
+                                                                Không
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Có đang áp dụng BPTT không:</MudText>
+
+                                                    <div class="flex items-center gap-5">
+                                                        <div class="flex items-center gap-2">
+                                                            <input type="checkbox" class="form-check-input" id="cbx5">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx5">
+                                                                Có
+                                                            </label>
+                                                            <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
+                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <input type="checkbox" class="form-check-input" id="cbx6">
+                                                            <label class="form-check-label" for="cbx6">
+                                                                Không
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    break;
+
+                                case "tab2":
+                                    <div class="text-black dark:text-muted">
+                                        <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. KHÁM THỂ LỰC</MudText>
+                                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 items-end">
+                                                    <div>
+                                                        <label class="block text-sm mb-1" for="chieu-cao">Chiều cao (cm):</label>
+                                                        <input id="chieu-cao" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm mb-1" for="can-nang">Cân nặng (kg):</label>
+                                                        <input id="can-nang" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm mb-1" for="bmi">BMI:</label>
+                                                        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm mb-1" for="abi">ABI:</label>
+                                                        <input id="abi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm mb-1" for="huyet-ap">Huyết áp (mmHg):</label>
+                                                        <input id="huyet-ap" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm mb-1" for="nhip-tho">Nhịp thở (lần/phút):</label>
+                                                        <input id="nhip-tho" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 items-end">
+                                                    <div>
+                                                        <label class="block text-sm mb-1" for="phan-loai-the-luc">Phân loại thể lực:</label>
+                                                        <input id="phan-loai-the-luc" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KHÁM CHUYÊN KHOA:</MudText>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Nội khoa:</MudText>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">1. Tuần hoàn:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">2. Hô hấp:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">3. Tiêu hóa:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">4. Thận - TN:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">5. Nội tiết:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">6. CXK:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">7. Thần kinh:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">8. Tâm thần:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Ngoại khoa - Da liễu:</MudText>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">9. Ngoại khoa:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">10. Da liễu:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Sản phụ khoa:</MudText>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">11. Sản PK:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Mắt:</MudText>
+                                                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
+                                                    <div class="col-span-1 md:col-span-3 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - Có kính:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                    <div class="col-span-1 md:col-span-3 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Phải - Có kính:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                    <div class="col-span-1 md:col-span-3 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Trái - không kính:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                    <div class="col-span-1 md:col-span-3 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - không kính:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
+                                                    <div class="col-span-1 md:col-span-6 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Bệnh về mắt:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                    <div class="col-span-1 md:col-span-2">
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           Style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tai - mũi - họng:</MudText>
+                                                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
+                                                    <div class="col-span-1 md:col-span-3 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - thường:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                    <div class="col-span-1 md:col-span-3 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - thầm:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                    <div class="col-span-1 md:col-span-3 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - thường:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                    <div class="col-span-1 md:col-span-3 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - thầm:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
+                                                    <div class="col-span-1 md:col-span-6 flex items-center">
+                                                        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Bệnh về TMH:</label>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                    </div>
+                                                    <div class="col-span-1 md:col-span-2">
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           Style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Răng - hàm - mặt::</MudText>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">Hàm trên:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;">
+                                                        <span style="min-width:90px;">Hàm dưới:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;">
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span style="min-width:90px;">Bệnh về RHM:</span>
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    break;
+
+                                case "tab3":
+                                    <div class="text-black dark:text-muted">
+                                        <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. KHÁM CẬN LÂM SÀNG</MudText>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label class="block text-sm font-normal">CDHA - TDCN:</label>
+                                                        <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-normal">XN Công thức máu:</label>
+                                                        <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-normal">XN nước tiểu:</label>
+                                                        <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-normal">XN khác:</label>
+                                                        <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="flex justify-end">
+                                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white">
+                                                        <i class="ri-loop-right-line"></i>
+                                                        Đồng bộ
+                                                    </MudButton>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2 md:col-span-2">
+                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KẾT LUẬN</MudText>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2 items-center">
+                                                    <div>
+                                                        <label class="block text-sm font-normal">Phân loại sức khỏe:</label>
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select"
+                                                                           Style="width:120px;">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="block text-sm font-normal">Bệnh tật (nếu có):</label>
+                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="3"></textarea>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="block text-sm font-normal">Đề nghị:</label>
+                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center mb-2">
+                                                    <div>
+                                                        <label class="block text-sm font-normal">Ngày kết luận</label>
+                                                        <input type="text"
+                                                               class="form-input date-picker"
+                                                               placeholder="Chọn ngày" />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-normal">Người kết luận:</label>
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="UserModel"
+                                                                           TValue="UserModel"
+                                                                           SearchMethod="LoadBacSiData"
+                                                                           @bind-Value="SelectedBacSiItem"
+                                                                           placeholder="Chọn bác sĩ"
+                                                                           class="form-select">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.full_name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.full_name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    break;
+
+                                default:
+                                    <div>
+                                        <p>
+                                            Select a tab to view content.
+                                        </p>
+                                    </div>
+                                    break;
+                            }
+
+                            <div class="flex items-center justify-end gap-2 py-4">
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white">
+                                    <i class="ri-save-line"></i>
+                                    Lưu
+                                </MudButton>
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-warning border-warning hover:bg-warning hover:text-white">
+                                    <i class="ri-close-line"></i>
+                                    Kết thúc
+                                </MudButton>
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                           OnClick="OnValidSubmit">
+                                    <i class="ri-file-pdf-line"></i>
+                                    Export pdf
+                                </MudButton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

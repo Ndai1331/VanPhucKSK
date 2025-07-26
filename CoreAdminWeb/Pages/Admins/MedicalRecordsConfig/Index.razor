@@ -102,7 +102,8 @@
                             <td>@item.Data.ngay_ket_thuc?.ToString("dd/MM/yyyy")</td>
                             <td>@((MarkupString)item.Data.active.GetTrangThai())</td>
                             <td class="flex items-center gap-2">
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white">
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
+                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data, true))">
                                     <i class="ri-eye-line"></i>
                                 </MudButton>
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
@@ -181,7 +182,8 @@
                                                        ValueExpression="@(() => SelectedCongTy)"
                                                        ValueChanged="OnCongTyChanged"
                                                        placeholder="Chọn công ty"
-                                                       Class="form-select">
+                                                       Class="form-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.name
                                         </SelectedTemplate>
@@ -205,7 +207,8 @@
                                                        ValueExpression="@(() => SelectedItem.ma_hop_dong_ksk)"
                                                        ValueChanged="OnHopDongChanged"
                                                        placeholder="Chọn hợp đồng"
-                                                       Class="form-select">
+                                                       Class="form-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.name
                                         </SelectedTemplate>
@@ -219,42 +222,42 @@
                                 </div>
                                 <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Mã hồ sơ</label>
-                                    <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Nhập mã hồ sơ" />
+                                    <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Nhập mã hồ sơ" readonly="@readOnly" />
                                 </div>
                                 <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Số lượng dự kiến</label>
-                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.so_luong_du_kien" Label="Nhập số lượng dự kiến" />
+                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.so_luong_du_kien" readonly="@readOnly" Label="Nhập số lượng dự kiến" />
                                 </div>
                                 <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Số lượng thực tế</label>
-                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.name" Label="Nhập số lượng thực tế" />
+                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.name" readonly="@readOnly" Label="Nhập số lượng thực tế" />
                                 </div>
                                 <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Ngày dự kiến khám</label>
                                     <input type="text"
-                                           class="form-input date-picker"
+                                           class="form-input @(readOnly ? "" : "date-picker")"
                                            placeholder="Chọn ngày"
                                            value="@(SelectedItem.ngay_du_kien_kham?.ToString("dd/MM/yyyy"))"
-                                           @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_du_kien_kham)))" required />
+                                           @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_du_kien_kham)))" required readonly="@readOnly" />
                                 </div>
                                 <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Ngày kết thúc</label>
                                     <input type="text"
-                                           class="form-input date-picker"
+                                           class="form-input @(readOnly ? "" : "date-picker")"
                                            placeholder="Chọn ngày"
                                            value="@(SelectedItem.ngay_ket_thuc?.ToString("dd/MM/yyyy"))"
-                                           @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_ket_thuc)))" required />
+                                           @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_ket_thuc)))" required readonly="@readOnly" />
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 gap-4 py-2">
                                 <div class="space-y-2">
                                     <label>Ghi chú</label>
-                                    <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" placeholder="Nhập ghi chú"></textarea>
+                                    <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" readonly="@readOnly" placeholder="Nhập ghi chú"></textarea>
                                 </div>
 
                                 <div class="space-y-2">
                                     <label>Trạng thái</label>
-                                    <select class="form-select" @bind="@_selectedStatusString" @bind:event="oninput" @onchange="OnStatusChanged">
+                                    <select class="form-select" @bind="@_selectedStatusString" @bind:event="oninput" @onchange="OnStatusChanged" disabled="@readOnly">
                                         <option value="True" selected="@(_selectedStatusString == "true")">Đang hoạt động</option>
                                         <option value="False" selected="@(_selectedStatusString == "false")">Ngừng hoạt động</option>
                                     </select>
@@ -280,7 +283,8 @@
                                                        ValueExpression="@(() => SelectedBacSiTuanHoan)"
                                                        ValueChanged="OnBacSiTuanHoanChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -307,7 +311,8 @@
                                                        ValueExpression="@(() => SelectedBacSiHoHap)"
                                                        ValueChanged="OnBacSiHoHapChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -334,7 +339,8 @@
                                                        ValueExpression="@(() => SelectedBacSiTieuHoa)"
                                                        ValueChanged="OnBacSiTieuHoaChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -361,7 +367,8 @@
                                                        ValueExpression="@(() => SelectedBacSiThanTietNieu)"
                                                        ValueChanged="OnBacSiThanTietNieuChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -388,7 +395,8 @@
                                                        ValueExpression="@(() => SelectedBacSiNoiTiet)"
                                                        ValueChanged="OnBacSiNoiTietChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -415,7 +423,8 @@
                                                        ValueExpression="@(() => SelectedBacSiCoXuongKhop)"
                                                        ValueChanged="OnBacSiCoXuongKhopChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -442,7 +451,8 @@
                                                        ValueExpression="@(() => SelectedBacSiThanKinh)"
                                                        ValueChanged="OnBacSiThanKinhChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -469,7 +479,8 @@
                                                        ValueExpression="@(() => SelectedBacSiTamThan)"
                                                        ValueChanged="OnBacSiTamThanChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -496,7 +507,8 @@
                                                        ValueExpression="@(() => SelectedBacSiNgoaiKhoa)"
                                                        ValueChanged="OnBacSiNgoaiKhoaChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -523,7 +535,8 @@
                                                        ValueExpression="@(() => SelectedBacSiSanPhuKhoa)"
                                                        ValueChanged="OnBacSiSanPhuKhoaChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -550,7 +563,8 @@
                                                        ValueExpression="@(() => SelectedBacSiMat)"
                                                        ValueChanged="OnBacSiMatChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -577,7 +591,8 @@
                                                        ValueExpression="@(() => SelectedBacSiTaiMuiHong)"
                                                        ValueChanged="OnBacSiTaiMuiHongChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -604,7 +619,8 @@
                                                        ValueExpression="@(() => SelectedBacSiRangHamMat)"
                                                        ValueChanged="OnBacSiRangHamMatChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -631,7 +647,8 @@
                                                        ValueExpression="@(() => SelectedBacSiKetLuan)"
                                                        ValueChanged="OnBacSiKetLuanChanged"
                                                        placeholder="Chọn bác sĩ"
-                                                       Class="form-select doctor-select">
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
                                         <SelectedTemplate Context="item">
                                             @item.full_name
                                         </SelectedTemplate>
@@ -647,7 +664,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-end gap-2 py-4">
+                        <div class="flex items-center justify-end gap-2 py-4 @(readOnly ? "hidden" : "")">
                             <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseAddOrUpdateModal">
                                 <i class="ri-close-line"></i>
                                 Huỷ
