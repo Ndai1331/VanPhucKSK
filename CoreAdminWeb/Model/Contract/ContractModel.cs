@@ -1,4 +1,5 @@
 using CoreAdminWeb.Model.Base;
+using CoreAdminWeb.Model.User;
 
 namespace CoreAdminWeb.Model.Contract
 {
@@ -14,13 +15,14 @@ namespace CoreAdminWeb.Model.Contract
         public decimal? ti_le_chap_nhan_thanh_toan { get; set; }
         public int? phe_duyet { get; set; }
         public int? han_che { get; set; }
-        public string? ten_khoa_phong { get; set; }
+        // public string? ten_khoa_phong { get; set; }
         public string? nguoi_theo_doi { get; set; }
         public string? so_dien_thoai_lien_he { get; set; }
-        public string? nguoi_gioi_thieu { get; set; }
-        public string? dien_thoai { get; set; }
-        public string? email { get; set; }
+        // public string? nguoi_gioi_thieu { get; set; }
+        // public string? dien_thoai { get; set; }
+        // public string? email { get; set; }
         public FileModel? file_hd { get; set; }
+        public UserModel? nhan_vien_id { get; set; }
     }
     public class ContractCRUDModel : BaseDetailModel
     {
@@ -42,5 +44,6 @@ namespace CoreAdminWeb.Model.Contract
         public string? dien_thoai { get; set; }
         public string? email { get; set; }
         public string? file_hd { get; set; }
+        public string? nhan_vien_id { get; set; }
     }
 }

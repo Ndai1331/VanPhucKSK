@@ -9,10 +9,10 @@ namespace CoreAdminWeb.Services.Contract
 {
     public class ContractDinhMucService : IContractDinhMucService
     {
-        private readonly string _collection = "KSK_DinhMuc_ThucTe";
+        private readonly string _collection = "kham_suc_khoe_dinh_muc_thuc_te";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
             + ",contract.id,contract.code"
-            + ",dinh_muc.id,dinh_muc.name";
+            + ",MaDinhMuc.id,MaDinhMuc.name";
 
         private readonly IHttpClientService _httpClientService;
         public ContractDinhMucService(IHttpClientService httpClientService)
@@ -40,7 +40,7 @@ namespace CoreAdminWeb.Services.Contract
             return new()
             {
                 contract = model.contract?.id,
-                dinh_muc = model.dinh_muc?.id,
+                MaDinhMuc = model.MaDinhMuc?.id,
                 status = model.status.ToString(),
                 description = model.description,
                 sort = model.sort,

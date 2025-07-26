@@ -1,8 +1,10 @@
 ﻿using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
+using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Contract;
+using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -19,7 +21,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         IBaseService<CongTyModel> CongTyService,
         IBaseService<ContractTypeModel> ContractTypeService,
         IBaseService<DinhMucModel> DinhMucService,
-        IFileService _fileService
+        IFileService _fileService,
+        IUserService UserService
     ) : BlazorCoreBase
     {
         private List<ContractModel> MainModels { get; set; } = new();
@@ -115,6 +118,31 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private async Task<IEnumerable<ContractTypeModel>> LoadContractTypeData(string searchText)
         {
             return await LoadBlazorTypeaheadData(searchText, ContractTypeService);
+        }
+
+        private async Task<IEnumerable<UserModel>> LoadNhanVienData(string searchText)
+        {
+            try
+            {
+                var query = "sort=-id";
+
+                query += "&filter[_and][][status][_eq]=active";
+                // query += "&filter[_and][][role][_eq]=87D650A9-0BD2-41DC-ADF2-B0A248AD9A3B";
+
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(searchText)}";
+                }
+
+                var result = await UserService.GetAllAsync(query);
+                return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<UserModel>() : Enumerable.Empty<UserModel>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading typeahead data: {ex.Message}");
+                return Enumerable.Empty<UserModel>();
+            }
         }
 
         private async Task<IEnumerable<DinhMucModel>> LoadDinhMucData(string searchText)
@@ -393,6 +421,11 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             SelectedItem.contract_type = selected;
         }
 
+        private void OnNhanVienChanged(UserModel? selected)
+        {
+            SelectedItem.nhan_vien_id = selected;
+        }
+
         private void OnDateChanged(ChangeEventArgs e, string fieldName)
         {
             try
@@ -463,7 +496,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         {
             if (selected == null)
             {
-                item.dinh_muc = null;
+                item.MaDinhMuc = null;
                 item.don_gia_tt = null;
                 item.don_gia_dm = null;
                 item.thanh_tien_tt = null;
@@ -472,7 +505,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             }
             item.don_gia_tt = selected.DonGia ?? 0;
             item.don_gia_dm = selected.DinhMuc ?? 0;
-            item.dinh_muc = selected;
+            item.MaDinhMuc = selected;
 
             if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
             {
@@ -501,7 +534,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             switch (field)
             {
                 case nameof(item.so_luong):
-                    item.so_luong = value;
+                    item.so_luong = (int)value;
                     break;
                 case nameof(item.don_gia_tt):
                     item.don_gia_tt = value;
