@@ -4,6 +4,7 @@
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
 @inherits BlazorCoreBase
@@ -274,21 +275,45 @@
                                                     <label>Giá trị hợp đồng (VNĐ):</label>
                                                     <input type="number" class="form-input" @bind-value="@SelectedItem.gia_tri_hop_dong" Label="Giá trị hợp đồng" />
                                                 </div>
-                                                <div class="space-y-2 md:col-span-2">
+                                                @* <div class="space-y-2 md:col-span-2">
                                                     <label>Khoa phòng:</label>
                                                     <input type="text" class="form-input" @bind-value="@SelectedItem.ten_khoa_phong" Label="Khoa phòng" />
+                                                </div> *@
+                                                <div class="space-y-2 md:col-span-1">
+                                                    <label>Người liên hệ:</label>
+                                                    <input type="text" class="form-input" @bind-value="@SelectedItem.nguoi_theo_doi" Label="Người liên hệ" />
                                                 </div>
                                                 <div class="space-y-2 md:col-span-1">
-                                                    <label>Người giới thiệu:</label>
-                                                    <input type="text" class="form-input" @bind-value="@SelectedItem.nguoi_gioi_thieu" Label="Người liên hệ" />
+                                                    <label>SĐT người liên hệ:</label>
+                                                    <input type="text" class="form-input" @bind-value="@SelectedItem.so_dien_thoai_lien_he" Label="SĐT người liên hệ" />
                                                 </div>
-                                                <div class="space-y-2 md:col-span-1">
-                                                    <label>Điện thoại:</label>
-                                                    <input type="text" class="form-input" @bind-value="@SelectedItem.dien_thoai" Label="Điện thoại" />
-                                                </div>
-                                                <div class="space-y-2 md:col-span-1">
+                                                @* <div class="space-y-2 md:col-span-1">
                                                     <label>Email:</label>
                                                     <input type="text" class="form-input" @bind-value="@SelectedItem.email" Label="Email" />
+                                                </div> *@
+                                                <div class="space-y-2 md:col-span-1">
+                                                    <label>Người thực hiện:</label>
+                                                    <BlazoredTypeahead EnableDropDown="true"
+                                                                       ShowDropDownOnFocus="true"
+                                                                       MinimumLength="0"
+                                                                       TItem="UserModel"
+                                                                       TValue="UserModel"
+                                                                       SearchMethod="LoadNhanVienData"
+                                                                       Value="SelectedItem.nhan_vien_id"
+                                                                       ValueExpression="@(() => SelectedItem.nhan_vien_id)"
+                                                                       ValueChanged="OnNhanVienChanged"
+                                                                       placeholder="Chọn người thực hiện"
+                                                                       Class="form-select">
+                                                        <SelectedTemplate Context="item">
+                                                            @item.full_name
+                                                        </SelectedTemplate>
+                                                        <ResultTemplate Context="item">
+                                                            @item.full_name
+                                                        </ResultTemplate>
+                                                        <NotFoundTemplate Context="item">
+                                                            Không tìm thấy dữ liệu
+                                                        </NotFoundTemplate>
+                                                    </BlazoredTypeahead>
                                                 </div>
                                                 <div class="space-y-2 md:col-span-1">
                                                     <label>Trạng thái</label>
@@ -382,8 +407,8 @@
                                                                                 TItem="DinhMucModel"
                                                                                 TValue="DinhMucModel"
                                                                                 SearchMethod="LoadDinhMucData"
-                                                                                Value="item.Data.dinh_muc"
-                                                                                ValueExpression="@(() => item.Data.dinh_muc)"
+                                                                                Value="item.Data.MaDinhMuc"
+                                                                                ValueExpression="@(() => item.Data.MaDinhMuc)"
                                                                                 ValueChanged="@(e => OnDinhMucChanged(item.Data, e))"
                                                                                 placeholder="Chọn định mức"
                                                                                 Class="form-select">
@@ -399,7 +424,7 @@
                                                                             </BlazoredTypeahead>
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" class="form-input" step="0.001"
+                                                                            <input type="number" class="form-input" step="1"
                                                                                    Label="Số lượng"
                                                                                    @bind-value="@item.Data.so_luong"
                                                                                    @bind-value:event="oninput"
