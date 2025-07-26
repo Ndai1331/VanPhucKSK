@@ -10,5 +10,7 @@ namespace CoreAdminWeb.Model
         public string? ten_can_lam_sang { get; set; }
         public string? ket_luan_can_lam_sang { get; set; }
         public string? ket_quan_url { get; set; }
+
+        public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
 }

@@ -15,7 +15,8 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
         private readonly string _collection = "kham_suc_khoe_can_lam_sang";
         private readonly IHttpClientService _httpClientService;
 
-        private string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+        private readonly string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
+            + ",luot_kham.id,luot_kham.ma_luot_kham";
 
         public KhamSucKhoeCanLamSanService(IHttpClientService httpClientService)
         {

@@ -10,5 +10,7 @@ namespace CoreAdminWeb.Model
         public DateTime? ngay_vao_lam { get; set; }
         public DateTime? den_ngay { get; set; }
         public new bool deleted { get; set; } = false;
+
+        public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
 }

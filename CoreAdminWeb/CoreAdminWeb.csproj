@@ -10,13 +10,13 @@
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
-    <PackageReference Include="EPPlus" Version="8.0.5" />
-    <PackageReference Include="iText7" Version="8.0.5" />
-    <PackageReference Include="iText7.pdfhtml" Version="5.0.5" />
-    <PackageReference Include="iText7.bouncy-castle-adapter" Version="8.0.5" />
-    <PackageReference Include="MudBlazor" Version="8.6.0" />
+    <PackageReference Include="EPPlus" Version="8.0.8" />
+    <PackageReference Include="iText7" Version="9.2.0" />
+    <PackageReference Include="iText7.pdfhtml" Version="6.2.0" />
+    <PackageReference Include="iText7.bouncy-castle-adapter" Version="9.2.0" />
+    <PackageReference Include="MudBlazor" Version="8.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.0" />
   </ItemGroup>
 
   <ItemGroup>

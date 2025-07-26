@@ -12,5 +12,7 @@ namespace CoreAdminWeb.Model
         public string? chu_ky { get; set; }
         public string? de_nghi { get; set; }
         public Guid? file_url { get; set; }
+
+        public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
 }

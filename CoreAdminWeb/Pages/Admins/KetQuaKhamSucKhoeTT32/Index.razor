@@ -35,11 +35,15 @@
                     <div class="flex items-center gap-2 sm:gap-4">
                         <input type="text"
                                class="form-input date-picker w-1/2"
-                               placeholder="Chọn ngày bắt đầu" />
+                               placeholder="Chọn ngày bắt đầu"
+                               value="@(_startDateFilter?.ToString("dd/MM/yyyy"))"
+                               @onchange="@(e => OnValueChanged(e, nameof(_startDateFilter)))" />
                         <span class="mx-2 flex items-center text-gray-500">-</span>
                         <input type="text"
                                class="form-input date-picker w-1/2"
-                               placeholder="Chọn ngày kết thúc" />
+                               placeholder="Chọn ngày kết thúc"
+                               value="@(_endDateFilter?.ToString("dd/MM/yyyy"))"
+                               @onchange="@(e => OnValueChanged(e, nameof(_endDateFilter)))" />
                     </div>
                 </div>
                 <BlazoredTypeahead EnableDropDown="true"
@@ -48,7 +52,9 @@
                                    TItem="ContractModel"
                                    TValue="ContractModel"
                                    SearchMethod="LoadContractData"
-                                   @bind-Value="SelectedContractItem"
+                                   Value="_contractFilter"
+                                   ValueExpression="@(() => _contractFilter)"
+                                   ValueChanged="ContractFilterChanged"
                                    placeholder="Chọn hơp đồng"
                                    class="form-select">
                     <SelectedTemplate Context="item">
@@ -67,37 +73,11 @@
                                    TItem="KhamSucKhoeCongTyModel"
                                    TValue="KhamSucKhoeCongTyModel"
                                    SearchMethod="LoadKhamSucKhoeCongTyData"
-                                   @bind-Value="SelectedKhamSucKhoeCongTyItem"
+                                   Value="_khamSucKhoeCongTyFilter"
+                                   ValueExpression="@(() => _khamSucKhoeCongTyFilter)"
+                                   ValueChanged="KhamSucKhoeCongTyChanged"
                                    placeholder="Mã hồ sơ khám"
                                    class="form-select">
-                    <SelectedTemplate Context="item">
-                        @item.name
-                    </SelectedTemplate>
-                    <ResultTemplate Context="item">
-                        @item.name
-                    </ResultTemplate>
-                    <NotFoundTemplate Context="item">
-                        Không tìm thấy dữ liệu
-                    </NotFoundTemplate>
-                </BlazoredTypeahead>
-                
-                <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
-                    <option value="">Trạng thái</option>
-                    @foreach (var item in EnumHelper.ToList<TrangThaiHoSo>())
-                    {
-                        <option value="@item.Name" selected="@(_searchStatusString == item.Name)">@item.Description</option>
-                    }
-                </select>
-
-                <BlazoredTypeahead EnableDropDown="true"
-                                   ShowDropDownOnFocus="true"
-                                   MinimumLength="0"
-                                   TItem="LoaiDinhMucModel"
-                                   TValue="LoaiDinhMucModel"
-                                   SearchMethod="LoadLoaiDinhMucData"
-                                   @bind-Value="SelectedItem.loai_dinh_muc"
-                                   placeholder="Trạng thái"
-                                   Class="form-select w-1/2">
                     <SelectedTemplate Context="item">
                         @item.name
                     </SelectedTemplate>
@@ -113,10 +93,14 @@
                     <div class="flex items-center gap-2 sm:gap-4">
                         <input type="text"
                                class="form-input w-1/2"
-                               placeholder="Mã điều trị" />
+                               placeholder="Mã điều trị"
+                               value="@_maDieuTriString"
+                               @onchange="@(e => OnValueChanged(e, nameof(_maDieuTriString), true, false))" />
                         <input type="text"
                                class="form-input  w-1/2"
-                               placeholder="Mã bệnh nhân" />
+                               placeholder="Mã bệnh nhân"
+                               value="@_maBenhNhanString"
+                               @onchange="@(e => OnValueChanged(e, nameof(_maBenhNhanString), true, false))" />
                     </div>
                 </div>
 
@@ -124,8 +108,11 @@
                     <div class="flex items-center gap-2 sm:gap-4">
                         <input type="text"
                                class="form-input"
-                               placeholder="Tên bệnh nhân" />
-                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap">
+                               placeholder="Tên bệnh nhân"
+                               value="@_tenBenhNhanString"
+                               @onchange="@(e => OnValueChanged(e, nameof(_tenBenhNhanString), true, false))" />
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap"
+                                   OnClick="LoadData">
                             Tìm kiếm
                         </MudButton>
                     </div>
@@ -149,30 +136,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
-                                    <td style="text-align: center; white-space: nowrap;">1</td>
-                                    <td style="text-align: center; white-space: nowrap;">BN001</td>
-                                    <td style="text-align: center; white-space: nowrap;">DT001</td>
-                                    <td style="white-space: nowrap;">Nguyễn Văn A</td>
-                                    <td style="text-align: center; white-space: nowrap;">0912345678</td>
-                                    <td style="text-align: center; white-space: nowrap;">01/01/1990</td>
-                                    <td style="text-align: center; white-space: nowrap;">Nam</td>
-                                    <td style="text-align: center; white-space: nowrap;">123456789012</td>
-                                    <td style="white-space: nowrap;">Hà Nội</td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
-                                    <td style="text-align: center; white-space: nowrap;">2</td>
-                                    <td style="text-align: center; white-space: nowrap;">BN002</td>
-                                    <td style="text-align: center; white-space: nowrap;">DT002</td>
-                                    <td style="white-space: nowrap;">Trần Thị B</td>
-                                    <td style="text-align: center; white-space: nowrap;">0987654321</td>
-                                    <td style="text-align: center; white-space: nowrap;">15/05/1985</td>
-                                    <td style="text-align: center; white-space: nowrap;">Nữ</td>
-                                    <td style="text-align: center; white-space: nowrap;">987654321098</td>
-                                    <td style="white-space: nowrap;">Đà Nẵng</td>
-                                </tr>
+                                @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                                {
+                                    <tr>
+                                        <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                                        <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                        <td>@item.Data.ma_benh_nhan</td>
+                                        <td>@item.Data.ma_luot_kham</td>
+                                        <td>@item.Data.benh_nhan?.full_name</td>
+                                        <td>@item.Data.benh_nhan?.so_dien_thoai</td>
+                                        <td>@item.Data.benh_nhan?.ngay_sinh?.ToString("dd/MM/yyyy")</td>
+                                        <td>@item.Data.benh_nhan?.gioi_tinh?.GetDescription()</td>
+                                        <td>@item.Data.benh_nhan?.so_dinh_danh</td>
+                                        <td>@item.Data.benh_nhan?.dia_chi</td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -341,9 +319,9 @@
 
                                                     <div class="flex items-center gap-1">
                                                         <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
                                                     </div>
                                                 </div>
                                                 <div class="flex items-center gap-2">

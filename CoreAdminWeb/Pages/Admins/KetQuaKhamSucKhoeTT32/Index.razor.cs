@@ -10,29 +10,25 @@ using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 {
-    public partial class Index(IBaseService<DinhMucModel> MainService,
-                               IBaseService<LoaiDinhMucModel> LoaiDinhMucService,
+    public partial class Index(IBaseService<SoKhamSucKhoeModel> MainService,
                                IBaseService<PhanLoaiSucKhoeModel> PhanLoaiSucKhoaService,
                                IUserService UserService,
                                IBaseService<ContractModel> ContractService,
                                IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService) : BlazorCoreBase
     {
-        private List<DinhMucModel> MainModels { get; set; } = new();
-        private bool openDeleteModal = false;
-        private bool openAddOrUpdateModal = false;
+        private List<SoKhamSucKhoeModel> MainModels { get; set; } = new();
         private string activeDefTab = "tab1";
 
-        private DinhMucModel SelectedItem { get; set; } = new DinhMucModel();
-        private PhanLoaiSucKhoeModel? SelectedPhanLoaiItem { get; set; }
-        private ContractModel? SelectedContractItem { get; set; }
-        private KhamSucKhoeCongTyModel? SelectedKhamSucKhoeCongTyItem { get; set; }
+        private SoKhamSucKhoeModel SelectedItem { get; set; } = new SoKhamSucKhoeModel();
 
-        private UserModel? SelectedBacSiItem { get; set; }
-        private string _searchString = "";
-        private string _searchStatusString = "";
-        private string _titleAddOrUpdate = "Thêm mới";
+        private DateTime? _startDateFilter = default;
+        private DateTime? _endDateFilter = default;
+        private ContractModel? _contractFilter = default;
+        private KhamSucKhoeCongTyModel? _khamSucKhoeCongTyFilter = default;
+        private string _maDieuTriString = "";
+        private string _maBenhNhanString = "";
+        private string _tenBenhNhanString = "";
 
-        private string _selectedStatusString = "";
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -61,20 +57,39 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            if (!string.IsNullOrEmpty(_searchString))
+            if (!string.IsNullOrEmpty(_tenBenhNhanString))
             {
-                BuilderQuery += $"&filter[_and][1][_or][0][code][_contains]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][1][name][_contains]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][2][loai_dinh_muc][name][_contains]={_searchString}";
+                BuilderQuery += $"&filter[_and][1][_or][0][benh_nhan][first_name][_contains]={_tenBenhNhanString}";
+                BuilderQuery += $"&filter[_and][1][_or][1][benh_nhan][last_name][_contains]={_tenBenhNhanString}";
             }
-            if (!string.IsNullOrEmpty(_searchStatusString))
+            if (!string.IsNullOrEmpty(_maBenhNhanString))
             {
-                BuilderQuery += $"&filter[_and][2][active][_eq]={_searchStatusString}";
+                BuilderQuery += $"&filter[_and][][ma_benh_nhan][_contains]={_maBenhNhanString}";
+            }
+            if (!string.IsNullOrEmpty(_maDieuTriString))
+            {
+                BuilderQuery += $"&filter[_and][][ma_luot_kham][_contains]={_maDieuTriString}";
+            }
+            if (_startDateFilter.HasValue)
+            {
+                BuilderQuery += $"&filter[_and][][MaDotKham][ngay_du_kien_kham][_gte]={_startDateFilter:yyyy-MM-dd}";
+            }
+            if (_endDateFilter.HasValue)
+            {
+                BuilderQuery += $"&filter[_and][][MaDotKham][ngay_du_kien_kham][_lte]={_endDateFilter:yyyy-MM-dd}";
+            }
+            if (_khamSucKhoeCongTyFilter != null && _khamSucKhoeCongTyFilter.id > 0)
+            {
+                BuilderQuery += $"&filter[_and][][MaDotKham][_eq]={_khamSucKhoeCongTyFilter.id}";
+            }
+            if (_contractFilter != null && _contractFilter.id > 0)
+            {
+                BuilderQuery += $"&filter[_and][][MaDotKham][ma_hop_dong_ksk][_eq]={_contractFilter.id}";
             }
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
             {
-                MainModels = result.Data ?? new List<DinhMucModel>();
+                MainModels = result.Data ?? new List<SoKhamSucKhoeModel>();
                 if (result.Meta != null)
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
@@ -83,7 +98,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
             else
             {
-                MainModels = new List<DinhMucModel>();
+                MainModels = new List<SoKhamSucKhoeModel>();
             }
             IsLoading = false;
         }
@@ -99,11 +114,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         {
             Page = page;
             await LoadData();
-        }
-
-        private async Task<IEnumerable<LoaiDinhMucModel>> LoadLoaiDinhMucData(string searchText)
-        {
-            return await LoadBlazorTypeaheadData(searchText, LoaiDinhMucService, "filter[_and][][active][_eq]=true");
         }
 
         private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeData(string searchText)
@@ -146,41 +156,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
         }
 
-        private void OpenDeleteModal(DinhMucModel item)
-        {
-            SelectedItem = item;
-            openDeleteModal = true;
-        }
-
-        private async Task OnDelete()
-        {
-            var result = await MainService.DeleteAsync(SelectedItem);
-            if (result.IsSuccess && result.Data)
-            {
-                await LoadData();
-                AlertService.ShowAlert("Xoá thành công!", "success");
-                openDeleteModal = false;
-            }
-            else
-            {
-                AlertService.ShowAlert(result.Message ?? "Lỗi khi xóa dữ liệu", "danger");
-            }
-        }
-
-        private void CloseDeleteModal()
-        {
-            SelectedItem = new DinhMucModel();
-            openDeleteModal = false;
-        }
-
-        private void OpenAddOrUpdateModal(DinhMucModel? item)
-        {
-            _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
-            SelectedItem = item != null ? item.DeepClone() : new DinhMucModel();
-            _selectedStatusString = SelectedItem.active?.ToString() ?? "True";
-            openAddOrUpdateModal = true;
-        }
-
         private async Task OnValidSubmit()
         {
             if (!FormValidation())
@@ -194,7 +169,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 if (result.IsSuccess)
                 {
                     await LoadData();
-                    openAddOrUpdateModal = false;
                     AlertService.ShowAlert("Thêm mới thành công!", "success");
                 }
                 else
@@ -208,7 +182,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 if (result.IsSuccess)
                 {
                     await LoadData();
-                    openAddOrUpdateModal = false;
                     AlertService.ShowAlert("Cập nhật thành công!", "success");
                 }
                 else
@@ -233,36 +206,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 return false;
             }
 
-            if (SelectedItem.loai_dinh_muc == null)
-            {
-                AlertService.ShowAlert("Loại định mức là bắt buộc", "danger");
-                return false;
-            }
-
             return true;
-        }
-
-        private void CloseAddOrUpdateModal()
-        {
-            SelectedItem = new DinhMucModel();
-            openAddOrUpdateModal = false;
-        }
-
-        private async Task OnStatusFilterChanged(ChangeEventArgs? selected)
-        {
-            _searchStatusString = selected?.Value?.ToString() ?? string.Empty;
-
-            await LoadData();
-        }
-
-        private void OnStatusChanged(ChangeEventArgs? selected)
-        {
-            _selectedStatusString = selected?.Value?.ToString() ?? string.Empty;
-            SelectedItem.active = true;
-            if (bool.TryParse(_selectedStatusString, out bool activeValue))
-            {
-                SelectedItem.active = activeValue;
-            }
         }
 
         private void OnTabChanged(string tab)
@@ -278,6 +222,65 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     await JsRuntime.InvokeVoidAsync("initializeDatePicker");
                 });
             }
+        }
+
+        private async Task OnValueChanged(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true)
+        {
+            try
+            {
+                if (!isDate)
+                {
+                    if (e.Value == null || string.IsNullOrEmpty(e.Value.ToString()))
+                    {
+                        ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, null);
+                        return;
+                    }
+                    var value = e.Value.ToString();
+                    ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, value);
+                    return;
+                }
+
+                var dateStr = e.Value?.ToString();
+                if (string.IsNullOrEmpty(dateStr))
+                {
+                    ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, null);
+                }
+                else
+                {
+                    var parts = dateStr.Split('/');
+                    if (parts.Length == 3 &&
+                        int.TryParse(parts[0], out int day) &&
+                        int.TryParse(parts[1], out int month) &&
+                        int.TryParse(parts[2], out int year))
+                    {
+                        var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
+                        ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, date);
+                    }
+                }
+
+                if (isFilter)
+                {
+                    await LoadData();
+                }
+            }
+            catch (Exception ex)
+            {
+                AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
+            }
+        }
+
+        private async Task ContractFilterChanged(ContractModel? contract)
+        {
+            _contractFilter = contract;
+
+            await LoadData();
+        }
+
+        private async Task KhamSucKhoeCongTyChanged(KhamSucKhoeCongTyModel? khamSucKhoeCongTy)
+        {
+            _khamSucKhoeCongTyFilter = khamSucKhoeCongTy;
+
+            await LoadData();
         }
     }
 }

@@ -10,5 +10,7 @@ namespace CoreAdminWeb.Model
         public int? nam_phat_hien { get; set; }
         public string? benh_nghe_nghiep { get; set; }
         public int? nam_phat_hien_benh_nghe_nghiep { get; set; }
+
+        public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
 }

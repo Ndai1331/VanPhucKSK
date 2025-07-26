@@ -28,20 +28,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
         private string _selectedStatusString = "";
 
         private bool readOnly { get; set; } = false;
-        private UserModel? SelectedBacSiTuanHoan { get; set; } = null;
-        private UserModel? SelectedBacSiHoHap { get; set; } = null;
-        private UserModel? SelectedBacSiTieuHoa { get; set; } = null;
-        private UserModel? SelectedBacSiThanTietNieu { get; set; } = null;
-        private UserModel? SelectedBacSiNoiTiet { get; set; } = null;
-        private UserModel? SelectedBacSiCoXuongKhop { get; set; } = null;
-        private UserModel? SelectedBacSiThanKinh { get; set; } = null;
-        private UserModel? SelectedBacSiTamThan { get; set; } = null;
-        private UserModel? SelectedBacSiNgoaiKhoa { get; set; } = null;
-        private UserModel? SelectedBacSiMat { get; set; } = null;
-        private UserModel? SelectedBacSiTaiMuiHong { get; set; } = null;
-        private UserModel? SelectedBacSiRangHamMat { get; set; } = null;
-        private UserModel? SelectedBacSiSanPhuKhoa { get; set; } = null;
-        private UserModel? SelectedBacSiKetLuan { get; set; } = null;
 
         protected override async Task OnInitializedAsync()
         {
@@ -66,10 +52,10 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
             if (!string.IsNullOrEmpty(_searchString))
             {
-                BuilderQuery += $"&filter[_and][1][_or][0][contract][code][_eq]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][1][contract][cong_ty][code][_eq]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][2][contract][name][_contains]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][3][contract][cong_ty][name][_contains]={_searchString}";
+                BuilderQuery += $"&filter[_and][1][_or][0][ma_hop_dong_ksk][code][_eq]={_searchString}";
+                BuilderQuery += $"&filter[_and][1][_or][1][ma_hop_dong_ksk][cong_ty][code][_eq]={_searchString}";
+                BuilderQuery += $"&filter[_and][1][_or][2][ma_hop_dong_ksk][name][_contains]={_searchString}";
+                BuilderQuery += $"&filter[_and][1][_or][3][ma_hop_dong_ksk][cong_ty][name][_contains]={_searchString}";
                 BuilderQuery += $"&filter[_and][1][_or][4][code][_eq]={_searchString}";
             }
             if (!string.IsNullOrEmpty(_searchStatusString))
@@ -134,6 +120,8 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 {
                     query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(searchText)}";
                     query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][2][ma_benh_nhan][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][3][so_dinh_danh][_contains]={Uri.EscapeDataString(searchText)}";
                 }
 
                 var result = await UserService.GetAllAsync(query);
@@ -143,39 +131,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             {
                 Console.WriteLine($"Error loading typeahead data: {ex.Message}");
                 return Enumerable.Empty<UserModel>();
-            }
-        }
-
-        private async Task LoadUserInfo()
-        {
-            try
-            {
-                List<UserModel> users = new List<UserModel>();
-                if (SelectedItem.id > 0)
-                {
-                    var query = "sort=-id";
-                    var result = await UserService.GetAllAsync(query);
-                    users = result.Data ?? new List<UserModel>();
-                }
-
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_tuan_hoan)), nameof(SelectedItem.bs_tuan_hoan));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_ho_hap)), nameof(SelectedItem.bs_ho_hap));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_tieu_hoa)), nameof(SelectedItem.bs_tieu_hoa));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_than_tiet_nieu)), nameof(SelectedItem.bs_than_tiet_nieu));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_noi_tiet)), nameof(SelectedItem.bs_noi_tiet));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_co_xuong_khop)), nameof(SelectedItem.bs_co_xuong_khop));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_than_kinh)), nameof(SelectedItem.bs_than_kinh));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_tam_than)), nameof(SelectedItem.bs_tam_than));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_ngoai_khoa)), nameof(SelectedItem.bs_ngoai_khoa));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_mat)), nameof(SelectedItem.bs_mat));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_tai_mui_hong)), nameof(SelectedItem.bs_tai_mui_hong));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_rang_ham_mat)), nameof(SelectedItem.bs_rang_ham_mat));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_san_phu_khoa)), nameof(SelectedItem.bs_san_phu_khoa));
-                OnUserChange(users.FirstOrDefault(c => c.full_name.Equals(SelectedItem.bs_ket_luan)), nameof(SelectedItem.bs_ket_luan));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading typeahead data: {ex.Message}");
             }
         }
 
@@ -235,8 +190,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             }
 
             openAddOrUpdateModal = true;
-
-            await LoadUserInfo();
 
             // Wait for modal to render
             _ = Task.Run(async () =>
@@ -309,7 +262,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 var dateStr = e.Value?.ToString();
                 if (string.IsNullOrEmpty(dateStr))
                 {
-                    ReflectionHelper.SetDateFieldValue(this, SelectedItem, fieldName, null);
+                    ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, null);
                 }
                 else
                 {
@@ -320,7 +273,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                         int.TryParse(parts[2], out int year))
                     {
                         var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
-                        ReflectionHelper.SetDateFieldValue(this, SelectedItem, fieldName, date);
+                        ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, date);
                     }
                 }
 
@@ -367,148 +320,5 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 SelectedItem.ma_don_vi = SelectedCongTy?.code;
             }
         }
-
-        #region Doctors
-        private void OnBacSiTuanHoanChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_tuan_hoan));
-        }
-        private void OnBacSiHoHapChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_ho_hap));
-        }
-        private void OnBacSiTieuHoaChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_tieu_hoa));
-        }
-        private void OnBacSiThanTietNieuChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_than_tiet_nieu));
-        }
-        private void OnBacSiNoiTietChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_noi_tiet));
-        }
-        private void OnBacSiCoXuongKhopChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_co_xuong_khop));
-        }
-        private void OnBacSiThanKinhChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_than_kinh));
-        }
-        private void OnBacSiTamThanChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_tam_than));
-        }
-        private void OnBacSiNgoaiKhoaChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_ngoai_khoa));
-        }
-        private void OnBacSiMatChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_mat));
-        }
-        private void OnBacSiTaiMuiHongChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_tai_mui_hong));
-        }
-        private void OnBacSiRangHamMatChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_rang_ham_mat));
-        }
-        private void OnBacSiSanPhuKhoaChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_san_phu_khoa));
-        }
-        private void OnBacSiKetLuanChanged(UserModel? user)
-        {
-            OnUserChange(user, nameof(SelectedItem.bs_ket_luan));
-        }
-
-        private void OnUserChange(UserModel? user, string fieldName)
-        {
-            try
-            {
-                switch (fieldName)
-                {
-                    case nameof(SelectedItem.bs_tuan_hoan):
-                        SelectedBacSiTuanHoan = user;
-                        SelectedItem.bs_tuan_hoan = user?.full_name;
-                        SelectedItem.chu_ky_tuan_hoan = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_ho_hap):
-                        SelectedBacSiHoHap = user;
-                        SelectedItem.bs_ho_hap = user?.full_name;
-                        SelectedItem.chu_ky_ho_hap = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_tieu_hoa):
-                        SelectedBacSiTieuHoa = user;
-                        SelectedItem.bs_tieu_hoa = user?.full_name;
-                        SelectedItem.chu_ky_tieu_hoa = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_than_tiet_nieu):
-                        SelectedBacSiThanTietNieu = user;
-                        SelectedItem.bs_than_tiet_nieu = user?.full_name;
-                        SelectedItem.chu_ky_than_tiet_nieu = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_noi_tiet):
-                        SelectedBacSiNoiTiet = user;
-                        SelectedItem.bs_noi_tiet = user?.full_name;
-                        SelectedItem.chu_ky_noi_tiet = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_co_xuong_khop):
-                        SelectedBacSiCoXuongKhop = user;
-                        SelectedItem.bs_co_xuong_khop = user?.full_name;
-                        SelectedItem.chu_ky_co_xuong_khop = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_than_kinh):
-                        SelectedBacSiThanKinh = user;
-                        SelectedItem.bs_than_kinh = user?.full_name;
-                        SelectedItem.chu_ky_than_kinh = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_tam_than):
-                        SelectedBacSiTamThan = user;
-                        SelectedItem.bs_tam_than = user?.full_name;
-                        SelectedItem.chu_ky_tam_than = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_ngoai_khoa):
-                        SelectedBacSiNgoaiKhoa = user;
-                        SelectedItem.bs_ngoai_khoa = user?.full_name;
-                        SelectedItem.chu_ky_ngoai_khoa = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_mat):
-                        SelectedBacSiMat = user;
-                        SelectedItem.bs_mat = user?.full_name;
-                        SelectedItem.chu_ky_mat = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_tai_mui_hong):
-                        SelectedBacSiTaiMuiHong = user;
-                        SelectedItem.bs_tai_mui_hong = user?.full_name;
-                        SelectedItem.chu_ky_tai_mui_hong = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_rang_ham_mat):
-                        SelectedBacSiRangHamMat = user;
-                        SelectedItem.bs_rang_ham_mat = user?.full_name;
-                        SelectedItem.chu_ky_rang_ham_mat = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_san_phu_khoa):
-                        SelectedBacSiSanPhuKhoa = user;
-                        SelectedItem.bs_san_phu_khoa = user?.full_name;
-                        SelectedItem.chu_ky_san_phu_khoa = user?.chu_ky_bac_si;
-                        break;
-                    case nameof(SelectedItem.bs_ket_luan):
-                        SelectedBacSiKetLuan = user;
-                        SelectedItem.bs_ket_luan = user?.full_name;
-                        SelectedItem.chu_ky_ket_luan = user?.chu_ky_bac_si;
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                AlertService.ShowAlert($"Lỗi khi xử lý thông tin bác sĩ: {ex.Message}", "danger");
-            }
-        }
-        #endregion
     }
 }

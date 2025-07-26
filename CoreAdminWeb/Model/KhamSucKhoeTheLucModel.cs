@@ -11,5 +11,7 @@ namespace CoreAdminWeb.Model
         public int? mach { get; set; }
         public string? huyet_ap { get; set; }
         public string? phan_loai { get; set; }
+
+        public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
 }

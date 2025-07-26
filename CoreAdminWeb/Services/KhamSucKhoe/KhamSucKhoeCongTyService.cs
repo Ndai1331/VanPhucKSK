@@ -14,7 +14,21 @@ namespace CoreAdminWeb.Services
         private readonly string _collection = "kham_suc_khoe_cong_ty";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
                 + ",ma_hop_dong_ksk.code,ma_hop_dong_ksk.name"
-                + ",ma_hop_dong_ksk.cong_ty.code,ma_hop_dong_ksk.cong_ty.name";
+                + ",ma_hop_dong_ksk.cong_ty.code,ma_hop_dong_ksk.cong_ty.name"
+                + ",bs_tuan_hoan.id,bs_tuan_hoan.first_name,bs_tuan_hoan.last_name"
+                + ",bs_ho_hap.id,bs_ho_hap.first_name,bs_ho_hap.last_name"
+                + ",bs_tieu_hoa.id,bs_tieu_hoa.first_name,bs_tieu_hoa.last_name"
+                + ",bs_than_tiet_nieu.id,bs_than_tiet_nieu.first_name,bs_than_tiet_nieu.last_name"
+                + ",bs_noi_tiet.id,bs_noi_tiet.first_name,bs_noi_tiet.last_name"
+                + ",bs_co_xuong_khop.id,bs_co_xuong_khop.first_name,bs_co_xuong_khop.last_name"
+                + ",bs_than_kinh.id,bs_than_kinh.first_name,bs_than_kinh.last_name"
+                + ",bs_tam_than.id,bs_tam_than.first_name,bs_tam_than.last_name"
+                + ",bs_ngoai_khoa.id,bs_ngoai_khoa.first_name,bs_ngoai_khoa.last_name"
+                + ",bs_mat.id,bs_mat.first_name,bs_mat.last_name"
+                + ",bs_tai_mui_hong.id,bs_tai_mui_hong.first_name,bs_tai_mui_hong.last_name"
+                + ",bs_rang_ham_mat.id,bs_rang_ham_mat.first_name,bs_rang_ham_mat.last_name"
+                + ",bs_san_phu_khoa.id,bs_san_phu_khoa.first_name,bs_san_phu_khoa.last_name"
+                + ",bs_ket_luan.id,bs_ket_luan.first_name,bs_ket_luan.last_name";
         private readonly IHttpClientService _httpClientService;
 
         public KhamSucKhoeCongTyService(IHttpClientService httpClientService)
@@ -52,33 +66,33 @@ namespace CoreAdminWeb.Services
                 so_luong_thuc_te = model.so_luong_thuc_te,
                 ngay_du_kien_kham = model.ngay_du_kien_kham,
                 ngay_ket_thuc = model.ngay_ket_thuc,
-                bs_tuan_hoan = model.bs_tuan_hoan,
+                bs_tuan_hoan = model.bs_tuan_hoan?.id,
                 chu_ky_tuan_hoan = model.chu_ky_tuan_hoan,
-                bs_ho_hap = model.bs_ho_hap,
+                bs_ho_hap = model.bs_ho_hap?.id,
                 chu_ky_ho_hap = model.chu_ky_ho_hap,
-                bs_tieu_hoa = model.bs_tieu_hoa,
+                bs_tieu_hoa = model.bs_tieu_hoa?.id,
                 chu_ky_tieu_hoa = model.chu_ky_tieu_hoa,
-                bs_than_tiet_nieu = model.bs_than_tiet_nieu,
+                bs_than_tiet_nieu = model.bs_than_tiet_nieu?.id,
                 chu_ky_than_tiet_nieu = model.chu_ky_than_tiet_nieu,
-                bs_noi_tiet = model.bs_noi_tiet,
+                bs_noi_tiet = model.bs_noi_tiet?.id,
                 chu_ky_noi_tiet = model.chu_ky_noi_tiet,
-                bs_co_xuong_khop = model.bs_co_xuong_khop,
+                bs_co_xuong_khop = model.bs_co_xuong_khop?.id,
                 chu_ky_co_xuong_khop = model.chu_ky_co_xuong_khop,
-                bs_than_kinh = model.bs_than_kinh,
+                bs_than_kinh = model.bs_than_kinh?.id,
                 chu_ky_than_kinh = model.chu_ky_than_kinh,
-                bs_tam_than = model.bs_tam_than,
+                bs_tam_than = model.bs_tam_than?.id,
                 chu_ky_tam_than = model.chu_ky_tam_than,
-                bs_ngoai_khoa = model.bs_ngoai_khoa,
+                bs_ngoai_khoa = model.bs_ngoai_khoa?.id,
                 chu_ky_ngoai_khoa = model.chu_ky_ngoai_khoa,
-                bs_mat = model.bs_mat,
+                bs_mat = model.bs_mat?.id,
                 chu_ky_mat = model.chu_ky_mat,
-                bs_tai_mui_hong = model.bs_tai_mui_hong,
+                bs_tai_mui_hong = model.bs_tai_mui_hong?.id,
                 chu_ky_tai_mui_hong = model.chu_ky_tai_mui_hong,
-                bs_rang_ham_mat = model.bs_rang_ham_mat,
+                bs_rang_ham_mat = model.bs_rang_ham_mat?.id,
                 chu_ky_rang_ham_mat = model.chu_ky_rang_ham_mat,
-                bs_san_phu_khoa = model.bs_san_phu_khoa,
+                bs_san_phu_khoa = model.bs_san_phu_khoa?.id,
                 chu_ky_san_phu_khoa = model.chu_ky_san_phu_khoa,
-                bs_ket_luan = model.bs_ket_luan,
+                bs_ket_luan = model.bs_ket_luan?.id,
                 chu_ky_ket_luan = model.chu_ky_ket_luan,
                 Ksk_status = model.Ksk_status,
                 ma_hop_dong_ksk = model.ma_hop_dong_ksk?.id

@@ -14,7 +14,21 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
         private readonly string _collection = "kham_suc_khoe_kham_chuyen_khoa";
         private readonly IHttpClientService _httpClientService;
 
-        private string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
+        private readonly string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
+            + ",pl_nk_tuan_hoan.id,pl_nk_tuan_hoan.code,pl_nk_tuan_hoan.name"
+            + ",pl_nk_ho_hap.id,pl_nk_ho_hap.code,pl_nk_ho_hap.name"
+            + ",pl_nk_tieu_hoa.id,pl_nk_tieu_hoa.code,pl_nk_tieu_hoa.name"
+            + ",pl_nk_than_tiet_nieu.id,pl_nk_than_tiet_nieu.code,pl_nk_than_tiet_nieu.name"
+            + ",pl_nk_noi_tiet.id,pl_nk_noi_tiet.code,pl_nk_noi_tiet.name"
+            + ",pl_nk_co_xuong_khop.id,pl_nk_co_xuong_khop.code,pl_nk_co_xuong_khop.name"
+            + ",pl_nk_than_kinh.id,pl_nk_than_kinh.code,pl_nk_than_kinh.name"
+            + ",pl_nk_tam_than.id,pl_nk_tam_than.code,pl_nk_tam_than.name"
+            + ",pl_ngoai_khoa.id,pl_ngoai_khoa.code,pl_ngoai_khoa.name"
+            + ",pl_da_lieu.id,pl_da_lieu.code,pl_da_lieu.name"
+            + ",pl_mat.id,pl_mat.code,pl_mat.name"
+            + ",pl_tmh.id,pl_tmh.code,pl_tmh.name"
+            + ",pl_rhm.id,pl_rhm.code,pl_rhm.name"
+            + ",luot_kham.id,luot_kham.ma_luot_kham";
 
         public KhamSucKhoeChuyenKhoaService(IHttpClientService httpClientService)
         {

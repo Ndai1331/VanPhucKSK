@@ -9,5 +9,7 @@ namespace CoreAdminWeb.Model
         public decimal? du_kien_chi_phi { get; set; }
         public decimal? chi_phi_thuc_te { get; set; }
         public int? so_luong { get; set; }
+
+        public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
 }

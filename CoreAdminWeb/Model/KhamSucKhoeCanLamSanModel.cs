@@ -14,6 +14,7 @@ namespace CoreAdminWeb.Model
         public string? chu_ky_cls { get; set; }
         public new bool deleted { get; set; } = false;
 
+        public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
 
     public class KhamSucKhoeCanLamSanCRUDModel : BaseDetailModel
@@ -28,5 +29,7 @@ namespace CoreAdminWeb.Model
         public string? bs_cls { get; set; }
         public string? chu_ky_cls { get; set; }
         public new bool deleted { get; set; } = false;
+
+        public int? luot_kham { get; set; }
     }
 }
