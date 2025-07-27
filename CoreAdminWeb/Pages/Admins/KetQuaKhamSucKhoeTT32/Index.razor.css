@@ -206,3 +206,9 @@ input[type="file"] {
     .upload-button:hover {
         background-color: #0056b3;
     }
+
+.active-row {
+    background-color: #e0e7ff !important;
+    color: #3730a3 !important;
+    font-weight: bold;
+}

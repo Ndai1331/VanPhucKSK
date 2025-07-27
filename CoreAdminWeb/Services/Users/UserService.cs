@@ -21,6 +21,8 @@ namespace CoreAdminWeb.Services.Users
         Task<RequestHttpResponse<UserModel>> UpdateCurrentUserAsync(UserModel req);
         Task<RequestHttpResponse<UserModel>> UpdateUserAvatarAsync(UserModel req);
         Task<RequestHttpResponse<UserModel>> GetUserByCCCDAsync(string cccd);
+        Task<RequestHttpResponse<UserModel>> GetUserByFilterAsync(string strFilter);
+        Task<RequestHttpResponse<UserModel>> GetUserByIdAsync(Guid id);
         string GetAccessTokenAsync();
         string GetRefreshTokenAsync();
         Task<bool> RefreshTokenAsync();
@@ -78,9 +80,9 @@ namespace CoreAdminWeb.Services.Users
                 var result = await PublicRequestClient.PostAPIAsync<RequestHttpResponse<LoginResponse>>("auth/login", new LoginRequest { email = email, password = password });
                 if (result.IsSuccess)
                 {
-                    response.Data = result.Data.Data;
-                    _accessToken = result.Data.Data.access_token;
-                    _refreshToken = result.Data.Data.refresh_token;
+                    response.Data = result.Data?.Data;
+                    _accessToken = result.Data?.Data?.access_token;
+                    _refreshToken = result.Data?.Data?.refresh_token;
 
                     _httpClientService.AttachToken(_accessToken);
                     var claim = ClaimHepler.GetListClaim(_accessToken);
@@ -122,9 +124,9 @@ namespace CoreAdminWeb.Services.Users
                 var result = await PublicRequestClient.PostAPIAsync<RequestHttpResponse<LoginResponse>>("auth/login", new LoginRequest { email = email, password = password });
                 if (result.IsSuccess)
                 {
-                    response.Data = result.Data.Data;
-                    _accessToken = result.Data.Data.access_token;
-                    _refreshToken = result.Data.Data.refresh_token;
+                    response.Data = result.Data?.Data;
+                    _accessToken = result.Data?.Data?.access_token ?? string.Empty;
+                    _refreshToken = result.Data?.Data?.refresh_token ?? string.Empty;
 
                     _httpClientService.AttachToken(_accessToken);
                     var claim = ClaimHepler.GetListClaim(_accessToken);
@@ -181,17 +183,61 @@ namespace CoreAdminWeb.Services.Users
             }
         }
 
-        public async Task<RequestHttpResponse<UserModel>> GetUserByCCCDAsync(string strFilter)
+        public async Task<RequestHttpResponse<UserModel>> GetUserByCCCDAsync(string cccd)
         {
             var response = new RequestHttpResponse<UserModel>();
             try
             {
-                string filter = $"filter[_or][0][so_dinh_danh][_eq]={strFilter}" +
-                $"&filter[_or][1][so_dien_thoai][_eq]={strFilter}";
+                string filter = $"filter[_or][0][so_dinh_danh][_eq]={cccd}" +
+                $"&filter[_or][1][so_dien_thoai][_eq]={cccd}";
                 var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?{filter}");
                 if (result.IsSuccess)
                 {
-                    response.Data = result.Data.Data.FirstOrDefault();
+                    response.Data = result.Data?.Data?.FirstOrDefault();
+                }
+                else
+                {
+                    response.Errors = result.Errors;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = ex.Message } };
+            }
+            return response;
+        }
+
+        public async Task<RequestHttpResponse<UserModel>> GetUserByFilterAsync(string strFilter)
+        {
+            var response = new RequestHttpResponse<UserModel>();
+            try
+            {
+                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?{strFilter}");
+                if (result.IsSuccess)
+                {
+                    response.Data = result.Data?.Data?.FirstOrDefault();
+                }
+                else
+                {
+                    response.Errors = result.Errors;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = ex.Message } };
+            }
+            return response;
+        }
+
+        public async Task<RequestHttpResponse<UserModel>> GetUserByIdAsync(Guid id)
+        {
+            var response = new RequestHttpResponse<UserModel>();
+            try
+            {
+                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<UserModel>>($"users/{id}");
+                if (result.IsSuccess)
+                {
+                    response.Data = result.Data?.Data;
                 }
                 else
                 {
@@ -213,7 +259,7 @@ namespace CoreAdminWeb.Services.Users
                 var result = await _httpClientService.GetAPIAsync<RequestHttpResponse<UserModel>>("users/me");
                 if (result.IsSuccess)
                 {
-                    response.Data = result.Data.Data;
+                    response.Data = result.Data?.Data;
                 }
                 else
                 {
@@ -258,7 +304,7 @@ namespace CoreAdminWeb.Services.Users
                 var result = await _httpClientService.PatchAPIAsync<RequestHttpResponse<UserModel>>($"users/{req.id}", request);
                 if (result.IsSuccess)
                 {
-                    response.Data = result.Data.Data;
+                    response.Data = result.Data?.Data;
                 }
                 else
                 {
@@ -329,7 +375,7 @@ namespace CoreAdminWeb.Services.Users
                 var result = await _httpClientService.PatchAPIAsync<RequestHttpResponse<UserModel>>("users/me", request);
                 if (result.IsSuccess)
                 {
-                    response.Data = result.Data.Data;
+                    response.Data = result.Data?.Data;
                 }
                 else
                 {

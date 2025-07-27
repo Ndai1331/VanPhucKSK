@@ -13,7 +13,7 @@ using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 {
-    public partial class Index(IBaseService<SoKhamSucKhoeModel> MainService,
+    public partial class Index(IBaseDetailService<SoKhamSucKhoeModel> MainService,
                                IBaseService<PhanLoaiSucKhoeModel> PhanLoaiSucKhoaService,
                                IUserService UserService,
                                IBaseService<ContractModel> ContractService,
@@ -151,6 +151,66 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             IsLoading = false;
         }
 
+        private async Task LoadDetailData(int soKhamSKId)
+        {
+            var resSoKhamSK = await MainService.GetByIdAsync(soKhamSKId.ToString());
+            if (resSoKhamSK?.IsSuccess == true && resSoKhamSK.Data != null)
+            {
+                SelectedItem = resSoKhamSK.Data;
+
+                if (SelectedItem.benh_nhan == null)
+                {
+                    string queryBenhNhan = $"&filter[_and][][ma_benh_nhan][_eq]={SelectedItem.ma_benh_nhan}";
+                    var resBenhNhan = await UserService.GetUserByFilterAsync(queryBenhNhan);
+                    SelectedUser = resBenhNhan?.IsSuccess == true && resBenhNhan.Data != null
+                        ? resBenhNhan.Data
+                        : new UserModel();
+                }
+
+                if (SelectedUser.id == Guid.Empty && SelectedItem.benh_nhan != null)
+                {
+                    var resBenhNhan = await UserService.GetUserByIdAsync(SelectedItem.benh_nhan.id);
+                    SelectedUser = resBenhNhan?.IsSuccess == true && resBenhNhan.Data != null
+                        ? resBenhNhan.Data
+                        : new UserModel();
+                }
+
+                if (SelectedUser.id == Guid.Empty)
+                {
+                    AlertService.ShowAlert("Không tìm thấy thông tin bệnh nhân!", "danger");
+                }
+
+                string query = "&filter[_and][0][deleted][_eq]=false" +
+                               $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
+
+                SelectedKhamSucKhoeChuyenKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeChuyenKhoaService, query);
+                SelectedKhamSucKhoeKetLuan = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeKetLuanService, query);
+                SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
+                SelectedKhamSucKhoeTheLuc = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTheLucService, query);
+                SelectedKhamSucKhoeTienSu = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTienSuService, query);
+
+                var resKhamSucKhoeKetQuaCanLamSang = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query);
+                SelectedKhamSucKhoeKetQuaCanLamSangs = resKhamSucKhoeKetQuaCanLamSang?.IsSuccess == true && resKhamSucKhoeKetQuaCanLamSang.Data != null
+                    ? resKhamSucKhoeKetQuaCanLamSang.Data
+                    : new List<KhamSucKhoeKetQuaCanLamSangModel>();
+
+                if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
+                {
+                    SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
+                    {
+                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.CDHATDCN.ToString(), sort = 0 },
+                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNCongThucMau.ToString(), sort = 1 },
+                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNNuocTieu.ToString(), sort = 2 },
+                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNKhac.ToString(), sort = 3 }
+                    };
+                }
+            }
+            else
+            {
+                AlertService.ShowAlert("Không tìm thấy thông tin khám!", "danger");
+            }
+        }
+
         private async Task OnPageSizeChanged(int newSize)
         {
             Page = 1;
@@ -285,6 +345,9 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 return c;
             }).ToList();
 
+            string query = "&filter[_and][0][deleted][_eq]=false" +
+                           $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
+
             switch (activeDefTab)
             {
                 case "tab1":
@@ -325,6 +388,9 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             return;
                         }
                     }
+
+                    SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
+                    SelectedKhamSucKhoeTienSu = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTienSuService, query);
                     break;
                 case "tab2":
                     if (SelectedKhamSucKhoeTheLuc.id > 0)
@@ -364,6 +430,9 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             return;
                         }
                     }
+
+                    SelectedKhamSucKhoeChuyenKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeChuyenKhoaService, query);
+                    SelectedKhamSucKhoeTheLuc = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTheLucService, query);
                     break;
                 case "tab3":
                     if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
@@ -403,60 +472,26 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             return;
                         }
                     }
+
+                    SelectedKhamSucKhoeKetLuan = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeKetLuanService, query);
+
+                    var resKhamSucKhoeKetQuaCanLamSang = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query);
+                    SelectedKhamSucKhoeKetQuaCanLamSangs = resKhamSucKhoeKetQuaCanLamSang?.IsSuccess == true && resKhamSucKhoeKetQuaCanLamSang.Data != null
+                        ? resKhamSucKhoeKetQuaCanLamSang.Data
+                        : new List<KhamSucKhoeKetQuaCanLamSangModel>();
+
+                    if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
+                    {
+                        SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
+                    {
+                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.CDHATDCN.ToString(), sort = 0 },
+                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNCongThucMau.ToString(), sort = 1 },
+                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNNuocTieu.ToString(), sort = 2 },
+                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNKhac.ToString(), sort = 3 }
+                    };
+                    }
                     break;
             }
-
-
-
-            if (!FormValidation())
-            {
-                return;
-            }
-
-            if (SelectedItem.id == 0)
-            {
-                var result = await MainService.CreateAsync(SelectedItem);
-                if (result.IsSuccess)
-                {
-                    await LoadData();
-                    AlertService.ShowAlert("Thêm mới thành công!", "success");
-                }
-                else
-                {
-                    AlertService.ShowAlert(result.Message ?? "Lỗi khi thêm mới dữ liệu", "danger");
-                }
-            }
-            else
-            {
-                var result = await MainService.UpdateAsync(SelectedItem);
-                if (result.IsSuccess)
-                {
-                    await LoadData();
-                    AlertService.ShowAlert("Cập nhật thành công!", "success");
-                }
-                else
-                {
-                    AlertService.ShowAlert(result.Message ?? "Lỗi khi cập nhật dữ liệu", "danger");
-                }
-            }
-        }
-
-        private bool FormValidation()
-        {
-
-            if (string.IsNullOrEmpty(SelectedItem.code))
-            {
-                AlertService.ShowAlert("Mã là bắt buộc", "danger");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(SelectedItem.name))
-            {
-                AlertService.ShowAlert("Tên là bắt buộc", "danger");
-                return false;
-            }
-
-            return true;
         }
 
         private void OnTabChanged(string tab)

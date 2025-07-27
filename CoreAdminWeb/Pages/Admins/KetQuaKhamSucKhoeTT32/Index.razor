@@ -139,8 +139,8 @@
                             <tbody>
                                 @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
                                 {
-                                    <tr>
-                                        <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                                    <tr class="@(item.Data.id == SelectedItem.id ? "active-row" : "")" @onclick="@(() => LoadDetailData(item.Data.id))">
+                                        <td style="text-align: center; white-space: nowrap;"><input type="checkbox" checked="@(item.Data.id == SelectedItem.id)" /></td>
                                         <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                         <td>@item.Data.ma_benh_nhan</td>
                                         <td>@item.Data.ma_luot_kham</td>
@@ -191,7 +191,7 @@
                         <InputFile id="fileInput"
                                    accept="image/*"
                                    OnChange="HandleFileSelect"
-                                   class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer" />
+                                   class="hidden" />
                     </div>
                 </div>
             </div>
@@ -443,7 +443,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -467,7 +467,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -493,7 +493,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -517,7 +517,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -543,7 +543,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -567,7 +567,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -593,7 +593,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -617,7 +617,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -646,7 +646,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -670,7 +670,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -699,7 +699,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -748,7 +748,7 @@
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            Style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -793,11 +793,11 @@
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-value="@SelectedKhamSucKhoeChuyenKhoa.pl_tmh"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_tmh"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            Style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -830,11 +830,11 @@
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-value="@SelectedKhamSucKhoeChuyenKhoa.pl_rhm"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_rhm"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -884,11 +884,11 @@
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-value="@SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe"
+                                                                           @bind-Value="@SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           Style="width:120px;">
-                                                            <SelectedTemplate Context="item">
+                                                                           style="width:120px;">
+                                                           <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
