@@ -44,6 +44,6 @@ namespace CoreAdminWeb.Model.Contract
         public string? dien_thoai { get; set; }
         public string? email { get; set; }
         public string? file_hd { get; set; }
-        public string? nhan_vien_id { get; set; }
+        public Guid? nhan_vien_id { get; set; }
     }
 }

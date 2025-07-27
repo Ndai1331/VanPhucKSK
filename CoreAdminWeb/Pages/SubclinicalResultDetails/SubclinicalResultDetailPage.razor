@@ -14,8 +14,8 @@
 @inject NavigationManager Navigation
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IUserService UserService
-@inject IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService
-@inject IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService
+@inject IBaseDetailService<KhamSucKhoeCanLamSangModel> KhamSucKhoeCanLamSanService
+@inject IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService
 @inject IFtpService FtpService
 @inject IConfiguration Configuration
 @implements IDisposable
@@ -251,7 +251,7 @@
                                                       </div>
                                                   }
                                                   
-                                                  @if (!string.IsNullOrEmpty(item.file_cls))
+                                                  @if (!string.IsNullOrEmpty(item.file_cls?.filename_download))
                                                   {
                                                       <div class="mb-4">
                                                           <h5 class="font-medium text-green-700 dark:text-green-300 mb-2 flex items-center">
@@ -261,7 +261,7 @@
                                                           <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-green-200 dark:border-green-800">
                                                               @{
                                                                   // Get file info for display
-                                                                  var fileName = Path.GetFileName(item.file_cls);
+                                                                var fileName = Path.GetFileName(item.file_cls.filename_download);
                                                                   var localPath = GetDirectLocalPath(fileName);
                                                                   
                                                                   // Only attempt download if not already processed
@@ -389,7 +389,7 @@
     #region Private Fields
 
     // Medical record data models
-    private List<KhamSucKhoeCanLamSanModel>? KhamSucKhoeCanLamSanModels { get; set; }
+    private List<KhamSucKhoeCanLamSangModel>? KhamSucKhoeCanLamSanModels { get; set; }
     private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
 
     private UserModel? CurrentUser { get; set; }
