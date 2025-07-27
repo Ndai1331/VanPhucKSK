@@ -420,7 +420,25 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 items-end">
                                                     <div>
                                                         <label class="block text-sm mb-1" for="phan-loai-the-luc">Phân loại thể lực:</label>
-                                                        <input id="phan-loai-the-luc" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.phan_loai" />
+                                                        <BlazoredTypeahead EnableDropDown="true"
+                                                                           ShowDropDownOnFocus="true"
+                                                                           MinimumLength="0"
+                                                                           TItem="PhanLoaiSucKhoeModel"
+                                                                           TValue="PhanLoaiSucKhoeModel"
+                                                                           SearchMethod="LoadPhanLoaiSucKhoeData"
+                                                                           @bind-Value="@SelectedKhamSucKhoeTheLuc.phan_loai"
+                                                                           placeholder="Chọn phân loại"
+                                                                           class="form-select">
+                                                            <SelectedTemplate Context="item">
+                                                                @item.name
+                                                            </SelectedTemplate>
+                                                            <ResultTemplate Context="item">
+                                                                @item.name
+                                                            </ResultTemplate>
+                                                            <NotFoundTemplate Context="item">
+                                                                Không tìm thấy dữ liệu
+                                                            </NotFoundTemplate>
+                                                        </BlazoredTypeahead>
                                                     </div>
                                                 </div>
                                             </div>
