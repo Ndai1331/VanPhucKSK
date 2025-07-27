@@ -1,4 +1,5 @@
 @page "/admin/ket-qua-kham-suc-khoe-tt32"
+@using CoreAdminWeb.Commons
 @using CoreAdminWeb.Commons.Helpers
 @using CoreAdminWeb.Commons.Utils
 @using CoreAdminWeb.Enums
@@ -35,11 +36,15 @@
                     <div class="flex items-center gap-2 sm:gap-4">
                         <input type="text"
                                class="form-input date-picker w-1/2"
-                               placeholder="Chọn ngày bắt đầu" />
+                               placeholder="Chọn ngày bắt đầu"
+                               value="@(_startDateFilter?.ToString("dd/MM/yyyy"))"
+                               @onchange="@(e => OnValueChanged(e, nameof(_startDateFilter)))" />
                         <span class="mx-2 flex items-center text-gray-500">-</span>
                         <input type="text"
                                class="form-input date-picker w-1/2"
-                               placeholder="Chọn ngày kết thúc" />
+                               placeholder="Chọn ngày kết thúc"
+                               value="@(_endDateFilter?.ToString("dd/MM/yyyy"))"
+                               @onchange="@(e => OnValueChanged(e, nameof(_endDateFilter)))" />
                     </div>
                 </div>
                 <BlazoredTypeahead EnableDropDown="true"
@@ -48,7 +53,9 @@
                                    TItem="ContractModel"
                                    TValue="ContractModel"
                                    SearchMethod="LoadContractData"
-                                   @bind-Value="SelectedContractItem"
+                                   Value="_contractFilter"
+                                   ValueExpression="@(() => _contractFilter)"
+                                   ValueChanged="ContractFilterChanged"
                                    placeholder="Chọn hơp đồng"
                                    class="form-select">
                     <SelectedTemplate Context="item">
@@ -67,37 +74,11 @@
                                    TItem="KhamSucKhoeCongTyModel"
                                    TValue="KhamSucKhoeCongTyModel"
                                    SearchMethod="LoadKhamSucKhoeCongTyData"
-                                   @bind-Value="SelectedKhamSucKhoeCongTyItem"
+                                   Value="_khamSucKhoeCongTyFilter"
+                                   ValueExpression="@(() => _khamSucKhoeCongTyFilter)"
+                                   ValueChanged="KhamSucKhoeCongTyChanged"
                                    placeholder="Mã hồ sơ khám"
                                    class="form-select">
-                    <SelectedTemplate Context="item">
-                        @item.name
-                    </SelectedTemplate>
-                    <ResultTemplate Context="item">
-                        @item.name
-                    </ResultTemplate>
-                    <NotFoundTemplate Context="item">
-                        Không tìm thấy dữ liệu
-                    </NotFoundTemplate>
-                </BlazoredTypeahead>
-                
-                <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
-                    <option value="">Trạng thái</option>
-                    @foreach (var item in EnumHelper.ToList<TrangThaiHoSo>())
-                    {
-                        <option value="@item.Name" selected="@(_searchStatusString == item.Name)">@item.Description</option>
-                    }
-                </select>
-
-                <BlazoredTypeahead EnableDropDown="true"
-                                   ShowDropDownOnFocus="true"
-                                   MinimumLength="0"
-                                   TItem="LoaiDinhMucModel"
-                                   TValue="LoaiDinhMucModel"
-                                   SearchMethod="LoadLoaiDinhMucData"
-                                   @bind-Value="SelectedItem.loai_dinh_muc"
-                                   placeholder="Trạng thái"
-                                   Class="form-select w-1/2">
                     <SelectedTemplate Context="item">
                         @item.name
                     </SelectedTemplate>
@@ -113,10 +94,14 @@
                     <div class="flex items-center gap-2 sm:gap-4">
                         <input type="text"
                                class="form-input w-1/2"
-                               placeholder="Mã điều trị" />
+                               placeholder="Mã điều trị"
+                               value="@_maDieuTriString"
+                               @onchange="@(e => OnValueChanged(e, nameof(_maDieuTriString), true, false))" />
                         <input type="text"
                                class="form-input  w-1/2"
-                               placeholder="Mã bệnh nhân" />
+                               placeholder="Mã bệnh nhân"
+                               value="@_maBenhNhanString"
+                               @onchange="@(e => OnValueChanged(e, nameof(_maBenhNhanString), true, false))" />
                     </div>
                 </div>
 
@@ -124,8 +109,11 @@
                     <div class="flex items-center gap-2 sm:gap-4">
                         <input type="text"
                                class="form-input"
-                               placeholder="Tên bệnh nhân" />
-                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap">
+                               placeholder="Tên bệnh nhân"
+                               value="@_tenBenhNhanString"
+                               @onchange="@(e => OnValueChanged(e, nameof(_tenBenhNhanString), true, false))" />
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap"
+                                   OnClick="LoadData">
                             Tìm kiếm
                         </MudButton>
                     </div>
@@ -149,30 +137,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
-                                    <td style="text-align: center; white-space: nowrap;">1</td>
-                                    <td style="text-align: center; white-space: nowrap;">BN001</td>
-                                    <td style="text-align: center; white-space: nowrap;">DT001</td>
-                                    <td style="white-space: nowrap;">Nguyễn Văn A</td>
-                                    <td style="text-align: center; white-space: nowrap;">0912345678</td>
-                                    <td style="text-align: center; white-space: nowrap;">01/01/1990</td>
-                                    <td style="text-align: center; white-space: nowrap;">Nam</td>
-                                    <td style="text-align: center; white-space: nowrap;">123456789012</td>
-                                    <td style="white-space: nowrap;">Hà Nội</td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
-                                    <td style="text-align: center; white-space: nowrap;">2</td>
-                                    <td style="text-align: center; white-space: nowrap;">BN002</td>
-                                    <td style="text-align: center; white-space: nowrap;">DT002</td>
-                                    <td style="white-space: nowrap;">Trần Thị B</td>
-                                    <td style="text-align: center; white-space: nowrap;">0987654321</td>
-                                    <td style="text-align: center; white-space: nowrap;">15/05/1985</td>
-                                    <td style="text-align: center; white-space: nowrap;">Nữ</td>
-                                    <td style="text-align: center; white-space: nowrap;">987654321098</td>
-                                    <td style="white-space: nowrap;">Đà Nẵng</td>
-                                </tr>
+                                @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                                {
+                                    <tr>
+                                        <td style="text-align: center; white-space: nowrap;"><input type="checkbox" /></td>
+                                        <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                        <td>@item.Data.ma_benh_nhan</td>
+                                        <td>@item.Data.ma_luot_kham</td>
+                                        <td>@item.Data.benh_nhan?.full_name</td>
+                                        <td>@item.Data.benh_nhan?.so_dien_thoai</td>
+                                        <td>@item.Data.benh_nhan?.ngay_sinh?.ToString("dd/MM/yyyy")</td>
+                                        <td>@item.Data.benh_nhan?.gioi_tinh?.GetDescription()</td>
+                                        <td>@item.Data.benh_nhan?.so_dinh_danh</td>
+                                        <td>@item.Data.benh_nhan?.dia_chi</td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -186,29 +165,33 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-start">
                     <div class="col-span-1 md:col-span-3">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-1">
-                            <div class="col-span-3 md:col-span-1">Mã bệnh nhân: <span id="view-ma-benhnhan">-</span></div>
-                            <div class="col-span-3 md:col-span-1">Mã điều trị: <span id="view-ma-dieutri">-</span></div>
-                            <div class="col-span-3 md:col-span-1">Số thứ tự: <span id="view-stt">-</span></div>
+                            <div class="col-span-3 md:col-span-1">Mã bệnh nhân: <span id="view-ma-benhnhan">@SelectedUser.ma_benh_nhan</span></div>
+                            <div class="col-span-3 md:col-span-1">Mã điều trị: <span id="view-ma-dieutri">@SelectedItem.ma_luot_kham</span></div>
+                            <div class="col-span-3 md:col-span-1">Số thứ tự: <span id="view-stt">@SelectedItem.sort</span></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-1">
-                            <div class="col-span-3 md:col-span-1">Họ và tên: <span id="view-ten-benhnhan">-</span></div>
-                            <div class="col-span-3 md:col-span-1">Giới tính: <span id="view-gioi-tinh">-</span></div>
-                            <div class="col-span-3 md:col-span-1">Ngày sinh: <span id="view-ngay-sinh">-</span></div>
+                            <div class="col-span-3 md:col-span-1">Họ và tên: <span id="view-ten-benhnhan">@SelectedUser.full_name</span></div>
+                            <div class="col-span-3 md:col-span-1">Giới tính: <span id="view-gioi-tinh">@SelectedUser.gioi_tinh?.GetDescription()</span></div>
+                            <div class="col-span-3 md:col-span-1">Ngày sinh: <span id="view-ngay-sinh">@SelectedUser.ngay_sinh?.ToString("dd/MM/yyyy")</span></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-1">
-                            <div class="col-span-3 md:col-span-1">Thời gian khám: <span id="view-thoi-gian-kham">-</span></div>
-                            <div class="col-span-3 md:col-span-1">Hợp đồng: <span id="view-hop-dong">-</span></div>
-                            <div class="col-span-3 md:col-span-1">Mã hồ sơ: <span id="view-ma-hoso">-</span></div>
+                            <div class="col-span-3 md:col-span-1">Thời gian khám: <span id="view-thoi-gian-kham">@SelectedItem.MaDotKham?.ngay_du_kien_kham?.ToString("HH:mm dd/MM/yyyy")</span></div>
+                            <div class="col-span-3 md:col-span-1">Hợp đồng: <span id="view-hop-dong">@SelectedItem.MaDotKham?.ma_hop_dong_ksk?.code</span></div>
+                            <div class="col-span-3 md:col-span-1">Mã hồ sơ: <span id="view-ma-hoso">@SelectedItem.MaDotKham?.code</span></div>
                         </div>
                     </div>
                     <div class="col-span-1 md:col-span-1 flex justify-center items-start -mt-5">
                         <div class="avatar-container" onclick="document.getElementById('avatarInput').click()">
-                            <img id="avatarPreview" src="/images/placeholder.png" alt="Avatar Preview" class="avatar-img" />
+                            <img id="avatarPreview" src="@(!string.IsNullOrEmpty(SelectedUser?.avatar) ? $"{GlobalConstant.BaseUrl}assets/{SelectedUser?.avatar}" : "assets/images/user.png")" alt="Avatar Preview" class="avatar-img" />
                             <div class="upload-overlay">
                                 <i class="ri-upload-line ri-font-size-3 upload-icon"></i>
                             </div>
                         </div>
                         <input type="file" id="avatarInput" accept="image/*" onchange="previewImage(this)" />
+                        <InputFile id="fileInput"
+                                   accept="image/*"
+                                   OnChange="HandleFileSelect"
+                                   class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer" />
                     </div>
                 </div>
             </div>
@@ -246,7 +229,7 @@
                                         <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. Tiền sử bệnh tật gia đình:</MudText>
-                                                <textarea rows="2" class="form-input form-textarea"></textarea>
+                                                <textarea rows="2" class="form-input form-textarea" @bind=@SelectedKhamSucKhoeTienSu.tien_su_gia_dinh></textarea>
                                             </div>
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. Tiền sử bệnh, tật của bản thân</MudText>
@@ -263,10 +246,10 @@
                                                         </thead>
                                                         <tbody>
                                                             <tr>
-                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" /></td>
-                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" /></td>
-                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" /></td>
-                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.ten_benh" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.nam_phat_hien" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.benh_nghe_nghiep" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep" /></td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
@@ -276,24 +259,24 @@
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tiền sử sản phụ khoa</MudText>
                                                 <div class="flex items-center gap-2">
                                                     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</MudText>
-                                                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width: 150px;" />
+                                                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width: 150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" />
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Tính chất kinh nguyệt:</MudText>
 
                                                     <div class="flex items-center gap-5">
-                                                        <div>
-                                                            <input type="checkbox" class="form-check-input" id="cbx1">
-                                                            <label class="form-check-label rtl\:mr-3" for="cbx1">
-                                                                Đều
-                                                            </label>
-                                                        </div>
-                                                        <div>
-                                                            <input type="checkbox" class="form-check-input" id="cbx2">
-                                                            <label class="form-check-label" for="cbx2">
-                                                                Không đều
-                                                            </label>
-                                                        </div>
+                                                        @foreach (var item in EnumHelper.ToList<TinhChatKinh>())
+                                                        {
+                                                            <div>
+                                                                <input type="checkbox" class="form-check-input" id="cbx_@item.Name"
+                                                                       value="@item.Name"
+                                                                       @onchange="e => OnTinhChatKinhChanged(item.Name)"
+                                                                       checked="@(item.Name.Equals(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))">
+                                                                <label class="form-check-label rtl\:mr-3" for="cbx_@item.Name">
+                                                                    @item.Description
+                                                                </label>
+                                                            </div>
+                                                        }
                                                     </div>
                                                 </div>
                                                 <div class="flex items-center gap-5">
@@ -301,7 +284,7 @@
                                                         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
                                                             Chu kỳ kinh:
                                                         </MudText>
-                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" />
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh" />
                                                         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
                                                             ngày
                                                         </MudText>
@@ -310,7 +293,7 @@
                                                         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
                                                             Lượng kinh:
                                                         </MudText>
-                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" />
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.luong_kinh" />
                                                         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
                                                             ngày
                                                         </MudText>
@@ -321,15 +304,19 @@
 
                                                     <div class="flex items-center gap-5">
                                                         <div>
-                                                            <input type="checkbox" class="form-check-input" id="cbx3">
-                                                            <label class="form-check-label rtl\:mr-3" for="cbx3">
-                                                                Có
+                                                            <input type="checkbox" class="form-check-input" id="cbx1_@YesNo.Co.ToString()"
+                                                                   @onchange="e => OnDauBungKinhChanged(YesNo.Co.ToString())"
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx1_@YesNo.Co.ToString()">
+                                                                @YesNo.Co.GetDescription()
                                                             </label>
                                                         </div>
                                                         <div>
-                                                            <input type="checkbox" class="form-check-input" id="cbx4">
-                                                            <label class="form-check-label" for="cbx4">
-                                                                Không
+                                                            <input type="checkbox" class="form-check-input" id="cbx2_@YesNo.Khong.ToString()"
+                                                                   @onchange="e => OnDauBungKinhChanged(YesNo.Khong.ToString())"
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx2_@YesNo.Khong.ToString()">
+                                                                @YesNo.Khong.GetDescription()
                                                             </label>
                                                         </div>
                                                     </div>
@@ -340,10 +327,10 @@
                                                     </MudText>
 
                                                     <div class="flex items-center gap-1">
-                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;">
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;" value="@para1" @onchange="e => OnParaChanged(e, 0)">
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;" value="@para2" @onchange="e => OnParaChanged(e, 1)">
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;" value="@para3" @onchange="e => OnParaChanged(e, 2)">
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;" value="@para4" @onchange="e => OnParaChanged(e, 3)">
                                                     </div>
                                                 </div>
                                                 <div class="flex items-center gap-2">
@@ -351,17 +338,21 @@
 
                                                     <div class="flex items-center gap-5">
                                                         <div class="flex items-center gap-2">
-                                                            <input type="checkbox" class="form-check-input" id="cbx5">
-                                                            <label class="form-check-label rtl\:mr-3" for="cbx5">
-                                                                Có
+                                                            <input type="checkbox" class="form-check-input" id="cbx3_@YesNo.Co.ToString()"
+                                                                   @onchange="e => OnSoLanMoPhuKhoaChanged((int)YesNo.Co)"
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
+                                                                @YesNo.Co.GetDescription()
                                                             </label>
                                                             <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" />
                                                         </div>
                                                         <div>
-                                                            <input type="checkbox" class="form-check-input" id="cbx6">
-                                                            <label class="form-check-label" for="cbx6">
-                                                                Không
+                                                            <input type="checkbox" class="form-check-input" id="cbx4_@YesNo.Khong.ToString()"
+                                                                   @onchange="e => OnSoLanMoPhuKhoaChanged((int)YesNo.Khong)"
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Khong)">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
+                                                                @YesNo.Khong.GetDescription()
                                                             </label>
                                                         </div>
                                                     </div>
@@ -371,17 +362,21 @@
 
                                                     <div class="flex items-center gap-5">
                                                         <div class="flex items-center gap-2">
-                                                            <input type="checkbox" class="form-check-input" id="cbx5">
-                                                            <label class="form-check-label rtl\:mr-3" for="cbx5">
-                                                                Có
+                                                            <input type="checkbox" class="form-check-input" id="cbx5_@YesNo.Co.ToString()"
+                                                                   @onchange="e => OnApDungBPPTChanged(YesNo.Co.ToString())"
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
+                                                                @YesNo.Co.GetDescription()
                                                             </label>
                                                             <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" />
                                                         </div>
                                                         <div>
-                                                            <input type="checkbox" class="form-check-input" id="cbx6">
-                                                            <label class="form-check-label" for="cbx6">
-                                                                Không
+                                                            <input type="checkbox" class="form-check-input" id="cbx6_@YesNo.Khong.ToString()"
+                                                                   @onchange="e => OnApDungBPPTChanged(YesNo.Khong.ToString())"
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)">
+                                                            <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
+                                                                @YesNo.Khong.GetDescription()
                                                             </label>
                                                         </div>
                                                     </div>
@@ -399,33 +394,33 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 items-end">
                                                     <div>
                                                         <label class="block text-sm mb-1" for="chieu-cao">Chiều cao (cm):</label>
-                                                        <input id="chieu-cao" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                        <input id="chieu-cao" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.chieu_cao" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="can-nang">Cân nặng (kg):</label>
-                                                        <input id="can-nang" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                        <input id="can-nang" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.can_nang" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="bmi">BMI:</label>
-                                                        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.bmi" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="abi">ABI:</label>
-                                                        <input id="abi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                        <input id="abi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.mach" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="huyet-ap">Huyết áp (mmHg):</label>
-                                                        <input id="huyet-ap" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                        <input id="huyet-ap" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.huyet_ap" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="nhip-tho">Nhịp thở (lần/phút):</label>
-                                                        <input id="nhip-tho" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                        <input id="nhip-tho" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.nhip_tho" />
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 items-end">
                                                     <div>
                                                         <label class="block text-sm mb-1" for="phan-loai-the-luc">Phân loại thể lực:</label>
-                                                        <input id="phan-loai-the-luc" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" />
+                                                        <input id="phan-loai-the-luc" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.phan_loai" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -437,14 +432,14 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">1. Tuần hoàn:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -461,14 +456,14 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">2. Hô hấp:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -487,14 +482,14 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">3. Tiêu hóa:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -511,14 +506,14 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">4. Thận - TN:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -537,14 +532,14 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">5. Nội tiết:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -561,14 +556,14 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">6. CXK:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -587,14 +582,14 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">7. Thần kinh:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -611,14 +606,14 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">8. Tâm thần:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -640,14 +635,14 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">9. Ngoại khoa:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -664,14 +659,14 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">10. Da liễu:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -693,14 +688,14 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-3">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">11. Sản PK:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.ket_qua" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeSanPhuKhoa.phan_loai"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -722,25 +717,25 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - Có kính:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Phải - Có kính:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Trái - không kính:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - không kính:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai" />
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
                                                     <div class="col-span-1 md:col-span-6 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Bệnh về mắt:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_mat" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-2">
                                                         <BlazoredTypeahead EnableDropDown="true"
@@ -749,7 +744,7 @@
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_mat"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            Style="width:120px;">
@@ -771,25 +766,25 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - thường:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - thầm:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - thường:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - thầm:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai" />
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
                                                     <div class="col-span-1 md:col-span-6 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Bệnh về TMH:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-2">
                                                         <BlazoredTypeahead EnableDropDown="true"
@@ -798,7 +793,7 @@
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-value="@SelectedKhamSucKhoeChuyenKhoa.pl_tmh"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            Style="width:120px;">
@@ -820,22 +815,22 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">Hàm trên:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;">
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren" />
                                                         <span style="min-width:90px;">Hàm dưới:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;">
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi" />
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">Bệnh về RHM:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_rhm" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-value="@SelectedKhamSucKhoeChuyenKhoa.pl_rhm"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            style="width:120px;">
@@ -862,25 +857,17 @@
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. KHÁM CẬN LÂM SÀNG</MudText>
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                    <div>
-                                                        <label class="block text-sm font-normal">CDHA - TDCN:</label>
-                                                        <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
-                                                    </div>
-                                                    <div>
-                                                        <label class="block text-sm font-normal">XN Công thức máu:</label>
-                                                        <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
-                                                    </div>
-                                                    <div>
-                                                        <label class="block text-sm font-normal">XN nước tiểu:</label>
-                                                        <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
-                                                    </div>
-                                                    <div>
-                                                        <label class="block text-sm font-normal">XN khác:</label>
-                                                        <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
-                                                    </div>
+                                                    @foreach (var kqcls in SelectedKhamSucKhoeKetQuaCanLamSangs)
+                                                    {
+                                                        <div>
+                                                            <label class="block text-sm font-normal">@(kqcls.type?.GetDescriptionFromString<KetQuaCanLamSang>()):</label>
+                                                            <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2" @bind="@kqcls.ket_qua" readonly></textarea>
+                                                        </div>
+                                                    }
                                                 </div>
                                                 <div class="flex justify-end">
-                                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white">
+                                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                                    OnClick="OnLoadKetQuaCanLamSang">
                                                         <i class="ri-loop-right-line"></i>
                                                         Đồng bộ
                                                     </MudButton>
@@ -897,7 +884,7 @@
                                                                            TItem="PhanLoaiSucKhoeModel"
                                                                            TValue="PhanLoaiSucKhoeModel"
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
-                                                                           @bind-Value="SelectedPhanLoaiItem"
+                                                                           @bind-value="@SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
                                                                            Style="width:120px;">
@@ -915,18 +902,20 @@
                                                 </div>
                                                 <div class="mb-2">
                                                     <label class="block text-sm font-normal">Bệnh tật (nếu có):</label>
-                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="3"></textarea>
+                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="3" @bind="@SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan"></textarea>
                                                 </div>
                                                 <div class="mb-2">
                                                     <label class="block text-sm font-normal">Đề nghị:</label>
-                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2"></textarea>
+                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2" @bind="@SelectedKhamSucKhoeKetLuan.de_nghi"></textarea>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center mb-2">
                                                     <div>
                                                         <label class="block text-sm font-normal">Ngày kết luận</label>
                                                         <input type="text"
                                                                class="form-input date-picker"
-                                                               placeholder="Chọn ngày" />
+                                                               placeholder="Chọn ngày"
+                                                               value="@(SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd/MM/yyyy"))"
+                                                               @onchange="@(e => OnValueChanged(e, nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)))" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm font-normal">Người kết luận:</label>
@@ -936,7 +925,7 @@
                                                                            TItem="UserModel"
                                                                            TValue="UserModel"
                                                                            SearchMethod="LoadBacSiData"
-                                                                           @bind-Value="SelectedBacSiItem"
+                                                                           @bind-Value="@SelectedKhamSucKhoeKetLuan.bs_ket_luan"
                                                                            placeholder="Chọn bác sĩ"
                                                                            class="form-select">
                                                             <SelectedTemplate Context="item">
@@ -987,6 +976,77 @@
         </div>
     </div>
 </div>
+@if (openSyncKetQuaCanLamSangModal)
+{
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseSyncKetQuaCanLamSangModal">
+            <div class="relative w-full max-w-xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+                <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Đồng bộ kết quả khám cận lâm sàng</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseSyncKetQuaCanLamSangModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
+                            <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
+                        </svg>
+                    </MudButton>
+                </div>
+                <div class="p-5">
+                        <div class="text-black dark:text-muted">
+                            <div class="grid grid-cols-1 gap-4 py-3">
+                                <div class="space-y-2">
+                                <table class="display" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Xét nghiệm</th>
+                                            <th>Kết quả</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in SelectedKhamSucKhoeKetQuaCanLamSangs)
+                                        {
+                                            <tr>
+                                                <td>@(item.type?.GetDescriptionFromString<KetQuaCanLamSang>())</td>
+                                                <td>
+                                                    <BlazoredTypeahead EnableDropDown="true"
+                                                                       ShowDropDownOnFocus="true"
+                                                                       MinimumLength="0"
+                                                                       TItem="KhamSucKhoeCanLamSangModel"
+                                                                       TValue="KhamSucKhoeCanLamSangModel"
+                                                                       SearchMethod="LoadKetQuaCanLamSangData"
+                                                                       Value="@item.ket_qua_cls"
+                                                                       ValueExpression="@(() => item.ket_qua_cls)"
+                                                                       ValueChanged="@(selected => OnKetQuaCanLamSangChanged(selected, item))"
+                                                                       placeholder="Chọn kết quả"
+                                                                       class="form-select">
+                                                        <SelectedTemplate Context="item">
+                                                            @item.ten_cls | @item.ket_qua_cls | @item.danh_gia_cls | @item.chi_so_cls
+                                                        </SelectedTemplate>
+                                                        <ResultTemplate Context="item">
+                                                            @item.ten_cls | @item.ket_qua_cls | @item.danh_gia_cls | @item.chi_so_cls
+                                                        </ResultTemplate>
+                                                        <NotFoundTemplate Context="item">
+                                                            Không tìm thấy dữ liệu
+                                                        </NotFoundTemplate>
+                                                    </BlazoredTypeahead>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-2 py-4">
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseSyncKetQuaCanLamSangModal">
+                                <i class="ri-close-line"></i>
+                                Đóng
+                            </MudButton>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 <script>
     function previewImage(input) {

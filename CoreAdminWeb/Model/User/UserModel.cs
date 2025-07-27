@@ -6,7 +6,7 @@ namespace CoreAdminWeb.Model.User
     public class UserModel
     {
         [JsonPropertyName("id")]
-        public string id { get; set; }
+        public Guid id { get; set; }
 
         [JsonPropertyName("first_name")]
         public string first_name { get; set; }

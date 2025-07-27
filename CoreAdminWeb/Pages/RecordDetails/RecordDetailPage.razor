@@ -356,7 +356,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_tuan_hoan)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_tuan_hoan?.name)</td>
                                         </tr>
                                         <tr>
                                             <td rowspan="2">b</td>
@@ -369,7 +369,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_ho_hap)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_ho_hap?.name)</td>
                                         </tr>
                                         <tr>
                                             <td rowspan="2">c</td>
@@ -382,7 +382,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_tieu_hoa)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_tieu_hoa?.name)</td>
                                         </tr>
                                         <tr>
                                             <td rowspan="2">d</td>
@@ -395,7 +395,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_than_tiet_nieu)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_than_tiet_nieu?.name)</td>
                                         </tr>
                                         <tr>
                                             <td rowspan="2">đ</td>
@@ -408,7 +408,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_noi_tiet)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_noi_tiet?.name)</td>
                                         </tr>
                                         <tr>
                                             <td rowspan="2">e</td>
@@ -421,7 +421,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_co_xuong_khop)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_co_xuong_khop?.name)</td>
                                         </tr>
                                         <tr>
                                             <td rowspan="2">g</td>
@@ -434,7 +434,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_than_kinh)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_nk_than_kinh?.name)</td>
                                         </tr>
                                         <!-- Ngoại khoa, Da liễu -->
                                         <tr><td colspan="4"><b>Ngoại khoa, Da liễu</b></td></tr>
@@ -449,7 +449,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_ngoai_khoa)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_ngoai_khoa?.name)</td>
                                         </tr>
                                         <tr>
                                             <td rowspan="2">b</td>
@@ -460,7 +460,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_da_lieu)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_da_lieu?.name)</td>
                                         </tr>
 
                                         @if (CurrentUser?.gioi_tinh != null && CurrentUser?.gioi_tinh == Enums.GioiTinh.Nu && KhamSucKhoeSanPhuKhoaModel != null)
@@ -478,7 +478,7 @@
                                             </tr>
                                             <tr>
                                                 <td>Phân loại</td>
-                                                <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.phan_loai)</td>
+                                                <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.phan_loai?.name)</td>
                                             </tr>
                                         }
                                         <!-- Mắt -->
@@ -494,7 +494,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_mat)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_mat?.name)</td>
                                         </tr>
                                         <tr>
                                             <td>b</td>
@@ -515,7 +515,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_tmh)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_tmh?.name)</td>
                                         </tr>
                                         <tr>
                                             <td>b</td>
@@ -536,7 +536,7 @@
                                         </tr>
                                         <tr>
                                             <td>Phân loại</td>
-                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_rhm)</td>
+                                            <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeChuyenKhoaModel?.pl_rhm?.name)</td>
                                         </tr>
                                         <tr>
                                             <td>b</td>
@@ -585,7 +585,7 @@
                                 @if(KhamSucKhoeKetLuanModel != null)
                                 {
                                     <div style="margin-bottom: 15px;">@KhamSucKhoeKetLuanModel.ngay_ket_luan?.ToString("dd/MM/yyyy")</div>
-                                    <div class="signature-container">@RenderSignature(KhamSucKhoeKetLuanModel?.chu_ky, KhamSucKhoeKetLuanModel?.chu_ky, "ket_luan", 150, 80)</div>
+                                    <div class="signature-container">@RenderSignature(KhamSucKhoeKetLuanModel.chu_ky, KhamSucKhoeKetLuanModel.chu_ky, "ket_luan", 150, 80)</div>
                                     <div><strong>@KhamSucKhoeKetLuanModel.nguoi_ket_luan</strong></div>
                                 }
                             </div>
@@ -612,14 +612,14 @@
 
     [Parameter] public string ma_luot_kham { get; set; } = "";
     [Inject] IUserService UserService { get; set; } = null!;
-    [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
+    [Inject] IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeCanLamSangModel> KhamSucKhoeCanLamSanService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
     [Inject] IPdfService PdfService { get; set; } = null!;
     [Inject] IConfiguration Configuration { get; set; } = null!;
 
@@ -629,7 +629,7 @@
 
     // Medical record data models
     private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
-    private KhamSucKhoeCanLamSanModel? KhamSucKhoeCanLamSanModel { get; set; }
+    private KhamSucKhoeCanLamSangModel? KhamSucKhoeCanLamSanModel { get; set; }
     private KhamSucKhoeChuyenKhoaModel? KhamSucKhoeChuyenKhoaModel { get; set; }
     private KhamSucKhoeKetLuanModel? KhamSucKhoeKetLuanModel { get; set; }
     private KhamSucKhoeNgheNghiepModel? KhamSucKhoeNgheNghiepModel { get; set; }
@@ -642,7 +642,7 @@
     private bool _isLoading = true;
     private bool _isShowInputCCCD = false;
     private string? _errorMessage;
-    private string _imagesFolder = $"/images/";
+    private readonly string _imagesFolder = $"/images/";
     private string _logoPath = $"/images/Logo/logo.png";
     private string _so_dinh_danh = string.Empty;
     private bool _expired_result_page = false;
@@ -815,7 +815,7 @@
         var tasks = new[]
         {
             LoadSingleRecordAsync<SoKhamSucKhoeModel>(SoKhamSucKhoeService, query, r => SoKhamSucKhoeModel = r),
-            LoadSingleRecordAsync<KhamSucKhoeCanLamSanModel>(KhamSucKhoeCanLamSanService, query, r => KhamSucKhoeCanLamSanModel = r),
+            LoadSingleRecordAsync<KhamSucKhoeCanLamSangModel>(KhamSucKhoeCanLamSanService, query, r => KhamSucKhoeCanLamSanModel = r),
             LoadSingleRecordAsync<KhamSucKhoeChuyenKhoaModel>(KhamSucKhoeChuyenKhoaService, query, r => KhamSucKhoeChuyenKhoaModel = r),
             LoadSingleRecordAsync<KhamSucKhoeKetLuanModel>(KhamSucKhoeKetLuanService, query, r => KhamSucKhoeKetLuanModel = r),
             LoadSingleRecordAsync<KhamSucKhoeNgheNghiepModel>(KhamSucKhoeNgheNghiepService, query, r => KhamSucKhoeNgheNghiepModel = r),
@@ -919,7 +919,7 @@
             // Lấy HTML content từ JavaScript - giống như chức năng in
             Console.WriteLine("Step 1: Đang lấy HTML từ JavaScript...");
 
-            string htmlContent = null;
+            string htmlContent = string.Empty;
             try
             {
                 // Đợi một chút để đảm bảo DOM đã render xong
