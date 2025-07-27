@@ -6,10 +6,7 @@ using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using CoreAdminWeb.Services.Files;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
-using CoreAdminWeb.Commons;
 
 namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 {
@@ -18,9 +15,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         // IDanhSachDoanChiTietService DanhSachDoanChiTietService,
         IBaseService<CongTyModel> CongTyService,
         IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService
-        // IBaseService<DanhSachDoanTypeModel> DanhSachDoanTypeService,
-        // IBaseService<DinhMucModel> DinhMucService,
-        // IFileService _fileService
     ) : BlazorCoreBase
     {
         private List<DanhSachDoanModel> MainModels { get; set; } = new();
@@ -81,7 +75,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             // }
             // else
             // {
-                MainModels = new List<DanhSachDoanModel>();
+            MainModels = new List<DanhSachDoanModel>();
             // }
             IsLoading = false;
         }
@@ -118,16 +112,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         {
             return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService);
         }
-
-        // private async Task<IEnumerable<DanhSachDoanTypeModel>> LoadDanhSachDoanTypeData(string searchText)
-        // {
-        //     return await LoadBlazorTypeaheadData(searchText, DanhSachDoanTypeService);
-        // }
-
-        // private async Task<IEnumerable<DinhMucModel>> LoadDinhMucData(string searchText)
-        // {
-        //     return await LoadBlazorTypeaheadData(searchText, DinhMucService);
-        // }
 
         private void OpenDeleteModal(DanhSachDoanModel item)
         {
@@ -399,11 +383,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             SelectedItem.ma_ho_so_kham_suc_khoe = selected;
         }
 
-        // private void OnDanhSachDoanTypeChanged(DanhSachDoanTypeModel? selected)
-        // {
-        //     SelectedItem.danh_sach_doan_type = selected;
-        // }
-
         // private void OnDateChanged(ChangeEventArgs e, string fieldName)
         // {
         //     try
@@ -523,191 +502,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                 });
             }
         }
-        // private void OnDinhMucChanged(DanhSachDoanChiTietModel item, DinhMucModel? selected)
-        // {
-        //     if (selected == null)
-        //     {
-        //         item.dinh_muc = null;
-        //         item.don_gia_tt = null;
-        //         item.don_gia_dm = null;
-        //         item.thanh_tien_tt = null;
-        //         item.thanh_tien_dm = null;
-        //         return;
-        //     }
-        //     item.don_gia_tt = selected.DonGia ?? 0;
-        //     item.don_gia_dm = selected.DinhMuc ?? 0;
-        //     item.dinh_muc = selected;
 
-        //     if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
-        //     {
-        //         item.thanh_tien_tt = item.so_luong * item.don_gia_tt;
-        //     }
-
-        //     if (item.so_luong.HasValue && item.don_gia_dm.HasValue)
-        //     {
-        //         item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
-        //     }
-        // }
-
-        // private void UpdateThanhTien(ChangeEventArgs e, DanhSachDoanChiTietModel item, string field)
-        // {
-        //     if (!decimal.TryParse(e.Value?.ToString(), out decimal value))
-        //     {
-        //         AlertService.ShowAlert("Dữ liệu không hợp lệ", "warning");
-        //         return;
-        //     }
-        //     if (value < 0)
-        //     {
-        //         AlertService.ShowAlert("Số lượng không thể nhỏ hơn 0", "warning");
-        //         return;
-        //     }
-
-        //     switch (field)
-        //     {
-        //         case nameof(item.so_luong):
-        //             item.so_luong = value;
-        //             break;
-        //         case nameof(item.don_gia_tt):
-        //             item.don_gia_tt = value;
-        //             break;
-        //         case nameof(item.don_gia_dm):
-        //             item.don_gia_dm = value;
-        //             break;
-        //     }
-
-        //     item.thanh_tien_tt = null;
-        //     item.thanh_tien_dm = null;
-
-        //     if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
-        //     {
-        //         item.thanh_tien_tt = item.so_luong * item.don_gia_tt;
-        //     }
-
-        //     if (item.so_luong.HasValue && item.don_gia_dm.HasValue)
-        //     {
-        //         item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
-        //     }
-        // }
-
-        // private async Task HandleFileSelect(InputFileChangeEventArgs e)
-        // {
-        //     var files = e.GetMultipleFiles();
-        //     if (files != null && files.Any())
-        //     {
-        //         await ProcessFile(files[0]);
-        //     }
-        // }
-
-        // private async Task HandleDrop(DragEventArgs e)
-        // {
-        //     var files = await JsRuntime.InvokeAsync<IReadOnlyList<IBrowserFile>>("getDroppedFiles", e);
-        //     if (files?.Count > 0)
-        //     {
-        //         await ProcessFile(files[0]);
-        //     }
-        // }
-
-        // private async Task ProcessFile(IBrowserFile file)
-        // {
-        //     SelectedFile = file;
-
-        //     if (SelectedFile != null)
-        //     {
-        //         var maxAllowSize = 5 * 1024 * 1024;
-        //         if (SelectedFile.Size <= maxAllowSize) // 5MB max size
-        //         {
-        //             try
-        //             {
-        //                 var buffer = new byte[SelectedFile.Size];
-        //                 await SelectedFile.OpenReadStream(maxAllowSize).ReadExactlyAsync(buffer);
-        //                 var base64 = Convert.ToBase64String(buffer);
-        //                 fileContent = $"data:{SelectedFile.ContentType};base64,{base64}";
-        //             }
-        //             catch (Exception ex)
-        //             {
-        //                 await JsRuntime.InvokeVoidAsync("alert", $"Error processing image: {ex.Message}");
-        //             }
-        //             finally
-        //             {
-        //                 StateHasChanged();
-        //             }
-        //         }
-        //         else
-        //         {
-        //             await JsRuntime.InvokeVoidAsync("alert", "File size exceeds 5MB limit");
-        //         }
-        //     }
-        //     else
-        //     {
-        //         await JsRuntime.InvokeVoidAsync("alert", "Invalid image format");
-        //     }
-        // }
-
-        // async Task DownloadFile()
-        // {
-        //     await JsRuntime.InvokeVoidAsync("downloadFile", fileContent, SelectedFile.Name);
-        // }
-
-        // private Task HandleDragOver(DragEventArgs e)
-        // {
-        //     e.DataTransfer.DropEffect = "copy";
-        //     return Task.CompletedTask;
-        // }
-
-        // private Task HandleDragEnter(DragEventArgs e)
-        // {
-        //     // Optional: Add visual feedback for drag enter
-        //     return Task.CompletedTask;
-        // }
-
-        // private Task HandleDragLeave(DragEventArgs e)
-        // {
-        //     // Optional: Remove visual feedback for drag leave
-        //     return Task.CompletedTask;
-        // }
-        // private async Task UpdateImageAsync()
-        // {
-        //     if (SelectedFile != null)
-        //     {
-        //         try
-        //         {
-        //             UploadFileCRUD.folder = Guid.Parse(GlobalConstant.CONTRACT_FOLDER_ID);
-        //             var fileUploaded = await _fileService.UploadFileAsync(SelectedFile, UploadFileCRUD);
-
-        //             if (
-        //                 fileUploaded != null
-        //                 && fileUploaded.IsSuccess
-        //                 && fileUploaded.Data != null
-        //                 && !string.IsNullOrEmpty(fileUploaded.Data.filename_download)
-        //             )
-        //             {
-        //                 SelectedItem.file_hd = fileUploaded.Data;
-        //                 // await MainService.UpdateAsync(SelectedItem);;
-
-        //                 // fileContent = string.Empty;
-        //                 // SelectedFile = default!;
-        //                 // await LoadData();
-        //             }
-        //             else
-        //             {
-        //                 await JsRuntime.InvokeVoidAsync("alert", "Failed to upload image.");
-        //             }
-        //         }
-        //         catch (Exception ex)
-        //         {
-        //             await JsRuntime.InvokeVoidAsync("alert", $"Error saving image: {ex.Message}");
-        //         }
-        //         finally
-        //         {
-        //             StateHasChanged();
-        //         }
-        //     }
-        // }
-
-        // private void ClearImageUpload()
-        // {
-        //     fileContent = string.Empty;
-        //     SelectedFile = default!;
-        // }
+        private void GoToDetail(int id)
+        {
+            NavigationManager?.NavigateTo($"/admin/danh-sach-doan-ho-so-kham-suc-khoe/{id}");
+        }
     }
 }

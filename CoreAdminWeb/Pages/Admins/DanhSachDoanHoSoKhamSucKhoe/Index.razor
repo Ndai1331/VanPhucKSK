@@ -1,4 +1,5 @@
 @page "/admin/danh-sach-doan-ho-so-kham-suc-khoe"
+@page "/admin/danh-sach-doan-ho-so-kham-suc-khoe/{id:int}"
 @using CoreAdminWeb.Commons.Helpers
 @using CoreAdminWeb.Commons.Utils
 @using CoreAdminWeb.Extensions
@@ -29,7 +30,7 @@
             <div class="flex items-end justify-between flex-1 gap-2 sm:gap-4">
                 <!-- Left: Filter Area -->
                 <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-1">
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày</MudText>
                         <div class="flex items-center gap-2 sm:gap-4">
                             <input type="text"
@@ -95,11 +96,11 @@
                     </div>
 
                     <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
-                        <div>
+                        @* <div> *@
                             <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-success border-success text-white hover:bg-success/[0.85]
                             hover:border-success/[0.85] text-nowrap">
-                                <i class="ri-add-line"></i>
+                                <i class="ri-search-line"></i>
                                 Thống kê
                             </MudButton>
                             <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
@@ -108,7 +109,7 @@
                                 <i class="ri-file-excel-2-fill"></i>
                                 Xuất excel
                             </MudButton>
-                        </div>
+                        @* </div> *@
                     </div>
                 </div>
             </div>
@@ -138,7 +139,8 @@
                             <th>Tâm thần</th>
                             <th>Ngoại khoa</th>
                             <th>Sản phụ khoa</th>
-                            <th>Mắt	Tai - Mũi - Họng</th>
+                            <th>Mắt</th>
+                            <th>Tai - Mũi - Họng</th>
                             <th>Răng - Hàm - Mặt</th>
                             <th>Da liễu</th>
                             <th>X-quang ngực thẳng</th>
@@ -172,7 +174,6 @@
                             <td>Viêm dạ dày</td>
                             <td>Bình thường</td>
                             <td>Bướu giáp lan tỏa độ III</td>
-                            <td>Bình thường</td>
                             <td>Bình thường</td>
                             <td>Bình thường</td>
                             <td>Bình thường</td>

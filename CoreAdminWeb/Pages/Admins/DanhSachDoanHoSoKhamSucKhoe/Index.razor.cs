@@ -1,8 +1,6 @@
 ﻿using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
-using CoreAdminWeb.Model.DanhSachDoan;
 using CoreAdminWeb.Services.BaseServices;
-// using CoreAdminWeb.Services.DanhSachDoan;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -10,17 +8,13 @@ using Microsoft.JSInterop;
 namespace CoreAdminWeb.Pages.Admins.DanhSachDoanHoSoKhamSucKhoe
 {
     public partial class Index(
-        // IBaseService<DanhSachDoanModel> MainService,
-        // IDanhSachDoanChiTietService DanhSachDoanChiTietService,
+    // IBaseService<SoKhamSucKhoeModel> MainService,
         IBaseService<CongTyModel> CongTyService,
         IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService
-        // IBaseService<DanhSachDoanTypeModel> DanhSachDoanTypeService,
-        // IBaseService<DinhMucModel> DinhMucService,
-        // IFileService _fileService
     ) : BlazorCoreBase
     {
-        private List<DanhSachDoanModel> MainModels { get; set; } = new();
-        private DanhSachDoanModel SelectedItem { get; set; } = new DanhSachDoanModel();
+        [Parameter] public int? Id { get; set; }
+        private List<SoKhamSucKhoeModel> MainModels { get; set; } = new();
         private DateTime? _fromDate = null;
         private DateTime? _toDate = null;
         private CongTyModel? _selectedCongTyFilter = null;
@@ -29,6 +23,12 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanHoSoKhamSucKhoe
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
+            
+            // Load the KhamSucKhoeCongTy by ID if provided
+            if (Id.HasValue)
+            {
+                await LoadKhamSucKhoeCongTyById(Id.Value);
+            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -47,19 +47,29 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanHoSoKhamSucKhoe
 
             // BuildPaginationQuery(Page, PageSize);
             // BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            // if (!string.IsNullOrEmpty(_searchString))
+            // if (_fromDate.HasValue)
             // {
-            //     BuilderQuery += $"&filter[_and][1][_or][0][code][_contains]={_searchString}";
-            //     BuilderQuery += $"&filter[_and][1][_or][1][name][_contains]={_searchString}";
+            //     var fromDate = _fromDate.Value.ToString("yyyy-MM-dd");
+            //     BuilderQuery += $"&filter[_and][][ngay_kham][_gte]={fromDate}";
             // }
-            // if (!string.IsNullOrEmpty(_searchStatusString))
+            // if (_toDate.HasValue)
             // {
-            //     BuilderQuery += $"&filter[_and][2][status][_eq]={_searchStatusString}";
+            //     var toDate = _toDate.Value.ToString("yyyy-MM-dd");
+            //     BuilderQuery += $"&filter[_and][][ngay_kham][_lte]={toDate}";
             // }
+            // if (_selectedCongTyFilter != null)
+            // {
+            //     BuilderQuery += $"&filter[_and][][MaDotKham][ma_hop_dong_ksk][cong_ty][_eq]={_selectedCongTyFilter.id}";
+            // }
+            // if (_selectedKhamSucKhoeCongTyFilter != null)
+            // {
+            //     BuilderQuery += $"&filter[_and][][MaDotKham][_eq]={_selectedKhamSucKhoeCongTyFilter.id}";
+            // }
+            
             // var result = await MainService.GetAllAsync(BuilderQuery);
             // if (result.IsSuccess)
             // {
-            //     MainModels = result.Data ?? new List<DanhSachDoanModel>();
+            //     MainModels = result.Data ?? new List<SoKhamSucKhoeModel>();
             //     if (result.Meta != null)
             //     {
             //         TotalItems = result.Meta.filter_count ?? 0;
@@ -68,7 +78,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanHoSoKhamSucKhoe
             // }
             // else
             // {
-                MainModels = new List<DanhSachDoanModel>();
+                MainModels = new List<SoKhamSucKhoeModel>();
             // }
             IsLoading = false;
         }
@@ -139,18 +149,36 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanHoSoKhamSucKhoe
                 var dateStr = e.Value?.ToString();
                 if (string.IsNullOrEmpty(dateStr))
                 {
-                    ReflectionHelper.SetDateFieldValue(this, SelectedItem, fieldName, null);
-                }
-                else
-                {
-                    var parts = dateStr.Split('/');
-                    if (parts.Length == 3 &&
-                        int.TryParse(parts[0], out int day) &&
-                        int.TryParse(parts[1], out int month) &&
-                        int.TryParse(parts[2], out int year))
+                    switch (fieldName)
                     {
-                        var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
-                        ReflectionHelper.SetDateFieldValue(this, SelectedItem, fieldName, date);
+                        case "_fromDate":
+                            _fromDate = null;
+                            break;
+
+                        case "_toDate":
+                            _toDate = null;
+                            break;
+                    }
+                    return;
+                }
+
+                var parts = dateStr.Split('/');
+                if (parts.Length == 3 &&
+                    int.TryParse(parts[0], out int day) &&
+                    int.TryParse(parts[1], out int month) &&
+                    int.TryParse(parts[2], out int year))
+                {
+                    var date = new DateTime(year, month, day);
+
+                    switch (fieldName)
+                    {
+                        case "_fromDate":
+                            _fromDate = date;
+                            break;
+
+                        case "_toDate":
+                            _toDate = date;
+                            break;
                     }
                 }
 
@@ -162,6 +190,22 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanHoSoKhamSucKhoe
             catch (Exception ex)
             {
                 AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
+            }
+        }
+
+        private async Task LoadKhamSucKhoeCongTyById(int id)
+        {
+            try
+            {
+                var result = await KhamSucKhoeCongTyService.GetByIdAsync(id.ToString());
+                if (result?.IsSuccess == true && result.Data != null)
+                {
+                    _selectedKhamSucKhoeCongTyFilter = result.Data;
+                }
+            }
+            catch (Exception ex)
+            {
+                AlertService.ShowAlert($"Lỗi khi tải dữ liệu: {ex.Message}", "danger");
             }
         }
     }
