@@ -1,0 +1,229 @@
+@page "/admin/danh-sach-doan-ho-so-kham-suc-khoe"
+@using CoreAdminWeb.Commons.Helpers
+@using CoreAdminWeb.Commons.Utils
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Shared.Base
+@inherits BlazorCoreBase
+@layout Shared.Layout.AdminLayout
+
+<PageHeader Title="Hồ sơ đoàn KSK" pTitle="Hồ sơ đoàn KSK"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            @if (IsLoading)
+            {
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <div class="w-full h-4 rounded-full bg-gray-200">
+                        <div class="h-4 rounded-full bg-success animate-progress"
+                             style="background-image: linear-gradient(45deg,hsla(0,0%,100%,.15) 25%,transparent 0,transparent 50%,hsla(0,0%,100%,.15) 0,hsla(0,0%,100%,.15) 75%,transparent 0,transparent); background-size: 1rem 1rem;">
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="flex items-end justify-between flex-1 gap-2 sm:gap-4">
+                <!-- Left: Filter Area -->
+                <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-1">
+                        <MudText Typo="Typo.h2" Class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày</MudText>
+                        <div class="flex items-center gap-2 sm:gap-4">
+                            <input type="text"
+                                class="form-input date-picker w-1/2"
+                                placeholder="Từ ngày"
+                                value="@(_fromDate?.ToString("dd/MM/yyyy"))"
+                                @onchange="@(e => OnDateChanged(e, nameof(_fromDate), true))" />
+                            <span class="mx-2 flex items-center text-gray-500">-</span>
+                            <input type="text"
+                                class="form-input date-picker w-1/2"
+                                placeholder="Đến ngày"
+                                value="@(_toDate?.ToString("dd/MM/yyyy"))"
+                                @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
+                        </div>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudText Typo="Typo.h2" Class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tên công ty</MudText>
+                        <BlazoredTypeahead EnableDropDown="true"
+                                        ShowDropDownOnFocus="true"
+                                        MinimumLength="0"
+                                        TItem="CongTyModel"
+                                        TValue="CongTyModel"
+                                        SearchMethod="LoaCongTyFilterData"
+                                        Value="_selectedCongTyFilter"
+                                        ValueExpression="@(() => _selectedCongTyFilter)"
+                                        ValueChanged="OnCongTyFilterChanged"
+                                        placeholder="Chọn công ty"
+                                        Class="form-select">
+                            <SelectedTemplate Context="item">
+                                @item.name
+                            </SelectedTemplate>
+                            <ResultTemplate Context="item">
+                                @item.name
+                            </ResultTemplate>
+                            <NotFoundTemplate Context="item">
+                                Không tìm thấy dữ liệu
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudText Typo="Typo.h2" Class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Mã hồ sơ</MudText>
+                        <BlazoredTypeahead EnableDropDown="true"
+                                        ShowDropDownOnFocus="true"
+                                        MinimumLength="0"
+                                        TItem="KhamSucKhoeCongTyModel"
+                                        TValue="KhamSucKhoeCongTyModel"
+                                        SearchMethod="LoadKhamSucKhoeCongTyData"
+                                        Value="_selectedKhamSucKhoeCongTyFilter"
+                                        ValueExpression="@(() => _selectedKhamSucKhoeCongTyFilter)"
+                                        ValueChanged="OnKhamSucKhoeCongTyFilterChanged"
+                                        placeholder="Chọn hồ sơ khám sức khỏe"
+                                        Class="form-select">
+                            <SelectedTemplate Context="item">
+                                @item.code
+                            </SelectedTemplate>
+                            <ResultTemplate Context="item">
+                                @item.code
+                            </ResultTemplate>
+                            <NotFoundTemplate Context="item">
+                                Không tìm thấy dữ liệu
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+
+                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
+                        <div>
+                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            bg-success border-success text-white hover:bg-success/[0.85]
+                            hover:border-success/[0.85] text-nowrap">
+                                <i class="ri-add-line"></i>
+                                Thống kê
+                            </MudButton>
+                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
+                            text-nowrap">
+                                <i class="ri-file-excel-2-fill"></i>
+                                Xuất excel
+                            </MudButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table id="example" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã đoàn</th>
+                            <th>Họ và tên</th>
+                            <th>Năm sinh</th>
+                            <th>Giới tính</th>
+                            <th>Tiền sử gia đình</th>
+                            <th>Tiền sử bản thân</th>
+                            <th>Chiều cao (cm)</th>
+                            <th>Cân nặng (kg)</th>
+                            <th>BMI</th>
+                            <th>Mạch (lần/phút)</th>
+                            <th>Huyết áp (mmHg)</th>
+                            <th>Tuần hoàn</th>
+                            <th>Hô hấp</th>
+                            <th>Tiêu hóa</th>
+                            <th>Thận-Tiết niệu</th>
+                            <th>Nội tiết</th>
+                            <th>Thần kinh</th>
+                            <th>Tâm thần</th>
+                            <th>Ngoại khoa</th>
+                            <th>Sản phụ khoa</th>
+                            <th>Mắt	Tai - Mũi - Họng</th>
+                            <th>Răng - Hàm - Mặt</th>
+                            <th>Da liễu</th>
+                            <th>X-quang ngực thẳng</th>
+                            <th>X-quang CSC thẳng - nghiêng</th>
+                            <th>Siêu âm bụng</th>
+                            <th>Siêu âm tuyến giáp</th>
+                            <th>Siêu âm Doppler tim</th>
+                            <th>Siêu âm tuyến vú</th>
+                            <th>Huyết học</th>
+                            <th>Phân loại sức khỏe</th>
+                            <th>Các bệnh tật</th>
+                            <th>Đề nghị</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>HĐ-ST-2507</td>
+                            <td>NGUYỄN THÁI AN</td>
+                            <td>1999</td>
+                            <td>Nữ</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>156.7</td>
+                            <td>53.2</td>
+                            <td>21.67</td>
+                            <td>83</td>
+                            <td>109/69</td>
+                            <td>Bình thường</td>
+                            <td>Bình thường</td>
+                            <td>Viêm dạ dày</td>
+                            <td>Bình thường</td>
+                            <td>Bướu giáp lan tỏa độ III</td>
+                            <td>Bình thường</td>
+                            <td>Bình thường</td>
+                            <td>Bình thường</td>
+                            <td>Bình thường</td>
+                            <td>Không thực hiện</td>
+                            <td>Hai mắt: Cận loạn</td>
+                            <td>Bình thường</td>
+                            <td>Sức nhai 98%</td>
+                            <td>Bình thường</td>
+                            <td>Hiện tại chưa ghi nhận bất thường trên phim X-quang</td>
+                            <td>Hiện tại chưa ghi nhận bất thường trên phim X-quang</td>
+                            <td>Nốt vôi gan phải</td>
+                            <td>Theo dõi phình giáp đa hạt hai thùy</td>
+                            <td>- Phân suất tổng máu thất trái bảo tồn EF= 70% (Theo TEICH) - Các buồng tim không giãn, không rối loạn vận động vùng</td>
+                            <td>Hiện tại chưa phát hiện bất thường trên siêu âm</td>
+                            <td>Bình thường</td>
+                            <td>Loại III</td>
+                            <td>- Phình giáp đa hạt - Viêm dạ dày</td>
+                            <td>- Khám chuyên khoa nội tiết - Ăn uống đúng giờ, hạn chế ăn chua cay</td>
+                        </tr>
+                        @* @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                        {
+                            <tr>
+                                <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                <td>Mã từ Cấu hình hồ sơ ksk ?</td>
+                                <td>Tên công ty từ Cấu hình hồ sơ ksk</td>
+                                <td>Ngày nào ?</td>
+                                <td>0</td>
+                                <td>Bỏ cột này</td>
+                                <td>Bỏ cột này</td>
+                                <td class="flex items-center gap-2">
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-sky-500 border-sky-500 hover:bg-sky-500 hover:text-white"
+                                                @onclick="@(e => OpenAddOrUpdateModal(null))">
+                                        <i class="ri-file-line"></i>
+                                        Chi tiết hồ sơ
+                                    </MudButton>
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                        <i class="ri-edit-line"></i>
+                                    </MudButton>
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                            @onclick="@(e => OpenDeleteModal(item.Data))">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </MudButton>
+                                </td>
+                            </tr>
+                        } *@
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
+    </div>
+</div>

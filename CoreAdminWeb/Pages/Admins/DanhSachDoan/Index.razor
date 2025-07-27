@@ -77,17 +77,46 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Mã từ Cấu hình hồ sơ ksk ?</td>
+                        <td>Tên công ty từ Cấu hình hồ sơ ksk</td>
+                        <td>Ngày nào ?</td>
+                        <td>0</td>
+                        <td>Bỏ cột này</td>
+                        <td>Bỏ cột này</td>
+                        <td class="flex items-center gap-2">
+                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-sky-500 border-sky-500 hover:bg-sky-500 hover:text-white"
+                                        @onclick="@(e => OpenAddOrUpdateModal(null))">
+                                <i class="ri-file-line"></i>
+                                Chi tiết hồ sơ
+                            </MudButton>
+                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                        @onclick="@(e => OpenAddOrUpdateModal(null))">
+                                <i class="ri-edit-line"></i>
+                            </MudButton>
+                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                        @onclick="@(e => OpenDeleteModal(null))">
+                                <i class="ri-delete-bin-line"></i>
+                            </MudButton>
+                        </td>
+                    </tr>
                     @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
                     {
                         <tr>
                             <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                            <td>@item.Data.code</td>
-                            <td>@item.Data.cong_ty?.name</td>
-                            <td>@item.Data.ngay_kham?.ToString("dd/MM/yyyy")</td>
+                            <td>Mã từ Cấu hình hồ sơ ksk ?</td>
+                            <td>Tên công ty từ Cấu hình hồ sơ ksk</td>
+                            <td>Ngày nào ?</td>
                             <td>0</td>
-                            <td>@item.Data.nguoi_lap_so</td>
-                            <td>@item.Data.nguoi_xac_nhan</td>
+                            <td>Bỏ cột này</td>
+                            <td>Bỏ cột này</td>
                             <td class="flex items-center gap-2">
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-sky-500 border-sky-500 hover:bg-sky-500 hover:text-white"
+                                            @onclick="@(e => OpenAddOrUpdateModal(null))">
+                                    <i class="ri-file-line"></i>
+                                    Chi tiết hồ sơ
+                                </MudButton>
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
                                     <i class="ri-edit-line"></i>
@@ -151,7 +180,7 @@
                 </div>
                 <div class="p-5 space-y-4">
                     <EditForm Model="@SelectedItem" OnValidSubmit="OnValidSubmit">
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
+                        @* <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
                             <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                 <label>Mã đoàn</label>
                                 <input type="text" class="form-input" @bind-value="@SelectedItem.code" required />
@@ -180,9 +209,9 @@
                                     </NotFoundTemplate>
                                 </BlazoredTypeahead>
                             </div>
-                        </div>
+                        </div> *@
 
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-3 py-3">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-1 xl:grid-cols-1 py-1">
                             <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                 <label>Mã hồ sơ khám sức khỏe:</label>
                                 <BlazoredTypeahead EnableDropDown="true"
@@ -207,7 +236,7 @@
                                     </NotFoundTemplate>
                                 </BlazoredTypeahead>
                             </div>
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                            @* <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                 <label>Ngày khám:</label>
                                 <input type="text"
                                         class="form-input date-picker"
@@ -222,9 +251,9 @@
                                         placeholder="Chọn ngày lập sổ"
                                         value="@(SelectedItem.ngay_lap_so?.ToString("dd/MM/yyyy"))"
                                         @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_lap_so)))" />
-                            </div>
+                            </div> *@
                         </div>
-
+@* 
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
                             <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                 <label>Người lập sổ:</label>
@@ -251,11 +280,19 @@
                                 <input type="checkbox" class="form-checkbox outborder-purple"
                                        checked="@(SelectedItem.da_gui_mail)" @onchange="@(e => OnCheckedChanged(e, nameof(SelectedItem.da_gui_mail)))" />
                             </div>
-                        </div>
+                        </div> *@
 
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-                            <div class="space-y-2 md:col-span-2">
+                            <div class="flex flex-col gap-2 md:col-span-2">
                                 <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Danh sách đoàn khám</MudText>
+                                <div>
+                                    <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5
+                                        bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85]
+                                        text-nowrap">
+                                        <i class="ri-file-excel-2-fill"></i>
+                                        Import excel
+                                    </MudButton>
+                                </div>
                             </div>
                             <div class="space-y-2 md:col-span-2">
                                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -304,9 +341,9 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="w-full flex items-center justify-end mt-2">
+                                @* <div class="w-full flex items-center justify-end mt-2">
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnAddChiTiet">Thêm dòng</MudButton>
-                                </div>
+                                </div> *@
                             </div>
                         </div>
 

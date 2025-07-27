@@ -389,10 +389,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             await LoadData();
         }
 
-        private void OnCongTyChanged(CongTyModel? selected)
-        {
-            SelectedItem.cong_ty = selected;
-        }
+        // private void OnCongTyChanged(CongTyModel? selected)
+        // {
+        //     SelectedItem.cong_ty = selected;
+        // }
 
         private void OnKhamSucKhoeCongTyChanged(KhamSucKhoeCongTyModel? selected)
         {
@@ -404,51 +404,51 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         //     SelectedItem.danh_sach_doan_type = selected;
         // }
 
-        private void OnDateChanged(ChangeEventArgs e, string fieldName)
-        {
-            try
-            {
-                var dateStr = e.Value?.ToString();
-                if (string.IsNullOrEmpty(dateStr))
-                {
-                    switch (fieldName)
-                    {
-                        case "ngay_kham":
-                            SelectedItem.ngay_kham = null;
-                            break;
+        // private void OnDateChanged(ChangeEventArgs e, string fieldName)
+        // {
+        //     try
+        //     {
+        //         var dateStr = e.Value?.ToString();
+        //         if (string.IsNullOrEmpty(dateStr))
+        //         {
+        //             switch (fieldName)
+        //             {
+        //                 case "ngay_kham":
+        //                     SelectedItem.ngay_kham = null;
+        //                     break;
 
-                        case "ngay_lap_so":
-                            SelectedItem.ngay_lap_so = null;
-                            break;
-                    }
-                    return;
-                }
+        //                 case "ngay_lap_so":
+        //                     SelectedItem.ngay_lap_so = null;
+        //                     break;
+        //             }
+        //             return;
+        //         }
 
-                var parts = dateStr.Split('/');
-                if (parts.Length == 3 &&
-                    int.TryParse(parts[0], out int day) &&
-                    int.TryParse(parts[1], out int month) &&
-                    int.TryParse(parts[2], out int year))
-                {
-                    var date = new DateTime(year, month, day);
+        //         var parts = dateStr.Split('/');
+        //         if (parts.Length == 3 &&
+        //             int.TryParse(parts[0], out int day) &&
+        //             int.TryParse(parts[1], out int month) &&
+        //             int.TryParse(parts[2], out int year))
+        //         {
+        //             var date = new DateTime(year, month, day);
 
-                    switch (fieldName)
-                    {
-                        case "ngay_kham":
-                            SelectedItem.ngay_kham = date;
-                            break;
+        //             switch (fieldName)
+        //             {
+        //                 case "ngay_kham":
+        //                     SelectedItem.ngay_kham = date;
+        //                     break;
 
-                        case "ngay_lap_so":
-                            SelectedItem.ngay_lap_so = date;
-                            break;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
-            }
-        }
+        //                 case "ngay_lap_so":
+        //                     SelectedItem.ngay_lap_so = date;
+        //                     break;
+        //             }
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
+        //     }
+        // }
 
         private void OnDateChangedDetail(ChangeEventArgs e, DanhSachDoanChiTietModel item, string fieldName)
         {
@@ -488,26 +488,26 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             }
         }
 
-        private void OnCheckedChanged(ChangeEventArgs e, string fieldName)
-        {
-            try
-            {
-                var isChecked = e.Value != null && e.Value.ToString() == "true";
-                switch (fieldName)
-                {
-                    case "da_gui_thong_bao":
-                        SelectedItem.da_gui_thong_bao = isChecked;
-                        break;
-                    case "da_gui_mail":
-                        SelectedItem.da_gui_mail = isChecked;
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                AlertService.ShowAlert($"Lỗi khi xử lý checkbox: {ex.Message}", "danger");
-            }
-        }
+        // private void OnCheckedChanged(ChangeEventArgs e, string fieldName)
+        // {
+        //     try
+        //     {
+        //         var isChecked = e.Value != null && e.Value.ToString() == "true";
+        //         switch (fieldName)
+        //         {
+        //             case "da_gui_thong_bao":
+        //                 SelectedItem.da_gui_thong_bao = isChecked;
+        //                 break;
+        //             case "da_gui_mail":
+        //                 SelectedItem.da_gui_mail = isChecked;
+        //                 break;
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         AlertService.ShowAlert($"Lỗi khi xử lý checkbox: {ex.Message}", "danger");
+        //     }
+        // }
 
         private void OnTabChanged(string tab)
         {
