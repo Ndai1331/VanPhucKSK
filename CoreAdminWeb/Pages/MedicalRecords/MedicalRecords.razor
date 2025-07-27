@@ -45,7 +45,7 @@
                 <div class="p-5 rounded shadow-sm bg-info text-white">
                     <div class="text-center">
                         <i class="fas fa-heartbeat fa-2x mb-2"></i>
-                        <h4 class="text-2xl font-semibold mb-1">Loại: @(KetLuanGanNhat?.phan_loai_suc_khoe ?? "Chưa có")</h4>
+                        <h4 class="text-2xl font-semibold mb-1">Loại: @(KetLuanGanNhat?.phan_loai_suc_khoe?.name ?? "Chưa có")</h4>
                         <p class="mb-0">Tình trạng sức khoẻ</p>
                     </div>
                 </div>
@@ -230,8 +230,8 @@
 @code {
     [Inject] AlertService AlertService { get; set; }
     [Inject] IUserService UserService { get; set; }
-    [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; }
-    [Inject] IBaseGetService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; }
+    [Inject] IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; }
+    [Inject] IBaseDetailService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; }
     
     // State management
     private bool _isLoading = true;

@@ -478,7 +478,7 @@
                                             </tr>
                                             <tr>
                                                 <td>Phân loại</td>
-                                                <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.phan_loai)</td>
+                                                <td class="ls-cell-small">@CoreHelpers.GetSafeString(KhamSucKhoeSanPhuKhoaModel?.phan_loai?.name)</td>
                                             </tr>
                                         }
                                         <!-- Mắt -->
@@ -612,14 +612,14 @@
 
     [Parameter] public string ma_luot_kham { get; set; } = "";
     [Inject] IUserService UserService { get; set; } = null!;
-    [Inject] IBaseGetService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeCanLamSanModel> KhamSucKhoeCanLamSanService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
-    [Inject] IBaseGetService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
+    [Inject] IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeCanLamSangModel> KhamSucKhoeCanLamSanService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
     [Inject] IPdfService PdfService { get; set; } = null!;
     [Inject] IConfiguration Configuration { get; set; } = null!;
 
@@ -629,7 +629,7 @@
 
     // Medical record data models
     private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
-    private KhamSucKhoeCanLamSanModel? KhamSucKhoeCanLamSanModel { get; set; }
+    private KhamSucKhoeCanLamSangModel? KhamSucKhoeCanLamSanModel { get; set; }
     private KhamSucKhoeChuyenKhoaModel? KhamSucKhoeChuyenKhoaModel { get; set; }
     private KhamSucKhoeKetLuanModel? KhamSucKhoeKetLuanModel { get; set; }
     private KhamSucKhoeNgheNghiepModel? KhamSucKhoeNgheNghiepModel { get; set; }
@@ -815,7 +815,7 @@
         var tasks = new[]
         {
             LoadSingleRecordAsync<SoKhamSucKhoeModel>(SoKhamSucKhoeService, query, r => SoKhamSucKhoeModel = r),
-            LoadSingleRecordAsync<KhamSucKhoeCanLamSanModel>(KhamSucKhoeCanLamSanService, query, r => KhamSucKhoeCanLamSanModel = r),
+            LoadSingleRecordAsync<KhamSucKhoeCanLamSangModel>(KhamSucKhoeCanLamSanService, query, r => KhamSucKhoeCanLamSanModel = r),
             LoadSingleRecordAsync<KhamSucKhoeChuyenKhoaModel>(KhamSucKhoeChuyenKhoaService, query, r => KhamSucKhoeChuyenKhoaModel = r),
             LoadSingleRecordAsync<KhamSucKhoeKetLuanModel>(KhamSucKhoeKetLuanService, query, r => KhamSucKhoeKetLuanModel = r),
             LoadSingleRecordAsync<KhamSucKhoeNgheNghiepModel>(KhamSucKhoeNgheNghiepService, query, r => KhamSucKhoeNgheNghiepModel = r),

@@ -19,6 +19,7 @@ namespace CoreAdminWeb.Services.Users
         Task<RequestHttpResponse<UserModel>> GetCurrentUserAsync();
         Task<RequestHttpResponse<UserModel>> UpdateUserAsync(UserModel req);
         Task<RequestHttpResponse<UserModel>> UpdateCurrentUserAsync(UserModel req);
+        Task<RequestHttpResponse<UserModel>> UpdateUserAvatarAsync(UserModel req);
         Task<RequestHttpResponse<UserModel>> GetUserByCCCDAsync(string cccd);
         string GetAccessTokenAsync();
         string GetRefreshTokenAsync();
@@ -258,6 +259,33 @@ namespace CoreAdminWeb.Services.Users
                 if (result.IsSuccess)
                 {
                     response.Data = result.Data.Data;
+                }
+                else
+                {
+                    response.Errors = result.Errors;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = ex.Message } };
+            }
+            return response;
+        }
+
+        public async Task<RequestHttpResponse<UserModel>> UpdateUserAvatarAsync(UserModel req)
+        {
+            var response = new RequestHttpResponse<UserModel>();
+            try
+            {
+                var request = new
+                {
+                    req.avatar
+                };
+
+                var result = await _httpClientService.PatchAPIAsync<RequestHttpResponse<UserModel>>($"users/{req.id}", request);
+                if (result.IsSuccess)
+                {
+                    response.Data = result.Data?.Data;
                 }
                 else
                 {

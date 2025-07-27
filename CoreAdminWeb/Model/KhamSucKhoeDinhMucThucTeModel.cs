@@ -12,4 +12,15 @@ namespace CoreAdminWeb.Model
 
         public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
+
+    public class KhamSucKhoeDinhMucThucTeCRUDModel : BaseDetailModel
+    {
+        public int? ma_dinh_muc { get; set; }
+        public int? ma_dot_kham { get; set; }
+        public decimal? du_kien_chi_phi { get; set; }
+        public decimal? chi_phi_thuc_te { get; set; }
+        public int? so_luong { get; set; }
+
+        public int? luot_kham { get; set; }
+    }
 }
