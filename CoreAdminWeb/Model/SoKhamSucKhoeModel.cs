@@ -20,7 +20,7 @@ namespace CoreAdminWeb.Model
         public new bool deleted { get; set; } = false;
         public UserModel? benh_nhan { get; set; }
         public KhamSucKhoeCongTyModel? MaDotKham { get; set; }
-
+        public new Status status { set; get; } = Status.draft;
     }
 
     public class SoKhamSucKhoeCRUDModel : BaseDetailModel

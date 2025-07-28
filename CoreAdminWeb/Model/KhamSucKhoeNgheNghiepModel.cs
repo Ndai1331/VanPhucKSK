@@ -24,5 +24,6 @@ namespace CoreAdminWeb.Model
         public new bool deleted { get; set; } = false;
 
         public int? luot_kham { get; set; }
+        public new string status { set; get; } = Status.published.ToString();
     }
 }

@@ -81,5 +81,6 @@ namespace CoreAdminWeb.Model
         public string? Ksk_status { get; set; }
 
         public int? ma_hop_dong_ksk { get; set; }
+        public new string status { set; get; } = Status.published.ToString();
     }
 }

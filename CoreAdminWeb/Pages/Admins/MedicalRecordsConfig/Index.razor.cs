@@ -1,4 +1,5 @@
-﻿using CoreAdminWeb.Helpers;
+﻿using CoreAdminWeb.Commons;
+using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.User;
@@ -114,7 +115,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
-                query += "&filter[_and][][role][_eq]=87D650A9-0BD2-41DC-ADF2-B0A248AD9A3B";
+                query += $"&filter[_and][][role][_eq]={GlobalConstant.DOCTOR_ROLE_ID}";
 
                 if (!string.IsNullOrEmpty(searchText))
                 {

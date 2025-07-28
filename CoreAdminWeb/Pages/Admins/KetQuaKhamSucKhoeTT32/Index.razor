@@ -10,6 +10,7 @@
 @using CoreAdminWeb.Model.Contract
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
+@using CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32.Components
 @inherits BlazorCoreBase
 @layout Shared.Layout.AdminLayout
 
@@ -31,93 +32,20 @@
         <div class="space-y-2 sm:col-span-1 md:col-span-1">
             <div class="card space-y-2">
                 <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Thông tin danh sách khám sức khỏe:</MudText>
-                <div class="space-y-2">
-                    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày khám</MudText>
-                    <div class="flex items-center gap-2 sm:gap-4">
-                        <input type="text"
-                               class="form-input date-picker w-1/2"
-                               placeholder="Chọn ngày bắt đầu"
-                               value="@(_startDateFilter?.ToString("dd/MM/yyyy"))"
-                               @onchange="@(e => OnValueChanged(e, nameof(_startDateFilter)))" />
-                        <span class="mx-2 flex items-center text-gray-500">-</span>
-                        <input type="text"
-                               class="form-input date-picker w-1/2"
-                               placeholder="Chọn ngày kết thúc"
-                               value="@(_endDateFilter?.ToString("dd/MM/yyyy"))"
-                               @onchange="@(e => OnValueChanged(e, nameof(_endDateFilter)))" />
-                    </div>
-                </div>
-                <BlazoredTypeahead EnableDropDown="true"
-                                   ShowDropDownOnFocus="true"
-                                   MinimumLength="0"
-                                   TItem="ContractModel"
-                                   TValue="ContractModel"
-                                   SearchMethod="LoadContractData"
-                                   Value="_contractFilter"
-                                   ValueExpression="@(() => _contractFilter)"
-                                   ValueChanged="ContractFilterChanged"
-                                   placeholder="Chọn hơp đồng"
-                                   class="form-select">
-                    <SelectedTemplate Context="item">
-                        @item.name
-                    </SelectedTemplate>
-                    <ResultTemplate Context="item">
-                        @item.name
-                    </ResultTemplate>
-                    <NotFoundTemplate Context="item">
-                        Không tìm thấy dữ liệu
-                    </NotFoundTemplate>
-                </BlazoredTypeahead>
-                <BlazoredTypeahead EnableDropDown="true"
-                                   ShowDropDownOnFocus="true"
-                                   MinimumLength="0"
-                                   TItem="KhamSucKhoeCongTyModel"
-                                   TValue="KhamSucKhoeCongTyModel"
-                                   SearchMethod="LoadKhamSucKhoeCongTyData"
-                                   Value="_khamSucKhoeCongTyFilter"
-                                   ValueExpression="@(() => _khamSucKhoeCongTyFilter)"
-                                   ValueChanged="KhamSucKhoeCongTyChanged"
-                                   placeholder="Mã hồ sơ khám"
-                                   class="form-select">
-                    <SelectedTemplate Context="item">
-                        @item.name
-                    </SelectedTemplate>
-                    <ResultTemplate Context="item">
-                        @item.name
-                    </ResultTemplate>
-                    <NotFoundTemplate Context="item">
-                        Không tìm thấy dữ liệu
-                    </NotFoundTemplate>
-                </BlazoredTypeahead>
-
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2 sm:gap-4">
-                        <input type="text"
-                               class="form-input w-1/2"
-                               placeholder="Mã điều trị"
-                               value="@_maDieuTriString"
-                               @onchange="@(e => OnValueChanged(e, nameof(_maDieuTriString), true, false))" />
-                        <input type="text"
-                               class="form-input  w-1/2"
-                               placeholder="Mã bệnh nhân"
-                               value="@_maBenhNhanString"
-                               @onchange="@(e => OnValueChanged(e, nameof(_maBenhNhanString), true, false))" />
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2 sm:gap-4">
-                        <input type="text"
-                               class="form-input"
-                               placeholder="Tên bệnh nhân"
-                               value="@_tenBenhNhanString"
-                               @onchange="@(e => OnValueChanged(e, nameof(_tenBenhNhanString), true, false))" />
-                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap"
-                                   OnClick="LoadData">
-                            Tìm kiếm
-                        </MudButton>
-                    </div>
-                </div>
+                
+                <Filter _contractFilter="@_contractFilter"
+                        ContractFilterChanged="ContractFilterChanged"
+                        LoadContractData="LoadContractData"
+                        _khamSucKhoeCongTyFilter="@_khamSucKhoeCongTyFilter"
+                        KhamSucKhoeCongTyChanged="KhamSucKhoeCongTyChanged"
+                        LoadKhamSucKhoeCongTyData="LoadKhamSucKhoeCongTyData"
+                        LoadData="LoadData" 
+                        _startDateFilter="@_startDateFilter"
+                        _endDateFilter="@_endDateFilter"
+                        OnValueChanged="OnValueChanged"
+                        _maDieuTriString="@_maDieuTriString"
+                        _maBenhNhanString="@_maBenhNhanString"
+                        _tenBenhNhanString="@_tenBenhNhanString" />
 
                 <div class="space-y-2 ksk">
                     <div class="overflow-auto">
@@ -139,8 +67,8 @@
                             <tbody>
                                 @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
                                 {
-                                    <tr class="@(item.Data.id == SelectedItem.id ? "active-row" : "")" @onclick="@(() => LoadDetailData(item.Data.id))">
-                                        <td style="text-align: center; white-space: nowrap;"><input type="checkbox" checked="@(item.Data.id == SelectedItem.id)" /></td>
+                                    <tr class="@(item.Data.id == SelectedItem.id ? "active-row" : "")" @onclick="@(async () => await OnRowClick(item.Data.id))">
+                                        <td style="text-align: center; white-space: nowrap;"><input type="checkbox" checked="@(item.Data.id == SelectedItem.id)" @onchange="@(async e => await OnCheckBoxChanged(e, item.Data.id))" /></td>
                                         <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                         <td>@item.Data.ma_benh_nhan</td>
                                         <td>@item.Data.ma_luot_kham</td>
@@ -181,17 +109,17 @@
                         </div>
                     </div>
                     <div class="col-span-1 md:col-span-1 flex justify-center items-start -mt-5">
-                        <div class="avatar-container" onclick="document.getElementById('avatarInput').click()">
-                            <img id="avatarPreview" src="@(!string.IsNullOrEmpty(SelectedUser?.avatar) ? $"{GlobalConstant.BaseUrl}assets/{SelectedUser?.avatar}" : "assets/images/user.png")" alt="Avatar Preview" class="avatar-img" />
+                        <div class="avatar-container" onclick="document.getElementById('fileInput').click()">
+                            <img id="avatarPreview" src="@(!string.IsNullOrEmpty(SelectedUser?.avatar) ? $"{GlobalConstant.BaseUrl}assets/{SelectedUser?.avatar}" : "assets/images/avatar-1.png")" alt="Avatar Preview" class="avatar-img" />
                             <div class="upload-overlay">
                                 <i class="ri-upload-line ri-font-size-3 upload-icon"></i>
                             </div>
                         </div>
-                        <input type="file" id="avatarInput" accept="image/*" onchange="previewImage(this)" />
                         <InputFile id="fileInput"
                                    accept="image/*"
                                    OnChange="HandleFileSelect"
-                                   class="hidden" />
+                                   class="hidden"
+                                   disabled="@(onReadonly || !onReadonly && !onBS)" />
                     </div>
                 </div>
             </div>
@@ -229,7 +157,7 @@
                                         <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. Tiền sử bệnh tật gia đình:</MudText>
-                                                <textarea rows="2" class="form-input form-textarea" @bind=@SelectedKhamSucKhoeTienSu.tien_su_gia_dinh></textarea>
+                                                <textarea rows="2" class="form-input form-textarea" @bind="@SelectedKhamSucKhoeTienSu.tien_su_gia_dinh" readonly="@(onReadonly || !onReadonly && !onBS)"></textarea>
                                             </div>
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. Tiền sử bệnh, tật của bản thân</MudText>
@@ -246,10 +174,10 @@
                                                         </thead>
                                                         <tbody>
                                                             <tr>
-                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.ten_benh" /></td>
-                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.nam_phat_hien" /></td>
-                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.benh_nghe_nghiep" /></td>
-                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.ten_benh" readonly="@(onReadonly || !onReadonly && !onBS)" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.nam_phat_hien" readonly="@(onReadonly || !onReadonly && !onBS)" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.benh_nghe_nghiep" readonly="@(onReadonly || !onReadonly && !onBS)" /></td>
+                                                                <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep" readonly="@(onReadonly || !onReadonly && !onBS)" /></td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
@@ -259,7 +187,7 @@
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tiền sử sản phụ khoa</MudText>
                                                 <div class="flex items-center gap-2">
                                                     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</MudText>
-                                                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width: 150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" />
+                                                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width: 150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Tính chất kinh nguyệt:</MudText>
@@ -271,7 +199,8 @@
                                                                 <input type="checkbox" class="form-check-input" id="cbx_@item.Name"
                                                                        value="@item.Name"
                                                                        @onchange="e => OnTinhChatKinhChanged(item.Name)"
-                                                                       checked="@(item.Name.Equals(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))">
+                                                                       checked="@(item.Name.Equals(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))"
+                                                                       disabled="@(onReadonly || !onReadonly && !onBS)">
                                                                 <label class="form-check-label rtl\:mr-3" for="cbx_@item.Name">
                                                                     @item.Description
                                                                 </label>
@@ -284,7 +213,7 @@
                                                         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
                                                             Chu kỳ kinh:
                                                         </MudText>
-                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh" />
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
                                                             ngày
                                                         </MudText>
@@ -293,7 +222,7 @@
                                                         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
                                                             Lượng kinh:
                                                         </MudText>
-                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.luong_kinh" />
+                                                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.luong_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
                                                             ngày
                                                         </MudText>
@@ -306,7 +235,8 @@
                                                         <div>
                                                             <input type="checkbox" class="form-check-input" id="cbx1_@YesNo.Co.ToString()"
                                                                    @onchange="e => OnDauBungKinhChanged(YesNo.Co.ToString())"
-                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)">
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)"
+                                                                   disabled="@(onReadonly || !onReadonly && !onBS)">
                                                             <label class="form-check-label rtl\:mr-3" for="cbx1_@YesNo.Co.ToString()">
                                                                 @YesNo.Co.GetDescription()
                                                             </label>
@@ -314,7 +244,8 @@
                                                         <div>
                                                             <input type="checkbox" class="form-check-input" id="cbx2_@YesNo.Khong.ToString()"
                                                                    @onchange="e => OnDauBungKinhChanged(YesNo.Khong.ToString())"
-                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)">
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)"
+                                                                   disabled="@(onReadonly || !onReadonly && !onBS)">
                                                             <label class="form-check-label rtl\:mr-3" for="cbx2_@YesNo.Khong.ToString()">
                                                                 @YesNo.Khong.GetDescription()
                                                             </label>
@@ -340,17 +271,19 @@
                                                         <div class="flex items-center gap-2">
                                                             <input type="checkbox" class="form-check-input" id="cbx3_@YesNo.Co.ToString()"
                                                                    @onchange="e => OnSoLanMoPhuKhoaChanged((int)YesNo.Co)"
-                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)">
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)"
+                                                                   disabled="@(onReadonly || !onReadonly && !onBS)">
                                                             <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
                                                                 @YesNo.Co.GetDescription()
                                                             </label>
                                                             <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" />
+                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                         </div>
                                                         <div>
                                                             <input type="checkbox" class="form-check-input" id="cbx4_@YesNo.Khong.ToString()"
                                                                    @onchange="e => OnSoLanMoPhuKhoaChanged((int)YesNo.Khong)"
-                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Khong)">
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Khong)"
+                                                                   disabled="@(onReadonly || !onReadonly && !onBS)">
                                                             <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
                                                                 @YesNo.Khong.GetDescription()
                                                             </label>
@@ -364,17 +297,19 @@
                                                         <div class="flex items-center gap-2">
                                                             <input type="checkbox" class="form-check-input" id="cbx5_@YesNo.Co.ToString()"
                                                                    @onchange="e => OnApDungBPPTChanged(YesNo.Co.ToString())"
-                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)">
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)"
+                                                                   disabled="@(onReadonly || !onReadonly && !onBS)">
                                                             <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
                                                                 @YesNo.Co.GetDescription()
                                                             </label>
                                                             <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
-                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" />
+                                                            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                         </div>
                                                         <div>
                                                             <input type="checkbox" class="form-check-input" id="cbx6_@YesNo.Khong.ToString()"
                                                                    @onchange="e => OnApDungBPPTChanged(YesNo.Khong.ToString())"
-                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)">
+                                                                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)"
+                                                                   disabled="@(onReadonly || !onReadonly && !onBS)">
                                                             <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
                                                                 @YesNo.Khong.GetDescription()
                                                             </label>
@@ -394,27 +329,27 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 items-end">
                                                     <div>
                                                         <label class="block text-sm mb-1" for="chieu-cao">Chiều cao (cm):</label>
-                                                        <input id="chieu-cao" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.chieu_cao" />
+                                                        <input id="chieu-cao" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.chieu_cao" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="can-nang">Cân nặng (kg):</label>
-                                                        <input id="can-nang" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.can_nang" />
+                                                        <input id="can-nang" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.can_nang" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="bmi">BMI:</label>
-                                                        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.bmi" />
+                                                        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.bmi" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="abi">ABI:</label>
-                                                        <input id="abi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.mach" />
+                                                        <input id="abi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.mach" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="huyet-ap">Huyết áp (mmHg):</label>
-                                                        <input id="huyet-ap" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.huyet_ap" />
+                                                        <input id="huyet-ap" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.huyet_ap" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm mb-1" for="nhip-tho">Nhịp thở (lần/phút):</label>
-                                                        <input id="nhip-tho" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.nhip_tho" />
+                                                        <input id="nhip-tho" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.nhip_tho" readonly="@(onReadonly || !onReadonly && !onBS)" />
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 items-end">
@@ -428,7 +363,8 @@
                                                                            SearchMethod="LoadPhanLoaiSucKhoeData"
                                                                            @bind-Value="@SelectedKhamSucKhoeTheLuc.phan_loai"
                                                                            placeholder="Chọn phân loại"
-                                                                           class="form-select">
+                                                                           class="form-select"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBS)">
                                                             <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
@@ -450,7 +386,7 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">1. Tuần hoàn:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan" readonly="@(onReadonly || !onReadonly && !onBSTuanHoan)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -460,8 +396,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSTuanHoan)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -474,7 +411,7 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">2. Hô hấp:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap" readonly="@(onReadonly || !onReadonly && !onBSHoHap)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -484,8 +421,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSHoHap)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -500,7 +438,7 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">3. Tiêu hóa:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa" readonly="@(onReadonly || !onReadonly && !onBSTieuHoa)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -510,8 +448,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSTieuHoa)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -524,7 +463,7 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">4. Thận - TN:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu" readonly="@(onReadonly || !onReadonly && !onBSThanTietNieu)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -534,8 +473,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSThanTietNieu)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -550,7 +490,7 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">5. Nội tiết:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet" readonly="@(onReadonly || !onReadonly && !onBSNoiTiet)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -560,8 +500,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSNoiTiet)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -574,7 +515,7 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">6. CXK:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop" readonly="@(onReadonly || !onReadonly && !onBSCoXuongKhop)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -584,8 +525,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSCoXuongKhop)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -600,7 +542,7 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">7. Thần kinh:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh" readonly="@(onReadonly || !onReadonly && !onBSThanKinh)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -610,8 +552,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSThanKinh)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -624,7 +567,7 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">8. Tâm thần:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than" readonly="@(onReadonly || !onReadonly && !onBSTamThan)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -634,8 +577,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSTamThan)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -653,7 +597,7 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">9. Ngoại khoa:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa" readonly="@(onReadonly || !onReadonly && !onBSNgoaiKhoa)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -663,8 +607,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSNgoaiKhoa)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -677,7 +622,7 @@
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">10. Da liễu:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu" readonly="@(onReadonly || !onReadonly && !onBSNgoaiKhoa)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -687,8 +632,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSNgoaiKhoa)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -706,7 +652,7 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-3">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">11. Sản PK:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.ket_qua" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.ket_qua" readonly="@(onReadonly || !onReadonly && !onBSSanPhuKhoa)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -716,8 +662,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeSanPhuKhoa.phan_loai"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSSanPhuKhoa)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -735,25 +682,25 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - Có kính:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Phải - Có kính:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Trái - không kính:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - không kính:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
                                                     <div class="col-span-1 md:col-span-6 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Bệnh về mắt:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_mat" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_mat" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-2">
                                                         <BlazoredTypeahead EnableDropDown="true"
@@ -765,8 +712,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_mat"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           Style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           Style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSMat)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -784,25 +732,25 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - thường:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - thầm:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - thường:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-3 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - thầm:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
                                                     <div class="col-span-1 md:col-span-6 flex items-center">
                                                         <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Bệnh về TMH:</label>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
                                                     </div>
                                                     <div class="col-span-1 md:col-span-2">
                                                         <BlazoredTypeahead EnableDropDown="true"
@@ -814,8 +762,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_tmh"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           Style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           Style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSTaiMuiHong)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -833,15 +782,15 @@
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">Hàm trên:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
                                                         <span style="min-width:90px;">Hàm dưới:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span style="min-width:90px;">Bệnh về RHM:</span>
-                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_rhm" />
+                                                        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_rhm" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
                                                         <BlazoredTypeahead EnableDropDown="true"
                                                                            ShowDropDownOnFocus="true"
                                                                            MinimumLength="0"
@@ -851,8 +800,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_rhm"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSRangHamMat)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -883,13 +833,16 @@
                                                         </div>
                                                     }
                                                 </div>
-                                                <div class="flex justify-end">
-                                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                                    OnClick="OnLoadKetQuaCanLamSang">
-                                                        <i class="ri-loop-right-line"></i>
-                                                        Đồng bộ
-                                                    </MudButton>
-                                                </div>
+                                                @if (!(onReadonly || !onReadonly && !onBSKetLuan))
+                                                {
+                                                    <div class="flex justify-end">
+                                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                                                   OnClick="OnLoadKetQuaCanLamSang">
+                                                            <i class="ri-loop-right-line"></i>
+                                                            Đồng bộ
+                                                        </MudButton>
+                                                    </div>
+                                                }
                                             </div>
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KẾT LUẬN</MudText>
@@ -905,8 +858,9 @@
                                                                            @bind-Value="@SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe"
                                                                            placeholder="Chọn phân loại"
                                                                            class="form-select"
-                                                                           style="width:120px;">
-                                                           <SelectedTemplate Context="item">
+                                                                           style="width:120px;"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSKetLuan)">
+                                                            <SelectedTemplate Context="item">
                                                                 @item.name
                                                             </SelectedTemplate>
                                                             <ResultTemplate Context="item">
@@ -920,20 +874,21 @@
                                                 </div>
                                                 <div class="mb-2">
                                                     <label class="block text-sm font-normal">Bệnh tật (nếu có):</label>
-                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="3" @bind="@SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan"></textarea>
+                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="3" @bind="@SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)"></textarea>
                                                 </div>
                                                 <div class="mb-2">
                                                     <label class="block text-sm font-normal">Đề nghị:</label>
-                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2" @bind="@SelectedKhamSucKhoeKetLuan.de_nghi"></textarea>
+                                                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2" @bind="@SelectedKhamSucKhoeKetLuan.de_nghi" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)"></textarea>
                                                 </div>
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center mb-2">
                                                     <div>
                                                         <label class="block text-sm font-normal">Ngày kết luận</label>
                                                         <input type="text"
-                                                               class="form-input date-picker"
+                                                               class="form-input @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "date-picker")"
                                                                placeholder="Chọn ngày"
                                                                value="@(SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd/MM/yyyy"))"
-                                                               @onchange="@(e => OnValueChanged(e, nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)))" />
+                                                               @onchange="@(e => OnValueChanged(e, nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)))"
+                                                               readonly="@(onReadonly || !onReadonly && !onBSKetLuan)" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm font-normal">Người kết luận:</label>
@@ -945,7 +900,8 @@
                                                                            SearchMethod="LoadBacSiData"
                                                                            @bind-Value="@SelectedKhamSucKhoeKetLuan.bs_ket_luan"
                                                                            placeholder="Chọn bác sĩ"
-                                                                           class="form-select">
+                                                                           class="form-select"
+                                                                           Disabled="@(onReadonly || !onReadonly && !onBSKetLuan)">
                                                             <SelectedTemplate Context="item">
                                                                 @item.full_name
                                                             </SelectedTemplate>
@@ -973,16 +929,37 @@
                             }
 
                             <div class="flex items-center justify-end gap-2 py-4">
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white">
-                                    <i class="ri-save-line"></i>
-                                    Lưu
-                                </MudButton>
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-warning border-warning hover:bg-warning hover:text-white">
-                                    <i class="ri-close-line"></i>
-                                    Kết thúc
-                                </MudButton>
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                           OnClick="OnValidSubmit">
+                                @if (
+                                                                !onReadonly
+                                                                || onBSHoHap
+                                                                || onBSTuanHoan
+                                                                || onBSTieuHoa
+                                                                || onBSThanTietNieu
+                                                                || onBSNoiTiet
+                                                                || onBSCoXuongKhop
+                                                                || onBSThanKinh
+                                                                || onBSTamThan
+                                                                || onBSNgoaiKhoa
+                                                                || onBSMat
+                                                                || onBSTaiMuiHong
+                                                                || onBSRangHamMat
+                                                                || onBSSanPhuKhoa
+                                                                || onBSKetLuan
+                                                                || onBS
+                                                                )
+                                {
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
+                                               OnClick="OnValidSubmit">
+                                        <i class="ri-save-line"></i>
+                                        Lưu
+                                    </MudButton>
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-warning border-warning hover:bg-warning hover:text-white"
+                                               OnClick="OnEndSubmit">
+                                        <i class="ri-close-line"></i>
+                                        Kết thúc
+                                    </MudButton>
+                                }
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="ExportPDF">
                                     <i class="ri-file-pdf-line"></i>
                                     Export pdf
                                 </MudButton>
@@ -1009,9 +986,9 @@
                     </MudButton>
                 </div>
                 <div class="p-5">
-                        <div class="text-black dark:text-muted">
-                            <div class="grid grid-cols-1 gap-4 py-3">
-                                <div class="space-y-2">
+                    <div class="text-black dark:text-muted">
+                        <div class="grid grid-cols-1 gap-4 py-3">
+                            <div class="space-y-2">
                                 <table class="display" style="width:100%">
                                     <thead>
                                         <tr>
@@ -1051,20 +1028,485 @@
                                         }
                                     </tbody>
                                 </table>
-                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-end gap-2 py-4">
+                    </div>
+                    <div class="flex items-center justify-end gap-2 py-4">
                         <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseSyncKetQuaCanLamSangModal">
-                                <i class="ri-close-line"></i>
-                                Đóng
-                            </MudButton>
-                        </div>
+                            <i class="ri-close-line"></i>
+                            Đóng
+                        </MudButton>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 }
+
+<div class="hidden">
+    <!-- Printable Medical Form Content -->
+    <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder" id="medical-form-content">
+
+
+        <!-- Medical Form Header -->
+        <div class="ksk-header-container" style="margin-bottom:0;">
+            <div class="ksk-header-logo">
+                <img src="@_logoPath" alt="Logo" class="header-logo" />
+            </div>
+            <div class="ksk-header">
+                <div class="quochoa">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                <div class="doclap">Độc lập - Tự do - Hạnh phúc</div>
+                <div>-------------</div>
+            </div>
+        </div>
+
+        <div class="ksk-title">SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+
+        <!-- Main Medical Form -->
+        <div class="ksk-form">
+            <!-- Patient Information Section -->
+            <div class="ksk-row">
+                <!-- Photo Section -->
+                <div>
+                    <div class="ksk-photo" id="profilePhotoContainer">
+                        <img id="profilePhoto" src="@_profileImageUrl" alt="Ảnh đại diện" style="width: 100%; height: 100%; object-fit: cover; @(string.IsNullOrEmpty(_profileImageUrl) ? "display:none" : "")" />
+                        <span style="@(string.IsNullOrEmpty(_profileImageUrl) ? "" : "display:none")">Ảnh 4x6 cm</span>
+                    </div>
+                    <div class="ksk-photo-label">(dán ảnh hoặc scan ảnh)</div>
+                </div>
+
+                <!-- Patient Info -->
+                <div class="ksk-info">
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">1. Họ và tên:</div>
+                        <div class="ksk-info-value">@SelectedItem.benh_nhan?.full_name</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">2. Giới tính:</div>
+                        <div class="ksk-info-value">@(SelectedItem.benh_nhan?.gioi_tinh?.GetDescription() ?? "")</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">3. Sinh ngày:</div>
+                        <div class="ksk-info-value">@(SelectedItem.benh_nhan?.ngay_sinh?.Day.ToString("00") ?? "")</div>
+                        <span style="margin: 0 4px;">tháng</span>
+                        <div class="ksk-info-value">@(SelectedItem.benh_nhan?.ngay_sinh?.Month.ToString("00") ?? "")</div>
+                        <span style="margin: 0 4px;">năm</span>
+                        <div class="ksk-info-value">@(SelectedItem.benh_nhan?.ngay_sinh?.Year.ToString() ?? "")</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">4. Số CCCD/CMND:</div>
+                        <div class="ksk-info-value">@CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.so_dinh_danh)</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">5. Cấp ngày:</div>
+                        <div class="ksk-info-value 70px">@CoreHelpers.FormatDate(SelectedItem.benh_nhan?.ngay_cap)</div>
+                        <span style="margin: 0 4px;">tại</span>
+                        <div class="ksk-info-value">@CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.noi_cap)</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">6. Chỗ ở hiện tại:</div>
+                        <div class="ksk-info-value">@CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.dia_chi)</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">7. Số điện thoại:</div>
+                        <div class="ksk-info-value">@CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.so_dien_thoai)</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">8. Nghề nghiệp:</div>
+                        <div class="ksk-info-value">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeNgheNghiep.nghe_nghiep)</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">9. Nơi công tác:</div>
+                        <div class="ksk-info-value">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeNgheNghiep.noi_cong_tac)</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">10. Ngày vào làm:</div>
+                        <div class="ksk-info-value">@CoreHelpers.FormatDate(SelectedKhamSucKhoeNgheNghiep.ngay_vao_lam)</div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">11. Nghề, công việc trước đây:</div>
+                        <div class="ksk-info-value"></div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">12. Thời gian làm nghề:</div>
+                        <div class="ksk-info-value 30px"></div>
+                        <span>tháng, từ</span>
+                        <div class="ksk-info-value"></div>
+                        <span>đến</span>
+                        <div class="ksk-info-value"></div>
+                    </div>
+                    <div class="ksk-info-row">
+                        <div class="ksk-info-label">13. Tiền sử bệnh, tật của gia đình:</div>
+                        <div class="ksk-info-value">@SelectedKhamSucKhoeTienSu.tien_su_gia_dinh</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Note -->
+            <div class="ksk-note">
+                <strong>* Lưu ý:</strong> Trường hợp đối tượng KSK có CCCD gắn chip hoặc có số định danh công dân đã thực hiện kết nối với cơ sở dữ liệu quốc gia, phần HÀNH CHÍNH nếu trên chỉ cần ghi mục (1) Họ và tên, (3) Ngày tháng năm sinh, (4) Số định danh công dân.
+            </div>
+
+            <!-- Disease History Table -->
+            <div class="ksk-table-wrap">
+                <table class="ksk-table">
+                    <thead>
+                        <tr>
+                            <th>Tên bệnh</th>
+                            <th>Phát hiện năm</th>
+                            <th>Bệnh nghề nghiệp</th>
+                            <th>Năm phát hiện bệnh nghề nghiệp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ls-cell-small">@SelectedKhamSucKhoeTienSu.ten_benh</td>
+                            <td class="ls-cell-small">@SelectedKhamSucKhoeTienSu.nam_phat_hien</td>
+                            <td class="ls-cell-small">@SelectedKhamSucKhoeTienSu.benh_nghe_nghiep</td>
+                            <td class="ls-cell-small">@SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Signature Section -->
+            <div class="ksk-signature-row">
+                <div class="ksk-signature-box">
+                    Người lao động xác nhận<br>
+                    <small>(Ký và ghi rõ họ, tên)</small><br><br><br>
+                    <strong>@SelectedItem.benh_nhan?.full_name</strong>
+                </div>
+                <div class="ksk-signature-box">
+                    ... ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year<br>
+                    Người lập sổ KSK định kỳ<br>
+                    <small>(Ký và ghi rõ họ, tên)</small><br><br><br>
+                    <strong></strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Examination Section -->
+        <div class="ksk-form" style="margin-top: 32px;">
+            <div class="ksk-title">KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+
+            <!-- I. Medical History -->
+            <div class="mb-6">
+                <div class="font-bold mb-2">I. TIỀN SỬ BỆNH, TẬT <span class="font-normal italic">(Bác sỹ khám sức khỏe hỏi và ghi chép)</span></div>
+
+                @if (SelectedItem.benh_nhan?.gioi_tinh != null && SelectedItem.benh_nhan?.gioi_tinh == Enums.GioiTinh.Nu && SelectedKhamSucKhoeSanPhuKhoa != null)
+                {
+                    <div class="mb-4">
+                        <div class="font-bold">Tiền sử sản phụ khoa (Đối với nữ): Có</div>
+                        <div class="ml-4 space-y-1 text-sm">
+                            <div>- Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi: @SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh</div>
+                            <div>- Tính chất kinh nguyệt: @SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh</div>
+                            <div>Chu kỳ kinh: @SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh ngày, Lượng kinh: @SelectedKhamSucKhoeSanPhuKhoa.luong_kinh ml</div>
+                            <div>Đau bụng kinh: @CoreHelpers.GetBooleanDisplay(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh)</div>
+                            <div>Đã lập gia đình: @CoreHelpers.GetBooleanDisplay(SelectedKhamSucKhoeSanPhuKhoa.da_lap_gia_dinh, "Có", "Chưa")</div>
+                            <div>PARA: @SelectedKhamSucKhoeSanPhuKhoa.para</div>
+                            <div>Số lần mổ sản, phụ khoa: @SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa @(string.IsNullOrEmpty(SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro) ? "/ Chưa" : $"Có {SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro}")</div>
+                            <div>Có áp dụng BPTT không: @(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true ? $"Có {SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt}" : "Không")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- II. Physical Examination -->
+            <div class="mb-6">
+                <div class="font-bold mb-2">II. KHÁM THỂ LỰC</div>
+                <div class="ml-4 space-y-1">
+                    @if (SelectedKhamSucKhoeTheLuc != null)
+                    {
+                        <div>Chiều cao: @SelectedKhamSucKhoeTheLuc.chieu_cao cm; Cân nặng: @SelectedKhamSucKhoeTheLuc.can_nang kg; Chỉ số BMI: @SelectedKhamSucKhoeTheLuc.bmi</div>
+                        <div>Mạch: @SelectedKhamSucKhoeTheLuc.mach lần/phút; Huyết áp: @SelectedKhamSucKhoeTheLuc.huyet_ap mmHg</div>
+                        <div>Phân loại thể lực: @SelectedKhamSucKhoeTheLuc.phan_loai</div>
+                    }
+                </div>
+            </div>
+
+            <!-- III. Clinical Examination -->
+            <div class="mb-6">
+                <div class="font-bold mb-2">III. KHÁM LÂM SÀNG</div>
+                <div class="text-sm mb-4">Phải khám đầy đủ các nội dung theo chuyên khoa để khẳng định có/không có bệnh, tật theo quy định tại Quyết định...</div>
+
+
+
+                <div class="ksk-table-wrap">
+                    <table class="ksk-table ksk-table-2">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">STT</th>
+                                <th colspan="2">Nội dung khám</th>
+                                <th rowspan="2">Họ tên và chữ ký của Bác sỹ chuyên khoa</th>
+                            </tr>
+                            <tr>
+                                <th style="border: 1px solid #000;">Kết luận</th>
+                                <th style="border: 1px solid #000;">Kết quả</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (SelectedKhamSucKhoeChuyenKhoa != null)
+                            {
+                                <!-- Nội khoa -->
+                                <tr><td colspan="4"><b>Nội khoa</b></td></tr>
+                                <tr>
+                                    <td rowspan="2">a</td>
+                                    <td><i>Tuần hoàn</i></td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan, SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan, "tuan_hoan", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">b</td>
+                                    <td><i>Hô hấp</i></td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap, SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap, "ho_hap", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">c</td>
+                                    <td><i>Tiêu hóa</i></td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa, SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa, "tieu_hoa", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">d</td>
+                                    <td><i>Thận-Tiết niệu</i></td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu, SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu, "than_tiet_nieu", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">đ</td>
+                                    <td><i>Nội tiết</i></td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet, SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet, "noi_tiet", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">e</td>
+                                    <td><i>Cơ-xương-khớp</i></td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop, SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop, "co_xuong_khop", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">g</td>
+                                    <td><i>Thần kinh</i></td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh, SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh, "than_kinh", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh?.name)</td>
+                                </tr>
+                                <!-- Ngoại khoa, Da liễu -->
+                                <tr><td colspan="4"><b>Ngoại khoa, Da liễu</b></td></tr>
+                                <tr>
+                                    <td rowspan="2">a</td>
+                                    <td><i>Ngoại khoa</i></td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa, SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa, "ngoai_khoa", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">b</td>
+                                    <td><i>Da liễu</i></td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu?.name)</td>
+                                </tr>
+
+                                @if (SelectedItem.benh_nhan?.gioi_tinh != null && SelectedItem.benh_nhan?.gioi_tinh == Enums.GioiTinh.Nu && SelectedKhamSucKhoeSanPhuKhoa != null)
+                                {
+                                    <!-- Sản phụ khoa -->
+                                    <tr><td colspan="4"><b>Sản phụ khoa</b></td></tr>
+                                    <tr>
+                                        <td rowspan="2">a</td>
+                                        <td><i>Sản phụ khoa</i></td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeSanPhuKhoa.ket_qua)</td>
+                                        <td class="ls-doctor-cell" rowspan="2">
+                                            @RenderSignature(SelectedKhamSucKhoeSanPhuKhoa.chu_ky, SelectedKhamSucKhoeSanPhuKhoa.chu_ky, "san_phu_khoa", 100, 50)
+                                            @CoreHelpers.GetSafeString(SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan)
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phân loại</td>
+                                        <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeSanPhuKhoa.phan_loai?.name)</td>
+                                    </tr>
+                                }
+                                <!-- Mắt -->
+                                <tr><td colspan="4"><b>Mắt</b></td></tr>
+                                <tr>
+                                    <td rowspan="2">a</td>
+                                    <td><i>Kết quả khám thị lực</i></td>
+                                    <td>Không kính: Mắt phải @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai) Mắt trái @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai) | Có kính: Mắt phải @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai) Mắt trái @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat, SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat, "mat", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_mat)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_mat?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td>b</td>
+                                    <td><i>Các bệnh về mắt (nếu có)</i></td>
+                                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.benh_mat)</td>
+                                    <td></td>
+                                </tr>
+                                <!-- Tai - Mũi - Họng -->
+                                <tr><td colspan="4"><b>Tai - Mũi - Họng</b></td></tr>
+                                <tr>
+                                    <td rowspan="2">a</td>
+                                    <td><i>Kết quả khám thính lực</i></td>
+                                    <td>Tai trái: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai) m; Nói thầm @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai) m | Tai phải: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai) m; Nói thầm @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai) m</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh, SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh, "tmh", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_tmh)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_tmh?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td>b</td>
+                                    <td><i>Các bệnh về tai mũi họng (nếu có)</i></td>
+                                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong)</td>
+                                    <td></td>
+                                </tr>
+                                <!-- Răng - Hàm - Mặt -->
+                                <tr><td colspan="4"><b>Răng - Hàm - Mặt</b></td></tr>
+                                <tr>
+                                    <td rowspan="2">a</td>
+                                    <td><i>Kết quả khám</i></td>
+                                    <td>Hàm trên: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren) | Hàm dưới: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi)</td>
+                                    <td class="ls-doctor-cell" rowspan="2">
+                                        @RenderSignature(SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm, SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm, "rhm", 100, 50)
+                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_rhm)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phân loại</td>
+                                    <td class="ls-cell-small">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_rhm?.name)</td>
+                                </tr>
+                                <tr>
+                                    <td>b</td>
+                                    <td><i>Các bệnh về răng hàm mặt (nếu có)</i></td>
+                                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.benh_rhm)</td>
+                                    <td></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- IV. Laboratory Tests -->
+            <div style="margin-bottom: 24px;">
+                <div style="font-weight: bold; text-align: center; margin-bottom: 8px;">IV. KHÁM CẬN LÂM SÀNG</div>
+                <div style="border: 1px solid #000; padding: 16px;">
+                    @foreach (var item in SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => !string.IsNullOrEmpty(c.ket_qua)))
+                    {
+                        var strSplit = item.ket_qua?.Split('|');
+                        if (strSplit != null)
+                        {
+                            <div style="margin-bottom: 8px;">* @( strSplit.Length > 0 ? strSplit[0].Trim() : string.Empty):</div>
+                            <div style="margin-left: 16px;">
+                                <div style="margin-bottom: 8px;">a) Kết quả: @( strSplit.Length > 1 ? strSplit[1].Trim() : string.Empty)</div>
+                                <div>b) Đánh giá: @( strSplit.Length > 2 ? strSplit[2].Trim() : string.Empty)</div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- V. Conclusion -->
+            <div style="margin-bottom: 24px;">
+                <div style="font-weight: bold; text-align: center; margin-bottom: 8px;">V. KẾT LUẬN</div>
+                <div style="margin-bottom: 32px;">
+                    @if (SelectedKhamSucKhoeKetLuan != null)
+                    {
+                        <div style="margin-bottom: 8px;"><strong>1. Phân loại sức khỏe:<sup>1</sup></strong> @SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe?.name</div>
+                        <div style="margin-bottom: 8px;"><strong>2. Các bệnh, tật (nếu có):<sup>2</sup></strong> @SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan</div>
+                        <div><strong>3. Đề nghị:</strong> @SelectedKhamSucKhoeKetLuan.de_nghi</div>
+                    }
+                </div>
+
+                <div class="ksk-signature-row">
+                    <div style="flex: 1;"></div>
+                    <div class="ksk-signature-box">
+                        <div><strong>NGƯỜI KẾT LUẬN</strong></div>
+                        <small>(Ký, ghi rõ họ tên và đóng dấu)</small>
+                        @if (SelectedKhamSucKhoeKetLuan != null)
+                        {
+                            <div style="margin-bottom: 15px;">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd/MM/yyyy")</div>
+                            <div class="signature-container">@RenderSignature(SelectedKhamSucKhoeKetLuan.chu_ky, SelectedKhamSucKhoeKetLuan.chu_ky, "ket_luan", 150, 80)</div>
+                            <div><strong>@SelectedKhamSucKhoeKetLuan.nguoi_ket_luan</strong></div>
+                        }
+                    </div>
+                </div>
+
+                <div class="ksk-note" style="border-top: 1px solid #333; padding-top: 8px;">
+                    <div><sup>1</sup> Phân loại sức khỏe theo quy định của Bộ Y tế.</div>
+                    <div><sup>2</sup> Ghi rõ các bệnh, tật, phương án điều trị, phục hồi chức năng hoặc giới thiệu khám chuyên khoa để khám bệnh, chữa bệnh (nếu có).</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     function previewImage(input) {

@@ -48,7 +48,7 @@
             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Hình ảnh</MudText>
             <div class="grid grid-cols-1 gap-4">
                 <div class="flex items-center gap-4">
-                    <MudImage Src="@($"{GlobalConstant.BaseUrl}assets/{CurrentUser.avatar}")" FallbackSrc="assets/images/user.png" Class="w-16 h-16 rounded-full" alt="" />
+                    <MudImage Src="@($"{GlobalConstant.BaseUrl}assets/{CurrentUser.avatar}")" FallbackSrc="assets/images/avatar-1.png" Class="w-16 h-16 rounded-full" alt="" />
                     <div>
                         <MudText Typo="Typo.h5" Class="text-lg font-bold dark:text-white">@CurrentUser.full_name</MudText>
                         <MudText Class="text-muted mt-0.5 dark:text-darkmuted">@(CurrentUser.tags != null ? string.Join("; ", CurrentUser.tags) : "")</MudText>

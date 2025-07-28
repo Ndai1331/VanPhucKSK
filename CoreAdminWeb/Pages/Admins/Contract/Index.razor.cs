@@ -1,17 +1,17 @@
-﻿using CoreAdminWeb.Helpers;
+﻿using CoreAdminWeb.Commons;
+using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Contract;
+using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using CoreAdminWeb.Services.Files;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
-using CoreAdminWeb.Commons;
+using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.Contract
 {
@@ -127,7 +127,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
-                // query += "&filter[_and][][role][_eq]=87D650A9-0BD2-41DC-ADF2-B0A248AD9A3B";
+                // query += $"&filter[_and][][role][_eq]={GlobalConstant.DOCTOR_ROLE_ID}";
 
                 if (!string.IsNullOrEmpty(searchText))
                 {

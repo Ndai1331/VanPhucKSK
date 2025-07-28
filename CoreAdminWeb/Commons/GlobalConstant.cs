@@ -4,5 +4,6 @@
     {
         public static string BaseUrl { get; set; } = "https://localhost:5001/"; // Default base URL, can be overridden
         public static string CONTRACT_FOLDER_ID { get; set; } = "F363A199-3810-4181-BA6F-CA4337A143B2"; // Default base URL, can be overridden
+        public static string DOCTOR_ROLE_ID { get; set; } = "87D650A9-0BD2-41DC-ADF2-B0A248AD9A3B";
     }
 }

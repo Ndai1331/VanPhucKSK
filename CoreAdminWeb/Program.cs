@@ -1,10 +1,10 @@
-using MudBlazor.Services;
-using CoreAdminWeb.StateService;
-using CoreAdminWeb.Model.Configuration;
-using CoreAdminWeb.Http;
-using CoreAdminWeb.DIInjections;
-using CoreAdminWeb.Commons;
 using Blazored.LocalStorage;
+using CoreAdminWeb.Commons;
+using CoreAdminWeb.DIInjections;
+using CoreAdminWeb.Http;
+using CoreAdminWeb.Model.Configuration;
+using CoreAdminWeb.StateService;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +17,13 @@ builder.Services.AddSingleton<ModeStateService>();
 // Add Blazored.LocalStorage before other services that depend on it
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
+
+// Load appsettings based on environment
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
 builder.Services.AddServices();
 builder.Services.Configure<DrCoreApi>(builder.Configuration.GetSection("DrCoreApi"));
@@ -51,7 +58,7 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts(); 
+    app.UseHsts();
 }
 else
 {
