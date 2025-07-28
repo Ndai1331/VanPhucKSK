@@ -29,7 +29,7 @@
             <div class="flex items-end justify-between flex-1 gap-2 sm:gap-4">
                 <!-- Left: Filter Area -->
                 <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-3 xl:col-span-3">
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-4 xl:col-span-4">
                         <MudForm class="flex-1">
                             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tìm kiếm</MudText>
                             <div class="relative">
@@ -50,7 +50,7 @@
                         </MudForm>
                     </div>
 
-                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
+                    @* <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
                         <div>
                             <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-success border-success text-white hover:bg-success/[0.85]
@@ -59,7 +59,7 @@
                                 Thêm mới
                             </MudButton>
                         </div>
-                    </div>
+                    </div> *@
                 </div>
             </div>
 
@@ -71,8 +71,6 @@
                         <th>Tên công ty</th>
                         <th>Ngày khám</th>
                         <th>Số lượng khám</th>
-                        <th>Người lập sổ</th>
-                        <th>Người xác nhận</th>
                         <th class="flex items-center gap-2">Thao tác</th>
                     </tr>
                 </thead>
@@ -82,20 +80,23 @@
                         <tr>
                             <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                             <td>@item.Data.code</td>
-                            <td>@item.Data.cong_ty?.name</td>
-                            <td>@item.Data.ngay_kham?.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Data.ma_hop_dong_ksk?.cong_ty?.name</td>
+                            <td>@item.Data.ngay_du_kien_kham?.ToString("dd/MM/yyyy")</td>
                             <td>0</td>
-                            <td>@item.Data.nguoi_lap_so</td>
-                            <td>@item.Data.nguoi_xac_nhan</td>
                             <td class="flex items-center gap-2">
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-sky-500 border-sky-500"
+                                            @onclick="@(e => GoToDetail(item.Data.id))">
+                                    <i class="ri-file-line"></i>
+                                    Chi tiết hồ sơ
+                                </MudButton>
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
                                     <i class="ri-edit-line"></i>
                                 </MudButton>
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                @* <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
                                            @onclick="@(e => OpenDeleteModal(item.Data))">
                                     <i class="ri-delete-bin-line"></i>
-                                </MudButton>
+                                </MudButton> *@
                             </td>
                         </tr>
                     }
@@ -151,111 +152,24 @@
                 </div>
                 <div class="p-5 space-y-4">
                     <EditForm Model="@SelectedItem" OnValidSubmit="OnValidSubmit">
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                <label>Mã đoàn</label>
-                                <input type="text" class="form-input" @bind-value="@SelectedItem.code" required />
-                            </div>
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                <label>Công ty:</label>
-                                <BlazoredTypeahead EnableDropDown="true"
-                                                    ShowDropDownOnFocus="true"
-                                                    MinimumLength="0"
-                                                    TItem="CongTyModel"
-                                                    TValue="CongTyModel"
-                                                    SearchMethod="LoadCongTyData"
-                                                    Value="SelectedItem.cong_ty"
-                                                    ValueExpression="@(() => SelectedItem.cong_ty)"
-                                                    ValueChanged="OnCongTyChanged"
-                                                    placeholder="Chọn công ty"
-                                                    Class="form-select">
-                                    <SelectedTemplate Context="item">
-                                        @item.name
-                                    </SelectedTemplate>
-                                    <ResultTemplate Context="item">
-                                        @item.name
-                                    </ResultTemplate>
-                                    <NotFoundTemplate Context="item">
-                                        Không tìm thấy dữ liệu
-                                    </NotFoundTemplate>
-                                </BlazoredTypeahead>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-3 py-3">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-1 xl:grid-cols-1 py-1">
                             <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                 <label>Mã hồ sơ khám sức khỏe:</label>
-                                <BlazoredTypeahead EnableDropDown="true"
-                                                    ShowDropDownOnFocus="true"
-                                                    MinimumLength="0"
-                                                    TItem="KhamSucKhoeCongTyModel"
-                                                    TValue="KhamSucKhoeCongTyModel"
-                                                    SearchMethod="LoadKhamSucKhoeCongTyData"
-                                                    Value="SelectedItem.ma_ho_so_kham_suc_khoe"
-                                                    ValueExpression="@(() => SelectedItem.ma_ho_so_kham_suc_khoe)"
-                                                    ValueChanged="OnKhamSucKhoeCongTyChanged"
-                                                    placeholder="Chọn mã hồ sơ khám sức khỏe"
-                                                    Class="form-select">
-                                    <SelectedTemplate Context="item">
-                                        @item.code
-                                    </SelectedTemplate>
-                                    <ResultTemplate Context="item">
-                                        @item.code
-                                    </ResultTemplate>
-                                    <NotFoundTemplate Context="item">
-                                        Không tìm thấy dữ liệu
-                                    </NotFoundTemplate>
-                                </BlazoredTypeahead>
-                            </div>
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                <label>Ngày khám:</label>
-                                <input type="text"
-                                        class="form-input date-picker"
-                                        placeholder="Chọn ngày khám"
-                                        value="@(SelectedItem.ngay_kham?.ToString("dd/MM/yyyy"))"
-                                        @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_kham)))" />
-                            </div>
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                <label>Ngày lập sổ:</label>
-                                <input type="text"
-                                        class="form-input date-picker"
-                                        placeholder="Chọn ngày lập sổ"
-                                        value="@(SelectedItem.ngay_lap_so?.ToString("dd/MM/yyyy"))"
-                                        @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_lap_so)))" />
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                <label>Người lập sổ:</label>
-                                <input type="text" class="form-input" @bind-value="@SelectedItem.nguoi_lap_so" Label="Người lập sổ" />
-                            </div>
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                <label>Người xác nhận:</label>
-                                <input type="text" class="form-input" @bind-value="@SelectedItem.nguoi_xac_nhan" Label="Người xác nhận" />
-                            </div>
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
-                                <label>Ghi chú:</label>
-                                <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" placeholder="Nhập ghi chú"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-4 md:grid-cols-4 xl:grid-cols-4 py-4">
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                <label>Đã gửi thông báo:</label>
-                                <input type="checkbox" class="form-checkbox outborder-purple"
-                                       checked="@(SelectedItem.da_gui_thong_bao)" @onchange="@(e => OnCheckedChanged(e, nameof(SelectedItem.da_gui_thong_bao)))" />
-                            </div>
-                            <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
-                                <label>Đã gửi mail:</label>
-                                <input type="checkbox" class="form-checkbox outborder-purple"
-                                       checked="@(SelectedItem.da_gui_mail)" @onchange="@(e => OnCheckedChanged(e, nameof(SelectedItem.da_gui_mail)))" />
+                                <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Nhập mã hồ sơ khám sức khỏe" disabled />
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-                            <div class="space-y-2 md:col-span-2">
+                            <div class="flex flex-col gap-2 md:col-span-2">
                                 <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Danh sách đoàn khám</MudText>
+                                <div>
+                                    <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5
+                                        bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85]
+                                        text-nowrap">
+                                        <i class="ri-file-excel-2-fill"></i>
+                                        Import excel
+                                    </MudButton>
+                                </div>
                             </div>
                             <div class="space-y-2 md:col-span-2">
                                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -286,7 +200,7 @@
                                                         <input type="text" class="form-input" @bind-value="@item.Data.ma_dieu_tri" Label="Mã điều trị" />
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-input date-picker" value="@(item.Data.ngay_kham?.ToString("dd/MM/yyyy"))" @onchange="@(e => OnDateChangedDetail(e, item.Data, nameof(item.Data.ngay_kham)))" />
+                                                        <input type="text" class="form-input date-picker" value="@(item.Data.ngay_kham?.ToString("dd/MM/yyyy"))" />
                                                     </td>
                                                     <td>
                                                         <input type="text" class="form-input w-40" @bind-value="@item.Data.description" Label="Ghi chú" />
@@ -304,9 +218,9 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="w-full flex items-center justify-end mt-2">
+                                @* <div class="w-full flex items-center justify-end mt-2">
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnAddChiTiet">Thêm dòng</MudButton>
-                                </div>
+                                </div> *@
                             </div>
                         </div>
 

@@ -23,6 +23,7 @@ namespace CoreAdminWeb.Model.Contract
         // public string? email { get; set; }
         public FileModel? file_hd { get; set; }
         public UserModel? nhan_vien_id { get; set; }
+        public List<ContractDinhMucModel>? chi_tiet { get; set; }
     }
     public class ContractCRUDModel : BaseDetailModel
     {
