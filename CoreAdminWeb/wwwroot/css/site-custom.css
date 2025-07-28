@@ -208,6 +208,10 @@
     background-color: #f0fdf4 !important;
 }
 
+.bg-sky-500:hover {
+    background-color: #0ea5e9 !important;
+}
+
 
 .desktop-menu {
     display: none;

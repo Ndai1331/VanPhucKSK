@@ -4,33 +4,24 @@ using CoreAdminWeb.Model.DanhSachDoan;
 using CoreAdminWeb.Services.BaseServices;
 // using CoreAdminWeb.Services.DanhSachDoan;
 using CoreAdminWeb.Shared.Base;
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components.Forms;
 
 namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 {
     public partial class Index(
-        // IBaseService<DanhSachDoanModel> MainService,
+        IBaseService<KhamSucKhoeCongTyModel> MainService
         // IDanhSachDoanChiTietService DanhSachDoanChiTietService,
-        IBaseService<CongTyModel> CongTyService,
-        IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService
     ) : BlazorCoreBase
     {
-        private List<DanhSachDoanModel> MainModels { get; set; } = new();
+        private List<KhamSucKhoeCongTyModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
         private bool openAddOrUpdateModal = false;
         private bool openDetailDeleteModal = false;
-        private DanhSachDoanModel SelectedItem { get; set; } = new DanhSachDoanModel();
+        private KhamSucKhoeCongTyModel SelectedItem { get; set; } = new KhamSucKhoeCongTyModel();
         private List<DanhSachDoanChiTietModel> SelectedItemsDetail { get; set; } = new List<DanhSachDoanChiTietModel>();
         private DanhSachDoanChiTietModel? SelectedItemDetail { get; set; } = default;
         private string _searchString = "";
-        private string _searchStatusString = "";
         private string _titleAddOrUpdate = "Thêm mới";
-        private string activeDefTab { get; set; } = "tab1";
-        private IBrowserFile SelectedFile { get; set; } = default!;
-        private string fileContent { get; set; } = string.Empty;
-        private FileCRUDModel UploadFileCRUD { get; set; } = new FileCRUDModel();
 
 
         protected override async Task OnInitializedAsync()
@@ -50,33 +41,28 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private async Task LoadData()
         {
-            // IsLoading = true;
+            IsLoading = true;
 
-            // BuildPaginationQuery(Page, PageSize);
-            // BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            // if (!string.IsNullOrEmpty(_searchString))
-            // {
-            //     BuilderQuery += $"&filter[_and][1][_or][0][code][_contains]={_searchString}";
-            //     BuilderQuery += $"&filter[_and][1][_or][1][name][_contains]={_searchString}";
-            // }
-            // if (!string.IsNullOrEmpty(_searchStatusString))
-            // {
-            //     BuilderQuery += $"&filter[_and][2][status][_eq]={_searchStatusString}";
-            // }
-            // var result = await MainService.GetAllAsync(BuilderQuery);
-            // if (result.IsSuccess)
-            // {
-            //     MainModels = result.Data ?? new List<DanhSachDoanModel>();
-            //     if (result.Meta != null)
-            //     {
-            //         TotalItems = result.Meta.filter_count ?? 0;
-            //         TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
-            //     }
-            // }
-            // else
-            // {
-            MainModels = new List<DanhSachDoanModel>();
-            // }
+            BuildPaginationQuery(Page, PageSize);
+            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
+            if (!string.IsNullOrEmpty(_searchString))
+            {
+                BuilderQuery += $"&filter[_and][1][_or][0][code][_contains]={_searchString}";
+            }
+            var result = await MainService.GetAllAsync(BuilderQuery);
+            if (result.IsSuccess)
+            {
+                MainModels = result.Data ?? new List<KhamSucKhoeCongTyModel>();
+                if (result.Meta != null)
+                {
+                    TotalItems = result.Meta.filter_count ?? 0;
+                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                }
+            }
+            else
+            {
+                MainModels = new List<KhamSucKhoeCongTyModel>();
+            }
             IsLoading = false;
         }
 
@@ -96,24 +82,19 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         private async Task LoadDetailData()
         {
             var buildQuery = $"sort=sort";
-            buildQuery += $"&filter[_and][][danh_sach_doan][_eq]={SelectedItem.id}";
+            buildQuery += $"&filter[_and][][ma_ho_so_kham_suc_khoe][_eq]={SelectedItem.id}";
             buildQuery += $"&filter[_and][][deleted][_eq]=false";
             // var result = await DanhSachDoanChiTietService.GetAllAsync(buildQuery);
             // SelectedItemsDetail = result.Data ?? new List<DanhSachDoanChiTietModel>();
             SelectedItemsDetail = new List<DanhSachDoanChiTietModel>();
         }
 
-        private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
-        {
-            return await LoadBlazorTypeaheadData(searchText, CongTyService);
-        }
+        // private async Task<IEnumerable<KhamSucKhoeCongTyModel>> LoadKhamSucKhoeCongTyData(string searchText)
+        // {
+        //     return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService);
+        // }
 
-        private async Task<IEnumerable<KhamSucKhoeCongTyModel>> LoadKhamSucKhoeCongTyData(string searchText)
-        {
-            return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService);
-        }
-
-        private void OpenDeleteModal(DanhSachDoanModel item)
+        private void OpenDeleteModal(KhamSucKhoeCongTyModel item)
         {
             SelectedItem = item;
             openDeleteModal = true;
@@ -121,22 +102,22 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private async Task OnDelete()
         {
-            // var result = await MainService.DeleteAsync(SelectedItem);
-            // if (result.IsSuccess && result.Data)
-            // {
-            //     await LoadData();
-            //     AlertService.ShowAlert("Xoá thành công!", "success");
-            //     openDeleteModal = false;
-            // }
-            // else
-            // {
-            //     AlertService.ShowAlert(result.Message ?? "Lỗi khi xóa dữ liệu", "danger");
-            // }
+            var result = await MainService.DeleteAsync(SelectedItem);
+            if (result.IsSuccess && result.Data)
+            {
+                await LoadData();
+                AlertService.ShowAlert("Xoá thành công!", "success");
+                openDeleteModal = false;
+            }
+            else
+            {
+                AlertService.ShowAlert(result.Message ?? "Lỗi khi xóa dữ liệu", "danger");
+            }
         }
 
         private void CloseDeleteModal()
         {
-            SelectedItem = new DanhSachDoanModel();
+            SelectedItem = new KhamSucKhoeCongTyModel();
             openDeleteModal = false;
         }
 
@@ -171,7 +152,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             {
                 SelectedItemsDetail.Add(new DanhSachDoanChiTietModel()
                 {
-                    danh_sach_doan = SelectedItem,
+                    ma_ho_so_kham_suc_khoe = SelectedItem,
                     sort = (SelectedItemsDetail.Max(c => c.sort) ?? 0) + 1,
                     code = string.Empty,
                     name = string.Empty
@@ -197,21 +178,19 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
             SelectedItemsDetail.Add(new DanhSachDoanChiTietModel
             {
-                danh_sach_doan = SelectedItem,
+                ma_ho_so_kham_suc_khoe = SelectedItem,
                 sort = (SelectedItemsDetail.Max(c => c.sort) ?? 0) + 1,
                 code = string.Empty,
                 name = string.Empty
             });
         }
 
-        private async Task OpenAddOrUpdateModal(DanhSachDoanModel? item)
+        private async Task OpenAddOrUpdateModal(KhamSucKhoeCongTyModel? item)
         {
             _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
-            SelectedItem = item != null ? item.DeepClone() : new DanhSachDoanModel();
+            SelectedItem = item != null ? item.DeepClone() : new KhamSucKhoeCongTyModel();
 
             SelectedItemsDetail = new List<DanhSachDoanChiTietModel>();
-            activeDefTab = "tab1";
-            // ClearImageUpload();
 
             if (SelectedItem.id > 0)
             {
@@ -222,7 +201,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             {
                 SelectedItemsDetail.Add(new DanhSachDoanChiTietModel()
                 {
-                    danh_sach_doan = SelectedItem,
+                    ma_ho_so_kham_suc_khoe = SelectedItem,
                     sort = (SelectedItemsDetail.Max(c => c.sort) ?? 0) + 1,
                     code = string.Empty,
                     name = string.Empty
@@ -254,7 +233,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             //             .Where(c => c.deleted == false || c.deleted == null)
             //             .Select(c =>
             //             {
-            //                 c.danh_sach_doan = result.Data;
+            //                 c.ma_ho_so_kham_suc_khoe = result.Data;
             //                 return c;
             //             })
             //             .ToList();
@@ -283,14 +262,14 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             //             .Where(c => (c.deleted == false || c.deleted == null) && c.id == 0)
             //             .Select(c =>
             //             {
-            //                 c.danh_sach_doan = SelectedItem;
+            //                 c.ma_ho_so_kham_suc_khoe = SelectedItem;
             //                 return c;
             //             }).ToList();
             //         var removeChiTietList = SelectedItemsDetail
             //             .Where(c => c.deleted == true && c.id > 0)
             //             .Select(c =>
             //             {
-            //                 c.danh_sach_doan = SelectedItem;
+            //                 c.ma_ho_so_kham_suc_khoe = SelectedItem;
             //                 c.deleted = true;
             //                 return c;
             //             }).ToList();
@@ -298,7 +277,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             //             .Where(c => (c.deleted == false || c.deleted == null) && c.id > 0)
             //             .Select(c =>
             //             {
-            //                 c.danh_sach_doan = SelectedItem;
+            //                 c.ma_ho_so_kham_suc_khoe = SelectedItem;
             //                 return c;
             //             }).ToList();
 
@@ -362,145 +341,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private void CloseAddOrUpdateModal()
         {
-            SelectedItem = new DanhSachDoanModel();
+            SelectedItem = new KhamSucKhoeCongTyModel();
             openAddOrUpdateModal = false;
-        }
-
-        private async Task OnStatusFilterChanged(ChangeEventArgs? selected)
-        {
-            _searchStatusString = selected?.Value?.ToString() ?? string.Empty;
-
-            await LoadData();
-        }
-
-        // private void OnCongTyChanged(CongTyModel? selected)
-        // {
-        //     SelectedItem.cong_ty = selected;
-        // }
-
-        private void OnKhamSucKhoeCongTyChanged(KhamSucKhoeCongTyModel? selected)
-        {
-            SelectedItem.ma_ho_so_kham_suc_khoe = selected;
-        }
-
-        // private void OnDateChanged(ChangeEventArgs e, string fieldName)
-        // {
-        //     try
-        //     {
-        //         var dateStr = e.Value?.ToString();
-        //         if (string.IsNullOrEmpty(dateStr))
-        //         {
-        //             switch (fieldName)
-        //             {
-        //                 case "ngay_kham":
-        //                     SelectedItem.ngay_kham = null;
-        //                     break;
-
-        //                 case "ngay_lap_so":
-        //                     SelectedItem.ngay_lap_so = null;
-        //                     break;
-        //             }
-        //             return;
-        //         }
-
-        //         var parts = dateStr.Split('/');
-        //         if (parts.Length == 3 &&
-        //             int.TryParse(parts[0], out int day) &&
-        //             int.TryParse(parts[1], out int month) &&
-        //             int.TryParse(parts[2], out int year))
-        //         {
-        //             var date = new DateTime(year, month, day);
-
-        //             switch (fieldName)
-        //             {
-        //                 case "ngay_kham":
-        //                     SelectedItem.ngay_kham = date;
-        //                     break;
-
-        //                 case "ngay_lap_so":
-        //                     SelectedItem.ngay_lap_so = date;
-        //                     break;
-        //             }
-        //         }
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
-        //     }
-        // }
-
-        private void OnDateChangedDetail(ChangeEventArgs e, DanhSachDoanChiTietModel item, string fieldName)
-        {
-            try
-            {
-                var dateStr = e.Value?.ToString();
-                if (string.IsNullOrEmpty(dateStr))
-                {
-                    switch (fieldName)
-                    {
-                        case "ngay_kham":
-                            item.ngay_kham = null;
-                            break;
-                    }
-                    return;
-                }
-
-                var parts = dateStr.Split('/');
-                if (parts.Length == 3 &&
-                    int.TryParse(parts[0], out int day) &&
-                    int.TryParse(parts[1], out int month) &&
-                    int.TryParse(parts[2], out int year))
-                {
-                    var date = new DateTime(year, month, day);
-
-                    switch (fieldName)
-                    {
-                        case "ngay_kham":
-                            item.ngay_kham = date;
-                            break;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
-            }
-        }
-
-        // private void OnCheckedChanged(ChangeEventArgs e, string fieldName)
-        // {
-        //     try
-        //     {
-        //         var isChecked = e.Value != null && e.Value.ToString() == "true";
-        //         switch (fieldName)
-        //         {
-        //             case "da_gui_thong_bao":
-        //                 SelectedItem.da_gui_thong_bao = isChecked;
-        //                 break;
-        //             case "da_gui_mail":
-        //                 SelectedItem.da_gui_mail = isChecked;
-        //                 break;
-        //         }
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         AlertService.ShowAlert($"Lỗi khi xử lý checkbox: {ex.Message}", "danger");
-        //     }
-        // }
-
-        private void OnTabChanged(string tab)
-        {
-            activeDefTab = tab;
-
-            if (activeDefTab == "tab1")
-            {
-                // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
-            }
         }
 
         private void GoToDetail(int id)
