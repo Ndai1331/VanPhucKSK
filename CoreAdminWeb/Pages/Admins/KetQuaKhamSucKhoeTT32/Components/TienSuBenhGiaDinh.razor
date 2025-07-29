@@ -1,0 +1,39 @@
+﻿@using CoreAdminWeb.Model
+
+<div class="space-y-2 md:col-span-2">
+    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. Tiền sử bệnh tật gia đình:</MudText>
+    <textarea rows="2" class="form-input form-textarea" @bind="@SelectedKhamSucKhoeTienSu.tien_su_gia_dinh" readonly="@(onReadonly || !onReadonly && !onBS)"></textarea>
+</div>
+<div class="space-y-2 md:col-span-2">
+    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. Tiền sử bệnh, tật của bản thân</MudText>
+    <MudText Typo="Typo.body1" Class="mb-4 capitalize text-slate-800 dark:text-slate-100">Tiền sử bệnh, tật:</MudText>
+    <div class="overflow-auto">
+        <table class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Tên bệnh</th>
+                    <th>Năm phát hiện</th>
+                    <th>Tên bệnh nghề nghiệp</th>
+                    <th>Năm phát hiện</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.ten_benh" readonly="@(onReadonly || !onReadonly && !onBS)" /></td>
+                    <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.nam_phat_hien" readonly="@(onReadonly || !onReadonly && !onBS)" /></td>
+                    <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.benh_nghe_nghiep" readonly="@(onReadonly || !onReadonly && !onBS)" /></td>
+                    <td><input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep" readonly="@(onReadonly || !onReadonly && !onBS)" /></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public KhamSucKhoeTienSuModel SelectedKhamSucKhoeTienSu { get; set; } = new KhamSucKhoeTienSuModel();
+    [Parameter]
+    public bool onReadonly { get; set; } = false;
+    [Parameter]
+    public bool onBS { get; set; } = false;
+}

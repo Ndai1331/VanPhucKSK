@@ -1,0 +1,56 @@
+﻿@using CoreAdminWeb.Model
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+    <div class="flex items-center gap-2">
+        <span style="min-width:90px;">Hàm trên:</span>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
+        <span style="min-width:90px;">Hàm dưới:</span>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:80px;" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
+    </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+    <div class="flex items-center gap-2">
+        <span style="min-width:90px;">Bệnh về RHM:</span>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_rhm" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
+        <BlazoredTypeahead EnableDropDown="true"
+                           ShowDropDownOnFocus="true"
+                           MinimumLength="0"
+                           TItem="PhanLoaiSucKhoeModel"
+                           TValue="PhanLoaiSucKhoeModel"
+                           SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
+                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_rhm"
+                           placeholder="Chọn phân loại"
+                           class="form-select"
+                           style="width:120px;"
+                           Disabled="@(onReadonly || !onReadonly && !onBSRangHamMat)">
+            <SelectedTemplate Context="item">
+                @item.name
+            </SelectedTemplate>
+            <ResultTemplate Context="item">
+                @item.name
+            </ResultTemplate>
+            <NotFoundTemplate Context="item">
+                Không tìm thấy dữ liệu
+            </NotFoundTemplate>
+        </BlazoredTypeahead>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public KhamSucKhoeChuyenKhoaModel SelectedKhamSucKhoeChuyenKhoa { get; set; } = new KhamSucKhoeChuyenKhoaModel();
+    [Parameter]
+    public bool onReadonly { get; set; } = false;
+    [Parameter]
+    public bool onBSRangHamMat { get; set; } = false;
+    [Parameter]
+    public Func<string?, Task<IEnumerable<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+
+    private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(string? search)
+    {
+        if (LoadPhanLoaiSucKhoeData != null)
+        {
+            return await LoadPhanLoaiSucKhoeData.Invoke(search);
+        }
+        return Enumerable.Empty<PhanLoaiSucKhoeModel>();
+    }
+}

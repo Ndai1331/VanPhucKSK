@@ -1,0 +1,72 @@
+﻿@using CoreAdminWeb.Model
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 items-end">
+    <div>
+        <label class="block text-sm mb-1" for="chieu-cao">Chiều cao (cm):</label>
+        <input id="chieu-cao" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.chieu_cao" readonly="@(onReadonly || !onReadonly && !onBS)" />
+    </div>
+    <div>
+        <label class="block text-sm mb-1" for="can-nang">Cân nặng (kg):</label>
+        <input id="can-nang" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.can_nang" readonly="@(onReadonly || !onReadonly && !onBS)" />
+    </div>
+    <div>
+        <label class="block text-sm mb-1" for="bmi">BMI:</label>
+        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.bmi" readonly="@(onReadonly || !onReadonly && !onBS)" />
+    </div>
+    <div>
+        <label class="block text-sm mb-1" for="abi">ABI:</label>
+        <input id="abi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.mach" readonly="@(onReadonly || !onReadonly && !onBS)" />
+    </div>
+    <div>
+        <label class="block text-sm mb-1" for="huyet-ap">Huyết áp (mmHg):</label>
+        <input id="huyet-ap" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.huyet_ap" readonly="@(onReadonly || !onReadonly && !onBS)" />
+    </div>
+    <div>
+        <label class="block text-sm mb-1" for="nhip-tho">Nhịp thở (lần/phút):</label>
+        <input id="nhip-tho" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm" @bind-value="@SelectedKhamSucKhoeTheLuc.nhip_tho" readonly="@(onReadonly || !onReadonly && !onBS)" />
+    </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 items-end">
+    <div>
+        <label class="block text-sm mb-1" for="phan-loai-the-luc">Phân loại thể lực:</label>
+        <BlazoredTypeahead EnableDropDown="true"
+                           ShowDropDownOnFocus="true"
+                           MinimumLength="0"
+                           TItem="PhanLoaiSucKhoeModel"
+                           TValue="PhanLoaiSucKhoeModel"
+                           SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
+                           @bind-Value="@SelectedKhamSucKhoeTheLuc.phan_loai"
+                           placeholder="Chọn phân loại"
+                           class="form-select"
+                           Disabled="@(onReadonly || !onReadonly && !onBS)">
+            <SelectedTemplate Context="item">
+                @item.name
+            </SelectedTemplate>
+            <ResultTemplate Context="item">
+                @item.name
+            </ResultTemplate>
+            <NotFoundTemplate Context="item">
+                Không tìm thấy dữ liệu
+            </NotFoundTemplate>
+        </BlazoredTypeahead>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public KhamSucKhoeTheLucModel SelectedKhamSucKhoeTheLuc { get; set; } = new KhamSucKhoeTheLucModel();
+    [Parameter]
+    public bool onReadonly { get; set; } = false;
+    [Parameter]
+    public bool onBS { get; set; } = false;
+    [Parameter]
+    public Func<string?, Task<IEnumerable<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+
+    private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(string? search)
+    {
+        if (LoadPhanLoaiSucKhoeData != null)
+        {
+            return await LoadPhanLoaiSucKhoeData.Invoke(search);
+        }
+        return Enumerable.Empty<PhanLoaiSucKhoeModel>();
+    }
+}
