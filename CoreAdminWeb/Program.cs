@@ -44,6 +44,14 @@ builder.Services.AddHttpClient("DrCoreApiPublic", client =>
     client.BaseAddress = new Uri(builder.Configuration["DrCoreApi:BaseUrl"]);
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+
+// Configure static client for local API endpoints
+builder.Services.AddHttpClient("LocalApi", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["LocalApi:BaseUrl"] ?? "https://localhost:7078/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
 // Load base URL
 GlobalConstant.BaseUrl = builder.Configuration["DrCoreApi:BaseUrl"] ?? "https://core.hpte.vn/";
 
@@ -88,6 +96,10 @@ var app = builder.Build();
 // Initialize static clients for public/non-auth endpoints (SAFE - no token sharing)
 var publicHttpClient = app.Services.GetRequiredService<IHttpClientFactory>().CreateClient("DrCoreApiPublic");
 PublicRequestClient.Initialize(publicHttpClient, builder.Configuration);
+
+// Initialize LocalRequestClientService for local API calls
+var localHttpClient = app.Services.GetRequiredService<IHttpClientFactory>().CreateClient("LocalApi");
+CoreAdminWeb.Http.LocalRequestClientService.Initialize(localHttpClient, builder.Configuration["LocalApi:BaseUrl"] ?? "https://localhost:7078/api/");
 
 // NOTE: RequestClient (with auth) has been completely removed to prevent token sharing security issue
 
