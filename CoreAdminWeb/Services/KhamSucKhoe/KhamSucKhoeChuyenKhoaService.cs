@@ -32,6 +32,8 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             + ",pl_rhm.id,pl_rhm.code,pl_rhm.name"
             + ",luot_kham.id,luot_kham.ma_luot_kham";
 
+
+
         public KhamSucKhoeChuyenKhoaService(IHttpClientService httpClientService)
         {
             _httpClientService = httpClientService;

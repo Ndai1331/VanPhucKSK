@@ -4,8 +4,9 @@ using CoreAdminWeb.Model.Configuration;
 using CoreAdminWeb.Http;
 using CoreAdminWeb.DIInjections;
 using CoreAdminWeb.Commons;
+using CoreAdminWeb.Models;
 using Blazored.LocalStorage;
-
+using Microsoft.AspNetCore.ResponseCompression;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -38,6 +39,42 @@ builder.Services.AddHttpClient("DrCoreApiPublic", client =>
 // Load base URL
 GlobalConstant.BaseUrl = builder.Configuration["DrCoreApi:BaseUrl"] ?? "https://core.hpte.vn/";
 
+
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        
+// Add ApplicationDbContext for DRCARE_CORE database
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(Configuration.GetConnectionString("UserDbConnectionString"));
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
+
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.AutomaticAuthentication = false;
+});
+    // Add CORS policy to allow any origin
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ExposeResponseHeaders", policy =>
+    {
+        policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+    });
+});
+
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services
+    .AddControllers();
+
+
+            
 var app = builder.Build();
 
 // Initialize static clients for public/non-auth endpoints (SAFE - no token sharing)
