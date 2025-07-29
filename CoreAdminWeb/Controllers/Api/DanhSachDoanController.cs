@@ -24,25 +24,6 @@ public class DanhSachDoanController : ControllerBase
         _context = context;
     }
 
-    /// <summary>
-    /// Test endpoint cơ bản để kiểm tra controller hoạt động
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("test")]
-    public IActionResult Test()
-    {
-        return Ok(new { 
-            message = "DanhSachDoan Controller hoạt động thành công!", 
-            timestamp = DateTime.Now,
-            controller = "DanhSachDoan",
-            availableEndpoints = new[]
-            {
-                "GET /api/danhsachdoan/test",
-                "GET /api/danhsachdoan/medical-data/{maDotKham}",
-                "GET /api/danhsachdoan/medical-data?maDotKham={value}"
-            }
-        });
-    }
     [HttpGet("medical-data")]
     public async Task<IActionResult> GetMedicalData([FromQuery]string maDotKham, [FromQuery]int offset = 0, [FromQuery]int limit = 10)
     {
