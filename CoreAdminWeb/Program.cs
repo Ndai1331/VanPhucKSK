@@ -7,7 +7,7 @@ using CoreAdminWeb.Commons;
 using CoreAdminWeb.Models;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.ResponseCompression;
-
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -54,7 +54,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 // Add ApplicationDbContext for DRCARE_CORE database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(Configuration.GetConnectionString("UserDbConnectionString"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("UserDbConnectionString"));
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
@@ -110,7 +110,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Add CORS middleware
+app.UseCors("ExposeResponseHeaders");
+
 app.MapBlazorHub();
 app.MapRazorPages();
+// Add Controllers mapping
+app.MapControllers();
 app.MapFallbackToPage("/_Host");
 app.Run();
