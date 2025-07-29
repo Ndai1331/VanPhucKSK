@@ -53,8 +53,10 @@
 
                 new MenuResponse { id = 3, name = "Quản lý đoàn khám", icon = "settings", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
                     new MenuResponse { id = 31, name = "Danh sách đoàn", icon = "analytics", url = "/admin/danh-sach-doan" , parent_id = 3},
-                    new MenuResponse { id = 32, name = "Dashboard tổng quan", icon = "analytics", url = "/admin/dashboard-tong-quan" , parent_id = 3},
-                    new MenuResponse { id = 33, name = "Báo cáo tổng đoàn", icon = "area-chart", url = "/admin/bao-cao-tong-doan" , parent_id = 3},
+                    @* new MenuResponse { id = 32, name = "Hồ sơ đoàn KSK", icon = "analytics", url = "/admin/danh-sach-doan-ho-so-kham-suc-khoe" , parent_id = 3}, *@
+                    new MenuResponse { id = 33, name = "Dashboard tổng quan", icon = "analytics", url = "/admin/dashboard-tong-quan" , parent_id = 3},
+                    new MenuResponse { id = 34, name = "Báo cáo chi phí KSK", icon = "area-chart", url = "/admin/bao-cao-chi-phi-ksk" , parent_id = 3},
+                    new MenuResponse { id = 35, name = "Báo cáo tổng đoàn", icon = "area-chart", url = "/admin/bao-cao-tong-doan" , parent_id = 3},
                 }},
 
                 new MenuResponse { id = 4, name = "Cá nhân", icon = "post", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {

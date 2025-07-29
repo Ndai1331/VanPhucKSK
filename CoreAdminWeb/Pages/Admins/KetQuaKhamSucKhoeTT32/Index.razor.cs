@@ -1,10 +1,13 @@
-﻿using CoreAdminWeb.Enums;
+﻿using CoreAdminWeb.Commons;
+using CoreAdminWeb.Enums;
+using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Files;
+using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
@@ -25,8 +28,22 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                IBaseDetailService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService,
                                IBaseDetailService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService,
                                IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService,
-                               IBaseDetailService<KhamSucKhoeCanLamSangModel> KhamSucKhoeCanLamSangService) : BlazorCoreBase
+                               IBaseDetailService<KhamSucKhoeCanLamSangModel> KhamSucKhoeCanLamSangService,
+                               IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService,
+                               IPdfService PdfService,
+                               IConfiguration Configuration,
+                               IWebHostEnvironment WebHostEnvironment) : BlazorCoreBase
     {
+        #region Constants
+        private const string DEFAULT_PROFILE_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
+        #endregion
+
+        private string _logoPath = $"/images/Logo/logo.png";
+        private readonly string _imagesFolder = $"/images/";
+        private string _profileImageUrl = string.Empty;
+
+        private UserModel? CurrentUser { get; set; }
+
         private List<SoKhamSucKhoeModel> MainModels { get; set; } = new();
         private string activeDefTab = "tab1";
 
@@ -37,6 +54,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private KhamSucKhoeSanPhuKhoaModel SelectedKhamSucKhoeSanPhuKhoa { get; set; } = new KhamSucKhoeSanPhuKhoaModel();
         private KhamSucKhoeTheLucModel SelectedKhamSucKhoeTheLuc { get; set; } = new KhamSucKhoeTheLucModel();
         private KhamSucKhoeTienSuModel SelectedKhamSucKhoeTienSu { get; set; } = new KhamSucKhoeTienSuModel();
+        private KhamSucKhoeCongTyModel SelectedKhamSucKhoeCongTy { get; set; } = new KhamSucKhoeCongTyModel();
+        private KhamSucKhoeNgheNghiepModel SelectedKhamSucKhoeNgheNghiep { get; set; } = new KhamSucKhoeNgheNghiepModel();
         private List<KhamSucKhoeKetQuaCanLamSangModel> SelectedKhamSucKhoeKetQuaCanLamSangs { get; set; } = new List<KhamSucKhoeKetQuaCanLamSangModel>() {
             new KhamSucKhoeKetQuaCanLamSangModel()
             {
@@ -76,6 +95,23 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private string _tenBenhNhanString = "";
 
         private bool openSyncKetQuaCanLamSangModal { get; set; } = false;
+        private bool onReadonly => SelectedItem.status == Model.Base.Status.published;
+
+        private bool onBS => CurrentUser?.role?.ToLower() == GlobalConstant.DOCTOR_ROLE_ID.ToLower().ToString();
+        private bool onBSHoHap => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ho_hap?.id == CurrentUser.id;
+        private bool onBSTuanHoan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tuan_hoan?.id == CurrentUser.id;
+        private bool onBSTieuHoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tieu_hoa?.id == CurrentUser.id;
+        private bool onBSThanTietNieu => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_than_tiet_nieu?.id == CurrentUser.id;
+        private bool onBSNoiTiet => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_noi_tiet?.id == CurrentUser.id;
+        private bool onBSCoXuongKhop => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_co_xuong_khop?.id == CurrentUser.id;
+        private bool onBSThanKinh => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_than_kinh?.id == CurrentUser.id;
+        private bool onBSTamThan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tam_than?.id == CurrentUser.id;
+        private bool onBSNgoaiKhoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ngoai_khoa?.id == CurrentUser.id;
+        private bool onBSMat => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_mat?.id == CurrentUser.id;
+        private bool onBSTaiMuiHong => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tai_mui_hong?.id == CurrentUser.id;
+        private bool onBSRangHamMat => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_rang_ham_mat?.id == CurrentUser.id;
+        private bool onBSSanPhuKhoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_san_phu_khoa?.id == CurrentUser.id;
+        private bool onBSKetLuan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ket_luan?.id == CurrentUser.id;
 
         protected override async Task OnInitializedAsync()
         {
@@ -87,8 +123,19 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             if (firstRender)
             {
                 await LoadData();
+                _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
+                SetProfileImagePlaceholder();
                 StateHasChanged();
+
+                _ = Task.Run(async () =>
+                {
+                    var resUser = await UserService.GetCurrentUserAsync();
+                    if (resUser.IsSuccess)
+                    {
+                        CurrentUser = resUser.Data;
+                    }
+                });
 
                 // Wait for modal to render
                 _ = Task.Run(async () =>
@@ -96,6 +143,17 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     await Task.Delay(500);
                     await JsRuntime.InvokeVoidAsync("initializeDatePicker");
                 });
+            }
+        }
+
+        /// <summary>
+        /// Set profile image placeholder
+        /// </summary>
+        private void SetProfileImagePlaceholder()
+        {
+            if (string.IsNullOrEmpty(_profileImageUrl))
+            {
+                _profileImageUrl = DEFAULT_PROFILE_IMAGE;
             }
         }
 
@@ -120,11 +178,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
             if (_startDateFilter.HasValue)
             {
-                BuilderQuery += $"&filter[_and][][MaDotKham][ngay_du_kien_kham][_gte]={_startDateFilter:yyyy-MM-dd}";
+                BuilderQuery += $"&filter[_and][][ngay_kham][_gte]={_startDateFilter:yyyy-MM-dd}";
             }
             if (_endDateFilter.HasValue)
             {
-                BuilderQuery += $"&filter[_and][][MaDotKham][ngay_du_kien_kham][_lte]={_endDateFilter:yyyy-MM-dd}";
+                BuilderQuery += $"&filter[_and][][ngay_kham][_lte]={_endDateFilter:yyyy-MM-dd}";
             }
             if (_khamSucKhoeCongTyFilter != null && _khamSucKhoeCongTyFilter.id > 0)
             {
@@ -151,8 +209,70 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             IsLoading = false;
         }
 
+        private async Task OnRowClick(int soKhamSKId)
+        {
+            if (SelectedItem.id != soKhamSKId)
+            {
+                OnResetData();
+
+                activeDefTab = "tab1";
+                await LoadDetailData(soKhamSKId);
+            }
+        }
+
+        private async Task OnCheckBoxChanged(ChangeEventArgs args, int soKhamSKId)
+        {
+            OnResetData();
+
+            if (args.Value != null && !bool.TryParse(args.Value.ToString(), out bool boolVal) && boolVal)
+            {
+                await LoadDetailData(soKhamSKId);
+            }
+        }
+
+        private void OnResetData()
+        {
+            SelectedItem = new SoKhamSucKhoeModel();
+            SelectedUser = new UserModel();
+            SelectedKhamSucKhoeChuyenKhoa = new KhamSucKhoeChuyenKhoaModel();
+            SelectedKhamSucKhoeKetLuan = new KhamSucKhoeKetLuanModel();
+            SelectedKhamSucKhoeSanPhuKhoa = new KhamSucKhoeSanPhuKhoaModel();
+            SelectedKhamSucKhoeTheLuc = new KhamSucKhoeTheLucModel();
+            SelectedKhamSucKhoeTienSu = new KhamSucKhoeTienSuModel();
+            SelectedKhamSucKhoeCongTy = new KhamSucKhoeCongTyModel();
+            SelectedKhamSucKhoeNgheNghiep = new KhamSucKhoeNgheNghiepModel();
+            SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>() {
+                    new KhamSucKhoeKetQuaCanLamSangModel()
+                    {
+                        type = KetQuaCanLamSang.CDHATDCN.ToString(),
+                        sort = 0
+                    },
+                    new KhamSucKhoeKetQuaCanLamSangModel()
+                    {
+                        type = KetQuaCanLamSang.XNCongThucMau.ToString(),
+                        sort = 1
+                    },
+                    new KhamSucKhoeKetQuaCanLamSangModel()
+                    {
+                        type = KetQuaCanLamSang.XNNuocTieu.ToString(),
+                        sort = 2
+                    },
+                    new KhamSucKhoeKetQuaCanLamSangModel()
+                    {
+                        type = KetQuaCanLamSang.XNKhac.ToString(),
+                        sort = 3
+                    }
+                };
+
+            para1 = string.Empty;
+            para2 = string.Empty;
+            para3 = string.Empty;
+            para4 = string.Empty;
+        }
+
         private async Task LoadDetailData(int soKhamSKId)
         {
+            IsLoading = true;
             var resSoKhamSK = await MainService.GetByIdAsync(soKhamSKId.ToString());
             if (resSoKhamSK?.IsSuccess == true && resSoKhamSK.Data != null)
             {
@@ -180,19 +300,21 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     AlertService.ShowAlert("Không tìm thấy thông tin bệnh nhân!", "danger");
                 }
 
-                string query = "&filter[_and][0][deleted][_eq]=false" +
-                               $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
+                string query = $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
 
-                SelectedKhamSucKhoeChuyenKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeChuyenKhoaService, query);
-                SelectedKhamSucKhoeKetLuan = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeKetLuanService, query);
-                SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
-                SelectedKhamSucKhoeTheLuc = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTheLucService, query);
-                SelectedKhamSucKhoeTienSu = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTienSuService, query);
+                var tasks = new[]
+                {
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaService, query, r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanService, query, r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaService, query, r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucService, query, r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, query, r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),
+                    BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, query, r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KhamSucKhoeKetQuaCanLamSangModel>()),
+                };
 
-                var resKhamSucKhoeKetQuaCanLamSang = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query);
-                SelectedKhamSucKhoeKetQuaCanLamSangs = resKhamSucKhoeKetQuaCanLamSang?.IsSuccess == true && resKhamSucKhoeKetQuaCanLamSang.Data != null
-                    ? resKhamSucKhoeKetQuaCanLamSang.Data
-                    : new List<KhamSucKhoeKetQuaCanLamSangModel>();
+                await Task.WhenAll(tasks);
 
                 if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
                 {
@@ -204,11 +326,22 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNKhac.ToString(), sort = 3 }
                     };
                 }
+
+                if (!string.IsNullOrEmpty(SelectedKhamSucKhoeSanPhuKhoa.para))
+                {
+                    var paraSplit = SelectedKhamSucKhoeSanPhuKhoa.para.Split('|');
+                    para1 = paraSplit.Length > 0 ? paraSplit[0].Trim() : string.Empty;
+                    para2 = paraSplit.Length > 1 ? paraSplit[1].Trim() : string.Empty;
+                    para3 = paraSplit.Length > 2 ? paraSplit[2].Trim() : string.Empty;
+                    para4 = paraSplit.Length > 3 ? paraSplit[3].Trim() : string.Empty;
+                }
             }
             else
             {
                 AlertService.ShowAlert("Không tìm thấy thông tin khám!", "danger");
             }
+
+            IsLoading = false;
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -271,7 +404,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
-                query += "&filter[_and][][role][_eq]=87D650A9-0BD2-41DC-ADF2-B0A248AD9A3B";
+                query += $"&filter[_and][][role][_eq]={GlobalConstant.DOCTOR_ROLE_ID}";
 
                 if (!string.IsNullOrEmpty(searchText))
                 {
@@ -327,170 +460,458 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private async Task OnValidSubmit()
         {
-            SelectedKhamSucKhoeTienSu.ma_luot_kham = SelectedItem.ma_luot_kham;
-            SelectedKhamSucKhoeTienSu.luot_kham = SelectedItem;
-            SelectedKhamSucKhoeChuyenKhoa.ma_luot_kham = SelectedItem.ma_luot_kham;
-            SelectedKhamSucKhoeChuyenKhoa.luot_kham = SelectedItem;
-            SelectedKhamSucKhoeKetLuan.ma_luot_kham = SelectedItem.ma_luot_kham;
-            SelectedKhamSucKhoeKetLuan.luot_kham = SelectedItem;
-            SelectedKhamSucKhoeTheLuc.ma_luot_kham = SelectedItem.ma_luot_kham;
-            SelectedKhamSucKhoeTheLuc.luot_kham = SelectedItem;
-            SelectedKhamSucKhoeSanPhuKhoa.ma_luot_kham = SelectedItem.ma_luot_kham;
-            SelectedKhamSucKhoeSanPhuKhoa.luot_kham = SelectedItem;
-
-            SelectedKhamSucKhoeKetQuaCanLamSangs = SelectedKhamSucKhoeKetQuaCanLamSangs.Select(c =>
+            try
             {
-                c.luot_kham = SelectedItem;
+                if (SelectedItem.id <= 0)
+                {
+                    return;
+                }
 
-                return c;
-            }).ToList();
+                IsLoading = true;
 
-            string query = "&filter[_and][0][deleted][_eq]=false" +
-                           $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
+                SelectedKhamSucKhoeTienSu.ma_luot_kham = SelectedItem.ma_luot_kham;
+                SelectedKhamSucKhoeTienSu.luot_kham = SelectedItem;
+                SelectedKhamSucKhoeChuyenKhoa.ma_luot_kham = SelectedItem.ma_luot_kham;
+                SelectedKhamSucKhoeChuyenKhoa.luot_kham = SelectedItem;
+                SelectedKhamSucKhoeKetLuan.ma_luot_kham = SelectedItem.ma_luot_kham;
+                SelectedKhamSucKhoeKetLuan.luot_kham = SelectedItem;
+                SelectedKhamSucKhoeTheLuc.ma_luot_kham = SelectedItem.ma_luot_kham;
+                SelectedKhamSucKhoeTheLuc.luot_kham = SelectedItem;
+                SelectedKhamSucKhoeSanPhuKhoa.ma_luot_kham = SelectedItem.ma_luot_kham;
+                SelectedKhamSucKhoeSanPhuKhoa.luot_kham = SelectedItem;
 
-            switch (activeDefTab)
+                if (onBSHoHap)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSTuanHoan)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSTieuHoa)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSThanTietNieu)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSNoiTiet)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSCoXuongKhop)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSThanKinh)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSTamThan)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_tam_than = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSNgoaiKhoa)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSMat)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_mat = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSTaiMuiHong)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_tmh = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSRangHamMat)
+                {
+                    SelectedKhamSucKhoeChuyenKhoa.bs_rhm = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSSanPhuKhoa)
+                {
+                    SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
+                }
+                if (onBSKetLuan)
+                {
+                    SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeKetLuan.chu_ky = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
+                }
+
+                SelectedKhamSucKhoeKetQuaCanLamSangs = SelectedKhamSucKhoeKetQuaCanLamSangs.Select(c =>
+                        {
+                            c.luot_kham = SelectedItem;
+
+                            return c;
+                        }).ToList();
+
+                string query = "&filter[_and][0][deleted][_eq]=false" +
+                               $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
+
+                switch (activeDefTab)
+                {
+                    case "tab1":
+                        if (SelectedKhamSucKhoeTienSu.id > 0)
+                        {
+                            var result = await KhamSucKhoeTienSuService.UpdateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeTienSuService.CreateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
+                                return;
+                            }
+                        }
+
+                        if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
+                        {
+                            var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
+                                return;
+                            }
+                        }
+
+                        SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
+                        SelectedKhamSucKhoeTienSu = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTienSuService, query);
+                        break;
+
+                    case "tab2":
+                        if (SelectedKhamSucKhoeTheLuc.id > 0)
+                        {
+                            var result = await KhamSucKhoeTheLucService.UpdateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeTheLucService.CreateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
+                                return;
+                            }
+                        }
+
+                        if (SelectedKhamSucKhoeChuyenKhoa.id > 0)
+                        {
+                            var result = await KhamSucKhoeChuyenKhoaService.UpdateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeChuyenKhoaService.CreateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
+                                return;
+                            }
+                        }
+
+                        SelectedKhamSucKhoeChuyenKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeChuyenKhoaService, query);
+                        SelectedKhamSucKhoeTheLuc = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTheLucService, query);
+                        break;
+
+                    case "tab3":
+                        if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
+                        {
+                            var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
+                                return;
+                            }
+                        }
+
+                        if (SelectedKhamSucKhoeKetLuan.id > 0)
+                        {
+                            var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeKetLuanService.CreateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                                return;
+                            }
+                        }
+
+                        SelectedKhamSucKhoeKetLuan = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeKetLuanService, query);
+
+                        var resKhamSucKhoeKetQuaCanLamSang = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query);
+                        SelectedKhamSucKhoeKetQuaCanLamSangs = resKhamSucKhoeKetQuaCanLamSang?.IsSuccess == true && resKhamSucKhoeKetQuaCanLamSang.Data != null
+                            ? resKhamSucKhoeKetQuaCanLamSang.Data
+                            : new List<KhamSucKhoeKetQuaCanLamSangModel>();
+
+                        if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
+                        {
+                            SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
+                            {
+                                new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.CDHATDCN.ToString(), sort = 0 },
+                                new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNCongThucMau.ToString(), sort = 1 },
+                                new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNNuocTieu.ToString(), sort = 2 },
+                                new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNKhac.ToString(), sort = 3 }
+                            };
+                        }
+
+                        break;
+                }
+            }
+            catch
             {
-                case "tab1":
-                    if (SelectedKhamSucKhoeTienSu.id > 0)
+                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin!", "danger");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task OnEndSubmit()
+        {
+            try
+            {
+                IsLoading = true;
+
+                SelectedItem.status = Model.Base.Status.published;
+
+                var result = await MainService.UpdateAsync(new List<SoKhamSucKhoeModel>() { SelectedItem });
+                if (result == null || !result.IsSuccess)
+                {
+                    AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                    return;
+                }
+            }
+            catch
+            {
+                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin!", "danger");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private async Task ExportPDF()
+        {
+            if (IsLoading || CurrentUser == null || SelectedItem.id <= 0)
+            {
+                return;
+            }
+
+            try
+            {
+                Console.WriteLine("=== Debug ExportPDF - Bắt đầu ===");
+                Console.WriteLine($"CurrentUser: {CurrentUser?.first_name} {CurrentUser?.last_name}");
+
+                // Hiển thị thông báo đang xử lý
+                AlertService?.ShowAlert("Đang xử lý ảnh chữ ký và tạo PDF, vui lòng đợi...", "info");
+
+                // Lấy HTML content từ JavaScript - giống như chức năng in
+                Console.WriteLine("Step 1: Đang lấy HTML từ JavaScript...");
+
+                string htmlContent = string.Empty;
+                try
+                {
+                    // Đợi một chút để đảm bảo DOM đã render xong
+                    await Task.Delay(100);
+
+                    // Tăng timeout lên 2 phút để xử lý ảnh base64
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(120));
+                    htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", cts.Token);
+
+                    Console.WriteLine($"Step 2: HTML content length: {htmlContent?.Length ?? 0}");
+                }
+                catch (TaskCanceledException ex)
+                {
+                    Console.WriteLine($"ERROR: TaskCancelled - {ex.Message}");
+                    AlertService?.ShowAlert("Timeout khi lấy nội dung HTML từ JavaScript", "danger");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ERROR: JavaScript interop failed - {ex.Message}");
+                    AlertService?.ShowAlert($"Lỗi JavaScript: {ex.Message}", "danger");
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(htmlContent))
+                {
+                    Console.WriteLine("ERROR: HTML content is null or empty!");
+                    AlertService?.ShowAlert("Không thể lấy nội dung để xuất PDF - HTML content empty", "danger");
+                    return;
+                }
+
+                // Log HTML content details for debugging
+                var htmlPreview = htmlContent.Length > 500 ? htmlContent.Substring(0, 500) + "..." : htmlContent;
+                Console.WriteLine($"HTML preview (first 500 chars): {htmlPreview}");
+
+                // Check for potential problematic content
+                var hasImages = htmlContent.Contains("<img");
+                var hasSvg = htmlContent.Contains("<svg");
+                var hasLargeTable = htmlContent.Contains("ksk-table");
+                Console.WriteLine($"HTML analysis: Images={hasImages}, SVG={hasSvg}, LargeTable={hasLargeTable}");
+
+                // Log file size in different units
+                var sizeKB = htmlContent.Length / 1024.0;
+                Console.WriteLine($"HTML size: {htmlContent.Length} chars = {sizeKB:F2} KB");
+
+                // Configure PDF settings
+                Console.WriteLine("Step 3: Cấu hình PDF settings...");
+                var pdfSettings = new PdfSettings
+                {
+                    FileName = $"{SelectedItem.ma_luot_kham}_{DateTime.Now:yyyyMMdd}.pdf",
+                    PageSize = "A4",
+                    Orientation = "Portrait",
+                    MarginTop = 10,
+                    MarginBottom = 10,
+                    MarginLeft = 10,
+                    MarginRight = 10
+                };
+                Console.WriteLine($"PDF filename: {pdfSettings.FileName}");
+
+                // Generate PDF từ HTML content lấy từ client
+                Console.WriteLine("Step 4: Đang tạo PDF với PuppeteerSharp...");
+
+                byte[] pdfBytes;
+
+                pdfBytes = PdfService.GeneratePdfFromHtml(htmlContent, pdfSettings);
+
+                // Convert to base64 for download
+                Console.WriteLine("Step 6: Chuyển đổi PDF sang base64...");
+                var base64 = Convert.ToBase64String(pdfBytes);
+                var dataUrl = $"data:application/pdf;base64,{base64}";
+                Console.WriteLine($"Base64 length: {base64.Length}");
+
+                // Trigger download via JavaScript
+                Console.WriteLine("Step 7: Trigger download...");
+                await JsRuntime.InvokeVoidAsync("downloadFile", dataUrl, pdfSettings.FileName);
+                AlertService?.ShowAlert("Xuất PDF thành công!", "success");
+
+                Console.WriteLine("Step 8: Hoàn thành thành công!");
+
+                // Xóa ảnh chữ ký sau khi export PDF
+                try
+                {
+                    // Xóa folder con chứa ảnh của mã lượt khám
+                    string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder;
+                    if (Directory.Exists(folderPath))
                     {
-                        var result = await KhamSucKhoeTienSuService.UpdateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
-                        if (result == null || !result.IsSuccess)
+                        // Xóa tất cả file trong folder
+                        var files = Directory.GetFiles(folderPath);
+                        foreach (var file in files)
                         {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
-                            return;
+                            File.Delete(file);
                         }
-                    }
-                    else
-                    {
-                        var result = await KhamSucKhoeTienSuService.CreateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
-                            return;
-                        }
+
+                        // Xóa folder sau khi xóa hết file
+                        Directory.Delete(folderPath);
+                        Console.WriteLine($"Step 9: Xóa folder và ảnh chữ ký thành công: {folderPath}");
                     }
 
-                    if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
+                    // Xóa các ảnh có thể bị tạo nhầm ở thư mục gốc /images/
+                    string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images");
+                    if (Directory.Exists(rootImagesPath))
                     {
-                        var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
-                            return;
-                        }
-                    }
+                        // Tìm và xóa các file có tên chứa mã lượt khám hoặc tên chữ ký
+                        var signatureFiles = Directory.GetFiles(rootImagesPath, "*")
+                            .Where(f => Path.GetFileName(f).Contains(SelectedItem.ma_luot_kham ?? string.Empty) ||
+                                        Path.GetFileName(f).Contains("ket_luan") ||
+                                        Path.GetFileName(f).Contains("tuan_hoan") ||
+                                        Path.GetFileName(f).Contains("chu_ky"))
+                            .ToArray();
 
-                    SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
-                    SelectedKhamSucKhoeTienSu = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTienSuService, query);
-                    break;
-                case "tab2":
-                    if (SelectedKhamSucKhoeTheLuc.id > 0)
-                    {
-                        var result = await KhamSucKhoeTheLucService.UpdateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
-                        if (result == null || !result.IsSuccess)
+                        foreach (var file in signatureFiles)
                         {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
-                            return;
+                            File.Delete(file);
+                            Console.WriteLine($"Xóa file nhầm: {Path.GetFileName(file)}");
                         }
                     }
-                    else
-                    {
-                        var result = await KhamSucKhoeTheLucService.CreateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
-                            return;
-                        }
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Lỗi khi xóa ảnh: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"=== ERROR in ExportPDF ===");
+                Console.WriteLine($"Error type: {ex.GetType().Name}");
+                Console.WriteLine($"Error message: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
 
-                    if (SelectedKhamSucKhoeChuyenKhoa.id > 0)
-                    {
-                        var result = await KhamSucKhoeChuyenKhoaService.UpdateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var result = await KhamSucKhoeChuyenKhoaService.CreateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
-                            return;
-                        }
-                    }
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
 
-                    SelectedKhamSucKhoeChuyenKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeChuyenKhoaService, query);
-                    SelectedKhamSucKhoeTheLuc = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTheLucService, query);
-                    break;
-                case "tab3":
-                    if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
-                    {
-                        var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
-                            return;
-                        }
-                    }
-
-                    if (SelectedKhamSucKhoeKetLuan.id > 0)
-                    {
-                        var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var result = await KhamSucKhoeKetLuanService.CreateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
-                        if (result == null || !result.IsSuccess)
-                        {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
-                            return;
-                        }
-                    }
-
-                    SelectedKhamSucKhoeKetLuan = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeKetLuanService, query);
-
-                    var resKhamSucKhoeKetQuaCanLamSang = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query);
-                    SelectedKhamSucKhoeKetQuaCanLamSangs = resKhamSucKhoeKetQuaCanLamSang?.IsSuccess == true && resKhamSucKhoeKetQuaCanLamSang.Data != null
-                        ? resKhamSucKhoeKetQuaCanLamSang.Data
-                        : new List<KhamSucKhoeKetQuaCanLamSangModel>();
-
-                    if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
-                    {
-                        SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
-                    {
-                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.CDHATDCN.ToString(), sort = 0 },
-                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNCongThucMau.ToString(), sort = 1 },
-                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNNuocTieu.ToString(), sort = 2 },
-                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNKhac.ToString(), sort = 3 }
-                    };
-                    }
-                    break;
+                var errorMsg = $"Lỗi khi xuất PDF: {ex.Message}";
+                AlertService?.ShowAlert(errorMsg, "danger");
+            }
+            finally
+            {
+                Console.WriteLine("=== Debug ExportPDF - Kết thúc ===");
+                try
+                {
+                    CleanupSignatureImages();
+                }
+                catch (Exception cleanupEx)
+                {
+                    Console.WriteLine($"Lỗi khi dọn dẹp ảnh chữ ký: {cleanupEx.Message}");
+                }
             }
         }
 
@@ -678,6 +1099,76 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             catch (Exception ex)
             {
                 AlertService.ShowAlert($"Lỗi khi xử lý dữ liệu: {ex.Message}", "danger");
+            }
+        }
+
+
+        /// <summary>
+        /// Render signature as HTML - either image or text
+        /// </summary>
+        /// <param name="signatureData">Signature data (hex string or text)</param>
+        /// <param name="fallbackText">Fallback text if signature is empty</param>
+        /// <param name="fileName">File name for saving image</param>
+        /// <param name="maxWidth">Maximum width for signature image</param>
+        /// <param name="maxHeight">Maximum height for signature image</param>
+        /// <returns>MarkupString containing signature HTML</returns>
+        private MarkupString RenderSignature(string? signatureData, string? fallbackText = "", string? fileName = "", int maxWidth = 120, int maxHeight = 60)
+        {
+            if (string.IsNullOrEmpty(signatureData))
+            {
+                return new MarkupString();
+            }
+
+            var html = signatureData.GetSignatureDisplayHtml(fallbackText, fileName, maxWidth, maxHeight,
+                WebHostEnvironment.WebRootPath + _imagesFolder + SelectedItem.ma_luot_kham, Configuration["DrCoreApi:BaseUrlImage"]);
+            return new MarkupString(html);
+        }
+
+        /// <summary>
+        /// Delete all signature images in the component's folder
+        /// </summary>
+        private void CleanupSignatureImages()
+        {
+            if (string.IsNullOrEmpty(SelectedItem.ma_luot_kham))
+            {
+                return;
+            }
+
+            try
+            {
+                // Delete specific folder for this medical record
+                string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder + $"{SelectedItem.ma_luot_kham}";
+                if (Directory.Exists(folderPath))
+                {
+                    // Delete all files in the folder
+                    var files = Directory.GetFiles(folderPath);
+                    foreach (var file in files)
+                    {
+                        File.Delete(file);
+                    }
+
+                    // Delete the folder itself
+                    Directory.Delete(folderPath);
+                    Console.WriteLine($"Cleanup: Deleted signature folder: {folderPath}");
+                }
+
+                // Also clean up any stray signature files in root images folder
+                string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", $"{SelectedItem.ma_luot_kham}");
+                if (Directory.Exists(rootImagesPath))
+                {
+                    // Find and delete files that might be related to this medical record
+                    var signatureFiles = Directory.GetFiles(rootImagesPath, "*");
+
+                    foreach (var file in signatureFiles)
+                    {
+                        File.Delete(file);
+                        Console.WriteLine($"Cleanup: Deleted stray signature file: {Path.GetFileName(file)}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cleaning up signature images: {ex.Message}");
             }
         }
     }

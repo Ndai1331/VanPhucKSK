@@ -91,7 +91,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 code = model.code,
                 name = model.name,
                 description = model.description,
-                status = model.status,
+                status = model.status.ToString(),
                 sort = model.sort,
                 luot_kham = model.luot_kham?.id,
                 bmi = model.bmi,

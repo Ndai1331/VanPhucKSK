@@ -1,0 +1,161 @@
+﻿@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.Contract
+
+<div class="space-y-2">
+    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày khám</MudText>
+    <div class="flex items-center gap-2 sm:gap-4">
+        <input type="text"
+               class="form-input date-picker w-1/2"
+               placeholder="Chọn ngày bắt đầu"
+               value="@(_startDateFilter?.ToString("dd/MM/yyyy"))"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(_startDateFilter)))" />
+        <span class="mx-2 flex items-center text-gray-500">-</span>
+        <input type="text"
+               class="form-input date-picker w-1/2"
+               placeholder="Chọn ngày kết thúc"
+               value="@(_endDateFilter?.ToString("dd/MM/yyyy"))"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(_endDateFilter)))" />
+    </div>
+</div>
+<BlazoredTypeahead EnableDropDown="true"
+                   ShowDropDownOnFocus="true"
+                   MinimumLength="0"
+                   TItem="ContractModel"
+                   TValue="ContractModel"
+                   SearchMethod="LoadContractDataHandler"
+                   Value="_contractFilter"
+                   ValueExpression="@(() => _contractFilter)"
+                   ValueChanged="ContractFilterChanged"
+                   placeholder="Chọn hơp đồng"
+                   class="form-select">
+    <SelectedTemplate Context="item">
+        @item.name
+    </SelectedTemplate>
+    <ResultTemplate Context="item">
+        @item.name
+    </ResultTemplate>
+    <NotFoundTemplate Context="item">
+        Không tìm thấy dữ liệu
+    </NotFoundTemplate>
+</BlazoredTypeahead>
+<BlazoredTypeahead EnableDropDown="true"
+                   ShowDropDownOnFocus="true"
+                   MinimumLength="0"
+                   TItem="KhamSucKhoeCongTyModel"
+                   TValue="KhamSucKhoeCongTyModel"
+                   SearchMethod="LoadKhamSucKhoeCongTyData"
+                   Value="_khamSucKhoeCongTyFilter"
+                   ValueExpression="@(() => _khamSucKhoeCongTyFilter)"
+                   ValueChanged="KhamSucKhoeCongTyChanged"
+                   placeholder="Mã hồ sơ khám"
+                   class="form-select">
+    <SelectedTemplate Context="item">
+        @item.name
+    </SelectedTemplate>
+    <ResultTemplate Context="item">
+        @item.name
+    </ResultTemplate>
+    <NotFoundTemplate Context="item">
+        Không tìm thấy dữ liệu
+    </NotFoundTemplate>
+</BlazoredTypeahead>
+
+<div class="space-y-2">
+    <div class="flex items-center gap-2 sm:gap-4">
+        <input type="text"
+               class="form-input w-1/2"
+               placeholder="Mã điều trị"
+               value="@_maDieuTriString"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(_maDieuTriString), true, false))" />
+        <input type="text"
+               class="form-input  w-1/2"
+               placeholder="Mã bệnh nhân"
+               value="@_maBenhNhanString"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(_maBenhNhanString), true, false))" />
+    </div>
+</div>
+
+<div class="space-y-2">
+    <div class="flex items-center gap-2 sm:gap-4">
+        <input type="text"
+               class="form-input"
+               placeholder="Tên bệnh nhân"
+               value="@_tenBenhNhanString"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(_tenBenhNhanString), true, false))" />
+        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap"
+                   OnClick="LoadData">
+            Tìm kiếm
+        </MudButton>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DateTime? _startDateFilter { get; set; }
+    [Parameter]
+    public DateTime? _endDateFilter { get; set; }
+    [Parameter]
+    public string _maDieuTriString { get; set; } = string.Empty;
+    [Parameter]
+    public string _tenBenhNhanString { get; set; } = string.Empty;
+    [Parameter]
+    public string _maBenhNhanString { get; set; } = string.Empty;
+    [Parameter]
+    public ContractModel? _contractFilter { get; set; } = default;
+    [Parameter]
+    public KhamSucKhoeCongTyModel? _khamSucKhoeCongTyFilter { get; set; } = default;
+    [Parameter]
+    public Func<ChangeEventArgs, string , bool , bool, Task>? OnValueChanged { get; set; }
+    [Parameter]
+    public EventCallback<ContractModel?> ContractFilterChanged { get; set; }
+    [Parameter]
+    public EventCallback<KhamSucKhoeCongTyModel?> KhamSucKhoeCongTyChanged { get; set; }
+    [Parameter]
+    public Func<string?, Task<IEnumerable<ContractModel>>>? LoadContractData { get; set; }
+    [Parameter]
+    public Func<string?, Task<IEnumerable<KhamSucKhoeCongTyModel>>>? LoadKhamSucKhoeCongTyData { get; set; }
+    [Parameter]
+    public EventCallback LoadData { get; set; }
+
+
+    private async Task LoadDataHandler()
+    {
+        await LoadData.InvokeAsync();
+    }
+
+    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true)
+    {
+        if (OnValueChanged != null)
+        {
+            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate);
+        }
+    }
+
+    private async Task ContractFilterChangedHandler(ContractModel? model)
+    {
+        await ContractFilterChanged.InvokeAsync(model);
+    }
+
+    private async Task KhamSucKhoeCongTyChangedHandler(KhamSucKhoeCongTyModel? model)
+    {
+        await KhamSucKhoeCongTyChanged.InvokeAsync(model);
+    }
+
+    private async Task<IEnumerable<ContractModel>> LoadContractDataHandler(string? search)
+    {
+        if (LoadContractData != null)
+        {
+            return await LoadContractData.Invoke(search);
+        }
+        return Enumerable.Empty<ContractModel>();
+    }
+
+    private async Task<IEnumerable<KhamSucKhoeCongTyModel>> LoadKhamSucKhoeCongTyDataHandler(string? search)
+    {
+        if (LoadKhamSucKhoeCongTyData != null)
+        {
+            return await LoadKhamSucKhoeCongTyData.Invoke(search);
+        }
+        return Enumerable.Empty<KhamSucKhoeCongTyModel>();
+    }
+}

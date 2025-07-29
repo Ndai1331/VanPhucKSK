@@ -1,0 +1,163 @@
+@page "/admin/bao-cao-chi-phi-ksk"
+@using CoreAdminWeb.Commons.Helpers
+@using CoreAdminWeb.Commons.Utils
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Shared.Base
+@inherits BlazorCoreBase
+@layout Shared.Layout.AdminLayout
+
+<PageHeader Title="Báo cáo chi phí KSK" pTitle="Báo cáo chi phí KSK"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            @if (IsLoading)
+            {
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <div class="w-full h-4 rounded-full bg-gray-200">
+                        <div class="h-4 rounded-full bg-success animate-progress"
+                             style="background-image: linear-gradient(45deg,hsla(0,0%,100%,.15) 25%,transparent 0,transparent 50%,hsla(0,0%,100%,.15) 0,hsla(0,0%,100%,.15) 75%,transparent 0,transparent); background-size: 1rem 1rem;">
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="flex items-end justify-between flex-1 gap-2 sm:gap-4">
+                <!-- Left: Filter Area -->
+                <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày</MudText>
+                        <div class="flex items-center gap-2 sm:gap-4">
+                            <input type="text"
+                                class="form-input date-picker w-1/2"
+                                placeholder="Từ ngày"
+                                value="@(_fromDate?.ToString("dd/MM/yyyy"))"
+                                @onchange="@(e => OnDateChanged(e, nameof(_fromDate), true))" />
+                            <span class="mx-2 flex items-center text-gray-500">-</span>
+                            <input type="text"
+                                class="form-input date-picker w-1/2"
+                                placeholder="Đến ngày"
+                                value="@(_toDate?.ToString("dd/MM/yyyy"))"
+                                @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
+                        </div>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudForm class="flex-1">
+                            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Trạng thái</MudText>
+                            <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
+                                <option value="">Tất cả</option>
+                                @foreach (var item in StatusList)
+                                {
+                                    <option value="@item">@item.GetDescription()</option>
+                                }
+                            </select>
+                        </MudForm>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudForm class="flex-1">
+                            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tìm kiếm</MudText>
+                            <div class="relative">
+                                <input type="text" id="search"
+                                       class="border-black/10 dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30 focus:border-black/30 placeholder:text-black/50 border text-black text-sm rounded block w-full ltr:pl-3 rtl:pr-3 ltr:pr-7 rtl:pl-7 h-10 bg-[#f9fbfd] focus:ring-0 focus:outline-0"
+                                       placeholder="Tìm kiếm..."
+                                       required=""
+                                       @bind-value="@_searchString"
+                                       @bind-value:event="oninput"
+                                       @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadData)">
+
+                                <MudButton OnClick="LoadData" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
+                                        <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z" fill="currentColor"></path>
+                                    </svg>
+                                </MudButton>
+                            </div>
+                        </MudForm>
+                    </div>
+
+                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
+                        @* <div> *@
+                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            bg-success border-success text-white hover:bg-success/[0.85]
+                            hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadData())">
+                                <i class="ri-search-line"></i>
+                                Thống kê
+                            </MudButton>
+                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
+                            text-nowrap">
+                                <i class="ri-file-excel-2-fill"></i>
+                                Xuất excel
+                            </MudButton>
+                        @* </div> *@
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table id="example" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã hợp đồng</th>
+                            <th>Công ty</th>
+                            <th>Giá trị hợp đồng (VNĐ)</th>
+                            <th>Tổng chi phí định mức (VNĐ)</th>
+                            <th>Tổng chi phí thực tế (VNĐ)</th>
+                            <th>Chênh lệch (VNĐ)</th>
+                            <th>Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                        {
+                            <tr>
+                                <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                <td>@item.Data.code</td>
+                                <td>@item.Data.cong_ty?.name</td>
+                                <td>@item.Data.gia_tri_hop_dong?.ToString("N0")</td>
+                                <td>@item.Data.chi_tiet?.Sum(x => x.thanh_tien_dm)?.ToString("N0")</td>
+                                <td>@item.Data.chi_tiet?.Sum(x => x.thanh_tien_tt)?.ToString("N0")</td>
+                                <td>@((item.Data.gia_tri_hop_dong - item.Data.chi_tiet?.Sum(x => x.thanh_tien_tt))?.ToString("N0"))</td>
+                                <td>
+                                    @{
+                                        var thanhTienTT = item.Data.chi_tiet?.Sum(x => x.thanh_tien_tt) ?? 0;
+                                        var thanhTienDM = item.Data.chi_tiet?.Sum(x => x.thanh_tien_dm) ?? 0;
+                                        var giaTriHopDong = item.Data.gia_tri_hop_dong ?? 0;
+                                        
+                                        string ketQua;
+                                        string bgClass;
+                                        
+                                        if (thanhTienTT > giaTriHopDong)
+                                        {
+                                            ketQua = "Vượt hợp đồng";
+                                            bgClass = "bg-red-500 text-white";
+                                        }
+                                        else if (thanhTienTT > thanhTienDM)
+                                        {
+                                            ketQua = "Vượt định mức";
+                                            bgClass = "bg-warning text-white";
+                                        }
+                                        else
+                                        {
+                                            ketQua = "Đạt";
+                                            bgClass = "bg-green-500 text-white";
+                                        }
+                                    }
+                                    <span class="inline-flex items-center rounded shadow-sm text-xs justify-center px-2 py-1 @bgClass">
+                                        @ketQua
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
+    </div>
+</div>

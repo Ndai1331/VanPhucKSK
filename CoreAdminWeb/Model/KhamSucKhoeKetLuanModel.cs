@@ -30,5 +30,6 @@ namespace CoreAdminWeb.Model
 
         public int? luot_kham { get; set; }
         public Guid? bs_ket_luan { get; set; }
+        public new string status { set; get; } = Status.published.ToString();
     }
 }

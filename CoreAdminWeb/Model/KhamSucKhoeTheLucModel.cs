@@ -29,5 +29,6 @@ namespace CoreAdminWeb.Model
         public int? phan_loai { get; set; }
 
         public int? luot_kham { get; set; }
+        public new string status { set; get; } = Status.published.ToString();
     }
 }

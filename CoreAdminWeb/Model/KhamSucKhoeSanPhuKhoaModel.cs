@@ -10,8 +10,8 @@ namespace CoreAdminWeb.Model
         public string? tinh_chat_kinh { get; set; }
         public string? chu_ky_kinh { get; set; }
         public string? luong_kinh { get; set; }
-        public bool? dau_bung_kinh { get; set; } = false;
-        public bool? da_lap_gia_dinh { get; set; } = false;
+        public bool? dau_bung_kinh { get; set; }
+        public bool? da_lap_gia_dinh { get; set; }
         public string? para { get; set; }
         public int? so_lan_mo_san_phu_khoa { get; set; }
         public string? mo_san_phu_khoa_ghi_ro { get; set; }
@@ -45,5 +45,6 @@ namespace CoreAdminWeb.Model
         public string? chu_ky { get; set; }
 
         public int? luot_kham { get; set; }
+        public new string status { set; get; } = Status.published.ToString();
     }
 }
