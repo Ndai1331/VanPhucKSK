@@ -5,16 +5,16 @@ using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace CoreAdminWeb.Pages.Admins.DanhSachDoanHoSoKhamSucKhoe
+namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 {
     public partial class Index(
-    // IBaseService<SoKhamSucKhoeModel> MainService,
+        IBaseService<DanhSachDoanSoKhamSucKhoeModel> MainService,
         IBaseService<CongTyModel> CongTyService,
         IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService
     ) : BlazorCoreBase
     {
         [Parameter] public int? Id { get; set; }
-        private List<SoKhamSucKhoeModel> MainModels { get; set; } = new();
+        private List<DanhSachDoanSoKhamSucKhoeModel> MainModels { get; set; } = new();
         private DateTime? _fromDate = null;
         private DateTime? _toDate = null;
         private CongTyModel? _selectedCongTyFilter = null;
@@ -38,48 +38,56 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanHoSoKhamSucKhoe
                 await LoadData();
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
+
+                // Wait for modal to render
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(500);
+                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
+                });
             }
         }
 
         private async Task LoadData()
         {
-            // IsLoading = true;
+            IsLoading = true;
+            BuilderQuery = $"QLCLBaoCaoBienDongGia?limit={PageSize}&offset={(Page - 1) * PageSize}";
 
             // BuildPaginationQuery(Page, PageSize);
             // BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            // if (_fromDate.HasValue)
-            // {
-            //     var fromDate = _fromDate.Value.ToString("yyyy-MM-dd");
-            //     BuilderQuery += $"&filter[_and][][ngay_kham][_gte]={fromDate}";
-            // }
-            // if (_toDate.HasValue)
-            // {
-            //     var toDate = _toDate.Value.ToString("yyyy-MM-dd");
-            //     BuilderQuery += $"&filter[_and][][ngay_kham][_lte]={toDate}";
-            // }
-            // if (_selectedCongTyFilter != null)
-            // {
-            //     BuilderQuery += $"&filter[_and][][MaDotKham][ma_hop_dong_ksk][cong_ty][_eq]={_selectedCongTyFilter.id}";
-            // }
-            // if (_selectedKhamSucKhoeCongTyFilter != null)
-            // {
-            //     BuilderQuery += $"&filter[_and][][MaDotKham][_eq]={_selectedKhamSucKhoeCongTyFilter.id}";
-            // }
+            if (_fromDate.HasValue)
+            {
+                var fromDate = _fromDate.Value.ToString("yyyy-MM-dd");
+                BuilderQuery += $"&filter[_and][][ngay_kham][_gte]={fromDate}";
+            }
+            if (_toDate.HasValue)
+            {
+                var toDate = _toDate.Value.ToString("yyyy-MM-dd");
+                BuilderQuery += $"&filter[_and][][ngay_kham][_lte]={toDate}";
+            }
+            if (_selectedCongTyFilter != null)
+            {
+                BuilderQuery += $"&filter[_and][][MaDotKham][ma_hop_dong_ksk][cong_ty][_eq]={_selectedCongTyFilter.id}";
+            }
+            if (_selectedKhamSucKhoeCongTyFilter != null)
+            {
+                BuilderQuery += $"&filter[_and][][MaDotKham][_eq]={_selectedKhamSucKhoeCongTyFilter.id}";
+            }
             
-            // var result = await MainService.GetAllAsync(BuilderQuery);
-            // if (result.IsSuccess)
-            // {
-            //     MainModels = result.Data ?? new List<SoKhamSucKhoeModel>();
-            //     if (result.Meta != null)
-            //     {
-            //         TotalItems = result.Meta.filter_count ?? 0;
-            //         TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
-            //     }
-            // }
-            // else
-            // {
-                MainModels = new List<SoKhamSucKhoeModel>();
-            // }
+            var result = await MainService.GetAllAsync(BuilderQuery);
+            if (result.IsSuccess)
+            {
+                MainModels = result.Data ?? new List<DanhSachDoanSoKhamSucKhoeModel>();
+                if (result.Meta != null)
+                {
+                    TotalItems = result.Meta.filter_count ?? 0;
+                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                }
+            }
+            else
+            {
+                MainModels = new List<DanhSachDoanSoKhamSucKhoeModel>();
+            }
             IsLoading = false;
         }
 
@@ -95,16 +103,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanHoSoKhamSucKhoe
             Page = page;
             await LoadData();
         }
-
-        // private async Task LoadDetailData()
-        // {
-        //     var buildQuery = $"sort=sort";
-        //     buildQuery += $"&filter[_and][][danh_sach_doan][_eq]={SelectedItem.id}";
-        //     buildQuery += $"&filter[_and][][deleted][_eq]=false";
-        //     // var result = await DanhSachDoanChiTietService.GetAllAsync(buildQuery);
-        //     // SelectedItemsDetail = result.Data ?? new List<DanhSachDoanChiTietModel>();
-        //     SelectedItemsDetail = new List<DanhSachDoanChiTietModel>();
-        // }
 
         private async Task<IEnumerable<CongTyModel>> LoaCongTyFilterData(string searchText)
         {

@@ -135,6 +135,7 @@
                             <th>Tiêu hóa</th>
                             <th>Thận-Tiết niệu</th>
                             <th>Nội tiết</th>
+                            <th>Cơ-xương-khớp</th>
                             <th>Thần kinh</th>
                             <th>Tâm thần</th>
                             <th>Ngoại khoa</th>
@@ -143,83 +144,63 @@
                             <th>Tai - Mũi - Họng</th>
                             <th>Răng - Hàm - Mặt</th>
                             <th>Da liễu</th>
-                            <th>X-quang ngực thẳng</th>
+                            @* <th>X-quang ngực thẳng</th>
                             <th>X-quang CSC thẳng - nghiêng</th>
                             <th>Siêu âm bụng</th>
                             <th>Siêu âm tuyến giáp</th>
                             <th>Siêu âm Doppler tim</th>
                             <th>Siêu âm tuyến vú</th>
-                            <th>Huyết học</th>
+                            <th>Huyết học</th> *@
+                            <th>Cận lâm sàn</th>
                             <th>Phân loại sức khỏe</th>
                             <th>Các bệnh tật</th>
                             <th>Đề nghị</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>HĐ-ST-2507</td>
-                            <td>NGUYỄN THÁI AN</td>
-                            <td>1999</td>
-                            <td>Nữ</td>
-                            <td>Không</td>
-                            <td>Không</td>
-                            <td>156.7</td>
-                            <td>53.2</td>
-                            <td>21.67</td>
-                            <td>83</td>
-                            <td>109/69</td>
-                            <td>Bình thường</td>
-                            <td>Bình thường</td>
-                            <td>Viêm dạ dày</td>
-                            <td>Bình thường</td>
-                            <td>Bướu giáp lan tỏa độ III</td>
-                            <td>Bình thường</td>
-                            <td>Bình thường</td>
-                            <td>Bình thường</td>
-                            <td>Không thực hiện</td>
-                            <td>Hai mắt: Cận loạn</td>
-                            <td>Bình thường</td>
-                            <td>Sức nhai 98%</td>
-                            <td>Bình thường</td>
-                            <td>Hiện tại chưa ghi nhận bất thường trên phim X-quang</td>
-                            <td>Hiện tại chưa ghi nhận bất thường trên phim X-quang</td>
-                            <td>Nốt vôi gan phải</td>
-                            <td>Theo dõi phình giáp đa hạt hai thùy</td>
-                            <td>- Phân suất tổng máu thất trái bảo tồn EF= 70% (Theo TEICH) - Các buồng tim không giãn, không rối loạn vận động vùng</td>
-                            <td>Hiện tại chưa phát hiện bất thường trên siêu âm</td>
-                            <td>Bình thường</td>
-                            <td>Loại III</td>
-                            <td>- Phình giáp đa hạt - Viêm dạ dày</td>
-                            <td>- Khám chuyên khoa nội tiết - Ăn uống đúng giờ, hạn chế ăn chua cay</td>
-                        </tr>
-                        @* @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                        @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
                         {
                             <tr>
                                 <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                                <td>Mã từ Cấu hình hồ sơ ksk ?</td>
-                                <td>Tên công ty từ Cấu hình hồ sơ ksk</td>
-                                <td>Ngày nào ?</td>
-                                <td>0</td>
-                                <td>Bỏ cột này</td>
-                                <td>Bỏ cột này</td>
-                                <td class="flex items-center gap-2">
-                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-sky-500 border-sky-500 hover:bg-sky-500 hover:text-white"
-                                                @onclick="@(e => OpenAddOrUpdateModal(null))">
-                                        <i class="ri-file-line"></i>
-                                        Chi tiết hồ sơ
-                                    </MudButton>
-                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
-                                        <i class="ri-edit-line"></i>
-                                    </MudButton>
-                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                            @onclick="@(e => OpenDeleteModal(item.Data))">
-                                        <i class="ri-delete-bin-line"></i>
-                                    </MudButton>
+                                <td>@item.Data.ma_luot_kham</td>
+                                <td>@item.Data.last_name @item.Data.first_name</td>
+                                <td>@item.Data.ngay_sinh?.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Data.gioi_tinh?.GetDescription()</td>
+                                <td>@item.Data.tien_su_gia_dinh</td>
+                                <td>@item.Data.ten_benh</td>
+                                <td>@item.Data.chieu_cao</td>
+                                <td>@item.Data.can_nang</td>
+                                <td>@item.Data.bmi</td>
+                                <td>@item.Data.mach</td>    
+                                <td>@item.Data.huyet_ap</td>    
+                                <td>@item.Data.kq_nk_tuan_hoan</td>    
+                                <td>@item.Data.kq_nk_ho_hap</td>    
+                                <td>@item.Data.kq_nk_tieu_hoa</td>    
+                                <td>@item.Data.kq_nk_than_tiet_nieu</td>    
+                                <td>@item.Data.kq_nk_noi_tiet</td>    
+                                <td>@item.Data.kq_nk_co_xuong_khop</td>    
+                                <td>@item.Data.kq_nk_than_kinh</td>    
+                                <td>@item.Data.kq_nk_tam_than</td>    
+                                <td>@item.Data.kq_ngoai_khoa</td>    
+                                <td>@item.Data.ket_qua_san_phu_khoa</td>    
+                                <td>@item.Data.benh_mat</td>    
+                                <td>@item.Data.benh_tai_mui_hong</td>    
+                                <td>@item.Data.benh_rhm</td>    
+                                <td>@item.Data.kq_da_lieu</td>   
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Data.can_lam_sang_results))
+                                    {
+                                        @foreach (var result in item.Data.can_lam_sang_results.Split('|'))
+                                        {
+                                            <div>- @result.Trim()</div>
+                                        }
+                                    }
                                 </td>
+                                <td>@item.Data.phan_loai_suc_khoe</td>    
+                                <td>@item.Data.benh_tat_ket_luan</td>    
+                                <td>@item.Data.de_nghi</td>    
                             </tr>
-                        } *@
+                        }
                     </tbody>
 
                 </table>
