@@ -54,8 +54,10 @@
                             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Trạng thái</MudText>
                             <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
                                 <option value="">Tất cả</option>
-                                <option value="true" selected="@(_searchStatusString == "true")">Đang hoạt động</option>
-                                <option value="false" selected="@(_searchStatusString == "false")">Ngừng hoạt động</option>
+                                @foreach (var item in StatusList)
+                                {
+                                    <option value="@item">@item.GetDescription()</option>
+                                }
                             </select>
                         </MudForm>
                     </div>
@@ -100,7 +102,7 @@
                             <td>@item.Data.so_luong_thuc_te?.ToString("N0")</td>
                             <td>@item.Data.ngay_du_kien_kham?.ToString("dd/MM/yyyy")</td>
                             <td>@item.Data.ngay_ket_thuc?.ToString("dd/MM/yyyy")</td>
-                            <td>@((MarkupString)item.Data.active.GetTrangThai())</td>
+                            <td>@((MarkupString)item.Data.status.GetDescription())</td>
                             <td class="flex items-center gap-2">
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data, true))">
@@ -257,9 +259,11 @@
 
                                 <div class="space-y-2">
                                     <label>Trạng thái</label>
-                                    <select class="form-select" @bind="@_selectedStatusString" @bind:event="oninput" @onchange="OnStatusChanged" disabled="@readOnly">
-                                        <option value="True" selected="@(_selectedStatusString == "true")">Đang hoạt động</option>
-                                        <option value="False" selected="@(_selectedStatusString == "false")">Ngừng hoạt động</option>
+                                    <select class="form-select" @bind="@SelectedItem.status" @bind:event="oninput" disabled="@readOnly">
+                                        @foreach (var item in StatusList)
+                                        {
+                                            <option value="@item">@item.GetDescription()</option>
+                                        }
                                     </select>
                                 </div>
 

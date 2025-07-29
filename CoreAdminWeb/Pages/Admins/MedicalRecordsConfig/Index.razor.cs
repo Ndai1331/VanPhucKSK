@@ -1,4 +1,5 @@
 ﻿using CoreAdminWeb.Commons;
+using CoreAdminWeb.Enums;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
@@ -17,6 +18,8 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                                IBaseService<ContractModel> HopDongService,
                                IUserService UserService) : BlazorCoreBase
     {
+        private List<TrangThaiCauHinhKSK> StatusList { get; set; } = Enum.GetValues(typeof(TrangThaiCauHinhKSK)).Cast<TrangThaiCauHinhKSK>().ToList();
+        
         private List<KhamSucKhoeCongTyModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
         private bool openAddOrUpdateModal = false;
@@ -61,7 +64,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             }
             if (!string.IsNullOrEmpty(_searchStatusString))
             {
-                BuilderQuery += $"&filter[_and][2][active][_eq]={_searchStatusString}";
+                BuilderQuery += $"&filter[_and][2][status][_eq]={_searchStatusString}";
             }
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
@@ -296,15 +299,15 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             await LoadData();
         }
 
-        private void OnStatusChanged(ChangeEventArgs? selected)
-        {
-            _selectedStatusString = selected?.Value?.ToString() ?? string.Empty;
-            SelectedItem.active = true;
-            if (bool.TryParse(_selectedStatusString, out bool activeValue))
-            {
-                SelectedItem.active = activeValue;
-            }
-        }
+        // private void OnStatusChanged(ChangeEventArgs? selected)
+        // {
+        //     _selectedStatusString = selected?.Value?.ToString() ?? string.Empty;
+        //     SelectedItem.active = true;
+        //     if (bool.TryParse(_selectedStatusString, out bool activeValue))
+        //     {
+        //         SelectedItem.active = activeValue;
+        //     }
+        // }
 
         private void OnCongTyChanged(CongTyModel? selected)
         {

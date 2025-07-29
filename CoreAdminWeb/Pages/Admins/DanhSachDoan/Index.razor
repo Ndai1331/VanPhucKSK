@@ -82,17 +82,20 @@
                             <td>@item.Data.code</td>
                             <td>@item.Data.ma_hop_dong_ksk?.cong_ty?.name</td>
                             <td>@item.Data.ngay_du_kien_kham?.ToString("dd/MM/yyyy")</td>
-                            <td>0</td>
+                            <td>@item.Data.so_luong_thuc_te</td>
                             <td class="flex items-center gap-2">
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-sky-500 border-sky-500"
                                             @onclick="@(e => GoToDetail(item.Data.id))">
                                     <i class="ri-file-line"></i>
                                     Chi tiết hồ sơ
                                 </MudButton>
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
-                                    <i class="ri-edit-line"></i>
-                                </MudButton>
+                                @if (item.Data.status.ToString().ToLower() != "locked")
+                                {
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                        <i class="ri-edit-line"></i>
+                                    </MudButton>
+                                }
                                 @* <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
                                            @onclick="@(e => OpenDeleteModal(item.Data))">
                                     <i class="ri-delete-bin-line"></i>

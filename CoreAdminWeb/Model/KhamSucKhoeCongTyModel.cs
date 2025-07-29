@@ -1,6 +1,7 @@
 using CoreAdminWeb.Model.Base;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.User;
+using CoreAdminWeb.Enums;
 
 namespace CoreAdminWeb.Model
 {
@@ -42,6 +43,7 @@ namespace CoreAdminWeb.Model
         public string? Ksk_status { get; set; }
 
         public ContractModel? ma_hop_dong_ksk { get; set; }
+        public new TrangThaiCauHinhKSK status { get; set; } = TrangThaiCauHinhKSK.published;
     }
     public class KhamSucKhoeCongTyCRUDModel : BaseDetailModel
     {
@@ -81,6 +83,6 @@ namespace CoreAdminWeb.Model
         public string? Ksk_status { get; set; }
 
         public int? ma_hop_dong_ksk { get; set; }
-        public new string status { set; get; } = Status.published.ToString();
+        public new TrangThaiCauHinhKSK status { set; get; } = TrangThaiCauHinhKSK.published;
     }
 }
