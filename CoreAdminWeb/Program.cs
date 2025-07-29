@@ -12,7 +12,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+
+// Configure Blazor Server with increased limits for large data transfer
+builder.Services.AddServerSideBlazor(options =>
+{
+    // Increase timeout for long-running operations
+    options.DetailedErrors = builder.Environment.IsDevelopment();
+})
+.AddHubOptions(options =>
+{
+    // Increase SignalR message size limit for large HTML content
+    options.MaximumReceiveMessageSize = 100 * 1024 * 1024; // 100MB
+    options.StreamBufferCapacity = 20;
+    options.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+    options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.MaximumParallelInvocationsPerClient = 2;
+    
+    // Enable detailed errors in development
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+});
+
 builder.Services.AddMudServices();
 builder.Services.AddSingleton<ModeStateService>();
 

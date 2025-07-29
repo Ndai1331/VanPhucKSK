@@ -14,7 +14,8 @@ using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Posts;
 using CoreAdminWeb.Services.Settings;
 using CoreAdminWeb.Services.Users;
-
+using CoreAdminWeb.Services.DanhSachDoanSoKhamSucKhoe;
+using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
 
 namespace CoreAdminWeb.DIInjections
 {
@@ -59,7 +60,7 @@ namespace CoreAdminWeb.DIInjections
 
             // HTTP Client Service Configuration - replaces static RequestClient
             services.AddScoped<IHttpClientService, HttpClientService>();
-
+            services.AddScoped<IDanhSachDoanSoKhamSucKhoeService<DanhSachDoanSoKhamSucKhoeModel>, DanhSachDoanSoKhamSucKhoeService>();
         }
     }
 }
