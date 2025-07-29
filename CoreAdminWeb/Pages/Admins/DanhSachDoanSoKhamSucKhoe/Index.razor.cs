@@ -1,6 +1,7 @@
 ﻿using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -8,7 +9,7 @@ using Microsoft.JSInterop;
 namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 {
     public partial class Index(
-        IBaseService<DanhSachDoanSoKhamSucKhoeModel> MainService,
+        IDanhSachDoanSoKhamSucKhoeService<DanhSachDoanSoKhamSucKhoeModel> MainService,
         IBaseService<CongTyModel> CongTyService,
         IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService
     ) : BlazorCoreBase
@@ -51,29 +52,35 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private async Task LoadData()
         {
             IsLoading = true;
-            BuilderQuery = $"QLCLBaoCaoBienDongGia?limit={PageSize}&offset={(Page - 1) * PageSize}";
+            var maDotKham = 0;
+            if (_selectedKhamSucKhoeCongTyFilter != null)
+            {
+                maDotKham = _selectedKhamSucKhoeCongTyFilter.id;
+            }
+            BuilderQuery = $"DanhSachDoan/medical-data?maDotKham={maDotKham}&limit={PageSize}&offset={(Page - 1) * PageSize}";
 
             // BuildPaginationQuery(Page, PageSize);
             // BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            if (_fromDate.HasValue)
-            {
-                var fromDate = _fromDate.Value.ToString("yyyy-MM-dd");
-                BuilderQuery += $"&filter[_and][][ngay_kham][_gte]={fromDate}";
-            }
-            if (_toDate.HasValue)
-            {
-                var toDate = _toDate.Value.ToString("yyyy-MM-dd");
-                BuilderQuery += $"&filter[_and][][ngay_kham][_lte]={toDate}";
-            }
-            if (_selectedCongTyFilter != null)
-            {
-                BuilderQuery += $"&filter[_and][][MaDotKham][ma_hop_dong_ksk][cong_ty][_eq]={_selectedCongTyFilter.id}";
-            }
-            if (_selectedKhamSucKhoeCongTyFilter != null)
-            {
-                BuilderQuery += $"&filter[_and][][MaDotKham][_eq]={_selectedKhamSucKhoeCongTyFilter.id}";
-            }
-            
+
+            // if (_fromDate.HasValue)
+            // {
+            //     var fromDate = _fromDate.Value.ToString("yyyy-MM-dd");
+            //     BuilderQuery += $"&filter[_and][][ngay_kham][_gte]={fromDate}";
+            // }
+            // if (_toDate.HasValue)
+            // {
+            //     var toDate = _toDate.Value.ToString("yyyy-MM-dd");
+            //     BuilderQuery += $"&filter[_and][][ngay_kham][_lte]={toDate}";
+            // }
+            // if (_selectedCongTyFilter != null)
+            // {
+            //     BuilderQuery += $"&filter[_and][][MaDotKham][ma_hop_dong_ksk][cong_ty][_eq]={_selectedCongTyFilter.id}";
+            // }
+            // if (_selectedKhamSucKhoeCongTyFilter != null)
+            // {
+            //     BuilderQuery += $"&filter[_and][][MaDotKham][_eq]={_selectedKhamSucKhoeCongTyFilter.id}";
+            // }
+
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
             {
