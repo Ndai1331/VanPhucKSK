@@ -26,10 +26,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             await base.OnInitializedAsync();
             
             // Load the KhamSucKhoeCongTy by ID if provided
-            if (Id.HasValue)
-            {
-                await LoadKhamSucKhoeCongTyById(Id.Value);
-            }
+            // if (Id.HasValue)
+            // {
+            //     await LoadKhamSucKhoeCongTyById(Id.Value);
+            // }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,34 +52,12 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private async Task LoadData()
         {
             IsLoading = true;
-            var maDotKham = 0;
+            var maDotKham = Id;
             if (_selectedKhamSucKhoeCongTyFilter != null)
             {
                 maDotKham = _selectedKhamSucKhoeCongTyFilter.id;
             }
             BuilderQuery = $"DanhSachDoan/medical-data?maDotKham={maDotKham}&limit={PageSize}&offset={(Page - 1) * PageSize}";
-
-            // BuildPaginationQuery(Page, PageSize);
-            // BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-
-            // if (_fromDate.HasValue)
-            // {
-            //     var fromDate = _fromDate.Value.ToString("yyyy-MM-dd");
-            //     BuilderQuery += $"&filter[_and][][ngay_kham][_gte]={fromDate}";
-            // }
-            // if (_toDate.HasValue)
-            // {
-            //     var toDate = _toDate.Value.ToString("yyyy-MM-dd");
-            //     BuilderQuery += $"&filter[_and][][ngay_kham][_lte]={toDate}";
-            // }
-            // if (_selectedCongTyFilter != null)
-            // {
-            //     BuilderQuery += $"&filter[_and][][MaDotKham][ma_hop_dong_ksk][cong_ty][_eq]={_selectedCongTyFilter.id}";
-            // }
-            // if (_selectedKhamSucKhoeCongTyFilter != null)
-            // {
-            //     BuilderQuery += $"&filter[_and][][MaDotKham][_eq]={_selectedKhamSucKhoeCongTyFilter.id}";
-            // }
 
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
