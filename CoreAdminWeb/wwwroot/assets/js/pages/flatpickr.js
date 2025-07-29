@@ -8,7 +8,6 @@ flatpickr(".date-picker", {
     dateFormat: "d/m/Y",
     allowInput: true,
     enableTime: false,
-    locale: "vi",
     firstDayOfWeek: 0
 });
     /*

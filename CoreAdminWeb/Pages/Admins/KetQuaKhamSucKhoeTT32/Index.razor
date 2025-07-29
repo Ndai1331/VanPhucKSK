@@ -1044,11 +1044,7 @@
 }
 
 <div class="hidden">
-    <!-- Printable Medical Form Content -->
     <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder" id="medical-form-content">
-
-
-        <!-- Medical Form Header -->
         <div class="ksk-header-container" style="margin-bottom:0;">
             <div class="ksk-header-logo">
                 <img src="@_logoPath" alt="Logo" class="header-logo" />
@@ -1507,15 +1503,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                document.getElementById('avatarPreview').src = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-</script>

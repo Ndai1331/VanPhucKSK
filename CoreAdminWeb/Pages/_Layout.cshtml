@@ -140,7 +140,6 @@
         window.initializeDateTimePicker = () => {
             flatpickr(".datetime-picker", {
                 enableTime: true,
-                locale: "vi",
                 dateFormat: "d/m/Y",
             });
         };
@@ -148,7 +147,6 @@
          window.initializeDatePicker = () => {
             flatpickr(".date-picker", {
                 enableTime: false,
-                locale: "vi",
                 dateFormat: "d/m/Y",
                 allowInput: true,
                 onChange: function(selectedDates, dateStr, instance) {

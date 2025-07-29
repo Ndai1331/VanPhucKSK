@@ -1,4 +1,5 @@
-﻿using CoreAdminWeb.Commons;
+﻿using System;
+using CoreAdminWeb.Commons;
 using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
@@ -745,6 +746,84 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
         }
 
+        /// <summary>
+        /// Get HTML content of the medical form (optimized for large content)
+        /// </summary>
+        /// <returns>HTML string of the medical form content</returns>
+        public async Task<string> GetMedicalFormHtmlAsync()
+        {
+            try
+            {
+                // Wait for DOM to render completely
+                await Task.Delay(100);
+
+                // Use shorter timeout and try chunked approach first
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                
+                // Try to get content size first
+                var contentLength = await JsRuntime.InvokeAsync<int>("getMedicalFormContentLength", cts.Token);
+                Console.WriteLine($"Medical form content length: {contentLength} characters");
+                
+                if (contentLength > 500000) // If content is larger than 500KB
+                {
+                    Console.WriteLine("Content is large, using extended timeout...");
+                    // Use longer timeout for large content
+                    using var largeCts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+                    var largeHtmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", largeCts.Token);
+                    
+                    if (!string.IsNullOrEmpty(largeHtmlContent))
+                    {
+                        Console.WriteLine($"Successfully retrieved large HTML content. Length: {largeHtmlContent.Length} characters");
+                        return largeHtmlContent;
+                    }
+                    
+                    Console.WriteLine("Large content retrieval failed, trying normal approach...");
+                }
+                
+                // For smaller content, use direct approach
+                var htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", cts.Token);
+                
+                if (string.IsNullOrEmpty(htmlContent))
+                {
+                    Console.WriteLine("ERROR: HTML content is null or empty!");
+                    return string.Empty;
+                }
+
+                Console.WriteLine($"Successfully retrieved HTML content. Length: {htmlContent.Length} characters");
+                return htmlContent;
+            }
+            catch (TaskCanceledException ex)
+            {
+                Console.WriteLine($"ERROR: Timeout while getting HTML content - {ex.Message}");
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: Failed to get HTML content - {ex.Message}. Trying simple innerHTML...");
+                
+                // Fallback: Try to get just innerHTML without full styling
+                try
+                {
+                    using var fallbackCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                    var innerHTML = await JsRuntime.InvokeAsync<string>("getMedicalFormInnerHTML", fallbackCts.Token);
+                    
+                    if (!string.IsNullOrEmpty(innerHTML))
+                    {
+                        Console.WriteLine($"Fallback successful. Length: {innerHTML.Length}");
+                        return innerHTML;
+                    }
+                }
+                catch (Exception fallbackEx)
+                {
+                    Console.WriteLine($"ERROR: Fallback also failed - {fallbackEx.Message}");
+                }
+                
+                return string.Empty;
+            }
+        }
+
+
+
         private async Task ExportPDF()
         {
             if (IsLoading || CurrentUser == null || SelectedItem.id <= 0)
@@ -754,40 +833,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             try
             {
-                Console.WriteLine("=== Debug ExportPDF - Bắt đầu ===");
-                Console.WriteLine($"CurrentUser: {CurrentUser?.first_name} {CurrentUser?.last_name}");
-
                 // Hiển thị thông báo đang xử lý
                 AlertService?.ShowAlert("Đang xử lý ảnh chữ ký và tạo PDF, vui lòng đợi...", "info");
 
-                // Lấy HTML content từ JavaScript - giống như chức năng in
-                Console.WriteLine("Step 1: Đang lấy HTML từ JavaScript...");
-
-                string htmlContent = string.Empty;
-                try
-                {
-                    // Đợi một chút để đảm bảo DOM đã render xong
-                    await Task.Delay(100);
-
-                    // Tăng timeout lên 2 phút để xử lý ảnh base64
-                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(120));
-                    htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", cts.Token);
-
-                    Console.WriteLine($"Step 2: HTML content length: {htmlContent?.Length ?? 0}");
-                }
-                catch (TaskCanceledException ex)
-                {
-                    Console.WriteLine($"ERROR: TaskCancelled - {ex.Message}");
-                    AlertService?.ShowAlert("Timeout khi lấy nội dung HTML từ JavaScript", "danger");
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"ERROR: JavaScript interop failed - {ex.Message}");
-                    AlertService?.ShowAlert($"Lỗi JavaScript: {ex.Message}", "danger");
-                    return;
-                }
-
+                string htmlContent = await GetMedicalFormHtmlAsync();
                 if (string.IsNullOrEmpty(htmlContent))
                 {
                     Console.WriteLine("ERROR: HTML content is null or empty!");
