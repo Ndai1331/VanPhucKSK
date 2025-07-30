@@ -1,0 +1,260 @@
+@page "/electronic-invoice"
+@using CoreAdminWeb.Services
+@using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Shared.Base
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Services.BaseServices
+@layout CoreAdminWeb.Shared.MainLayout
+@inherits BlazorCoreBase
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
+
+<!-- Start Main Content -->
+<div class="bg-white  flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="xs:col-span-1">
+            <MudForm class="flex-1">
+                <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập mã bệnh nhân để tìm kiếm</MudText>
+                <div class="relative">
+                    <input type="text" id="search"
+                            class="border-black/10 dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30 focus:border-black/30 placeholder:text-black/50 border text-black text-sm rounded block w-full ltr:pl-3 rtl:pr-3 ltr:pr-7 rtl:pl-7 h-10 bg-[#f9fbfd] focus:ring-0 focus:outline-0"
+                            placeholder="Nhập mã bệnh nhân..."
+                            required=""
+                            @bind-value="@maBenhNhan"
+                            @bind-value:event="oninput"
+                            @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadInvoicesAsync)">
+                    <MudButton OnClick="async (e) => await LoadInvoicesAsync()" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
+                            <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z" fill="currentColor"></path>
+                        </svg>
+                    </MudButton>
+                </div>
+            </MudForm>
+        </div>
+        <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
+
+            @if (_isLoading)
+            {
+                <div class="flex justify-center items-center py-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    <span class="ml-3 text-slate-600">Đang tải hoá đơn...</span>
+                </div>
+            }else{
+                if (MainModels.Any())
+                {
+                    <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
+                        <div class="mb-4 pb-3 border-b border-gray-200 dark:border-darkborder">
+                            <h5 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-0">
+                                <i class="fas fa-list me-2"></i>Danh sách hoá đơn
+                            </h5>
+                        </div>
+                        <div class="overflow-auto">
+                            <MudTable Class="min-w-[640px] text-left w-full" Items="@MainModels" Hover="true" Breakpoint="Breakpoint.None" LoadingProgressColor="Color.Info">
+                                <HeaderContent>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã lượt khám</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Số hoá đơn</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày hoá đơn</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã giao dịch</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã số thuế</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">URL tra cứu</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
+                                    <MudTd DataLabel="Mã lượt khám">@context.ma_luot_kham</MudTd>
+                                    <MudTd DataLabel="Số hoá đơn">@context.so_hoa_don</MudTd>
+                                    <MudTd DataLabel="Ngày hoá đơn">@context.ngay_hoa_don?.ToString("dd/MM/yyyy")</MudTd>
+                                    <MudTd DataLabel="Mã giao dịch">@context.ma_giao_dich</MudTd>
+                                    <MudTd DataLabel="Mã số thuế">@context.ma_so_thue</MudTd>
+                                    <MudTd DataLabel="URL tra cứu">@context.url_tra_cuu</MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        </div>
+                        
+                        <div class="w-full grid grid-cols-1 pb-2">
+                            <div class="flex items-center justify-between p-4">
+                                <div class="flex items-center gap-2">
+                                    <span>Hiển thị</span>
+                                    <select class="form-select" @bind="PageSize" @bind:event="oninput" @onchange="async (e) => await OnPageSizeChanged(LoadInvoicesAsync)">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                    <span>mục</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+
+                                    <div>
+                                        <ul class="inline-flex my-2 -space-x-px list-inside">
+                                            <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-l-lg rtl:rounded-r-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await PreviousPage(LoadInvoicesAsync)" disabled="@(Page <= 1)">Trước</MudLink></li>
+                                            @{
+                                                var startPage = Math.Max(1, Page - 1);
+                                                var endPage = Math.Min(TotalPages, Page + 1);
+
+                                                // Always show first page
+                                                <li>
+                                                    <a href="#"
+                                                        class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
+                                                        @onclick="async (e) => await SelectedPage(1, LoadInvoicesAsync)">1</a>
+                                                </li>
+
+                                                // Show ellipsis if needed
+                                                if (startPage > 2)
+                                                {
+                                                    <li><span class="px-3 py-2">...</span></li>
+                                                }
+
+                                                // Show pages around current page
+                                                for (int i = startPage; i <= endPage; i++)
+                                                {
+                                                    if (i > 1 && i < TotalPages)
+                                                    {   
+                                                        var currentPage = i; // Local variable to avoid closure issues
+                                                        <li>
+                                                            <a href="#"
+                                                                class="px-3 py-2 text-black  border border-black/10
+                                                                hover:bg-purple hover:text-white dark:bg-transparent
+                                                                dark:text-white dark:border-darkborder dark:hover:bg-purple
+                                                                dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
+                                                                @onclick="async (e) => await SelectedPage(currentPage, LoadInvoicesAsync)">@i</a>
+                                                        </li>
+                                                    }
+                                                }
+
+                                                // Show ellipsis if needed
+                                                if (endPage < TotalPages - 1)
+                                                {
+                                                    <li><span class="px-3 py-2">...</span></li>
+                                                }
+
+                                                // Always show last page if there is more than one page
+                                                if (TotalPages > 1)
+                                                {
+                                                    <li>
+                                                        <a href="#"
+                                                            class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
+                                                            @onclick="async (e) => await SelectedPage(TotalPages, LoadInvoicesAsync)">@TotalPages</a>
+                                                    </li>
+                                                }
+                                            }
+                                            <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-r-lg rtl:rounded-l-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await NextPage(LoadInvoicesAsync)" disabled="@(Page >= TotalPages)">Sau</MudLink></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+            
+                }
+                else
+                {
+                    <div class="text-center py-8">
+                        <p class="text-slate-500 dark:text-slate-400">Không tìm thấy hoá đơn</p>
+                    </div>
+                }
+            }
+            
+            
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject] AlertService AlertService { get; set; }
+    [Inject] IBaseGetService<HoaDonDienTuModel> ElectronicInvoiceService { get; set; }
+    
+    // State management
+    private bool _isLoading = true;
+    private bool _hasInitialized = false;
+    private string maBenhNhan = string.Empty;
+    // Data
+    private List<HoaDonDienTuModel> MainModels = new List<HoaDonDienTuModel>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_hasInitialized)
+        {
+            _hasInitialized = true;
+            await InitializePageDataAsync();
+        }
+    }
+
+    /// <summary>
+    /// Initialize page data with proper loading state management
+    /// </summary>
+    private async Task InitializePageDataAsync()
+    {
+        try
+        {
+            _isLoading = true;
+            await LoadInvoicesAsync();
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải dữ liệu: " + ex.Message, "danger");
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Load news posts with optimized error handling
+    /// </summary>
+    private async Task LoadInvoicesAsync()
+    {
+        _isLoading = true;
+        StateHasChanged();
+        
+        try
+        {
+            if(!string.IsNullOrEmpty(maBenhNhan))
+            {
+                BuilderQuery = $"maBenhNhan={maBenhNhan}&limit={PageSize}&offset={(Page - 1) * PageSize}";
+                
+                var result = await ElectronicInvoiceService.GetAllAsync(BuilderQuery);
+                if (result.IsSuccess)
+                {
+                    MainModels = result.Data ?? new List<HoaDonDienTuModel>();
+                    if (result.Meta != null)
+                    {
+                        TotalItems = result.Meta.filter_count ?? 0;
+                        TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                    }
+                }
+                else
+                {
+                    MainModels = new List<HoaDonDienTuModel>();
+                    TotalItems = 0;
+                    TotalPages = 0;
+                }
+            } else
+            {
+                MainModels = new List<HoaDonDienTuModel>();
+                TotalItems = 0;
+                TotalPages = 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            AlertService.ShowAlert("Lỗi khi tải tin tức: " + ex.Message, "danger");
+            MainModels = new List<HoaDonDienTuModel>();
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+} 
