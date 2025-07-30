@@ -88,6 +88,22 @@ window.getImageDimensions = async (file) => {
     });
 };
 
-
-
-
+// Function to open URL in new tab without affecting current tab
+window.openInNewTab = function(url) {
+    try {
+        // Open URL in new tab
+        const newTab = window.open(url, '_blank', 'noopener,noreferrer');
+        
+        if (!newTab) {
+            alert('Popup bị chặn. Vui lòng cho phép popup cho trang này.');
+            return false;
+        }
+        
+        // Focus on new tab
+        newTab.focus();
+        return true;
+    } catch (error) {
+        console.error('Error opening new tab:', error);
+        return false;
+    }
+};

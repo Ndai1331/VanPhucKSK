@@ -15,6 +15,20 @@
 <!-- Start Main Content -->
 <div class="bg-white  flex flex-col gap-4 min-h-[calc(100vh-212px)]">
     <div class="grid grid-cols-1 gap-4">
+         <div class="xs:col-span-1">
+            <div class="gap-4 p-5 bg-light/50 dark:bg-dark rounded-2xl">
+                <h3 class="mb-4 text-xl font-semibold dark:text-white">Hướng dẫn tra cứu hoá đơn điện tử</h3>
+                <div>
+                    <p>Bước 1: Nhập mã bệnh nhân vào ô tìm kiếm để tìm hoá đơn điện tử tương ứng</p>
+                    <p>Bước 2: Chọn hoá đơn điện tử cần tra cứu và click vào nút Tra Cứu sẽ dẫn qua hệ thống hoá đơn điện tử</p>
+                    <p>Bước 3: Nhập <strong>Mã số thuế bên bán</strong>  vào ô MST bên bán </p>
+                    <p>Bước 4: Nhập <strong>Số hoá đơn</strong> vào ô Mã số bí mật</p>
+                    <p>Bước 5: Nhấn nút Tìm kiếm từ hệ thống Hoá đơn và xem kết quả</p>
+                </div>
+            </div>
+        </div>
+
+
         <div class="xs:col-span-1">
             <MudForm class="flex-1">
                 <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập mã bệnh nhân để tìm kiếm</MudText>
@@ -34,6 +48,8 @@
                 </div>
             </MudForm>
         </div>
+       
+
         <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
 
             @if (_isLoading)
@@ -56,20 +72,25 @@
                                 <HeaderContent>
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã lượt khám</MudTh>
-                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Số hoá đơn</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã số thuế bên bán</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Số hoá đơn (Mã số bí mật)</MudTh>
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày hoá đơn</MudTh>
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã giao dịch</MudTh>
-                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã số thuế</MudTh>
-                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">URL tra cứu</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Tra cứu</MudTh>
                                 </HeaderContent>
                                 <RowTemplate>
                                     <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
                                     <MudTd DataLabel="Mã lượt khám">@context.ma_luot_kham</MudTd>
-                                    <MudTd DataLabel="Số hoá đơn">@context.so_hoa_don</MudTd>
+                                    <MudTd DataLabel="Mã số thuế bên bán">@context.ma_so_thue</MudTd>
+                                    <MudTd DataLabel="Số hoá đơn (Mã số bí mật)">@context.so_hoa_don</MudTd>
                                     <MudTd DataLabel="Ngày hoá đơn">@context.ngay_hoa_don?.ToString("dd/MM/yyyy")</MudTd>
                                     <MudTd DataLabel="Mã giao dịch">@context.ma_giao_dich</MudTd>
-                                    <MudTd DataLabel="Mã số thuế">@context.ma_so_thue</MudTd>
-                                    <MudTd DataLabel="URL tra cứu">@context.url_tra_cuu</MudTd>
+                                    <MudTd DataLabel="Thao tác">
+                                        <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors"
+                                         @onclick="@(() => GoToViettelInvoiceSearch(context))">
+                                            <i class="ri-eye-line me-1"></i>Tra cứu
+                                        </button>
+                                    </MudTd>
                                 </RowTemplate>
                             </MudTable>
                         </div>
@@ -255,6 +276,20 @@
         {
             _isLoading = false;
             await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task GoToViettelInvoiceSearch(HoaDonDienTuModel context)
+    {
+        // new tab and open url
+        var url = context.url_tra_cuu;
+        if(!string.IsNullOrEmpty(url))
+        {
+            var success = await JsRuntime.InvokeAsync<bool>("openInNewTab", url);
+            if(!success)
+            {
+                AlertService.ShowAlert("Không thể mở trang tra cứu hóa đơn", "danger");
+            }
         }
     }
 } 
