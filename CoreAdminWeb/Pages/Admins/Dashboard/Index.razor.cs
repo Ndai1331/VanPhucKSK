@@ -144,7 +144,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 foreach (var item in benhs)
                 {
                     benhSeri.data.Add(
-                        MainModel.HealthClassifications
+                        MainModel.CommonDiseases
                             .Where(c => c.Name == item)
                             .Sum(c => c.Count)
                     );
@@ -153,9 +153,9 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 phanLoaiSucKhoeSeries.Add(phanLoaiSucKhoeSeri);
                 benhPhoBienSeries.Add(benhSeri);
 
-                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#phanLoaiSucKhoeChart", "Phân loại sức khỏe", phanLoaiSucKhoeSeries, phanLoaiucKhoeNames, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeNames.Count()), false);
+                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#phanLoaiSucKhoeChart", phanLoaiSucKhoeSeries, phanLoaiucKhoeNames, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeNames.Count()), false);
                 await JsRuntime.InvokeVoidAsync("initLineBarChart", "#timelinePhanLoaiSucKhoeChart", timeLinePhanLoaiSucKhoeSeries, phanLoaiucKhoeDates, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeDates.Count()));
-                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#nhomBenhPhoBienChart", "Nhóm bệnh phổ biến", benhPhoBienSeries, benhs, GlobalConstant.PefaultChartColors.Take(1));
+                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#nhomBenhPhoBienChart", benhPhoBienSeries, benhs, GlobalConstant.PefaultChartColors.Take(benhs.Count()));
             }
             catch (Exception ex)
             {

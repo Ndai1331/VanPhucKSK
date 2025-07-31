@@ -1,4 +1,4 @@
-@page "/admin/dashboard"
+@page "/admin/dashboard-tong-quan"
 @using CoreAdminWeb.Commons.Utils
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Helpers
@@ -26,11 +26,14 @@
             }
 
             <div class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-2 sm:gap-2 pb-2">
-                <div class="xs:col-span-2 sm:col-span-2 md:col-span-1 xl:col-span-1">
+                <div class="xs:col-span-2 sm:col-span-2 md:col-span-1 xl:col-span-1 flex items-end">
                     <MudText Typo="Typo.h2" Class="mb-1 text-base capitalize text-slate-800 dark:text-slate-100">Theo dõi tiến độ, chi phí và phân tích dữ liệu khám sức khỏe</MudText>
                 </div>
 
                 <div class="xs:col-span-2 sm:col-span-2 md:col-span-1 xl:col-span-1">
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Ngày khám
+                    </MudText>
                     <div class="flex items-center gap-2 sm:gap-4">
                         <input type="text"
                                class="form-input date-picker w-1/2"
@@ -107,7 +110,7 @@
                         Số ca bất thường: <span class="font-semibold text-red-400">@MainModel.CompanyHealthExamination.AbnormalCases?.ToString("N0")</span>
                     </MudText>
                     <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
-                        Tỷ lệ đạt: <span class="font-semibold text-red-400">@MainModel.CompanyHealthExamination.PercentagePass?.ToString("#0.0")</span>
+                        Tỷ lệ đạt: <span class="font-semibold text-red-400">@MainModel.CompanyHealthExamination.PercentagePass?.ToString("#0.0")%</span>
                     </MudText>
                 </div>
             </div>

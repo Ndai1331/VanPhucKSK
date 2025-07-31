@@ -11,7 +11,7 @@ namespace CoreAdminWeb.Services
     /// </summary>
     public class PhanLoaiSucKhoeService : IBaseService<PhanLoaiSucKhoeModel>
     {
-        private readonly string _collection = "PhanLoaiSucKhoe";
+        private readonly string _collection = "phan_loai_suc_khoe";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name";
         private readonly IHttpClientService _httpClientService;
 
