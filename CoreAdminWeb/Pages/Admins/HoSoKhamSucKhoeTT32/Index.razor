@@ -1,0 +1,154 @@
+@page "/admin/ho-so-kham-suc-khoe-tt32"
+@using CoreAdminWeb.Commons.Helpers
+@using CoreAdminWeb.Commons.Utils
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Shared.Base
+@inherits BlazorCoreBase
+@layout Shared.Layout.AdminLayout
+
+<PageHeader Title="Hồ sơ KSK - TT32" pTitle="Hồ sơ KSK - TT32"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            @if (IsLoading)
+            {
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <div class="w-full h-4 rounded-full bg-gray-200">
+                        <div class="h-4 rounded-full bg-success animate-progress"
+                             style="background-image: linear-gradient(45deg,hsla(0,0%,100%,.15) 25%,transparent 0,transparent 50%,hsla(0,0%,100%,.15) 0,hsla(0,0%,100%,.15) 75%,transparent 0,transparent); background-size: 1rem 1rem;">
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="flex items-end justify-between flex-1 gap-2 sm:gap-4">
+                <!-- Left: Filter Area -->
+                <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày</MudText>
+                        <div class="flex items-center gap-2 sm:gap-4">
+                            <input type="text"
+                                class="form-input date-picker w-1/2"
+                                placeholder="Từ ngày"
+                                value="@(_fromDate?.ToString("dd/MM/yyyy"))"
+                                @onchange="@(e => OnDateChanged(e, nameof(_fromDate), true))" />
+                            <span class="mx-2 flex items-center text-gray-500">-</span>
+                            <input type="text"
+                                class="form-input date-picker w-1/2"
+                                placeholder="Đến ngày"
+                                value="@(_toDate?.ToString("dd/MM/yyyy"))"
+                                @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
+                        </div>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tên công ty</MudText>
+                        <BlazoredTypeahead EnableDropDown="true"
+                                        ShowDropDownOnFocus="true"
+                                        MinimumLength="0"
+                                        TItem="CongTyModel"
+                                        TValue="CongTyModel"
+                                        SearchMethod="LoaCongTyFilterData"
+                                        Value="_selectedCongTyFilter"
+                                        ValueExpression="@(() => _selectedCongTyFilter)"
+                                        ValueChanged="OnCongTyFilterChanged"
+                                        placeholder="Chọn công ty"
+                                        Class="form-select">
+                            <SelectedTemplate Context="item">
+                                @item.name
+                            </SelectedTemplate>
+                            <ResultTemplate Context="item">
+                                @item.name
+                            </ResultTemplate>
+                            <NotFoundTemplate Context="item">
+                                Không tìm thấy dữ liệu
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Mã hồ sơ</MudText>
+                        <BlazoredTypeahead EnableDropDown="true"
+                                        ShowDropDownOnFocus="true"
+                                        MinimumLength="0"
+                                        TItem="UserModel"
+                                        TValue="UserModel"
+                                        SearchMethod="LoadBenhNhanFilterData"
+                                        Value="_benhNhanFilter"
+                                        ValueExpression="@(() => _benhNhanFilter)"
+                                        ValueChanged="OnBenhNhanFilterChanged"
+                                        placeholder="Mã khách hàng"
+                                        Class="form-select">
+                            <SelectedTemplate Context="item">
+                                @item.ma_benh_nhan    
+                            </SelectedTemplate>
+                            <ResultTemplate Context="item">
+                                @item.ma_benh_nhan
+                            </ResultTemplate>
+                            <NotFoundTemplate Context="item">
+                                Không tìm thấy dữ liệu
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+
+                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
+                        @* <div> *@
+                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            bg-success border-success text-white hover:bg-success/[0.85]
+                            hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadData())">
+                                <i class="ri-search-line"></i>
+                                Thống kê
+                            </MudButton>
+                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
+                            text-nowrap">
+                                <i class="ri-file-excel-2-fill"></i>
+                                Xuất excel
+                            </MudButton>
+                        @* </div> *@
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table id="example" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã KH</th>
+                            <th>Tên KH</th>
+                            <th>Mã điều trị</th>
+                            <th>Ngày khám</th>
+                            <th>Phân loại sức khỏe</th>
+                            <th>Các bệnh tật</th>
+                            <th>Đề nghị</th>
+                            <th>Công ty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                        {
+                            <tr>
+                                <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                <td>@item.Data.ma_benh_nhan</td>
+                                <td>@item.Data.last_name @item.Data.first_name</td>
+                                <td>@item.Data.ma_luot_kham</td>
+                                <td>@item.Data.ngay_kham?.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Data.phan_loai_suc_khoe</td>    
+                                <td>@item.Data.benh_tat_ket_luan</td>    
+                                <td>@item.Data.de_nghi</td>    
+                                <td>@item.Data.cong_ty</td>    
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
+    </div>
+</div>

@@ -16,6 +16,8 @@ using CoreAdminWeb.Services.Settings;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Services.DanhSachDoanSoKhamSucKhoe;
 using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
+using CoreAdminWeb.Services.CaNhanSoKhamSucKhoe;
+using CoreAdminWeb.Services.ICaNhanSoKhamSucKhoeService;
 
 namespace CoreAdminWeb.DIInjections
 {
@@ -62,6 +64,7 @@ namespace CoreAdminWeb.DIInjections
             // HTTP Client Service Configuration - replaces static RequestClient
             services.AddScoped<IHttpClientService, HttpClientService>();
             services.AddScoped<IDanhSachDoanSoKhamSucKhoeService<DanhSachDoanSoKhamSucKhoeModel>, DanhSachDoanSoKhamSucKhoeService>();
+            services.AddScoped<ICaNhanSoKhamSucKhoeService<HoSoKhamSucKhoeTT32Model>, CaNhanSoKhamSucKhoeService>();
         }
     }
 }
