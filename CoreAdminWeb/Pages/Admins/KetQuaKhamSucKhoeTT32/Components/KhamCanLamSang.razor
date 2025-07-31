@@ -1,0 +1,38 @@
+﻿@using CoreAdminWeb.Enums
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Model
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    @foreach (var kqcls in SelectedKhamSucKhoeKetQuaCanLamSangs)
+    {
+        <div>
+            <label class="block text-sm font-normal">@(kqcls.type?.GetDescriptionFromString<KetQuaCanLamSang>()):</label>
+            <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2" @bind="@kqcls.ket_qua" readonly></textarea>
+        </div>
+    }
+</div>
+@if (!(onReadonly || !onReadonly && !onBSKetLuan))
+{
+    <div class="flex justify-end">
+        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                   OnClick="OnLoadKetQuaCanLamSangHandler">
+            <i class="ri-loop-right-line"></i>
+            Đồng bộ
+        </MudButton>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public List<KhamSucKhoeKetQuaCanLamSangModel> SelectedKhamSucKhoeKetQuaCanLamSangs { get; set; } = new List<KhamSucKhoeKetQuaCanLamSangModel>();
+    [Parameter]
+    public bool onReadonly { get; set; } = false;
+    [Parameter]
+    public bool onBSKetLuan { get; set; } = false;
+    [Parameter]
+    public Action? OnLoadKetQuaCanLamSang { get; set; }
+
+    private void OnLoadKetQuaCanLamSangHandler()
+    {
+        OnLoadKetQuaCanLamSang?.Invoke();
+    }
+}

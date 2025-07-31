@@ -98,7 +98,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private bool openSyncKetQuaCanLamSangModal { get; set; } = false;
         private bool onReadonly => SelectedItem.status == Model.Base.Status.published;
 
-        private bool onBS => CurrentUser?.role?.ToLower() == GlobalConstant.DOCTOR_ROLE_ID.ToLower().ToString();
+        private bool onBS => CurrentUser?.role?.ToLower() == GlobalConstant.DOCTOR_ROLE_ID.ToLower().ToString() || true;
         private bool onBSHoHap => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ho_hap?.id == CurrentUser.id;
         private bool onBSTuanHoan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tuan_hoan?.id == CurrentUser.id;
         private bool onBSTieuHoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tieu_hoa?.id == CurrentUser.id;
