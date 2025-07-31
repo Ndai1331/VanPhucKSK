@@ -1,4 +1,5 @@
-﻿using CoreAdminWeb.Services.BaseServices;
+﻿using CoreAdminWeb.Model.RequestHttps;
+using CoreAdminWeb.Services.BaseServices;
 
 namespace CoreAdminWeb.Helpers
 {
@@ -142,6 +143,21 @@ namespace CoreAdminWeb.Helpers
             {
                 setResult(null);
             }
+        }
+
+        public static ErrorResponse CreateErrorResponse(Exception ex)
+        {
+            return new ErrorResponse
+            {
+                Message = "Internal server error",
+                Code = "INTERNAL_ERROR",
+                Reason = ex.Message,
+                Extensions = new ExtensionsResponse
+                {
+                    code = "INTERNAL_ERROR",
+                    reason = ex.Message
+                }
+            };
         }
     }
 }

@@ -80,5 +80,8 @@ namespace CoreAdminWeb.Model.User
         [JsonPropertyName("policies")]
         public List<string> policies { get; set; }
 
+        [JsonPropertyName("ma_don_vi")]
+        public int ma_don_vi { get; set; }
+
     }
 }

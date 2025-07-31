@@ -1,0 +1,68 @@
+﻿@using CoreAdminWeb.Model
+<div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
+    <div class="col-span-1 md:col-span-3 flex items-center">
+        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - thường:</label>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+    </div>
+    <div class="col-span-1 md:col-span-3 flex items-center">
+        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:90px;white-space:nowrap;">Trái - thầm:</label>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+    </div>
+    <div class="col-span-1 md:col-span-3 flex items-center">
+        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - thường:</label>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+    </div>
+    <div class="col-span-1 md:col-span-3 flex items-center">
+        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Phải - thầm:</label>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+    </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-2">
+    <div class="col-span-1 md:col-span-6 flex items-center">
+        <label class="mb-0 mr-2 flex-shrink-0 text-sm" style="min-width:110px;white-space:nowrap;">Bệnh về TMH:</label>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+    </div>
+    <div class="col-span-1 md:col-span-2">
+        <BlazoredTypeahead EnableDropDown="true"
+                           ShowDropDownOnFocus="true"
+                           MinimumLength="0"
+                           TItem="PhanLoaiSucKhoeModel"
+                           TValue="PhanLoaiSucKhoeModel"
+                           SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
+                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_tmh"
+                           placeholder="Chọn phân loại"
+                           class="form-select"
+                           Style="width:120px;"
+                           Disabled="@(onReadonly || !onReadonly && !onBSTaiMuiHong)">
+            <SelectedTemplate Context="item">
+                @item.name
+            </SelectedTemplate>
+            <ResultTemplate Context="item">
+                @item.name
+            </ResultTemplate>
+            <NotFoundTemplate Context="item">
+                Không tìm thấy dữ liệu
+            </NotFoundTemplate>
+        </BlazoredTypeahead>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public KhamSucKhoeChuyenKhoaModel SelectedKhamSucKhoeChuyenKhoa { get; set; } = new KhamSucKhoeChuyenKhoaModel();
+    [Parameter]
+    public bool onReadonly { get; set; } = false;
+    [Parameter]
+    public bool onBSTaiMuiHong { get; set; } = false;
+    [Parameter]
+    public Func<string?, Task<IEnumerable<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+
+    private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(string? search)
+    {
+        if (LoadPhanLoaiSucKhoeData != null)
+        {
+            return await LoadPhanLoaiSucKhoeData.Invoke(search);
+        }
+        return Enumerable.Empty<PhanLoaiSucKhoeModel>();
+    }
+}

@@ -1,13 +1,16 @@
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
+using CoreAdminWeb.Model.Dashboard.General;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Contract;
 using CoreAdminWeb.Services.DanhMucDungChung;
+using CoreAdminWeb.Services.Dashboard;
 using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.FTP;
 using CoreAdminWeb.Services.Http;
+using CoreAdminWeb.Services.IDashboardService;
 using CoreAdminWeb.Services.KhamSucKhoe;
 using CoreAdminWeb.Services.Menus;
 using CoreAdminWeb.Services.PDFService;
@@ -65,6 +68,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IHttpClientService, HttpClientService>();
             services.AddScoped<IDanhSachDoanSoKhamSucKhoeService<DanhSachDoanSoKhamSucKhoeModel>, DanhSachDoanSoKhamSucKhoeService>();
             services.AddScoped<ICaNhanSoKhamSucKhoeService<HoSoKhamSucKhoeTT32Model>, CaNhanSoKhamSucKhoeService>();
+            services.AddScoped<IDashboardService<GeneralDashboardModel>, DashboardService>();
         }
     }
 }

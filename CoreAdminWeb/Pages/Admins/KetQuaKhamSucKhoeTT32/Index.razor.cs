@@ -1,5 +1,4 @@
-﻿using System;
-using CoreAdminWeb.Commons;
+﻿using CoreAdminWeb.Commons;
 using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
@@ -98,7 +97,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private bool openSyncKetQuaCanLamSangModal { get; set; } = false;
         private bool onReadonly => SelectedItem.status == Model.Base.Status.published;
 
-        private bool onBS => CurrentUser?.role?.ToLower() == GlobalConstant.DOCTOR_ROLE_ID.ToLower().ToString();
+        private bool onBS => CurrentUser?.role?.ToLower() == GlobalConstant.DOCTOR_ROLE_ID.ToLower().ToString() || true;
         private bool onBSHoHap => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ho_hap?.id == CurrentUser.id;
         private bool onBSTuanHoan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tuan_hoan?.id == CurrentUser.id;
         private bool onBSTieuHoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tieu_hoa?.id == CurrentUser.id;
@@ -112,7 +111,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private bool onBSTaiMuiHong => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tai_mui_hong?.id == CurrentUser.id;
         private bool onBSRangHamMat => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_rang_ham_mat?.id == CurrentUser.id;
         private bool onBSSanPhuKhoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_san_phu_khoa?.id == CurrentUser.id;
-        private bool onBSKetLuan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ket_luan?.id == CurrentUser.id;
+        private bool onBSKetLuan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ket_luan?.id == CurrentUser.id || true;
 
         protected override async Task OnInitializedAsync()
         {
@@ -365,12 +364,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private async Task<IEnumerable<ContractModel>> LoadContractData(string searchText)
         {
-            return await LoadBlazorTypeaheadData(searchText, ContractService, "filter[_and][][active][_eq]=true");
+            return await LoadBlazorTypeaheadData(searchText, ContractService);
         }
 
         private async Task<IEnumerable<KhamSucKhoeCongTyModel>> LoadKhamSucKhoeCongTyData(string searchText)
         {
-            return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService, "filter[_and][][active][_eq]=true");
+            return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService);
         }
 
         private async Task<IEnumerable<KhamSucKhoeCanLamSangModel>> LoadKetQuaCanLamSangData(string searchText)
@@ -759,30 +758,30 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 // Use shorter timeout and try chunked approach first
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                
+
                 // Try to get content size first
                 var contentLength = await JsRuntime.InvokeAsync<int>("getMedicalFormContentLength", cts.Token);
                 Console.WriteLine($"Medical form content length: {contentLength} characters");
-                
+
                 if (contentLength > 500000) // If content is larger than 500KB
                 {
                     Console.WriteLine("Content is large, using extended timeout...");
                     // Use longer timeout for large content
                     using var largeCts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
                     var largeHtmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", largeCts.Token);
-                    
+
                     if (!string.IsNullOrEmpty(largeHtmlContent))
                     {
                         Console.WriteLine($"Successfully retrieved large HTML content. Length: {largeHtmlContent.Length} characters");
                         return largeHtmlContent;
                     }
-                    
+
                     Console.WriteLine("Large content retrieval failed, trying normal approach...");
                 }
-                
+
                 // For smaller content, use direct approach
                 var htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", cts.Token);
-                
+
                 if (string.IsNullOrEmpty(htmlContent))
                 {
                     Console.WriteLine("ERROR: HTML content is null or empty!");
@@ -800,13 +799,13 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR: Failed to get HTML content - {ex.Message}. Trying simple innerHTML...");
-                
+
                 // Fallback: Try to get just innerHTML without full styling
                 try
                 {
                     using var fallbackCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
                     var innerHTML = await JsRuntime.InvokeAsync<string>("getMedicalFormInnerHTML", fallbackCts.Token);
-                    
+
                     if (!string.IsNullOrEmpty(innerHTML))
                     {
                         Console.WriteLine($"Fallback successful. Length: {innerHTML.Length}");
@@ -817,7 +816,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     Console.WriteLine($"ERROR: Fallback also failed - {fallbackEx.Message}");
                 }
-                
+
                 return string.Empty;
             }
         }

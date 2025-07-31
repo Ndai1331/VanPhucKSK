@@ -1,0 +1,111 @@
+﻿@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.User
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2 items-center">
+    <div>
+        <label class="block text-sm font-normal">Phân loại sức khỏe:</label>
+        <BlazoredTypeahead EnableDropDown="true"
+                           ShowDropDownOnFocus="true"
+                           MinimumLength="0"
+                           TItem="PhanLoaiSucKhoeModel"
+                           TValue="PhanLoaiSucKhoeModel"
+                           SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
+                           @bind-Value="@SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe"
+                           placeholder="Chọn phân loại"
+                           class="form-select"
+                           style="width:120px;"
+                           Disabled="@(onReadonly || !onReadonly && !onBSKetLuan)">
+            <SelectedTemplate Context="item">
+                @item.name
+            </SelectedTemplate>
+            <ResultTemplate Context="item">
+                @item.name
+            </ResultTemplate>
+            <NotFoundTemplate Context="item">
+                Không tìm thấy dữ liệu
+            </NotFoundTemplate>
+        </BlazoredTypeahead>
+    </div>
+</div>
+<div class="mb-2">
+    <label class="block text-sm font-normal">Bệnh tật (nếu có):</label>
+    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="3" @bind="@SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)"></textarea>
+</div>
+<div class="mb-2">
+    <label class="block text-sm font-normal">Đề nghị:</label>
+    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2" @bind="@SelectedKhamSucKhoeKetLuan.de_nghi" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)"></textarea>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center mb-2">
+    <div>
+        <label class="block text-sm font-normal">Ngày kết luận</label>
+        <input type="text"
+               class="form-input @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "date-picker")"
+               placeholder="Chọn ngày"
+               value="@(SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd/MM/yyyy"))"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)))"
+               readonly="@(onReadonly || !onReadonly && !onBSKetLuan)" />
+    </div>
+    <div>
+        <label class="block text-sm font-normal">Người kết luận:</label>
+        <BlazoredTypeahead EnableDropDown="true"
+                           ShowDropDownOnFocus="true"
+                           MinimumLength="0"
+                           TItem="UserModel"
+                           TValue="UserModel"
+                           SearchMethod="LoadBacSiDataHandler"
+                           @bind-Value="@SelectedKhamSucKhoeKetLuan.bs_ket_luan"
+                           placeholder="Chọn bác sĩ"
+                           class="form-select"
+                           Disabled="@(onReadonly || !onReadonly && !onBSKetLuan)">
+            <SelectedTemplate Context="item">
+                @item.full_name
+            </SelectedTemplate>
+            <ResultTemplate Context="item">
+                @item.full_name
+            </ResultTemplate>
+            <NotFoundTemplate Context="item">
+                Không tìm thấy dữ liệu
+            </NotFoundTemplate>
+        </BlazoredTypeahead>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public KhamSucKhoeKetLuanModel SelectedKhamSucKhoeKetLuan { get; set; } = new KhamSucKhoeKetLuanModel();
+    [Parameter]
+    public bool onReadonly { get; set; } = false;
+    [Parameter]
+    public bool onBSKetLuan { get; set; } = false;
+    [Parameter]
+    public Func<ChangeEventArgs, string, bool, bool, Task>? OnValueChanged { get; set; }
+    [Parameter]
+    public Func<string?, Task<IEnumerable<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+    [Parameter]
+    public Func<string?, Task<IEnumerable<UserModel>>>? LoadBacSiData { get; set; }
+
+    private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(string? search)
+    {
+        if (LoadPhanLoaiSucKhoeData != null)
+        {
+            return await LoadPhanLoaiSucKhoeData.Invoke(search);
+        }
+        return Enumerable.Empty<PhanLoaiSucKhoeModel>();
+    }
+
+    private async Task<IEnumerable<UserModel>> LoadBacSiDataHandler(string? search)
+    {
+        if (LoadBacSiData != null)
+        {
+            return await LoadBacSiData.Invoke(search);
+        }
+        return Enumerable.Empty<UserModel>();
+    }
+
+    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true)
+    {
+        if (OnValueChanged != null)
+        {
+            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate);
+        }
+    }
+}

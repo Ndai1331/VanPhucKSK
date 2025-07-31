@@ -1,0 +1,73 @@
+﻿@using CoreAdminWeb.Model
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
+    <div class="flex items-center gap-2">
+        <span style="min-width:90px;">9. Ngoại khoa:</span>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa" readonly="@(onReadonly || !onReadonly && !onBSNgoaiKhoa)" />
+        <BlazoredTypeahead EnableDropDown="true"
+                           ShowDropDownOnFocus="true"
+                           MinimumLength="0"
+                           TItem="PhanLoaiSucKhoeModel"
+                           TValue="PhanLoaiSucKhoeModel"
+                           SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
+                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa"
+                           placeholder="Chọn phân loại"
+                           class="form-select"
+                           style="width:120px;"
+                           Disabled="@(onReadonly || !onReadonly && !onBSNgoaiKhoa)">
+            <SelectedTemplate Context="item">
+                @item.name
+            </SelectedTemplate>
+            <ResultTemplate Context="item">
+                @item.name
+            </ResultTemplate>
+            <NotFoundTemplate Context="item">
+                Không tìm thấy dữ liệu
+            </NotFoundTemplate>
+        </BlazoredTypeahead>
+    </div>
+    <div class="flex items-center gap-2">
+        <span style="min-width:90px;">10. Da liễu:</span>
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu" readonly="@(onReadonly || !onReadonly && !onBSNgoaiKhoa)" />
+        <BlazoredTypeahead EnableDropDown="true"
+                           ShowDropDownOnFocus="true"
+                           MinimumLength="0"
+                           TItem="PhanLoaiSucKhoeModel"
+                           TValue="PhanLoaiSucKhoeModel"
+                           SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
+                           @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu"
+                           placeholder="Chọn phân loại"
+                           class="form-select"
+                           style="width:120px;"
+                           Disabled="@(onReadonly || !onReadonly && !onBSNgoaiKhoa)">
+            <SelectedTemplate Context="item">
+                @item.name
+            </SelectedTemplate>
+            <ResultTemplate Context="item">
+                @item.name
+            </ResultTemplate>
+            <NotFoundTemplate Context="item">
+                Không tìm thấy dữ liệu
+            </NotFoundTemplate>
+        </BlazoredTypeahead>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public KhamSucKhoeChuyenKhoaModel SelectedKhamSucKhoeChuyenKhoa { get; set; } = new KhamSucKhoeChuyenKhoaModel();
+    [Parameter]
+    public bool onReadonly { get; set; } = false;
+    [Parameter]
+    public bool onBSNgoaiKhoa { get; set; } = false;
+    [Parameter]
+    public Func<string?, Task<IEnumerable<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+
+    private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(string? search)
+    {
+        if (LoadPhanLoaiSucKhoeData != null)
+        {
+            return await LoadPhanLoaiSucKhoeData.Invoke(search);
+        }
+        return Enumerable.Empty<PhanLoaiSucKhoeModel>();
+    }
+}

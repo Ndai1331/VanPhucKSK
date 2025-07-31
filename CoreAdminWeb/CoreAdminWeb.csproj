@@ -17,8 +17,8 @@
     <PackageReference Include="MudBlazor" Version="8.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +41,9 @@
   <ItemGroup>
     <Content Update="wwwroot\assets\images\avatar-1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\assets\js\chart.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
