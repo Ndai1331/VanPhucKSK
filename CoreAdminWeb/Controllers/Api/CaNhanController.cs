@@ -85,7 +85,7 @@ public class CaNhanController : ControllerBase
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
-                select sksk.ma_luot_kham, sksk.ngay_kham, ct.code, u.ma_benh_nhan, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
+                select sksk.id, sksk.ma_luot_kham, sksk.ngay_kham, ct.code, u.ma_benh_nhan, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
                 ts.ten_benh, ts.tien_su_gia_dinh,
                 tl.chieu_cao, tl.can_nang, tl.bmi, tl.mach, tl.huyet_ap,
                 ck.kq_nk_tuan_hoan, ck.kq_nk_ho_hap, ck.kq_nk_tieu_hoa, ck.kq_nk_than_tiet_nieu, ck.kq_nk_noi_tiet,
@@ -161,6 +161,7 @@ public class CaNhanController : ControllerBase
                     {
                         var item = new HoSoKhamSucKhoeTT32Model
                         {
+                            id = reader["id"] as int? ?? 0,
                             ma_luot_kham = reader["ma_luot_kham"]?.ToString(),
                             ngay_kham = reader["ngay_kham"] as DateTime?,
                             code = reader["code"]?.ToString(),

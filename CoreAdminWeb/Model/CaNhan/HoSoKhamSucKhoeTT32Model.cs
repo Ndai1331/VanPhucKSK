@@ -1,3 +1,5 @@
+using CoreAdminWeb.Enums;
+
 namespace CoreAdminWeb.Model
 {
     // public class HoSoKhamSucKhoeTT32Model
@@ -15,6 +17,7 @@ namespace CoreAdminWeb.Model
 
     public class HoSoKhamSucKhoeTT32Model
     {
+        public int id { get; set; }
         public string? ma_luot_kham { get; set; }
         public DateTime? ngay_kham { get; set; }
         public string? code { get; set; }
