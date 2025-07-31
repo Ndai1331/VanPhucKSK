@@ -5,15 +5,10 @@
     }
 }
 
-function initSimpleBarChart(selector, title, series, labels, colors, horizontal = true) {
+function initSimpleBarChart(selector, series, labels, colors, horizontal = true) {
     clearChart(selector);
     let barChartOptions = {
-        series: [
-            {
-                name: title,
-                data: series,
-            },
-        ],
+        series: series,
         chart: {
             height: 300,
             type: "bar",
