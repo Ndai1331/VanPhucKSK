@@ -16,6 +16,8 @@ namespace CoreAdminWeb.Model
 
         public SoKhamSucKhoeModel? luot_kham { get; set; }
         public UserModel? bs_ket_luan { get; set; }
+
+        public bool isAbnormal { get; set; } = false;
     }
     public class KhamSucKhoeKetLuanCRUDModel : BaseDetailModel
     {
@@ -31,5 +33,7 @@ namespace CoreAdminWeb.Model
         public int? luot_kham { get; set; }
         public Guid? bs_ket_luan { get; set; }
         public new string status { set; get; } = Status.published.ToString();
+
+        public bool isAbnormal { get; set; } = false;
     }
 }

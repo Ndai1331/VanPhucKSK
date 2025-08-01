@@ -8,6 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\images\cls\**" />
+    <Compile Remove="wwwroot\images\LK0005\**" />
+    <Content Remove="wwwroot\images\cls\**" />
+    <Content Remove="wwwroot\images\LK0005\**" />
+    <EmbeddedResource Remove="wwwroot\images\cls\**" />
+    <EmbeddedResource Remove="wwwroot\images\LK0005\**" />
+    <None Remove="wwwroot\images\cls\**" />
+    <None Remove="wwwroot\images\LK0005\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
     <PackageReference Include="EPPlus" Version="8.0.8" />
@@ -34,8 +45,6 @@
 
   <ItemGroup>
     <Folder Include="Pages\Layouts\" />
-    <Folder Include="wwwroot\images\cls\" />
-    <Folder Include="wwwroot\images\LK0005\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -25,6 +25,15 @@
             </NotFoundTemplate>
         </BlazoredTypeahead>
     </div>
+
+    <div>
+        <input type="checkbox" class="form-check-input" id="cbx_bat_thuong"
+               @bind="SelectedKhamSucKhoeKetLuan.isAbnormal"
+               disabled="@(onReadonly || !onReadonly && !onBSKetLuan)">
+        <label class="form-check-label rtl\:mr-3" for="cbx_bat_thuong">
+            Ca bất thường
+        </label>
+    </div>
 </div>
 <div class="mb-2">
     <label class="block text-sm font-normal">Bệnh tật (nếu có):</label>

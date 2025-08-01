@@ -1185,7 +1185,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             try
             {
                 // Delete specific folder for this medical record
-                string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder + $"{SelectedItem.ma_luot_kham}";
+                string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder + SelectedItem.ma_luot_kham;
                 if (Directory.Exists(folderPath))
                 {
                     // Delete all files in the folder
