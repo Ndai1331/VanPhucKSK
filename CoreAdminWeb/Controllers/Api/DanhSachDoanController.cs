@@ -54,7 +54,7 @@ public class DanhSachDoanController : ControllerBase
                 STRING_AGG(CONCAT(cls.ten_cls, ': ', cls.ket_qua_cls), ' | ') AS can_lam_sang_results
                 from SoKhamSucKhoe sksk 
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
-                Left join custom_users u on u.ma_benh_nhan = sksk.ma_benh_nhan 
+                Left join custom_users u on u.id = sksk.benh_nhan 
                 Left join kham_suc_khoe_tien_su ts on ts.ma_luot_kham = sksk.ma_luot_kham
                 Left join kham_suc_khoe_the_luc tl on tl.ma_luot_kham = sksk.ma_luot_kham
                 Left join kham_suc_khoe_kham_chuyen_khoa ck on ck.ma_luot_kham = sksk.ma_luot_kham
