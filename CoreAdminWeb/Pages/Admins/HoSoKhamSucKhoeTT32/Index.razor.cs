@@ -122,7 +122,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             BuilderQuery = $"CaNhan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";
             if (_benhNhanFilter != null)
             {
-                BuilderQuery += $"&maBenhNhan={_benhNhanFilter.ma_benh_nhan.ToString()}";
+                BuilderQuery += $"&benhNhan={_benhNhanFilter.id}";
             }
             if (_selectedCongTyFilter != null)
             {
