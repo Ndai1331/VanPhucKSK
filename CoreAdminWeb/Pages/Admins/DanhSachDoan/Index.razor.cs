@@ -1,25 +1,26 @@
-﻿using CoreAdminWeb.Helpers;
+﻿using CoreAdminWeb.Commons;
+using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
-using CoreAdminWeb.Model.DanhSachDoan;
+using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
-// using CoreAdminWeb.Services.DanhSachDoan;
+using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 {
-    public partial class Index(
-        IBaseService<KhamSucKhoeCongTyModel> MainService
-        // IDanhSachDoanChiTietService DanhSachDoanChiTietService,
-    ) : BlazorCoreBase
+    public partial class Index(IBaseService<KhamSucKhoeCongTyModel> MainService,
+                               IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService,
+                               IUserService UserService) : BlazorCoreBase
     {
         private List<KhamSucKhoeCongTyModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
         private bool openAddOrUpdateModal = false;
         private bool openDetailDeleteModal = false;
         private KhamSucKhoeCongTyModel SelectedItem { get; set; } = new KhamSucKhoeCongTyModel();
-        private List<DanhSachDoanChiTietModel> SelectedItemsDetail { get; set; } = new List<DanhSachDoanChiTietModel>();
-        private DanhSachDoanChiTietModel? SelectedItemDetail { get; set; } = default;
+        private List<SoKhamSucKhoeModel> SelectedItemsDetail { get; set; } = new List<SoKhamSucKhoeModel>();
+        private SoKhamSucKhoeModel? SelectedItemDetail { get; set; } = default;
         private string _searchString = "";
         private string _titleAddOrUpdate = "Thêm mới";
 
@@ -79,25 +80,49 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             await LoadData();
         }
 
-        private async Task LoadDetailData()
+        private async Task<IEnumerable<UserModel>> LoadBenhNhanData(string searchText)
         {
-            var buildQuery = $"sort=sort";
-            buildQuery += $"&filter[_and][][ma_ho_so_kham_suc_khoe][_eq]={SelectedItem.id}";
-            buildQuery += $"&filter[_and][][deleted][_eq]=false";
-            // var result = await DanhSachDoanChiTietService.GetAllAsync(buildQuery);
-            // SelectedItemsDetail = result.Data ?? new List<DanhSachDoanChiTietModel>();
-            SelectedItemsDetail = new List<DanhSachDoanChiTietModel>();
+            try
+            {
+                var query = "sort=-id";
+
+                query += "&filter[_and][][status][_eq]=active";
+                query += $"&filter[_and][][role][_eq]={GlobalConstant.PATIENT_ROLE_ID}";
+                query += $"&filter[_and][][ma_don_vi][_eq]={SelectedItem.ma_hop_dong_ksk?.cong_ty?.id}";
+
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][2][so_dinh_danh][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][3][ma_benh_nhan][_contains]={Uri.EscapeDataString(searchText)}";
+                }
+
+                var result = await UserService.GetAllAsync(query);
+                return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<UserModel>() : Enumerable.Empty<UserModel>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading typeahead data: {ex.Message}");
+                return Enumerable.Empty<UserModel>();
+            }
         }
 
-        // private async Task<IEnumerable<KhamSucKhoeCongTyModel>> LoadKhamSucKhoeCongTyData(string searchText)
-        // {
-        //     return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService);
-        // }
-
-        private void OpenDeleteModal(KhamSucKhoeCongTyModel item)
+        private async Task LoadDetailData()
         {
-            SelectedItem = item;
-            openDeleteModal = true;
+            SelectedItemsDetail = new List<SoKhamSucKhoeModel>();
+            var buildQuery = $"sort=sort";
+            buildQuery += $"&filter[_and][][MaDotKham][_eq]={SelectedItem.id}";
+            buildQuery += $"&filter[_and][][deleted][_eq]=false";
+            var result = await SoKhamSucKhoeService.GetAllAsync(buildQuery);
+            if (result.IsSuccess)
+            {
+                SelectedItemsDetail = result.Data ?? new List<SoKhamSucKhoeModel>();
+            }
+            else
+            {
+                AlertService.ShowAlert(result.Message ?? "Lỗi khi tải dữ liệu chi tiết", "danger");
+            }
         }
 
         private async Task OnDelete()
@@ -121,7 +146,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             openDeleteModal = false;
         }
 
-        private void OpenDetailDeleteModal(DanhSachDoanChiTietModel item)
+        private void OpenDetailDeleteModal(SoKhamSucKhoeModel item)
         {
             SelectedItemDetail = item;
 
@@ -148,14 +173,16 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
             openDetailDeleteModal = false;
 
-            if (!SelectedItemsDetail.Any(c => c.deleted == null || c.deleted == false))
+            if (!SelectedItemsDetail.Any(c => !c.deleted))
             {
-                SelectedItemsDetail.Add(new DanhSachDoanChiTietModel()
+                SelectedItemsDetail.Add(new SoKhamSucKhoeModel()
                 {
-                    ma_ho_so_kham_suc_khoe = SelectedItem,
+                    MaDotKham = SelectedItem,
                     sort = (SelectedItemsDetail.Max(c => c.sort) ?? 0) + 1,
                     code = string.Empty,
-                    name = string.Empty
+                    name = string.Empty,
+                    ngay_kham = SelectedItem.ngay_du_kien_kham,
+                    ngay_lap_so = DateTime.Now
                 });
             }
 
@@ -173,15 +200,24 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         {
             if (SelectedItemsDetail == null)
             {
-                SelectedItemsDetail = new List<DanhSachDoanChiTietModel>();
+                SelectedItemsDetail = new List<SoKhamSucKhoeModel>();
             }
 
-            SelectedItemsDetail.Add(new DanhSachDoanChiTietModel
+            SelectedItemsDetail.Add(new SoKhamSucKhoeModel
             {
-                ma_ho_so_kham_suc_khoe = SelectedItem,
+                MaDotKham = SelectedItem,
                 sort = (SelectedItemsDetail.Max(c => c.sort) ?? 0) + 1,
                 code = string.Empty,
-                name = string.Empty
+                name = string.Empty,
+                ngay_kham = SelectedItem.ngay_du_kien_kham,
+                ngay_lap_so = DateTime.Now
+            });
+
+            // Wait for modal to render
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(500);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             });
         }
 
@@ -190,7 +226,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
             SelectedItem = item != null ? item.DeepClone() : new KhamSucKhoeCongTyModel();
 
-            SelectedItemsDetail = new List<DanhSachDoanChiTietModel>();
+            SelectedItemsDetail = new List<SoKhamSucKhoeModel>();
 
             if (SelectedItem.id > 0)
             {
@@ -199,12 +235,14 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
             if (!SelectedItemsDetail.Any())
             {
-                SelectedItemsDetail.Add(new DanhSachDoanChiTietModel()
+                SelectedItemsDetail.Add(new SoKhamSucKhoeModel()
                 {
-                    ma_ho_so_kham_suc_khoe = SelectedItem,
+                    MaDotKham = SelectedItem,
                     sort = (SelectedItemsDetail.Max(c => c.sort) ?? 0) + 1,
                     code = string.Empty,
-                    name = string.Empty
+                    name = string.Empty,
+                    ngay_kham = SelectedItem.ngay_du_kien_kham,
+                    ngay_lap_so = DateTime.Now
                 });
             }
 
@@ -220,122 +258,114 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private async Task OnValidSubmit()
         {
-            // if (!FormValidation())
-            // {
-            //     return;
-            // }
-            // if (SelectedItem.id == 0)
-            // {
-            //     var result = await MainService.CreateAsync(SelectedItem);
-            //     if (result.IsSuccess)
-            //     {
-            //         var chiTietList = SelectedItemsDetail
-            //             .Where(c => c.deleted == false || c.deleted == null)
-            //             .Select(c =>
-            //             {
-            //                 c.ma_ho_so_kham_suc_khoe = result.Data;
-            //                 return c;
-            //             })
-            //             .ToList();
+            if (!FormValidation())
+            {
+                return;
+            }
+            if (SelectedItem.id == 0)
+            {
+                var result = await MainService.CreateAsync(SelectedItem);
+                if (result.IsSuccess)
+                {
+                    var chiTietList = SelectedItemsDetail
+                        .Where(c => !c.deleted)
+                        .Select(c =>
+                        {
+                            c.MaDotKham = result.Data;
+                            return c;
+                        })
+                        .ToList();
 
-            //         var detailResult = await DanhSachDoanChiTietService.CreateAsync(chiTietList);
-            //         if (!detailResult.IsSuccess)
-            //         {
-            //             AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
-            //             return;
-            //         }
-            //         await LoadData();
-            //         openAddOrUpdateModal = false;
-            //         AlertService.ShowAlert("Thêm mới thành công!", "success");
-            //     }
-            //     else
-            //     {
-            //         AlertService.ShowAlert(result.Message ?? "Lỗi khi thêm mới dữ liệu", "danger");
-            //     }
-            // }
-            // else
-            // {
-            //     var result = await MainService.UpdateAsync(SelectedItem);
-            //     if (result.IsSuccess)
-            //     {
-            //         var addNewChiTietList = SelectedItemsDetail
-            //             .Where(c => (c.deleted == false || c.deleted == null) && c.id == 0)
-            //             .Select(c =>
-            //             {
-            //                 c.ma_ho_so_kham_suc_khoe = SelectedItem;
-            //                 return c;
-            //             }).ToList();
-            //         var removeChiTietList = SelectedItemsDetail
-            //             .Where(c => c.deleted == true && c.id > 0)
-            //             .Select(c =>
-            //             {
-            //                 c.ma_ho_so_kham_suc_khoe = SelectedItem;
-            //                 c.deleted = true;
-            //                 return c;
-            //             }).ToList();
-            //         var updateChiTietList = SelectedItemsDetail
-            //             .Where(c => (c.deleted == false || c.deleted == null) && c.id > 0)
-            //             .Select(c =>
-            //             {
-            //                 c.ma_ho_so_kham_suc_khoe = SelectedItem;
-            //                 return c;
-            //             }).ToList();
+                    var detailResult = await SoKhamSucKhoeService.CreateAsync(chiTietList);
+                    if (!detailResult.IsSuccess)
+                    {
+                        AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
+                        return;
+                    }
+                    await LoadDetailData();
+                    AlertService.ShowAlert("Thêm mới thành công!", "success");
+                }
+                else
+                {
+                    AlertService.ShowAlert(result.Message ?? "Lỗi khi thêm mới dữ liệu", "danger");
+                }
+            }
+            else
+            {
+                var result = await MainService.UpdateAsync(SelectedItem);
+                if (result.IsSuccess)
+                {
+                    var addNewChiTietList = SelectedItemsDetail
+                        .Where(c => (!c.deleted) && c.id == 0)
+                        .Select(c =>
+                        {
+                            c.MaDotKham = SelectedItem;
+                            return c;
+                        }).ToList();
+                    var removeChiTietList = SelectedItemsDetail
+                        .Where(c => c.deleted && c.id > 0)
+                        .Select(c =>
+                        {
+                            c.MaDotKham = SelectedItem;
+                            c.deleted = true;
+                            return c;
+                        }).ToList();
+                    var updateChiTietList = SelectedItemsDetail
+                        .Where(c => (!c.deleted) && c.id > 0)
+                        .Select(c =>
+                        {
+                            c.MaDotKham = SelectedItem;
+                            return c;
+                        }).ToList();
 
-            //         if (addNewChiTietList.Any())
-            //         {
-            //             var detailResult = await DanhSachDoanChiTietService.CreateAsync(addNewChiTietList);
-            //             if (!detailResult.IsSuccess)
-            //             {
-            //                 AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
-            //                 return;
-            //             }
-            //         }
+                    if (addNewChiTietList.Any())
+                    {
+                        var detailResult = await SoKhamSucKhoeService.CreateAsync(addNewChiTietList);
+                        if (!detailResult.IsSuccess)
+                        {
+                            AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
+                            return;
+                        }
+                    }
 
-            //         if (removeChiTietList.Any())
-            //         {
-            //             var detailResult = await DanhSachDoanChiTietService.DeleteAsync(removeChiTietList);
-            //             if (!detailResult.IsSuccess)
-            //             {
-            //                 AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi xóa chi tiết dữ liệu", "danger");
-            //                 return;
-            //             }
-            //         }
+                    if (removeChiTietList.Any())
+                    {
+                        var detailResult = await SoKhamSucKhoeService.DeleteAsync(removeChiTietList);
+                        if (!detailResult.IsSuccess)
+                        {
+                            AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi xóa chi tiết dữ liệu", "danger");
+                            return;
+                        }
+                    }
 
-            //         if (updateChiTietList.Any())
-            //         {
-            //             var detailResult = await DanhSachDoanChiTietService.UpdateAsync(updateChiTietList);
-            //             if (!detailResult.IsSuccess)
-            //             {
-            //                 AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi cập nhật chi tiết dữ liệu", "danger");
-            //                 return;
-            //             }
-            //         }
+                    if (updateChiTietList.Any())
+                    {
+                        var detailResult = await SoKhamSucKhoeService.UpdateAsync(updateChiTietList);
+                        if (!detailResult.IsSuccess)
+                        {
+                            AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi cập nhật chi tiết dữ liệu", "danger");
+                            return;
+                        }
+                    }
 
-            //         await LoadData();
-            //         openAddOrUpdateModal = false;
-            //         AlertService.ShowAlert("Cập nhật thành công!", "success");
-            //     }
-            //     else
-            //     {
-            //         AlertService.ShowAlert(result.Message ?? "Lỗi khi cập nhật dữ liệu", "danger");
-            //     }
-            // }
+                    await LoadDetailData();
+                    AlertService.ShowAlert("Cập nhật thành công!", "success");
+                }
+                else
+                {
+                    AlertService.ShowAlert(result.Message ?? "Lỗi khi cập nhật dữ liệu", "danger");
+                }
+            }
         }
 
         private bool FormValidation()
         {
-            if (SelectedItem.code == null)
+            var indexValue = SelectedItemsDetail.FindIndex(c => !c.deleted && (c.benh_nhan == null || string.IsNullOrEmpty(c.ma_luot_kham)));
+            if (indexValue >= 0)
             {
-                AlertService.ShowAlert("Mã là bắt buộc", "danger");
+                AlertService.ShowAlert($"Thông tin bệnh nhân tại dòng {indexValue + 1} bị thiếu!", "warning");
                 return false;
             }
-
-            if (string.IsNullOrEmpty(SelectedItem.name))
-            {
-                AlertService.ShowAlert("Tên là bắt buộc", "danger");
-                return false;
-            }
-
             return true;
         }
 
@@ -348,6 +378,34 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         private void GoToDetail(int id)
         {
             NavigationManager?.NavigateTo($"/admin/danh-sach-doan-ho-so-kham-suc-khoe/{id}");
+        }
+
+        private void OnValueChanged(ChangeEventArgs e, string fieldName, SoKhamSucKhoeModel item)
+        {
+            try
+            {
+                var dateStr = e.Value?.ToString();
+                if (string.IsNullOrEmpty(dateStr))
+                {
+                    ReflectionHelper.SetFieldValue(item, fieldName, null);
+                }
+                else
+                {
+                    var parts = dateStr.Split('/');
+                    if (parts.Length == 3 &&
+                        int.TryParse(parts[0], out int day) &&
+                        int.TryParse(parts[1], out int month) &&
+                        int.TryParse(parts[2], out int year))
+                    {
+                        var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
+                        ReflectionHelper.SetFieldValue(item, fieldName, date);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
+            }
         }
     }
 }
