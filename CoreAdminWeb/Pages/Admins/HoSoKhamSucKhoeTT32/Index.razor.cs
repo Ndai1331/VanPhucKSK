@@ -9,6 +9,8 @@ using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using CoreAdminWeb.Extensions;
+using CoreAdminWeb.Commons;
+using CoreAdminWeb.Services.PDFService;
 
 namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 {
@@ -26,6 +28,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService,
         IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService,
         IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService,
+        IPdfService PdfService,
         IWebHostEnvironment WebHostEnvironment
     ) : BlazorCoreBase
     {
@@ -394,6 +397,272 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             para4 = string.Empty;
 
             openDetailModal = false;
+        }
+
+        private async Task DownloadPDF()
+        {
+            if (IsLoading || SelectedItem.id <= 0)
+            {
+                return;
+            }
+
+            try
+            {
+                // Hiển thị thông báo đang xử lý
+                AlertService?.ShowAlert("Đang xử lý ảnh chữ ký và tạo PDF, vui lòng đợi...", "info");
+
+                string htmlContent = await GetMedicalFormHtmlAsync();
+                if (string.IsNullOrEmpty(htmlContent))
+                {
+                    Console.WriteLine("ERROR: HTML content is null or empty!");
+                    AlertService?.ShowAlert("Không thể lấy nội dung để xuất PDF - HTML content empty", "danger");
+                    return;
+                }
+
+                // Log HTML content details for debugging
+                var htmlPreview = htmlContent.Length > 500 ? htmlContent.Substring(0, 500) + "..." : htmlContent;
+                Console.WriteLine($"HTML preview (first 500 chars): {htmlPreview}");
+
+                // Check for potential problematic content
+                var hasImages = htmlContent.Contains("<img");
+                var hasSvg = htmlContent.Contains("<svg");
+                var hasLargeTable = htmlContent.Contains("ksk-table");
+                Console.WriteLine($"HTML analysis: Images={hasImages}, SVG={hasSvg}, LargeTable={hasLargeTable}");
+
+                // Log file size in different units
+                var sizeKB = htmlContent.Length / 1024.0;
+                Console.WriteLine($"HTML size: {htmlContent.Length} chars = {sizeKB:F2} KB");
+
+                // Configure PDF settings
+                Console.WriteLine("Step 3: Cấu hình PDF settings...");
+                var pdfSettings = new PdfSettings
+                {
+                    FileName = $"{SelectedItem.ma_luot_kham}_{DateTime.Now:yyyyMMdd}.pdf",
+                    PageSize = "A4",
+                    Orientation = "Portrait",
+                    MarginTop = 10,
+                    MarginBottom = 10,
+                    MarginLeft = 10,
+                    MarginRight = 10
+                };
+                Console.WriteLine($"PDF filename: {pdfSettings.FileName}");
+
+                // Generate PDF từ HTML content lấy từ client
+                Console.WriteLine("Step 4: Đang tạo PDF với PuppeteerSharp...");
+
+                byte[] pdfBytes;
+
+                pdfBytes = PdfService.GeneratePdfFromHtml(htmlContent, pdfSettings);
+
+                // Convert to base64 for download
+                Console.WriteLine("Step 6: Chuyển đổi PDF sang base64...");
+                var base64 = Convert.ToBase64String(pdfBytes);
+                var dataUrl = $"data:application/pdf;base64,{base64}";
+                Console.WriteLine($"Base64 length: {base64.Length}");
+
+                // Trigger download via JavaScript
+                Console.WriteLine("Step 7: Trigger download...");
+                await JsRuntime.InvokeVoidAsync("downloadFile", dataUrl, pdfSettings.FileName);
+                AlertService?.ShowAlert("Xuất PDF thành công!", "success");
+
+                Console.WriteLine("Step 8: Hoàn thành thành công!");
+
+                // Xóa ảnh chữ ký sau khi export PDF
+                try
+                {
+                    // Xóa folder con chứa ảnh của mã lượt khám
+                    string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder;
+                    if (Directory.Exists(folderPath))
+                    {
+                        // Xóa tất cả file trong folder
+                        var files = Directory.GetFiles(folderPath);
+                        foreach (var file in files)
+                        {
+                            File.Delete(file);
+                        }
+
+                        // Xóa folder sau khi xóa hết file
+                        Directory.Delete(folderPath);
+                        Console.WriteLine($"Step 9: Xóa folder và ảnh chữ ký thành công: {folderPath}");
+                    }
+
+                    // Xóa các ảnh có thể bị tạo nhầm ở thư mục gốc /images/
+                    string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images");
+                    if (Directory.Exists(rootImagesPath))
+                    {
+                        // Tìm và xóa các file có tên chứa mã lượt khám hoặc tên chữ ký
+                        var signatureFiles = Directory.GetFiles(rootImagesPath, "*")
+                            .Where(f => Path.GetFileName(f).Contains(SelectedItem.ma_luot_kham ?? string.Empty) ||
+                                        Path.GetFileName(f).Contains("ket_luan") ||
+                                        Path.GetFileName(f).Contains("tuan_hoan") ||
+                                        Path.GetFileName(f).Contains("chu_ky"))
+                            .ToArray();
+
+                        foreach (var file in signatureFiles)
+                        {
+                            File.Delete(file);
+                            Console.WriteLine($"Xóa file nhầm: {Path.GetFileName(file)}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Lỗi khi xóa ảnh: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"=== ERROR in ExportPDF ===");
+                Console.WriteLine($"Error type: {ex.GetType().Name}");
+                Console.WriteLine($"Error message: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+
+                var errorMsg = $"Lỗi khi xuất PDF: {ex.Message}";
+                AlertService?.ShowAlert(errorMsg, "danger");
+            }
+            finally
+            {
+                Console.WriteLine("=== Debug ExportPDF - Kết thúc ===");
+                try
+                {
+                    CleanupSignatureImages();
+                }
+                catch (Exception cleanupEx)
+                {
+                    Console.WriteLine($"Lỗi khi dọn dẹp ảnh chữ ký: {cleanupEx.Message}");
+                }
+            }
+        }
+
+        public async Task<string> GetMedicalFormHtmlAsync()
+        {
+            try
+            {
+                // Wait for DOM to render completely
+                await Task.Delay(100);
+
+                // Use shorter timeout and try chunked approach first
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+                // Try to get content size first
+                var contentLength = await JsRuntime.InvokeAsync<int>("getMedicalFormContentLength", cts.Token);
+                Console.WriteLine($"Medical form content length: {contentLength} characters");
+
+                if (contentLength > 500000) // If content is larger than 500KB
+                {
+                    Console.WriteLine("Content is large, using extended timeout...");
+                    // Use longer timeout for large content
+                    using var largeCts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+                    var largeHtmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", largeCts.Token);
+
+                    if (!string.IsNullOrEmpty(largeHtmlContent))
+                    {
+                        Console.WriteLine($"Successfully retrieved large HTML content. Length: {largeHtmlContent.Length} characters");
+                        return largeHtmlContent;
+                    }
+
+                    Console.WriteLine("Large content retrieval failed, trying normal approach...");
+                }
+
+                // For smaller content, use direct approach
+                var htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", cts.Token);
+
+                if (string.IsNullOrEmpty(htmlContent))
+                {
+                    Console.WriteLine("ERROR: HTML content is null or empty!");
+                    return string.Empty;
+                }
+
+                Console.WriteLine($"Successfully retrieved HTML content. Length: {htmlContent.Length} characters");
+                return htmlContent;
+            }
+            catch (TaskCanceledException ex)
+            {
+                Console.WriteLine($"ERROR: Timeout while getting HTML content - {ex.Message}");
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: Failed to get HTML content - {ex.Message}. Trying simple innerHTML...");
+
+                // Fallback: Try to get just innerHTML without full styling
+                try
+                {
+                    using var fallbackCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                    var innerHTML = await JsRuntime.InvokeAsync<string>("getMedicalFormInnerHTML", fallbackCts.Token);
+
+                    if (!string.IsNullOrEmpty(innerHTML))
+                    {
+                        Console.WriteLine($"Fallback successful. Length: {innerHTML.Length}");
+                        return innerHTML;
+                    }
+                }
+                catch (Exception fallbackEx)
+                {
+                    Console.WriteLine($"ERROR: Fallback also failed - {fallbackEx.Message}");
+                }
+
+                return string.Empty;
+            }
+        }
+
+        private void CleanupSignatureImages()
+        {
+            if (string.IsNullOrEmpty(SelectedItem.ma_luot_kham))
+            {
+                return;
+            }
+
+            try
+            {
+                // Delete specific folder for this medical record
+                string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder + $"{SelectedItem.ma_luot_kham}";
+                if (Directory.Exists(folderPath))
+                {
+                    // Delete all files in the folder
+                    var files = Directory.GetFiles(folderPath);
+                    foreach (var file in files)
+                    {
+                        File.Delete(file);
+                    }
+
+                    // Delete the folder itself
+                    Directory.Delete(folderPath);
+                    Console.WriteLine($"Cleanup: Deleted signature folder: {folderPath}");
+                }
+
+                // Also clean up any stray signature files in root images folder
+                string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", $"{SelectedItem.ma_luot_kham}");
+                if (Directory.Exists(rootImagesPath))
+                {
+                    // Find and delete files that might be related to this medical record
+                    var signatureFiles = Directory.GetFiles(rootImagesPath, "*");
+
+                    foreach (var file in signatureFiles)
+                    {
+                        File.Delete(file);
+                        Console.WriteLine($"Cleanup: Deleted stray signature file: {Path.GetFileName(file)}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cleaning up signature images: {ex.Message}");
+            }
+        }
+
+       private async Task PrintPDF()
+        {
+            if (!IsLoading)
+            {
+                // Sử dụng function mới để chỉ in phần medical form content
+                await JsRuntime.InvokeVoidAsync("printMedicalForm");
+            }
         }
     }
 
