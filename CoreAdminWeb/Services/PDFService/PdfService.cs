@@ -50,20 +50,20 @@ namespace CoreAdminWeb.Services.PDFService
                 _logger.LogInformation($"Cleaned HTML size: {cleanHtml.Length} characters");
 
                 // Check if HTML is already a complete document
-                var completeHtml = IsCompleteHtmlDocument(cleanHtml) 
-                    ? cleanHtml 
+                var completeHtml = IsCompleteHtmlDocument(cleanHtml)
+                    ? cleanHtml
                     : CreateCompleteHtmlDocument(cleanHtml);
                 _logger.LogInformation($"Complete HTML size: {completeHtml.Length} characters");
 
                 // Generate PDF using iText7
                 using var memoryStream = new MemoryStream();
-                
+
                 var converterProperties = new ConverterProperties();
-                
+
                 // Configure font provider for Vietnamese support
                 var fontProvider = new DefaultFontProvider(true, true, true);
                 fontProvider.AddFont("wwwroot/assets/fonts/times.ttf");
-                
+
                 // Add system fonts for better Vietnamese support
                 try
                 {
@@ -74,23 +74,23 @@ namespace CoreAdminWeb.Services.PDFService
                 {
                     _logger.LogWarning(fontEx, "Could not add system fonts, using default fonts");
                 }
-                
+
                 converterProperties.SetFontProvider(fontProvider);
                 converterProperties.SetCharset("UTF-8");
 
                 // Generate PDF
                 _logger.LogInformation("Converting HTML to PDF...");
                 HtmlConverter.ConvertToPdf(completeHtml, memoryStream, converterProperties);
-                
+
                 var pdfBytes = memoryStream.ToArray();
                 _logger.LogInformation($"✅ PDF generated successfully! Size: {pdfBytes.Length} bytes ({pdfBytes.Length / 1024.0:F1} KB)");
-                
+
                 return pdfBytes;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Manual PDF generation failed");
-                
+
                 // Fallback: Create simple PDF if complex HTML fails
                 _logger.LogInformation("Creating fallback PDF...");
                 return CreateFallbackPdf(htmlContent, settings);
@@ -146,8 +146,10 @@ namespace CoreAdminWeb.Services.PDFService
         private bool IsCompleteHtmlDocument(string htmlContent)
         {
             if (string.IsNullOrEmpty(htmlContent))
+            {
                 return false;
-                
+            }
+
             var trimmed = htmlContent.Trim();
             return trimmed.StartsWith("<!DOCTYPE html", StringComparison.OrdinalIgnoreCase) &&
                    trimmed.Contains("<html", StringComparison.OrdinalIgnoreCase) &&
@@ -161,37 +163,88 @@ namespace CoreAdminWeb.Services.PDFService
         private string CleanHtmlForPdf(string htmlContent)
         {
             if (string.IsNullOrEmpty(htmlContent))
+            {
                 return htmlContent;
+            }
 
-            var cleaned = htmlContent;
+            var minified = htmlContent;
 
             try
             {
-                // Remove Blazor-specific attributes
-                cleaned = Regex.Replace(cleaned, @"\s+b-[a-zA-Z0-9]+=""[^""]*""", "", RegexOptions.IgnoreCase);
-                
-                // Remove Blazor comment markers
-                cleaned = cleaned.Replace("<!--!-->", "");
-                
-                // Remove problematic attributes
-                cleaned = cleaned.Replace(" loading=\"lazy\"", "");
-                cleaned = cleaned.Replace(" data-aos=", " data-removed-aos=");
-                
-                // Clean up whitespace
-                cleaned = Regex.Replace(cleaned, @"\s+", " ");
-                cleaned = Regex.Replace(cleaned, @">\s+<", "><");
-                
-                // Fix image sources for PDF
-                cleaned = Regex.Replace(cleaned, @"src=""data:image/svg\+xml[^""]*""", "src=\"\"");
-                
-                _logger.LogInformation("HTML cleaning completed");
-                return cleaned.Trim();
+                // Bước 1: Xóa comment HTML (trừ comment điều kiện của IE)
+                minified = Regex.Replace(minified, @"<!--(?!<!\[if).*?-->", "");
+
+                // Bước 2: Minify CSS trong thẻ <style>
+                minified = Regex.Replace(minified, @"<style\b[^>]*>(.*?)</style>", match =>
+                {
+                    string css = match.Groups[1].Value;
+                    return "<style>" + MinifyCss(css) + "</style>";
+                }, RegexOptions.Singleline);
+
+                // Bước 3: Minify JS trong thẻ <script>
+                minified = Regex.Replace(minified, @"<script\b[^>]*>(.*?)</script>", match =>
+                {
+                    string js = match.Groups[1].Value;
+                    return "<script>" + MinifyJs(js) + "</script>";
+                }, RegexOptions.Singleline);
+
+                // Bước 4: Xóa khoảng trắng thừa giữa các thẻ
+                minified = Regex.Replace(minified, @">\s+<", "><");
+
+                // Bước 5: Xóa khoảng trắng đầu/cuối dòng
+                minified = Regex.Replace(minified, @"^\s+|\s+$", "", RegexOptions.Multiline);
+
+                // Bước 6: Xóa khoảng trắng thừa trong nội dung (giữ nguyên trong thẻ pre)
+                minified = Regex.Replace(minified, @"(?<!<pre\b[^>]*>)\s{2,}", " ");
+
+                // Bước 7: Xóa dòng trống
+                minified = Regex.Replace(minified, @"\n\s*\n", "\n");
+
+                _logger.LogInformation("HTML minification completed");
+                return minified;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error cleaning HTML, using original");
+                _logger.LogWarning(ex, "Error minifying HTML, returning original");
                 return htmlContent;
             }
+        }
+
+        static string MinifyCss(string css)
+        {
+            // Xóa comment CSS
+            css = Regex.Replace(css, @"/\*.*?\*/", "");
+
+            // Xóa khoảng trắng thừa
+            css = Regex.Replace(css, @"\s*([:;{}])\s*", "$1");
+
+            // Xóa khoảng trắng đầu/cuối
+            css = css.Trim();
+
+            // Xóa khoảng trắng thừa giữa các giá trị
+            css = Regex.Replace(css, @"\s{2,}", " ");
+
+            return css;
+        }
+
+        static string MinifyJs(string js)
+        {
+            // Xóa comment dòng đơn (//) nhưng giữ nguyên URL (http://, https://)
+            js = Regex.Replace(js, @"(?<![a-zA-Z0-9/:])//.*$", "", RegexOptions.Multiline);
+
+            // Xóa comment khối (/* */)
+            js = Regex.Replace(js, @"/\*.*?\*/", "", RegexOptions.Singleline);
+
+            // Xóa khoảng trắng thừa
+            js = Regex.Replace(js, @"\s*([=+\-*/;{}()])\s*", "$1");
+
+            // Xóa khoảng trắng đầu/cuối
+            js = js.Trim();
+
+            // Xóa khoảng trắng thừa giữa các từ
+            js = Regex.Replace(js, @"\s{2,}", " ");
+
+            return js;
         }
 
         /// <summary>
@@ -200,7 +253,7 @@ namespace CoreAdminWeb.Services.PDFService
         private string CreateCompleteHtmlDocument(string bodyContent)
         {
             var css = GetMedicalFormCss();
-            
+
             var completeHtml = $@"<!DOCTYPE html>
 <html lang=""vi"">
 <head>
@@ -619,7 +672,7 @@ namespace CoreAdminWeb.Services.PDFService
             try
             {
                 _logger.LogInformation("Creating simplified fallback PDF...");
-                
+
                 // Extract basic info from HTML
                 var patientName = ExtractHtmlValue(originalHtml, "Họ và tên:");
                 var gender = ExtractHtmlValue(originalHtml, "Giới tính:");
@@ -745,10 +798,10 @@ namespace CoreAdminWeb.Services.PDFService
                 converterProperties.SetCharset("UTF-8");
 
                 HtmlConverter.ConvertToPdf(fallbackHtml, memoryStream, converterProperties);
-                
+
                 var pdfBytes = memoryStream.ToArray();
                 _logger.LogInformation($"✅ Fallback PDF created successfully! Size: {pdfBytes.Length} bytes");
-                
+
                 return pdfBytes;
             }
             catch (Exception fallbackEx)
@@ -767,13 +820,13 @@ namespace CoreAdminWeb.Services.PDFService
             {
                 var pattern = $@"{Regex.Escape(label)}\s*</div>\s*<div[^>]*>([^<]*)</div>";
                 var match = Regex.Match(html, pattern, RegexOptions.IgnoreCase);
-                
+
                 if (match.Success)
                 {
                     var value = match.Groups[1].Value.Trim();
                     return string.IsNullOrEmpty(value) ? "Chưa có thông tin" : value;
                 }
-                
+
                 return "Chưa có thông tin";
             }
             catch
@@ -782,4 +835,4 @@ namespace CoreAdminWeb.Services.PDFService
             }
         }
     }
-} 
+}
