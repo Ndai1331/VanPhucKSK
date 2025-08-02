@@ -97,7 +97,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private bool openSyncKetQuaCanLamSangModal { get; set; } = false;
         private bool onReadonly => SelectedItem.status == Model.Base.Status.published;
 
-        private bool onBS => CurrentUser?.role?.ToLower() == GlobalConstant.DOCTOR_ROLE_ID.ToLower().ToString() || true;
+        private bool onBS => CurrentUser?.role?.ToLower() == GlobalConstant.DOCTOR_ROLE_ID.ToLower().ToString();
         private bool onBSHoHap => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ho_hap?.id == CurrentUser.id;
         private bool onBSTuanHoan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tuan_hoan?.id == CurrentUser.id;
         private bool onBSTieuHoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tieu_hoa?.id == CurrentUser.id;
@@ -111,8 +111,9 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private bool onBSTaiMuiHong => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tai_mui_hong?.id == CurrentUser.id;
         private bool onBSRangHamMat => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_rang_ham_mat?.id == CurrentUser.id;
         private bool onBSSanPhuKhoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_san_phu_khoa?.id == CurrentUser.id;
-        private bool onBSKetLuan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ket_luan?.id == CurrentUser.id || true;
+        private bool onBSKetLuan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ket_luan?.id == CurrentUser.id;
 
+        private string imageWebRootPath { get; set; } = string.Empty;
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -300,6 +301,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     AlertService.ShowAlert("Không tìm thấy thông tin bệnh nhân!", "danger");
                 }
 
+                SelectedItem.benh_nhan = SelectedUser;
                 string query = $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
 
                 var tasks = new[]
@@ -832,6 +834,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             try
             {
+                imageWebRootPath = Path.Combine(WebHostEnvironment.WebRootPath, _imagesFolder, $"{SelectedItem.ma_luot_kham}");
+
                 // Hiển thị thông báo đang xử lý
                 AlertService?.ShowAlert("Đang xử lý ảnh chữ ký và tạo PDF, vui lòng đợi...", "info");
 
@@ -904,9 +908,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         {
                             File.Delete(file);
                         }
-
-                        // Xóa folder sau khi xóa hết file
-                        Directory.Delete(folderPath);
                         Console.WriteLine($"Step 9: Xóa folder và ảnh chữ ký thành công: {folderPath}");
                     }
 
@@ -1167,8 +1168,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 return new MarkupString();
             }
 
-            var html = signatureData.GetSignatureDisplayHtml(fallbackText, fileName, maxWidth, maxHeight,
-                WebHostEnvironment.WebRootPath + _imagesFolder + SelectedItem.ma_luot_kham, Configuration["DrCoreApi:BaseUrlImage"]);
+            var html = signatureData.GetSignatureDisplayHtml(fallbackText,
+                                                             fileName,
+                                                             maxWidth,
+                                                             maxHeight,
+                                                             imageWebRootPath,
+                                                             Configuration["DrCoreApi:BaseUrlImage"]);
             return new MarkupString(html);
         }
 
@@ -1184,20 +1189,18 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             try
             {
-                // Delete specific folder for this medical record
-                string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder + $"{SelectedItem.ma_luot_kham}";
-                if (Directory.Exists(folderPath))
+                if (Directory.Exists(imageWebRootPath))
                 {
                     // Delete all files in the folder
-                    var files = Directory.GetFiles(folderPath);
+                    var files = Directory.GetFiles(imageWebRootPath);
                     foreach (var file in files)
                     {
                         File.Delete(file);
                     }
 
                     // Delete the folder itself
-                    Directory.Delete(folderPath);
-                    Console.WriteLine($"Cleanup: Deleted signature folder: {folderPath}");
+                    Directory.Delete(imageWebRootPath);
+                    Console.WriteLine($"Cleanup: Deleted signature folder: {imageWebRootPath}");
                 }
 
                 // Also clean up any stray signature files in root images folder

@@ -88,7 +88,7 @@ namespace CoreAdminWeb.Controllers.Api
                             SELECT
                                 plsk.[name] [Name],
                                 kskct.ngay_du_kien_kham [Date],
-                                COUNT(1) [Count]
+                                COUNT(CASE WHEN kskkt.isAbnormal = 1 THEN 1 END) [Count]
                             FROM kham_suc_khoe_ket_luan kskkt
                             JOIN SoKhamSucKhoe sksk ON sksk.id = kskkt.luot_kham
                             JOIN kham_suc_khoe_cong_ty kskct ON kskct.id = sksk.MaDotKham

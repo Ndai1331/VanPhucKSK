@@ -101,7 +101,8 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 file_url = model.file_url?.id,
                 ma_luot_kham = model.ma_luot_kham,
                 ngay_ket_luan = model.ngay_ket_luan,
-                nguoi_ket_luan = model.nguoi_ket_luan
+                nguoi_ket_luan = model.nguoi_ket_luan,
+                isAbnormal = model.isAbnormal
             };
         }
 

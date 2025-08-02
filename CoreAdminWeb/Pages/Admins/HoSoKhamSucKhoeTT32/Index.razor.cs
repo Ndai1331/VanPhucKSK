@@ -1,16 +1,15 @@
 ﻿using CoreAdminWeb.Enums;
+using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.ICaNhanSoKhamSucKhoeService;
+using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using CoreAdminWeb.Extensions;
-using CoreAdminWeb.Commons;
-using CoreAdminWeb.Services.PDFService;
 
 namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 {
@@ -129,15 +128,15 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             }
             if (_selectedCongTyFilter != null)
             {
-                BuilderQuery += $"&congTy={_selectedCongTyFilter.id.ToString()}";
+                BuilderQuery += $"&congTy={_selectedCongTyFilter.id}";
             }
             if (_fromDate.HasValue)
             {
-                BuilderQuery += $"&fromDate={_fromDate.Value.ToString("yyyy-MM-dd")}";
+                BuilderQuery += $"&fromDate={_fromDate.Value:yyyy-MM-dd}";
             }
             if (_toDate.HasValue)
             {
-                BuilderQuery += $"&toDate={_toDate.Value.ToString("yyyy-MM-dd")}";
+                BuilderQuery += $"&toDate={_toDate.Value:yyyy-MM-dd}";
             }
 
             var result = await MainService.GetAllAsync(BuilderQuery);
@@ -301,6 +300,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                     AlertService.ShowAlert("Không tìm thấy thông tin bệnh nhân!", "danger");
                 }
 
+                SelectedItem.benh_nhan = SelectedUser;
                 string query = $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem?.ma_luot_kham}";
 
                 var tasks = new[]
@@ -656,7 +656,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             }
         }
 
-       private async Task PrintPDF()
+        private async Task PrintPDF()
         {
             if (!IsLoading)
             {
