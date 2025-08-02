@@ -423,8 +423,8 @@
                     {
                         <div style="margin-bottom: 8px;">* @( strSplit.Length > 0 ? strSplit[0].Trim() : string.Empty):</div>
                         <div style="margin-left: 16px;">
-                            <div style="margin-bottom: 8px;">a) Kết quả: @( strSplit.Length > 1 ? strSplit[1].Trim() : string.Empty)</div>
-                            <div>b) Đánh giá: @( strSplit.Length > 2 ? strSplit[2].Trim() : string.Empty)</div>
+                            <div style="margin-bottom: 8px; white-space: pre-wrap;">a) Kết quả: @((MarkupString)(strSplit.Length > 1 ? strSplit[1].Trim() : string.Empty))</div>
+                            <div style="white-space: pre-wrap;">b) Đánh giá: @((MarkupString)(strSplit.Length > 2 ? strSplit[2].Trim() : string.Empty))</div>
                         </div>
                     }
                 }
@@ -438,8 +438,8 @@
                 @if (SelectedKhamSucKhoeKetLuan != null)
                 {
                     <div style="margin-bottom: 8px;"><strong>1. Phân loại sức khỏe:<sup>1</sup></strong> @SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe?.name</div>
-                    <div style="margin-bottom: 8px;"><strong>2. Các bệnh, tật (nếu có):<sup>2</sup></strong> @SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan</div>
-                    <div><strong>3. Đề nghị:</strong> @SelectedKhamSucKhoeKetLuan.de_nghi</div>
+                    <div style="margin-bottom: 8px; white-space: pre-wrap;"><strong>2. Các bệnh, tật (nếu có):<sup>2</sup></strong> @((MarkupString)(@SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan ?? string.Empty))</div>
+                    <div style="white-space: pre-wrap;"><strong>3. Đề nghị:</strong> @((MarkupString)(SelectedKhamSucKhoeKetLuan.de_nghi ?? string.Empty))</div>
                 }
             </div>
 
