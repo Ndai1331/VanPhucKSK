@@ -395,13 +395,16 @@
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
+
+
                                                                 @foreach (var item in SelectedItemsDetail.Where(c => c.deleted == null || c.deleted == false).Select((v, i) => new { Data = v, Index = i }))
                                                                 {
                                                                     <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
                                                                         <td>@(item.Index + 1)</td>
                                                                         <td>
-                                                                            <BlazoredTypeahead 
+                                                                            <BlazoredTypeahead  id="dinhMucInput-@(item.Index + 1)"
                                                                                 EnableDropDown="true"
+                                                                                
                                                                                 ShowDropDownOnFocus="true"
                                                                                 MinimumLength="0"
                                                                                 TItem="DinhMucModel"

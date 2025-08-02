@@ -271,6 +271,26 @@
         }
        
 
+       window.typeaheadFix = {
+            reposition: function (inputId, dropdownId) {
+                const input = document.getElementById(inputId);
+                const dropdown = document.getElementById(dropdownId);
+
+                if (!input || !dropdown) return;
+
+                // Lấy vị trí của input trong viewport
+                const rect = input.getBoundingClientRect();
+
+                // Chuyển dropdown thành fixed để thoát khỏi overflow
+                dropdown.style.position = "fixed";
+                dropdown.style.top = rect.bottom + "px";
+                dropdown.style.left = rect.left + "px";
+                dropdown.style.width = rect.width + "px";
+                dropdown.style.zIndex = 99999;
+            }
+        }
+
+
     </script>
     <script src='assets/js/pages/index.global.min.js'></script>
     <script src="assets/js/main.js"></script> 
