@@ -5,6 +5,7 @@
 @using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
+@using CoreAdminWeb.Shared.Components
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Services.PDFService
 @using Microsoft.Extensions.Configuration
@@ -136,6 +137,18 @@
         {
 
             <!-- Printable Medical Form Content -->
+            @* <PDFTemplatePrint RenderSignature="RenderSignature"
+                SelectedItem="SoKhamSucKhoeModel"
+                SelectedKhamSucKhoeChuyenKhoa="KhamSucKhoeChuyenKhoaModel"
+                SelectedKhamSucKhoeKetLuan="KhamSucKhoeKetLuanModel"
+                SelectedKhamSucKhoeKetQuaCanLamSangs="KhamSucKhoeKetQuaCanLamSangModel"
+                SelectedKhamSucKhoeNgheNghiep="KhamSucKhoeNgheNghiepModel"
+                SelectedKhamSucKhoeSanPhuKhoa="KhamSucKhoeSanPhuKhoaModel"
+                SelectedKhamSucKhoeTheLuc="KhamSucKhoeTheLucModel"
+                SelectedKhamSucKhoeTienSu="KhamSucKhoeTienSuModels"
+                _logoPath="@_logoPath"
+                _profileImageUrl="@_profileImageUrl" /> *@
+
             <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder" id="medical-form-content">
 
 
