@@ -4,12 +4,16 @@ using CoreAdminWeb.Model.Dashboard.General;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.CaNhanSoKhamSucKhoe;
 using CoreAdminWeb.Services.Contract;
 using CoreAdminWeb.Services.DanhMucDungChung;
+using CoreAdminWeb.Services.DanhSachDoanSoKhamSucKhoe;
 using CoreAdminWeb.Services.Dashboard;
 using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.FTP;
 using CoreAdminWeb.Services.Http;
+using CoreAdminWeb.Services.ICaNhanSoKhamSucKhoeService;
+using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
 using CoreAdminWeb.Services.IDashboardService;
 using CoreAdminWeb.Services.KhamSucKhoe;
 using CoreAdminWeb.Services.Menus;
@@ -17,10 +21,6 @@ using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Posts;
 using CoreAdminWeb.Services.Settings;
 using CoreAdminWeb.Services.Users;
-using CoreAdminWeb.Services.DanhSachDoanSoKhamSucKhoe;
-using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
-using CoreAdminWeb.Services.CaNhanSoKhamSucKhoe;
-using CoreAdminWeb.Services.ICaNhanSoKhamSucKhoeService;
 
 namespace CoreAdminWeb.DIInjections
 {
@@ -69,6 +69,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IDanhSachDoanSoKhamSucKhoeService<DanhSachDoanSoKhamSucKhoeModel>, DanhSachDoanSoKhamSucKhoeService>();
             services.AddScoped<ICaNhanSoKhamSucKhoeService<HoSoKhamSucKhoeTT32Model>, CaNhanSoKhamSucKhoeService>();
             services.AddScoped<IDashboardService<GeneralDashboardModel>, DashboardService>();
+            services.AddScoped<IDashboardService<CompanyReportDashboardModel>, CompanyReportDashboardService>();
         }
     }
 }

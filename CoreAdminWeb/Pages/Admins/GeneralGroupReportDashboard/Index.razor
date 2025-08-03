@@ -1,0 +1,119 @@
+@page "/admin/bao-cao-tong-doan"
+@using CoreAdminWeb.Commons.Utils
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Shared.Base
+@inherits BlazorCoreBase
+@layout Shared.Layout.AdminLayout
+
+<PageHeader Title="Dashboard tổng quan" pTitle="Dashboard tổng quan"></PageHeader>
+
+<!-- Start All Card -->
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="card">
+            @if (IsLoading)
+            {
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <div class="w-full h-4 rounded-full bg-gray-200">
+                        <div class="h-4 rounded-full bg-success animate-progress"
+                             style="background-image: linear-gradient(45deg,hsla(0,0%,100%,.15) 25%,transparent 0,transparent 50%,hsla(0,0%,100%,.15) 0,hsla(0,0%,100%,.15) 75%,transparent 0,transparent); background-size: 1rem 1rem;">
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-2 sm:gap-2 pb-2">
+                <div class="xs:col-span-2 sm:col-span-2 md:col-span-1 xl:col-span-1 flex items-end">
+                    <MudText Typo="Typo.h2" Class="mb-1 text-base capitalize text-slate-800 dark:text-slate-100">Theo dõi tiến độ, chi phí và phân tích dữ liệu khám sức khỏe</MudText>
+                </div>
+
+                <div class="xs:col-span-2 sm:col-span-2 md:col-span-1 xl:col-span-1">
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Ngày khám
+                    </MudText>
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <input type="text"
+                               class="form-input date-picker w-1/2"
+                               placeholder="Chọn ngày bắt đầu"
+                               value="@(_startDateFilter?.ToString("dd/MM/yyyy"))"
+                               @onchange="@(e => OnValueChanged(e, nameof(_startDateFilter)))" />
+                        <span class="mx-2 flex items-center text-gray-500">-</span>
+                        <input type="text"
+                               class="form-input date-picker w-1/2"
+                               placeholder="Chọn ngày kết thúc"
+                               value="@(_endDateFilter?.ToString("dd/MM/yyyy"))"
+                               @onchange="@(e => OnValueChanged(e, nameof(_endDateFilter)))" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-4">
+                <div class="flex flex-column items-center justify-between gap-3 p-5 border rounded dark:border-darkborder border-black/10 bg-white dark:bg-darklight summary-card">
+                    <div Class="card-title">Số đợt khám sức khỏe</div>
+                    <div Typo="Typo.h4" Class="card-value">
+                        @MainModel.CompanyExamination.ToTalExaminations.ToString("#,##0")
+                    </div>
+                </div>
+                <div class="flex flex-column items-center justify-between gap-3 p-5 border rounded dark:border-darkborder border-black/10 bg-white dark:bg-darklight summary-card">
+                    <div Class="card-title">Số lượng lượt khám</div>
+                    <div Typo="Typo.h4" Class="card-value">
+                        @MainModel.CompanyExamination.TotalExaminationRecords.ToString("#,##0")
+                    </div>
+                </div>
+                <div class="flex flex-column items-center justify-between gap-3 p-5 border rounded dark:border-darkborder border-black/10 bg-white dark:bg-darklight summary-card">
+                    <div Class="card-title">Tổng chi phí đã chi trả</div>
+                    <div Typo="Typo.h4" Class="card-value">
+                        @NumberHelper.ConvertToShortText(MainModel.CompanyExamination.TotalCost)
+                    </div>
+                </div>
+                <div class="flex flex-column items-center justify-between gap-3 p-5 border rounded dark:border-darkborder border-black/10 bg-white dark:bg-darklight summary-card">
+                    <div Class="card-title">Số người có bất thường</div>
+                    <div Typo="Typo.h4" Class="card-value">
+                        @MainModel.CompanyExamination.AbnormalCases.ToString("#,##0")
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div class="gap-3 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10">
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Phân loại sức khỏe
+                    </MudText>
+                    <div id="phanLoaiSucKhoeChart" dir="ltr"></div>
+                </div>
+                <div class="gap-3 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10">
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Timeline phân loại sức khỏe
+                    </MudText>
+                    <div id="timelinePhanLoaiSucKhoeChart" dir="ltr"></div>
+                </div>
+                <div class="gap-3 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10">
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Nhóm bệnh phổ biến
+                    </MudText>
+                    <div id="nhomBenhPhoBienChart" dir="ltr"></div>
+                </div>
+                <div class="gap-3 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10">
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Tình hình sức khỏe công ty
+                    </MudText>
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Lần khám mới nhất: <span class="font-semibold">@MainModel.CompanyHealthExamination.LastDate?.ToString("dd/MM/yyyy")</span>
+                    </MudText>
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Tổng lượt khám: <span class="font-semibold">@MainModel.CompanyHealthExamination.TotalExaminationRecords?.ToString("N0")</span>
+                    </MudText>
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Số ca bất thường: <span class="font-semibold text-red-400">@MainModel.CompanyHealthExamination.AbnormalCases?.ToString("N0")</span>
+                    </MudText>
+                    <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
+                        Tỷ lệ đạt: <span class="font-semibold text-red-400">@MainModel.CompanyHealthExamination.PercentagePass?.ToString("#0.0")%</span>
+                    </MudText>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

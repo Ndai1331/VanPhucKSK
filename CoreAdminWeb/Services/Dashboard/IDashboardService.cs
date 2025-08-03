@@ -4,6 +4,6 @@ namespace CoreAdminWeb.Services.IDashboardService
 {
     public interface IDashboardService<T>
     {
-        Task<RequestHttpResponse<T>> GetInfomationAsync(string query);
+        Task<RequestHttpResponse<T>> GeDataAsync(string query);
     }
 }

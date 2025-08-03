@@ -7,7 +7,7 @@
 
 function initSimpleBarChart(selector, series, labels, colors, horizontal = true) {
     clearChart(selector);
-    let barChartOptions = {
+    let chartOptions = {
         series: series,
         chart: {
             height: 300,
@@ -51,7 +51,7 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
     };
     let chart = new ApexCharts(
         document.querySelector(selector),
-        barChartOptions
+        chartOptions
     );
 
     chart.render();
@@ -59,7 +59,7 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
 
 function initLineBarChart(selector, series, labels, colors) {
     clearChart(selector);
-    let barChartOptions = {
+    let chartOptions = {
         chart: {
             height: 300,
             type: "area",
@@ -183,7 +183,85 @@ function initLineBarChart(selector, series, labels, colors) {
     };
     let chart = new ApexCharts(
         document.querySelector(selector),
-        barChartOptions
+        chartOptions
+    );
+
+    chart.render();
+}
+
+function initAreaChart(selector, series, labels, colors) {
+    clearChart(selector);
+    let chartOptions = {
+        series: series,
+        chart: {
+            type: "area",
+            height: 300,
+            zoom: {
+                enabled: false,
+            },
+            toolbar: {
+                show: false,
+            },
+        },
+        colors: colors,
+        dataLabels: {
+            enabled: false,
+        },
+        stroke: {
+            width: 2,
+            curve: "smooth",
+        },
+        xaxis: {
+            axisBorder: {
+                color: "#e0e6ed",
+            },
+        },
+        yaxis: {
+            opposite: false,
+            labels: {
+                offsetX: 0,
+            },
+        },
+        labels: labels,
+        legend: {
+            horizontalAlign: "left",
+        },
+        grid: {
+            borderColor: "#e8e8e8",
+        },
+    };
+    let chart = new ApexCharts(
+        document.querySelector(selector),
+        chartOptions
+    );
+
+    chart.render();
+}
+
+function initPieChart(selector, series, labels, colors) {
+    clearChart(selector);
+    let chartOptions = {
+        series: series,
+        chart: {
+            height: 300,
+            type: 'pie',
+        },
+        labels: labels,
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+    };
+    let chart = new ApexCharts(
+        document.querySelector(selector),
+        chartOptions
     );
 
     chart.render();

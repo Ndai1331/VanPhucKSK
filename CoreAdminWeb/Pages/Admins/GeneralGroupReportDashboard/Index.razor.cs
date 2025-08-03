@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MudBlazor;
 
-namespace CoreAdminWeb.Pages.Admins.Dashboard
+namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
 {
-    public partial class Index(IDashboardService<GeneralDashboardModel> MainService, IUserService UserService) : BlazorCoreBase
+    public partial class Index(IDashboardService<CompanyReportDashboardModel> MainService, IUserService UserService) : BlazorCoreBase
     {
-        private GeneralDashboardModel MainModel { get; set; } = new();
+        private CompanyReportDashboardModel MainModel { get; set; } = new();
         private DateTime? _startDateFilter = default;
         private DateTime? _endDateFilter = default;
         private UserModel? CurrentUser { get; set; }
@@ -82,7 +82,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             var result = await MainService.GeDataAsync(BuilderQuery);
             if (result.IsSuccess)
             {
-                MainModel = result.Data ?? new GeneralDashboardModel();
+                MainModel = result.Data ?? new CompanyReportDashboardModel();
                 if (result.Meta != null)
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
@@ -91,7 +91,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             }
             else
             {
-                MainModel = new GeneralDashboardModel();
+                MainModel = new CompanyReportDashboardModel();
             }
             IsLoading = false;
 
