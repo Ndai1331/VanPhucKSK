@@ -560,10 +560,7 @@
         catch (Exception ex)
         {
             Console.WriteLine($"=== ERROR in ExportPDF ===");
-            Console.WriteLine($"Error type: {ex.GetType().Name}");
-            Console.WriteLine($"Error message: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
-
+           
             if (ex.InnerException != null)
             {
                 Console.WriteLine($"Inner exception: {ex.InnerException.Message}");

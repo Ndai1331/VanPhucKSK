@@ -120,23 +120,23 @@
                                 <td>@item.Data.cong_ty?.name</td>
                                 <td>@item.Data.gia_tri_hop_dong?.ToString("N0")</td>
                                 <td>@item.Data.chi_tiet?.Sum(x => x.thanh_tien_dm)?.ToString("N0")</td>
-                                <td>@item.Data.chi_tiet?.Sum(x => x.thanh_tien_tt)?.ToString("N0")</td>
-                                <td>@((item.Data.gia_tri_hop_dong - item.Data.chi_tiet?.Sum(x => x.thanh_tien_tt))?.ToString("N0"))</td>
+                                <td>@item.Data.chi_tiet?.Sum(x => x.chi_phi_thuc_te)?.ToString("N0")</td>
+                                <td>@((item.Data.gia_tri_hop_dong - item.Data.chi_tiet?.Sum(x => x.chi_phi_thuc_te))?.ToString("N0"))</td>
                                 <td>
                                     @{
-                                        var thanhTienTT = item.Data.chi_tiet?.Sum(x => x.thanh_tien_tt) ?? 0;
+                                        var chiPhiTT = item.Data.chi_tiet?.Sum(x => x.chi_phi_thuc_te) ?? 0;
                                         var thanhTienDM = item.Data.chi_tiet?.Sum(x => x.thanh_tien_dm) ?? 0;
                                         var giaTriHopDong = item.Data.gia_tri_hop_dong ?? 0;
                                         
                                         string ketQua;
                                         string bgClass;
                                         
-                                        if (thanhTienTT > giaTriHopDong)
+                                        if (chiPhiTT > giaTriHopDong)
                                         {
                                             ketQua = "Vượt hợp đồng";
                                             bgClass = "bg-red-500 text-white";
                                         }
-                                        else if (thanhTienTT > thanhTienDM)
+                                        else if (chiPhiTT > thanhTienDM)
                                         {
                                             ketQua = "Vượt định mức";
                                             bgClass = "bg-warning text-white";

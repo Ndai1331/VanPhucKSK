@@ -25,6 +25,7 @@
     <PackageReference Include="iText7" Version="9.2.0" />
     <PackageReference Include="iText7.pdfhtml" Version="6.2.0" />
     <PackageReference Include="iText7.bouncy-castle-adapter" Version="9.2.0" />
+    <PackageReference Include="KeudellCoding.Blazor.AdvancedBlazorSelect2" Version="1.3.0" />
     <PackageReference Include="MudBlazor" Version="8.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.0" />

@@ -1,5 +1,4 @@
-@page "/admin/danh-sach-doan-ho-so-kham-suc-khoe"
-@page "/admin/danh-sach-doan-ho-so-kham-suc-khoe/{id:int}"
+@page "/admin/danh-sach-nhan-vien"
 @using CoreAdminWeb.Commons.Helpers
 @using CoreAdminWeb.Commons.Utils
 @using CoreAdminWeb.Extensions
@@ -10,7 +9,7 @@
 @inherits BlazorCoreBase
 @layout Shared.Layout.AdminLayout
 
-<PageHeader Title="Hồ sơ đoàn KSK" pTitle="Hồ sơ đoàn KSK"></PageHeader>
+<PageHeader Title="Danh sách nhân viên" pTitle="Danh sách nhân viên"></PageHeader>
 
 <!-- Start All Card -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
@@ -209,7 +208,7 @@
                                 </td>
                                 <td>@item.Data.phan_loai_suc_khoe</td>    
                                 <td class="wrap-long-content">@item.Data.benh_tat_ket_luan?.Trim()</td>    
-                                <td class="wrap-long-content">@item.Data.de_nghi?.Trim()</td>  
+                                <td class="wrap-long-content">@item.Data.de_nghi?.Trim()</td>    
                             </tr>
                         }
                     </tbody>

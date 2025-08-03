@@ -25,7 +25,7 @@ public class DanhSachDoanController : ControllerBase
     }
 
     [HttpGet("medical-data")]
-    public async Task<IActionResult> GetMedicalData([FromQuery]string maDotKham, [FromQuery]int offset = 0, [FromQuery]int limit = 10)
+    public async Task<IActionResult> GetMedicalData([FromQuery]string? maDotKham, [FromQuery]string? congTy, [FromQuery]DateTime? fromDate, [FromQuery]DateTime? toDate, [FromQuery]int offset = 0, [FromQuery]int limit = 10)
     {
 
         var response = new RequestHttpResponse<List<MedicalExaminationDto>>();
@@ -35,11 +35,54 @@ public class DanhSachDoanController : ControllerBase
             var validLimit = limit <= 0 || limit > 100 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
 
+            var where = "";
+            if (!string.IsNullOrEmpty(maDotKham))
+            {
+                where += " WHERE sksk.MaDotKham = " + maDotKham;
+            }
+            if (!string.IsNullOrEmpty(congTy))
+            {
+                if (string.IsNullOrEmpty(where))
+                {
+                    where += " WHERE ";
+                }
+                else
+                {
+                    where += " AND ";
+                }
+                where += "hd.cong_ty = " + congTy;
+            }
+            if (fromDate.HasValue)
+            {
+                if (string.IsNullOrEmpty(where))
+                {
+                    where += " WHERE ";
+                }
+                else
+                {
+                    where += " AND ";
+                }
+                where += "sksk.ngay_kham >= '" + fromDate.Value.ToString("yyyy-MM-dd") + "'";
+            }
+            if (toDate.HasValue)
+            {
+                if (string.IsNullOrEmpty(where))
+                {
+                    where += " WHERE ";
+                }
+                else
+                {
+                    where += " AND ";
+                }
+                where += "sksk.ngay_kham <= '" + toDate.Value.ToString("yyyy-MM-dd") + "'";
+            }
+
             // Query đếm tổng số bản ghi
             var countSql = @"
                 SELECT COUNT(DISTINCT sksk.id) as TotalCount
                 FROM SoKhamSucKhoe sksk 
-                WHERE sksk.MaDotKham = @maDotKham";
+                Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
+                Left join contract hd on hd.id = ct.ma_hop_dong_ksk" + where;
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
@@ -54,6 +97,7 @@ public class DanhSachDoanController : ControllerBase
                 STRING_AGG(CONCAT(cls.ten_cls, ': ', cls.ket_qua_cls), ' | ') AS can_lam_sang_results
                 from SoKhamSucKhoe sksk 
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
+                Left join contract hd on hd.id = ct.ma_hop_dong_ksk
                 Left join custom_users u on u.id = sksk.benh_nhan 
                 Left join kham_suc_khoe_tien_su ts on ts.ma_luot_kham = sksk.ma_luot_kham
                 Left join kham_suc_khoe_the_luc tl on tl.ma_luot_kham = sksk.ma_luot_kham
@@ -62,7 +106,7 @@ public class DanhSachDoanController : ControllerBase
                 Left join kham_suc_khoe_ket_luan kl on kl.ma_luot_kham = sksk.ma_luot_kham
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
                 Left join kham_suc_khoe_can_lam_sang cls on cls.ma_luot_kham = sksk.ma_luot_kham
-                where sksk.MaDotKham = @maDotKham
+                " + where + @"
                 GROUP BY sksk.id, sksk.ma_luot_kham, ct.code, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
                 ts.ten_benh, ts.tien_su_gia_dinh,
                 tl.chieu_cao, tl.can_nang, tl.bmi, tl.mach, tl.huyet_ap,
@@ -83,7 +127,22 @@ public class DanhSachDoanController : ControllerBase
             using (var countCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 countCommand.CommandText = countSql;
-                countCommand.Parameters.Add(new SqlParameter("@maDotKham", maDotKham));
+                if (!string.IsNullOrEmpty(maDotKham))
+                {
+                    countCommand.Parameters.Add(new SqlParameter("@maDotKham", maDotKham));
+                }
+                if (!string.IsNullOrEmpty(congTy))
+                {
+                    countCommand.Parameters.Add(new SqlParameter("@congTy", congTy));
+                }
+                if (fromDate.HasValue)
+                {
+                    countCommand.Parameters.Add(new SqlParameter("@fromDate", fromDate));
+                }
+                if (toDate.HasValue)
+                {
+                    countCommand.Parameters.Add(new SqlParameter("@toDate", toDate));
+                }
                 
                 var countResult = await countCommand.ExecuteScalarAsync();
                 totalCount = Convert.ToInt32(countResult ?? 0);
@@ -93,7 +152,22 @@ public class DanhSachDoanController : ControllerBase
             using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 dataCommand.CommandText = dataSql;
-                dataCommand.Parameters.Add(new SqlParameter("@maDotKham", maDotKham));
+                if (!string.IsNullOrEmpty(maDotKham))
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@maDotKham", maDotKham));
+                }
+                if (!string.IsNullOrEmpty(congTy))
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@congTy", congTy));
+                }
+                if (fromDate.HasValue)
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@fromDate", fromDate));
+                }
+                if (toDate.HasValue)
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@toDate", toDate));
+                }
                 dataCommand.Parameters.Add(new SqlParameter("@offset", validOffset));
                 dataCommand.Parameters.Add(new SqlParameter("@limit", validLimit));
                 

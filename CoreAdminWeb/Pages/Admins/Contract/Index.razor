@@ -1,11 +1,9 @@
 @page "/admin/danh-muc-hop-dong"
-@using CoreAdminWeb.Commons.Helpers
+@using System.Linq;
 @using CoreAdminWeb.Commons.Utils
 @using CoreAdminWeb.Extensions
-@using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.User
-@using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
 @inherits BlazorCoreBase
 @layout Shared.Layout.AdminLayout
@@ -395,34 +393,52 @@
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
+
+
                                                                 @foreach (var item in SelectedItemsDetail.Where(c => c.deleted == null || c.deleted == false).Select((v, i) => new { Data = v, Index = i }))
                                                                 {
                                                                     <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
                                                                         <td>@(item.Index + 1)</td>
                                                                         <td>
-                                                                            <div style="position: relative;">
-                                                                                <BlazoredTypeahead EnableDropDown="true"
-                                                                                                   ShowDropDownOnFocus="true"
-                                                                                                   MinimumLength="0"
-                                                                                                   TItem="DinhMucModel"
-                                                                                                   TValue="DinhMucModel"
-                                                                                                   SearchMethod="LoadDinhMucData"
-                                                                                                   Value="item.Data.MaDinhMuc"
-                                                                                                   ValueExpression="@(() => item.Data.MaDinhMuc)"
-                                                                                                   ValueChanged="@(e => OnDinhMucChanged(item.Data, e))"
-                                                                                                   placeholder="Chọn định mức"
-                                                                                                   Class="form-select">
-                                                                                    <SelectedTemplate Context="item">
-                                                                                        @item.name
-                                                                                    </SelectedTemplate>
-                                                                                    <ResultTemplate Context="item">
-                                                                                        @item.name
-                                                                                    </ResultTemplate>
-                                                                                    <NotFoundTemplate Context="item">
-                                                                                        Không tìm thấy dữ liệu
-                                                                                    </NotFoundTemplate>
-                                                                                </BlazoredTypeahead>
-                                                                            </div>
+                                                                            @* <BlazoredTypeahead  id="dinhMucInput-@(item.Index + 1)"
+                                                                                EnableDropDown="true"
+                                                                                
+                                                                                ShowDropDownOnFocus="true"
+                                                                                MinimumLength="0"
+                                                                                TItem="DinhMucModel"
+                                                                                TValue="DinhMucModel"
+                                                                                SearchMethod="LoadDinhMucData"
+                                                                                Value="item.Data.MaDinhMuc"
+                                                                                ValueExpression="@(() => item.Data.MaDinhMuc)"
+                                                                                ValueChanged="@(e => OnDinhMucChanged(item.Data, e))"
+                                                                                placeholder="Chọn định mức"
+                                                                                Class="form-select">
+                                                                                <SelectedTemplate Context="item">
+                                                                                    @item.name
+                                                                                </SelectedTemplate>
+                                                                                <ResultTemplate Context="item">
+                                                                                    @item.name
+                                                                                </ResultTemplate>
+                                                                                <NotFoundTemplate Context="item">
+                                                                                    Không tìm thấy dữ liệu
+                                                                                </NotFoundTemplate>
+                                                                            </BlazoredTypeahead> *@
+
+
+                                                                    <Select2 
+                                                                        IdSelector="c =>  c!= null ? c.id.ToString() : String.Empty"
+                                                                        TextSelector="c =>  c!= null ? c.name : String.Empty"
+                                                                        FilterFunction="filterFunction"
+                                                                        GetElementById="async (items, id, token) => {
+                                                                            if (items == null || string.IsNullOrEmpty(id) || !int.TryParse(id, out int parsedId))
+                                                                                return null;
+                                                                            return items.FirstOrDefault(c => c != null && c.id == parsedId);
+                                                                        }"
+                                                                        Datasource="DinhMucs"
+                                                                        Value="@GetCurrentSelection(item.Data, item.Index)"
+                                                                        OnValueChanged="@(e => OnDinhMucChanged(item.Data, e , item.Index))"
+                                                                        Multiselect="false" />
+
                                                                         </td>
                                                                         <td>
                                                                             <input type="number" class="form-input" step="1"
@@ -529,3 +545,6 @@
         </div>
     </div>
 }
+
+
+   

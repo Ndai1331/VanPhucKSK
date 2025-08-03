@@ -6,7 +6,7 @@ using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
+namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
 {
     public partial class Index(
         IDanhSachDoanSoKhamSucKhoeService<DanhSachDoanSoKhamSucKhoeModel> MainService,
@@ -24,16 +24,12 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-
+            
             // Load the KhamSucKhoeCongTy by ID if provided
-            // _ = Task.Run(async () =>
+            // if (Id.HasValue)
             // {
-            //     await Task.Delay(500);
-                if (Id.HasValue)
-                {
-                    await LoadKhamSucKhoeCongTyById(Id.Value);
-                }
-            // });
+            //     await LoadKhamSucKhoeCongTyById(Id.Value);
+            // }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -56,14 +52,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private async Task LoadData()
         {
             IsLoading = true;
-            // var maDotKham = Id;
-            // if (_selectedKhamSucKhoeCongTyFilter != null)
-            // {
-            //     maDotKham = _selectedKhamSucKhoeCongTyFilter.id;
-            // }
-
             BuilderQuery = $"DanhSachDoan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";
-
             if (_fromDate.HasValue)
             {
                 BuilderQuery += $"&fromDate={_fromDate.Value.ToString("yyyy-MM-dd")}";
@@ -79,8 +68,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             if (_selectedKhamSucKhoeCongTyFilter != null)
             {
                 BuilderQuery += $"&maDotKham={_selectedKhamSucKhoeCongTyFilter.id}";
-            } else {
-                BuilderQuery += $"&maDotKham={Id}";
             }
 
             var result = await MainService.GetAllAsync(BuilderQuery);
@@ -208,14 +195,12 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 if (result?.IsSuccess == true && result.Data != null)
                 {
                     _selectedKhamSucKhoeCongTyFilter = result.Data;
-                    await LoadData();
                 }
             }
             catch (Exception ex)
             {
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu: {ex.Message}", "danger");
             }
-
         }
     }
 }
