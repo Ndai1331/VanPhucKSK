@@ -8,6 +8,7 @@ using CoreAdminWeb.Services.Contract;
 using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
+using KeudellCoding.Blazor.AdvancedBlazorSelect2;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
@@ -40,6 +41,19 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private string fileContent { get; set; } = string.Empty;
         private FileCRUDModel UploadFileCRUD { get; set; } = new FileCRUDModel();
 
+        public List<DinhMucModel> DinhMucs { get; set; } = new List<DinhMucModel>();
+
+
+        public Dictionary<int, List<DinhMucModel>> SelectedDinhMucItems { get; set; } = new();
+        
+        // Cache for filtering to avoid repeated API calls
+        private readonly Dictionary<string, List<DinhMucModel>> _dinhMucCache = new();
+        private DateTime _lastCacheUpdate = DateTime.MinValue;
+        private readonly TimeSpan _cacheExpiry = TimeSpan.FromMinutes(5);
+        
+        // Debouncing for filter function
+        private CancellationTokenSource? _filterCancellationTokenSource;
+        private readonly object _cacheLock = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -51,6 +65,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             if (firstRender)
             {
                 await LoadData();
+                await LoadDinhMucData("");
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
             }
@@ -145,9 +160,53 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             }
         }
 
+        /// <summary>
+        /// Load DinhMuc data with caching - Optimized version
+        /// </summary>
         private async Task<IEnumerable<DinhMucModel>> LoadDinhMucData(string searchText)
         {
-            return await LoadBlazorTypeaheadData(searchText, DinhMucService);
+            try
+            {
+                Console.WriteLine($"Loading DinhMuc data with searchText: '{searchText}'");
+                
+                // Check cache first
+                var cacheKey = searchText ?? string.Empty;
+                lock (_cacheLock)
+                {
+                    if (_dinhMucCache.ContainsKey(cacheKey) && 
+                        DateTime.Now - _lastCacheUpdate < _cacheExpiry)
+                    {
+                        Console.WriteLine($"Using cached DinhMuc data for '{searchText}'");
+                        DinhMucs = _dinhMucCache[cacheKey];
+                        return DinhMucs;
+                    }
+                }
+                
+                // Load from API if not in cache or cache expired
+                var result = await LoadBlazorTypeaheadData(searchText ?? string.Empty, DinhMucService);
+                var resultList = result?.ToList() ?? new List<DinhMucModel>();
+                
+                // Update cache
+                lock (_cacheLock)
+                {
+                    _dinhMucCache[cacheKey] = resultList;
+                    _lastCacheUpdate = DateTime.Now;
+                }
+                
+                DinhMucs = resultList;
+                Console.WriteLine($"Loaded {DinhMucs.Count} DinhMuc items from API");
+                
+                // Trigger UI update after loading data
+                StateHasChanged();
+                
+                return resultList;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading DinhMuc data: {ex.Message}");
+                DinhMucs = new List<DinhMucModel>();
+                return Enumerable.Empty<DinhMucModel>();
+            }
         }
 
         private void OpenDeleteModal(ContractModel item)
@@ -304,6 +363,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                         return;
                     }
                     await LoadData();
+                    ClearDinhMucCache(); // Clear cache after successful operation
                     openAddOrUpdateModal = false;
                     AlertService.ShowAlert("Thêm mới thành công!", "success");
                 }
@@ -371,6 +431,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                     }
 
                     await LoadData();
+                    ClearDinhMucCache(); // Clear cache after successful update
                     openAddOrUpdateModal = false;
                     AlertService.ShowAlert("Cập nhật thành công!", "success");
                 }
@@ -492,29 +553,77 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 });
             }
         }
-        private void OnDinhMucChanged(ContractDinhMucModel item, DinhMucModel? selected)
+        /// <summary>
+        /// Get current selection for a specific ContractDinhMucModel item - Optimized version
+        /// </summary>
+        private List<DinhMucModel> GetCurrentSelection(ContractDinhMucModel item, int index)
         {
-            if (selected == null)
-            {
-                item.MaDinhMuc = null;
-                item.don_gia_tt = null;
-                item.don_gia_dm = null;
-                item.thanh_tien_tt = null;
-                item.thanh_tien_dm = null;
-                return;
-            }
-            item.don_gia_tt = selected.DonGia ?? 0;
-            item.don_gia_dm = selected.DinhMuc ?? 0;
-            item.MaDinhMuc = selected;
+            // Create selection list only if item.MaDinhMuc exists
+            var selection = item?.MaDinhMuc != null 
+                ? new List<DinhMucModel> { item.MaDinhMuc } 
+                : new List<DinhMucModel>();
+            
+            // Cache the selection for this index
+            SelectedDinhMucItems[index] = selection;
+            return selection;
+        }
 
-            if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
+        /// <summary>
+        /// Handle Select2 value change for DinhMuc selection - Optimized version
+        /// </summary>
+        private void OnDinhMucChanged(ContractDinhMucModel item, object? selected, int index)
+        {
+            try
             {
-                item.thanh_tien_tt = item.so_luong * item.don_gia_tt;
-            }
+                // Optimized casting with pattern matching
+                item.MaDinhMuc = selected switch
+                {
+                    KeudellCoding.Blazor.AdvancedBlazorSelect2.Select2<DinhMucModel, List<DinhMucModel>> select2 
+                        => select2.Value?.FirstOrDefault(),
+                    KeudellCoding.Blazor.AdvancedBlazorSelect2.Select2<DinhMucModel, IEnumerable<DinhMucModel>> select2Enum 
+                        => select2Enum.Value?.FirstOrDefault(),
+                    _ => null
+                };
 
-            if (item.so_luong.HasValue && item.don_gia_dm.HasValue)
+                // Update cached selection
+                if (SelectedDinhMucItems.ContainsKey(index))
+                {
+                    SelectedDinhMucItems[index] = item.MaDinhMuc != null 
+                        ? new List<DinhMucModel> { item.MaDinhMuc } 
+                        : new List<DinhMucModel>();
+                }
+
+                // Update related calculations if needed
+                UpdateThanhTienAfterDinhMucChange(item);
+            }
+            catch (Exception ex)
             {
-                item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
+                Console.WriteLine($"Error in OnDinhMucChanged: {ex.Message}");
+                AlertService?.ShowAlert("Lỗi khi thay đổi định mức", "danger");
+            }
+        }
+
+        /// <summary>
+        /// Update calculations after DinhMuc change
+        /// </summary>
+        private void UpdateThanhTienAfterDinhMucChange(ContractDinhMucModel item)
+        {
+            if (item.MaDinhMuc != null)
+            {
+                // Copy data from selected DinhMuc if needed
+                item.code = item.MaDinhMuc.code;
+                item.name = item.MaDinhMuc.name;
+                
+                // Recalculate amounts if quantities and prices are set
+                if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
+                {
+                    item.thanh_tien_tt = item.so_luong * item.don_gia_tt;
+                }
+                
+                if (item.so_luong.HasValue && item.don_gia_dm.HasValue)
+                {
+                    item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
+                }
             }
         }
 
@@ -677,6 +786,74 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         {
             fileContent = string.Empty;
             SelectedFile = default!;
+        }
+
+
+
+        /// <summary>
+        /// Optimized filter function with debouncing and caching
+        /// </summary>
+        private async Task<List<DinhMucModel>> filterFunction(IEnumerable<DinhMucModel> allItems, string filter, CancellationToken token) 
+        {
+            try
+            {
+                // Cancel previous filter operation
+                _filterCancellationTokenSource?.Cancel();
+                _filterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+
+                // Debouncing - wait 300ms before making API call
+                await Task.Delay(300, _filterCancellationTokenSource.Token);
+
+                var filterKey = filter ?? string.Empty;
+                
+                // Check cache first
+                lock (_cacheLock)
+                {
+                    if (_dinhMucCache.ContainsKey(filterKey) && 
+                        DateTime.Now - _lastCacheUpdate < _cacheExpiry)
+                    {
+                        Console.WriteLine($"Using cached filter result for '{filter}'");
+                        return _dinhMucCache[filterKey];
+                    }
+                }
+
+                // If not in cache, load from API
+                Console.WriteLine($"Loading filter data from API for '{filter}'");
+                var result = await LoadBlazorTypeaheadData(filter ?? string.Empty, DinhMucService, $"limit=20&offset=0&meta=filter_count");
+                var resultList = result?.ToList() ?? new List<DinhMucModel>();
+
+                // Update cache
+                lock (_cacheLock)
+                {
+                    _dinhMucCache[filterKey] = resultList;
+                    _lastCacheUpdate = DateTime.Now;
+                }
+
+                return resultList;
+            }
+            catch (OperationCanceledException)
+            {
+                // Filter operation was cancelled (user typed more characters)
+                Console.WriteLine($"Filter operation cancelled for '{filter}'");
+                return new List<DinhMucModel>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in filterFunction: {ex.Message}");
+                return new List<DinhMucModel>();
+            }
+        }
+
+        /// <summary>
+        /// Clear cache when needed (e.g., after data changes)
+        /// </summary>
+        private void ClearDinhMucCache()
+        {
+            lock (_cacheLock)
+            {
+                _dinhMucCache.Clear();
+                _lastCacheUpdate = DateTime.MinValue;
+            }
         }
     }
 }

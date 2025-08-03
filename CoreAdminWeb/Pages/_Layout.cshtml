@@ -44,7 +44,7 @@
     <link href="css/record-detail-print.css" rel="stylesheet" />
 
     <link href="_content/Blazored.Typeahead/blazored-typeahead.css" rel="stylesheet" />
-
+    <link href="_content/KeudellCoding.Blazor.AdvancedBlazorSelect2/lib/select2/css/select2.min.css" rel="stylesheet" />
 </head>
 
 <body x-data="main" x-init="$store.app.hasCreative = window.location.href.includes('/creative') , $store.app.hasdetached = window.location.href.includes('/detached')" :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.fullscreen ? 'full' : '' , $store.app.hasCreative ? 'detached ' : '' , $store.app.hasdetached ? 'detached detached-simple ' : '' , $store.app.layout  ]" class="relative overflow-x-hidden text-sm antialiased font-normal text-black font-cerebri dark:text-white vertical " x-data="modals">
@@ -91,6 +91,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
+    <script src="_content/KeudellCoding.Blazor.AdvancedBlazorSelect2/Select2JsInterop.js" type="text/javascript" language="javascript"></script>
+    <script src="_content/KeudellCoding.Blazor.AdvancedBlazorSelect2/lib/select2/js/select2.full.min.js" type="text/javascript" language="javascript"></script>
     
     <script>
    
