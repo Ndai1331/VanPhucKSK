@@ -275,3 +275,66 @@
 {
     height:40px !important;
 }
+
+/* Currency Input Styling */
+.currency-input {
+    text-align: right;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 12px;
+    transition: all 0.2s ease-in-out;
+}
+
+.currency-input:focus {
+    background-color: #ffffff;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: 0;
+}
+
+.currency-input:hover {
+    border-color: #adb5bd;
+}
+
+.currency-display {
+    text-align: right;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #495057;
+    cursor: not-allowed;
+}
+
+.currency-input.error {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.currency-input.error:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Currency symbol styling */
+.currency-symbol {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-left: 4px;
+}
+
+/* Responsive currency inputs */
+@media (max-width: 768px) {
+    .currency-input,
+    .currency-display {
+        font-size: 0.9em;
+        padding: 6px 8px;
+    }
+}

@@ -67,6 +67,11 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 await LoadData();
                 await LoadDinhMucData("");
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
+                
+                // Initialize currency formatting
+                await Task.Delay(100); // Small delay to ensure DOM is ready
+                await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
+                
                 StateHasChanged();
             }
         }
@@ -332,6 +337,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 await Task.Delay(500);
                 await JsRuntime.InvokeVoidAsync("initializeDatePicker");
+                await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
             });
         }
 
@@ -550,6 +556,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 {
                     await Task.Delay(500);
                     await JsRuntime.InvokeVoidAsync("initializeDatePicker");
+                    await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
                 });
             }
         }
@@ -855,5 +862,182 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 _lastCacheUpdate = DateTime.MinValue;
             }
         }
+
+        #region Currency Formatting Methods
+
+        /// <summary>
+        /// Format currency with thousand separators
+        /// </summary>
+        private string FormatCurrency(decimal? value)
+        {
+            if (!value.HasValue) return string.Empty;
+            return value.Value.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
+        }
+
+        /// <summary>
+        /// Format currency with decimal places
+        /// </summary>
+        private string FormatCurrencyWithDecimals(decimal? value)
+        {
+            if (!value.HasValue) return string.Empty;
+            return value.Value.ToString("N3", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
+        }
+
+        /// <summary>
+        /// Parse currency string back to decimal, removing thousand separators
+        /// </summary>
+        private decimal? ParseCurrency(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return null;
+            
+            // Remove thousand separators (dots) and replace comma with dot for decimal
+            var cleanInput = input.Replace(".", "").Replace(",", ".");
+            
+            if (decimal.TryParse(cleanInput, System.Globalization.NumberStyles.Any, 
+                System.Globalization.CultureInfo.InvariantCulture, out decimal result))
+            {
+                return result;
+            }
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Get formatted currency display value
+        /// </summary>
+        private string GetCurrencyDisplayValue(decimal? value)
+        {
+            return FormatCurrency(value);
+        }
+
+        /// <summary>
+        /// Update currency field with formatting and calculation
+        /// </summary>
+        private async Task UpdateCurrencyField(ChangeEventArgs e, ContractDinhMucModel item, string field)
+        {
+            var inputValue = e.Value?.ToString();
+            var parsedValue = ParseCurrency(inputValue);
+
+            if (parsedValue.HasValue && parsedValue < 0)
+            {
+                AlertService.ShowAlert("Giá trị không thể nhỏ hơn 0", "warning");
+                return;
+            }
+
+            switch (field)
+            {
+                case nameof(item.so_luong):
+                    item.so_luong = (int?)parsedValue;
+                    break;
+                case nameof(item.don_gia_tt):
+                    item.don_gia_tt = parsedValue;
+                    break;
+                case nameof(item.don_gia_dm):
+                    item.don_gia_dm = parsedValue;
+                    break;
+                case nameof(item.chi_phi_thuc_te):
+                    item.chi_phi_thuc_te = parsedValue;
+                    break;
+            }
+
+            // Recalculate totals
+            RecalculateThanhTien(item);
+
+            // Format the input value and update UI
+            await InvokeAsync(StateHasChanged);
+        }
+
+        /// <summary>
+        /// Recalculate thanh_tien after changes
+        /// </summary>
+        private void RecalculateThanhTien(ContractDinhMucModel item)
+        {
+            item.thanh_tien_tt = null;
+            item.thanh_tien_dm = null;
+
+            if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
+            {
+                item.thanh_tien_tt = item.so_luong * item.don_gia_tt;
+            }
+
+            if (item.so_luong.HasValue && item.don_gia_dm.HasValue)
+            {
+                item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
+            }
+        }
+
+        /// <summary>
+        /// Handle don gia TT change
+        /// </summary>
+        public async void OnDonGiaTTChanged(ChangeEventArgs e, ContractDinhMucModel item)
+        {
+            await UpdateCurrencyField(e, item, nameof(item.don_gia_tt));
+        }
+
+        /// <summary>
+        /// Handle don gia DM change  
+        /// </summary>
+        public async void OnDonGiaDMChanged(ChangeEventArgs e, ContractDinhMucModel item)
+        {
+            await UpdateCurrencyField(e, item, nameof(item.don_gia_dm));
+        }
+
+        /// <summary>
+        /// Handle chi phi thuc te change
+        /// </summary>
+        public async void OnChiPhiThucTeChanged(ChangeEventArgs e, ContractDinhMucModel item)
+        {
+            await UpdateCurrencyField(e, item, nameof(item.chi_phi_thuc_te));
+        }
+
+        /// <summary>
+        /// Handle currency input real-time formatting with immediate JavaScript call
+        /// </summary>
+        public async void OnCurrencyInputRealTimeFormatting(ChangeEventArgs e)
+        {
+            try
+            {
+                var inputValue = e.Value?.ToString();
+                if (!string.IsNullOrEmpty(inputValue))
+                {
+                    // Call JavaScript immediately to format the input
+                    await JsRuntime.InvokeVoidAsync("formatCurrencyInputRealTime", inputValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in real-time currency formatting: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Handle currency input formatting (legacy method for compatibility)
+        /// </summary>
+        public void OnCurrencyInputFormatting(ChangeEventArgs e)
+        {
+            // This will be handled by JavaScript
+        }
+
+        /// <summary>
+        /// Format currency input using JavaScript
+        /// </summary>
+        public async Task FormatCurrencyInput(ChangeEventArgs e)
+        {
+            try
+            {
+                var inputValue = e.Value?.ToString();
+                if (!string.IsNullOrEmpty(inputValue))
+                {
+                    // Let JavaScript handle the real-time formatting
+                    await JsRuntime.InvokeVoidAsync("formatCurrencyInput", inputValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error formatting currency input: {ex.Message}");
+            }
+        }
+
+        #endregion
     }
 }

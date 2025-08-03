@@ -448,30 +448,38 @@
                                                                                    @onchange="(e) => UpdateThanhTien(e, item.Data, nameof(item.Data.so_luong))" />
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" class="form-input" step="0.001"
+                                                                            <input type="text" class="form-input currency-input"
+                                                                                   placeholder="0"
                                                                                    Label="Đơn giá TT (VNĐ)"
-                                                                                   @bind-value="@item.Data.don_gia_tt"
-                                                                                   @bind-value:event="oninput"
-                                                                                   @onchange="(e) => UpdateThanhTien(e, item.Data, nameof(item.Data.don_gia_tt))" />
+                                                                                   value="@GetCurrencyDisplayValue(item.Data.don_gia_tt)"
+                                                                                   @onchange="@(e => OnDonGiaTTChanged(e, item.Data))"
+                                                                                   @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" class="form-input" step="0.001" @bind-value="@item.Data.thanh_tien_tt" Label="Thành tiền TT (VNĐ)" readonly />
+                                                                            <input type="text" class="form-input currency-display" 
+                                                                                   value="@GetCurrencyDisplayValue(item.Data.thanh_tien_tt)" 
+                                                                                   Label="Thành tiền TT (VNĐ)" readonly />
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" class="form-input" step="0.001"
+                                                                            <input type="text" class="form-input currency-input"
+                                                                                   placeholder="0"
                                                                                    Label="Đơn giá ĐM (VNĐ)"
-                                                                                   @bind-value="@item.Data.don_gia_dm"
-                                                                                   @bind-value:event="oninput"
-                                                                                   @onchange="(e) => UpdateThanhTien(e, item.Data, nameof(item.Data.don_gia_dm))" />
+                                                                                   value="@GetCurrencyDisplayValue(item.Data.don_gia_dm)"
+                                                                                   @onchange="@(e => OnDonGiaDMChanged(e, item.Data))"
+                                                                                   @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" class="form-input" step="0.001" @bind-value="@item.Data.thanh_tien_dm" Label="Thành tiền ĐM (VNĐ)" readonly />
+                                                                            <input type="text" class="form-input currency-display" 
+                                                                                   value="@GetCurrencyDisplayValue(item.Data.thanh_tien_dm)" 
+                                                                                   Label="Thành tiền ĐM (VNĐ)" readonly />
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" class="form-input" step="0.001"
+                                                                            <input type="text" class="form-input currency-input"
+                                                                                   placeholder="0"
                                                                                    Label="Chi phí thực tế (VNĐ)"
-                                                                                   @bind-value="@item.Data.chi_phi_thuc_te"
-                                                                                   @bind-value:event="oninput" />
+                                                                                   value="@GetCurrencyDisplayValue(item.Data.chi_phi_thuc_te)"
+                                                                                   @onchange="@(e => OnChiPhiThucTeChanged(e, item.Data))"
+                                                                                   @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
                                                                         </td>
                                                                         <td>
                                                                             <input type="text" class="form-input w-40" @bind-value="@item.Data.description" Label="Ghi chú" />
