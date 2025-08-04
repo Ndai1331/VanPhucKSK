@@ -25,7 +25,9 @@
 .bg-white {
     background-color: #fff;
 }
-
+.bg-primary{
+    background-color: #229742;
+}
 
 .animate-fade-in {
     animation: fadeIn 0.3s ease-in-out;

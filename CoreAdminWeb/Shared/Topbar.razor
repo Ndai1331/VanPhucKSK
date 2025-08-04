@@ -307,12 +307,6 @@
     public void ToggleMobileMenu()
     {
         isMobileMenuOpen = !isMobileMenuOpen;
-        // Close other dropdowns when opening mobile menu
-        if (isMobileMenuOpen)
-        {
-            isNotificationOpen = false;
-            isProfileOpen = false;
-        }
         StateHasChanged();
     }
 
@@ -352,7 +346,7 @@
         isProfileOpen = false;
         isMobileMenuOpen = false;
     }
-
+@* 
     // Method to handle click event from JavaScript
     [JSInvokable]
     public void HandleClickEvent()
@@ -360,7 +354,7 @@
         // Call CloseDropdowns method when a click event occurs outside the dropdowns
         CloseDropdowns();
         StateHasChanged(); // Ensure UI updates
-    }
+    } *@
 
     public async Task ToggleMode()
     {
