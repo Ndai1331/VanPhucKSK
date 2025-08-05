@@ -16,7 +16,7 @@ namespace CoreAdminWeb.Services.Contract
         private readonly string _collection = "contract";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
             + ",cong_ty.id,cong_ty.name,cong_ty.code"
-            + ",contract_type.id,contract_type.code"
+            + ",contract_type.id,contract_type.code,contract_type.name"
             + ",nhan_vien_id.id,nhan_vien_id.first_name,nhan_vien_id.last_name"
             + ",file_hd.id,file_hd.filename_disk,file_hd.filename_download"
             + ",chi_tiet.id,chi_tiet.thanh_tien_tt,chi_tiet.thanh_tien_dm,chi_tiet.chi_phi_thuc_te";
@@ -52,13 +52,14 @@ namespace CoreAdminWeb.Services.Contract
                 name = model.name,
                 description = model.description,
                 sort = model.sort,
-                status = model.status.ToString(),
+                status = model.status,
                 cong_ty = model.cong_ty?.id,
                 contract_type = model.contract_type?.id,
                 ngay_hop_dong = model.ngay_hop_dong,
                 ngay_hieu_luc = model.ngay_hieu_luc,
                 ngay_het_han = model.ngay_het_han,
                 gia_tri_hop_dong = model.gia_tri_hop_dong,
+                gia_tri_quyet_toan = model.gia_tri_quyet_toan,
                 so_tien_tam_ung = model.so_tien_tam_ung,
                 ti_le_chap_nhan_thanh_toan = model.ti_le_chap_nhan_thanh_toan,
                 phe_duyet = model.phe_duyet,
@@ -66,9 +67,9 @@ namespace CoreAdminWeb.Services.Contract
                 // ten_khoa_phong = model.ten_khoa_phong,
                 nguoi_theo_doi = model.nguoi_theo_doi,
                 so_dien_thoai_lien_he = model.so_dien_thoai_lien_he,
-                // nguoi_gioi_thieu = model.nguoi_gioi_thieu,
+                nguoi_gioi_thieu = model.nguoi_gioi_thieu,
                 // dien_thoai = model.dien_thoai,
-                // email = model.email,
+                email = model.email,
                 nhan_vien_id = model.nhan_vien_id?.id,
                 file_hd = model.file_hd?.id.ToString()
             };

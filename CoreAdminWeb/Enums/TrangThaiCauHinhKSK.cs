@@ -13,7 +13,7 @@ namespace CoreAdminWeb.Enums
         removed,
         
         // Extended values
-        [Description("Locked")]
-        locked
+        // [Description("Locked")]
+        // locked
     }
 }

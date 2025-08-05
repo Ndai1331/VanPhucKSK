@@ -159,7 +159,7 @@
                     <tbody>
                         @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
                         {
-                            <tr>
+                            <tr @onclick="@(e => GoToDetail(item.Data.user_id))">
                                 <td class="frozen-col frozen-col-1">@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                 <td class="frozen-col frozen-col-2">@item.Data.ma_luot_kham</td>
                                 <td class="frozen-col frozen-col-3">@item.Data.last_name @item.Data.first_name</td>

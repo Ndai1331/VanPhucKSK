@@ -2,16 +2,19 @@
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
+using CoreAdminWeb.Services;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using CoreAdminWeb.Extensions;
 
 namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 {
     public partial class Index(
         IDanhSachDoanSoKhamSucKhoeService<DanhSachDoanSoKhamSucKhoeModel> MainService,
         IBaseService<CongTyModel> CongTyService,
-        IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService
+        IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService,
+        IExportExcelService<dynamic> ExportExcelService
     ) : BlazorCoreBase
     {
         [Parameter] public int? Id { get; set; }
@@ -29,10 +32,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             // _ = Task.Run(async () =>
             // {
             //     await Task.Delay(500);
-                if (Id.HasValue)
-                {
-                    await LoadKhamSucKhoeCongTyById(Id.Value);
-                }
+            if (Id.HasValue)
+            {
+                await LoadKhamSucKhoeCongTyById(Id.Value);
+            }
             // });
         }
 
@@ -79,7 +82,9 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             if (_selectedKhamSucKhoeCongTyFilter != null)
             {
                 BuilderQuery += $"&maDotKham={_selectedKhamSucKhoeCongTyFilter.id}";
-            } else {
+            }
+            else
+            {
                 BuilderQuery += $"&maDotKham={Id}";
             }
 
@@ -128,7 +133,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             if (selected != null)
             {
                 _selectedCongTyFilter = selected;
-            } else
+            }
+            else
             {
                 _selectedCongTyFilter = null;
             }
@@ -141,7 +147,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             if (selected != null)
             {
                 _selectedKhamSucKhoeCongTyFilter = selected;
-            } else
+            }
+            else
             {
                 _selectedKhamSucKhoeCongTyFilter = null;
             }
@@ -216,6 +223,162 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu: {ex.Message}", "danger");
             }
 
+        }
+
+        private async Task OnExcelExport()
+        {
+            try
+            {
+                IsLoading = true;
+
+                // BuildPaginationQuery(1, int.MaxValue);
+                BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset={(Page - 1) * PageSize}";
+
+                if (_fromDate.HasValue)
+                {
+                    BuilderQuery += $"&fromDate={_fromDate.Value.ToString("yyyy-MM-dd")}";
+                }
+                if (_toDate.HasValue)
+                {
+                    BuilderQuery += $"&toDate={_toDate.Value.ToString("yyyy-MM-dd")}";
+                }
+                if (_selectedCongTyFilter != null)
+                {
+                    BuilderQuery += $"&congTy={_selectedCongTyFilter.id.ToString()}";
+                }
+                if (_selectedKhamSucKhoeCongTyFilter != null)
+                {
+                    BuilderQuery += $"&maDotKham={_selectedKhamSucKhoeCongTyFilter.id}";
+                }
+                else
+                {
+                    BuilderQuery += $"&maDotKham={Id}";
+                }
+
+                var fields = new List<string>()
+                {
+                    "stt",
+                    "ma_luot_kham",
+                    "full_name",
+                    "ngay_sinh",
+                    "gioi_tinh",
+                    "tien_su_gia_dinh",
+                    "ten_benh",
+                    "chieu_cao",
+                    "can_nang",
+                    "bmi",
+                    "mach",
+                    "huyet_ap",
+                    "kq_nk_tuan_hoan",
+                    "kq_nk_ho_hap",
+                    "kq_nk_tieu_hoa",
+                    "kq_nk_than_tiet_nieu",
+                    "kq_nk_noi_tiet",
+                    "kq_nk_co_xuong_khop",
+                    "kq_nk_than_kinh",
+                    "kq_nk_tam_than",
+                    "kq_ngoai_khoa",
+                    "ket_qua_san_phu_khoa",
+                    "benh_mat",
+                    "benh_tai_mui_hong",
+                    "benh_rhm",
+                    "kq_da_lieu",
+                    "can_lam_sang_results",
+                    "phan_loai_suc_khoe",
+                    "benh_tat_ket_luan",
+                    "de_nghi",
+                };
+                var labels = new List<string>()
+                {
+                    "STT",
+                    "Mã đoàn",
+                    "Họ và tên",
+                    "Năm sinh",
+                    "Giới tính",
+                    "Tiền sử gia đình",
+                    "Tiền sử bản thân",
+                    "Chiều cao (cm)",
+                    "Cân nặng (kg)",
+                    "BMI",
+                    "Mạch (lần/phút)",
+                    "Huyết áp (mmHg)",
+                    "Tuần hoàn",
+                    "Hô hấp",
+                    "Tiêu hóa",
+                    "Thận-Tiết niệu",
+                    "Nội tiết",
+                    "Cơ-xương-khớp",
+                    "Thần kinh",
+                    "Tâm thần",
+                    "Ngoại khoa",
+                    "Sản phụ khoa",
+                    "Mắt",
+                    "Tai mũi họng",
+                    "RHM",
+                    "Đa liễu",
+                    "Cận lâm sàng",
+                    "Phân loại sức khỏe",
+                    "Các bệnh tật",
+                    "Đề nghị",
+                };
+
+                var result = await MainService.GetAllAsync(BuilderQuery);
+                if (result.IsSuccess)
+                {
+                    var prepareData = result.Data?.Select(item =>
+                        (dynamic)new
+                        {
+                            stt = ((Page - 1) * PageSize) + result.Data.IndexOf(item) + 1,
+                            ma_luot_kham = item.ma_luot_kham,
+                            full_name = $"{item.last_name} {item.first_name}",
+                            ngay_sinh = item.ngay_sinh?.ToString("dd/MM/yyyy"),
+                            gioi_tinh = item.gioi_tinh?.GetDescription(),
+                            tien_su_gia_dinh = item.tien_su_gia_dinh,
+                            ten_benh = item.ten_benh,
+                            chieu_cao = item.chieu_cao,
+                            can_nang = item.can_nang,
+                            bmi = item.bmi,
+                            mach = item.mach,
+                            huyet_ap = item.huyet_ap,
+                            kq_nk_tuan_hoan = item.kq_nk_tuan_hoan,
+                            kq_nk_ho_hap = item.kq_nk_ho_hap,
+                            kq_nk_tieu_hoa = item.kq_nk_tieu_hoa,
+                            kq_nk_than_tiet_nieu = item.kq_nk_than_tiet_nieu,
+                            kq_nk_noi_tiet = item.kq_nk_noi_tiet,
+                            kq_nk_co_xuong_khop = item.kq_nk_co_xuong_khop,
+                            kq_nk_than_kinh = item.kq_nk_than_kinh,
+                            kq_nk_tam_than = item.kq_nk_tam_than,
+                            kq_ngoai_khoa = item.kq_ngoai_khoa,
+                            ket_qua_san_phu_khoa = item.ket_qua_san_phu_khoa,
+                            benh_mat = item.benh_mat,
+                            benh_tai_mui_hong = item.benh_tai_mui_hong,
+                            benh_rhm = item.benh_rhm,
+                            kq_da_lieu = item.kq_da_lieu,
+                            can_lam_sang_results = item.can_lam_sang_results,
+                            phan_loai_suc_khoe = item.phan_loai_suc_khoe,
+                            benh_tat_ket_luan = item.benh_tat_ket_luan,
+                            de_nghi = item.de_nghi,
+                        }
+                    ).ToList() ?? new List<dynamic>();
+
+                    var fileBytes = await ExportExcelService.ExportToExcelAsync(prepareData, fields, labels);
+
+                    var fileName = $"{"DanhSachHoSoKhamSucKhoe"}_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                    await JsRuntime.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+                }
+                else
+                {
+                    AlertService.ShowAlert(result.Message ?? "Lỗi khi lấy dữ liệu để xuất excel", "danger");
+                }
+            }
+            catch
+            {
+                AlertService.ShowAlert("Lỗi khi xuất excel", "danger");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
     }
 }
