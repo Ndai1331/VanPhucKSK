@@ -1,5 +1,4 @@
-﻿using CoreAdminWeb.Commons;
-using CoreAdminWeb.Helpers;
+﻿using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model.Dashboard.General;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.IDashboardService;
@@ -7,7 +6,6 @@ using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using MudBlazor;
 
 namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
 {
@@ -95,72 +93,72 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
             }
             IsLoading = false;
 
-            try
-            {
-                var phanLoaiucKhoeNames = MainModel.HealthClassifications.Select(c => c.Name).Distinct();
-                var phanLoaiucKhoeDates = MainModel.HealthClassifications.Select(c => c.Date.ToString("yyyy-MM")).Distinct();
-                var benhs = MainModel.CommonDiseases.OrderByDescending(c => c.Count).Select(c => c.Name).Distinct();
+            //try
+            //{
+            //    var phanLoaiucKhoeNames = MainModel.HealthClassifications.Select(c => c.Name).Distinct();
+            //    var phanLoaiucKhoeDates = MainModel.HealthClassifications.Select(c => c.Date.ToString("yyyy-MM")).Distinct();
+            //    var benhs = MainModel.CommonDiseases.OrderByDescending(c => c.Count).Select(c => c.Name).Distinct();
 
-                List<dynamic> timeLinePhanLoaiSucKhoeSeries = new List<dynamic>();
-                List<dynamic> phanLoaiSucKhoeSeries = new List<dynamic>();
-                List<dynamic> benhPhoBienSeries = new List<dynamic>();
-                dynamic phanLoaiSucKhoeSeri = new
-                {
-                    name = "Phân loại sức khỏe",
-                    data = new List<int>()
-                };
-                dynamic benhSeri = new
-                {
-                    name = "Nhóm bệnh phổ biến",
-                    data = new List<int>()
-                };
+            //    List<dynamic> timeLinePhanLoaiSucKhoeSeries = new List<dynamic>();
+            //    List<dynamic> phanLoaiSucKhoeSeries = new List<dynamic>();
+            //    List<dynamic> benhPhoBienSeries = new List<dynamic>();
+            //    dynamic phanLoaiSucKhoeSeri = new
+            //    {
+            //        name = "Phân loại sức khỏe",
+            //        data = new List<int>()
+            //    };
+            //    dynamic benhSeri = new
+            //    {
+            //        name = "Nhóm bệnh phổ biến",
+            //        data = new List<int>()
+            //    };
 
-                foreach (var name in phanLoaiucKhoeNames)
-                {
-                    dynamic item = new
-                    {
-                        name = name,
-                        data = new List<int>()
-                    };
+            //    foreach (var name in phanLoaiucKhoeNames)
+            //    {
+            //        dynamic item = new
+            //        {
+            //            name = name,
+            //            data = new List<int>()
+            //        };
 
-                    foreach (var date in phanLoaiucKhoeDates)
-                    {
-                        var count = MainModel.HealthClassifications
-                            .Where(c => c.Name == name && c.Date.ToString("yyyy-MM") == date)
-                            .Sum(c => c.Count);
-                        item.data.Add(count);
-                    }
+            //        foreach (var date in phanLoaiucKhoeDates)
+            //        {
+            //            var count = MainModel.HealthClassifications
+            //                .Where(c => c.Name == name && c.Date.ToString("yyyy-MM") == date)
+            //                .Sum(c => c.Count);
+            //            item.data.Add(count);
+            //        }
 
-                    timeLinePhanLoaiSucKhoeSeries.Add(item);
+            //        timeLinePhanLoaiSucKhoeSeries.Add(item);
 
-                    phanLoaiSucKhoeSeri.data.Add(
-                        MainModel.HealthClassifications
-                            .Where(c => c.Name == name)
-                            .Sum(c => c.Count)
-                    );
-                }
+            //        phanLoaiSucKhoeSeri.data.Add(
+            //            MainModel.HealthClassifications
+            //                .Where(c => c.Name == name)
+            //                .Sum(c => c.Count)
+            //        );
+            //    }
 
 
-                foreach (var item in benhs)
-                {
-                    benhSeri.data.Add(
-                        MainModel.CommonDiseases
-                            .Where(c => c.Name == item)
-                            .Sum(c => c.Count)
-                    );
-                }
+            //    foreach (var item in benhs)
+            //    {
+            //        benhSeri.data.Add(
+            //            MainModel.CommonDiseases
+            //                .Where(c => c.Name == item)
+            //                .Sum(c => c.Count)
+            //        );
+            //    }
 
-                phanLoaiSucKhoeSeries.Add(phanLoaiSucKhoeSeri);
-                benhPhoBienSeries.Add(benhSeri);
+            //    phanLoaiSucKhoeSeries.Add(phanLoaiSucKhoeSeri);
+            //    benhPhoBienSeries.Add(benhSeri);
 
-                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#phanLoaiSucKhoeChart", phanLoaiSucKhoeSeries, phanLoaiucKhoeNames, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeNames.Count()), false);
-                await JsRuntime.InvokeVoidAsync("initLineBarChart", "#timelinePhanLoaiSucKhoeChart", timeLinePhanLoaiSucKhoeSeries, phanLoaiucKhoeDates, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeDates.Count()));
-                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#nhomBenhPhoBienChart", benhPhoBienSeries, benhs, GlobalConstant.PefaultChartColors.Take(benhs.Count()));
-            }
-            catch (Exception ex)
-            {
-                AlertService.ShowAlert($"Lỗi khi tải dữ liệu biểu đồ: {ex.Message}", "danger");
-            }
+            //    await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#phanLoaiSucKhoeChart", phanLoaiSucKhoeSeries, phanLoaiucKhoeNames, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeNames.Count()), false);
+            //    await JsRuntime.InvokeVoidAsync("initLineBarChart", "#timelinePhanLoaiSucKhoeChart", timeLinePhanLoaiSucKhoeSeries, phanLoaiucKhoeDates, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeDates.Count()));
+            //    await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#nhomBenhPhoBienChart", benhPhoBienSeries, benhs, GlobalConstant.PefaultChartColors.Take(benhs.Count()));
+            //}
+            //catch (Exception ex)
+            //{
+            //    AlertService.ShowAlert($"Lỗi khi tải dữ liệu biểu đồ: {ex.Message}", "danger");
+            //}
         }
 
         private async Task OnValueChanged(ChangeEventArgs e, string fieldName)
