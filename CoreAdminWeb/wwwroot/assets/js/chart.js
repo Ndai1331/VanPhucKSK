@@ -5,9 +5,9 @@
     }
 }
 
-function initSimpleBarChart(selector, series, labels, colors, horizontal = true) {
+function initSimpleBarChart(selector, series, labels, colors, horizontal = true, isShowlegend = false, isDistribute = false) {
     clearChart(selector);
-    let barChartOptions = {
+    let chartOptions = {
         series: series,
         chart: {
             height: 300,
@@ -20,20 +20,41 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
             },
         },
         dataLabels: {
-            enabled: false,
-        },
-        stroke: {
-            show: true,
-            width: 1,
+            enabled: true,
+            offsetX: -6,
+            style: {
+                fontSize: '12px',
+                colors: ['#fff']
+            },
+            formatter: (val) => {
+                if (!isNaN(val) && val !== '' && val !== null) {
+                    return Number(val).toLocaleString('en-EN');
+                }
+                return val;
+            }
         },
         colors: colors,
         xaxis: {
             categories: labels,
-            axisBorder: {
-                color: "#e0e6ed",
-            },
+            labels: {
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            }
         },
         yaxis: {
+            labels: {
+                show: true,
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            },
             opposite: false,
             reversed: false,
         },
@@ -42,16 +63,54 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
         },
         plotOptions: {
             bar: {
+                distributed: isDistribute,
                 horizontal: horizontal,
-            },
+                dataLabels: {
+                    position: 'top',
+                },
+            }
         },
         fill: {
             opacity: 0.8,
         },
+        tooltip: {
+            y: {
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            },
+            x: {
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            }
+        }
     };
+
+    if (horizontal) {
+        chartOptions.plotOptions.barHeight = '100%';
+        chartOptions.plotOptions.dataLabels = {
+            position: 'left'
+        };
+    }
+
+    if (isShowlegend) {
+        chartOptions.legend = {
+            position: 'top',
+            horizontalAlign: 'left',
+            offsetX: 40
+        };
+    }
+
     let chart = new ApexCharts(
         document.querySelector(selector),
-        barChartOptions
+        chartOptions
     );
 
     chart.render();
@@ -59,11 +118,57 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
 
 function initLineBarChart(selector, series, labels, colors) {
     clearChart(selector);
-    let barChartOptions = {
+    let chartOptions = {
+        series: series,
         chart: {
-            height: 300,
+            height: 350,
+            type: 'line',
+            zoom: {
+                enabled: false
+            },
+            toolbar: {
+                show: false
+            }
+        },
+        colors: colors,
+        dataLabels: {
+            enabled: false,
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        grid: {
+            borderColor: '#e7e7e7'
+        },
+        markers: {
+            size: 1
+        },
+        xaxis: {
+            categories: labels
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'right',
+            floating: true,
+            offsetY: -25,
+            offsetX: -5
+        }
+    };
+    let chart = new ApexCharts(
+        document.querySelector(selector),
+        chartOptions
+    );
+
+    chart.render();
+}
+
+function initAreaChart(selector, series, labels, colors) {
+    clearChart(selector);
+    let chartOptions = {
+        series: series,
+        chart: {
             type: "area",
-            fontFamily: "Inter, sans-serif",
+            height: 300,
             zoom: {
                 enabled: false,
             },
@@ -71,119 +176,65 @@ function initLineBarChart(selector, series, labels, colors) {
                 show: false,
             },
         },
-        series: series,
+        colors: colors,
         dataLabels: {
             enabled: false,
         },
         stroke: {
-            show: true,
+            width: 2,
             curve: "smooth",
-            width: 3,
-            lineCap: "square",
         },
-        dropShadow: {
-            enabled: true,
-            opacity: 0.8,
-            blur: 10,
-            left: -7,
-            top: 22,
-        },
-        colors: colors,
-        markers: {
-            discrete: [
-                {
-                    seriesIndex: 0,
-                    dataPointIndex: 4,
-                    fillColor: "#323a46",
-                    strokeColor: "#fff",
-                    size: 6,
-                },
-                {
-                    seriesIndex: 1,
-                    dataPointIndex: 5,
-                    fillColor: "#A8C5DA",
-                    strokeColor: "#fff",
-                    size: 6,
-                },
-            ],
-        },
-        labels: labels,
         xaxis: {
             axisBorder: {
-                show: false,
-            },
-            axisTicks: {
-                show: false,
-            },
-            crosshairs: {
-                show: true,
-            },
-            labels: {
-                offsetX: 0,
-                offsetY: 5,
-                style: {
-                    fontSize: "12px",
-                    cssClass: "apexcharts-xaxis-title",
-                },
+                color: "#e0e6ed",
             },
         },
         yaxis: {
-            tickAmount: 5,
-            labels: {
-                offsetX: -10,
-                offsetY: 0,
-                style: {
-                    fontSize: "12px",
-                    cssClass: "apexcharts-yaxis-title",
-                },
-            },
             opposite: false,
+            labels: {
+                offsetX: 0,
+            },
+        },
+        labels: labels,
+        legend: {
+            horizontalAlign: "left",
         },
         grid: {
             borderColor: "#e8e8e8",
-            strokeDashArray: 7,
-            xaxis: {
-                lines: {
-                    show: false,
-                },
-            },
-            yaxis: {
-                lines: {
-                    show: true,
-                },
-            },
-            padding: {
-                top: 0,
-                right: 0,
-                bottom: 0,
-                left: 0,
-            },
         },
-        legend: {
-            show: false,
-        },
-        tooltip: {
-            marker: {
-                show: true,
-            },
-            x: {
-                show: false,
-            },
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                shadeIntensity: 1,
-                inverseColors: !1,
-                opacityFrom: 0,
-                opacityTo: 0,
-                stops: [100, 100],
-            },
-        }
     };
     let chart = new ApexCharts(
         document.querySelector(selector),
-        barChartOptions
+        chartOptions
+    );
+
+    chart.render();
+}
+
+function initPieChart(selector, series, labels, colors) {
+    clearChart(selector);
+    let chartOptions = {
+        series: series,
+        chart: {
+            height: 300,
+            type: 'pie',
+        },
+        labels: labels,
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+    };
+    let chart = new ApexCharts(
+        document.querySelector(selector),
+        chartOptions
     );
 
     chart.render();

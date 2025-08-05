@@ -38,7 +38,13 @@ namespace CoreAdminWeb.Controllers.Api
                                 COUNT(1) SoDotKham,
                                 (SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = ksk.id) SoLuotKham,
                                 (SELECT SUM(kskdm.thanh_tien_tt) FROM kham_suc_khoe_dinh_muc_thuc_te kskdm WHERE kskdm.MaDotKham = ksk.id) ChiPhi,
-                                0 CaBatThuong
+                                (
+                                    SELECT
+                                        COUNT(1)
+                                    FROM kham_suc_khoe_ket_luan kskkl
+                                    INNER JOIN SoKhamSucKhoe sksk ON sksk.id = kskkl.luot_kham
+                                    WHERE kskkl.isAbnormal = 1 and sksk.MaDotKham = ksk.id
+                                ) CaBatThuong
                             FROM kham_suc_khoe_cong_ty ksk
                             WHERE CAST(ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
                             AND ma_don_vi = @MaDonVi
@@ -61,7 +67,13 @@ namespace CoreAdminWeb.Controllers.Api
                             SELECT TOP 1
 	                            ksk.ngay_du_kien_kham [LastDate],
 	                            (SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = ksk.id) SoLuotKham,
-	                            0 CaBatThuong
+	                            (
+                                    SELECT
+                                        COUNT(1)
+                                    FROM kham_suc_khoe_ket_luan kskkl
+                                    INNER JOIN SoKhamSucKhoe sksk ON sksk.id = kskkl.luot_kham
+                                    WHERE kskkl.isAbnormal = 1 and sksk.MaDotKham = ksk.id
+                                ) CaBatThuong
                             FROM kham_suc_khoe_cong_ty ksk
                             WHERE ksk.id = (
 	                            SELECT
@@ -88,7 +100,7 @@ namespace CoreAdminWeb.Controllers.Api
                             SELECT
                                 plsk.[name] [Name],
                                 kskct.ngay_du_kien_kham [Date],
-                                COUNT(CASE WHEN kskkt.isAbnormal = 1 THEN 1 END) [Count]
+                                COUNT(1) [Count]
                             FROM kham_suc_khoe_ket_luan kskkt
                             JOIN SoKhamSucKhoe sksk ON sksk.id = kskkt.luot_kham
                             JOIN kham_suc_khoe_cong_ty kskct ON kskct.id = sksk.MaDotKham
@@ -123,7 +135,8 @@ namespace CoreAdminWeb.Controllers.Api
                             WHERE (kskkt.deleted IS NULL OR kskkt.deleted = 0)
                             AND kskct.ngay_du_kien_kham BETWEEN @FromDate AND @ToDate
                             AND kskct.ma_don_vi = @MaDonVi
-                            GROUP BY kskkt.benh_tat_ket_luan",
+                            GROUP BY kskkt.benh_tat_ket_luan
+                            ORDER BY COUNT(1) DESC",
                         Action = (DbDataReader reader) =>
                         {
                             response.Data.CommonDiseases = [];
@@ -152,6 +165,173 @@ namespace CoreAdminWeb.Controllers.Api
                     cmd.Parameters.Add(new SqlParameter("@FromDate", fromDate));
                     cmd.Parameters.Add(new SqlParameter("@ToDate", toDate));
                     cmd.Parameters.Add(new SqlParameter("@MaDonVi", company));
+                    using var reader = await cmd.ExecuteReaderAsync();
+
+                    q.Action(reader);
+                }
+
+                response.StatusCode = HttpStatusCode.OK;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Errors.Add(BaseServiceHelper.CreateErrorResponse(ex));
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return BadRequest(response);
+            }
+            finally
+            {
+                if (context.Database.GetDbConnection().State == ConnectionState.Open)
+                {
+                    await context.Database.CloseConnectionAsync();
+                }
+            }
+        }
+        [HttpGet("company-summary-report")]
+        public async Task<IActionResult> GetCompanySummaryReportData([FromQuery] int? companyHelthCheckId, [FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
+        {
+            var response = new RequestHttpResponse<CompanySummaryReportDashboardModel>();
+            try
+            {
+                response.Data = new CompanySummaryReportDashboardModel();
+
+                var queries = new DashboardQuery[]
+                {
+                    new DashboardQuery
+                    {
+                        Sql = @"
+                            SELECT
+	                            COUNT(1) [Count],
+	                            COUNT(CASE WHEN kskct.[status] = 'locked' OR ct.[status] = 'locked' THEN 1 END) [DoneCount],
+	                            COUNT(CASE WHEN kskct.[status] <> 'locked' AND ct.[status] <> 'locked' THEN 1 END) [ProcessingCount],
+	                            COALESCE((SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = kskct.id AND sksk.[status] = 'published'),0) [PatientDoneCount],
+	                            COALESCE((SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = kskct.id AND sksk.[status] <> 'published'),0) [PatientProcessingCount],
+	                            CAST(COALESCE((SELECT SUM(thanh_tien_dm) FROM kham_suc_khoe_dinh_muc_thuc_te kskdm WHERE kskdm.[contract] = ct.id),0.0) AS decimal) [ChiPhiDuKien],
+	                            CAST(COALESCE((SELECT SUM(chi_phi_thuc_te) FROM kham_suc_khoe_dinh_muc_thuc_te kskdm WHERE kskdm.[contract] = ct.id),0.0) AS decimal) [ChiPhiThucTe]
+                            FROM kham_suc_khoe_cong_ty kskct
+                            INNER JOIN [contract] ct ON ct.id = kskct.ma_hop_dong_ksk
+                            WHERE (kskct.deleted IS NULL OR kskct.deleted = 0) AND (ct.deleted IS NULL OR ct.deleted = 0)
+                            AND CAST(kskct.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
+                            AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
+                            GROUP BY kskct.id, ct.id
+                        ",
+                        Action = (DbDataReader reader) =>
+                        {
+                            response.Data.Summary = new CompanySummaryReportDashboardSummaryModel();
+                            while (reader.Read())
+                            {
+                                response.Data.Summary.Count = reader["Count"] as int? ?? 0;
+                                response.Data.Summary.DoneCount = reader["DoneCount"] as int? ?? 0;
+                                response.Data.Summary.ProcessingCount = reader["ProcessingCount"] as int? ?? 0;
+                                response.Data.Summary.PatientDoneCount = reader["PatientDoneCount"] as int? ?? 0;
+                                response.Data.Summary.PatientProcessingCount = reader["PatientProcessingCount"] as int? ?? 0;
+                                response.Data.Summary.ChiPhiDuKien = reader["ChiPhiDuKien"] as decimal? ?? 0;
+                                response.Data.Summary.ChiPhiThucTe = reader["ChiPhiThucTe"] as decimal? ?? 0;
+                            }
+                        }
+                    },
+                    new DashboardQuery
+                    {
+                        Sql = @"
+                            SELECT
+	                            COUNT(CASE WHEN kskct.[status] <> 'locked' AND ct.[status] <> 'locked' THEN 1 END) [Count],
+	                            COALESCE((SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = kskct.id),0) [PatientCount]
+                            FROM kham_suc_khoe_cong_ty kskct
+                            INNER JOIN [contract] ct ON ct.id = kskct.ma_hop_dong_ksk
+                            WHERE (kskct.deleted IS NULL OR kskct.deleted = 0) AND (ct.deleted IS NULL OR ct.deleted = 0)
+                            AND CAST(kskct.ngay_du_kien_kham AS DATE) > @ToDate
+                            AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
+                            GROUP BY kskct.id, ct.id
+                        ",
+                        Action = (DbDataReader reader) =>
+                        {
+                            response.Data.Feature = new CompanySummaryReportDashboardSummaryFeatureModel();
+                            while (reader.Read())
+                            {
+                                response.Data.Feature.Count = reader["Count"] as int? ?? 0;
+                                response.Data.Feature.PatientCount = reader["PatientCount"] as int? ?? 0;
+                            }
+                        }
+                    },
+                    new DashboardQuery
+                    {
+                        Sql = @"
+                            SELECT
+	                            ct.code [MaHopDong],
+	                            dmdm.[name] [DinhMuc],
+	                            CAST(COALESCE(ct.[gia_tri_hop_dong], 0.0) AS decimal) [GiaTriHopDong],
+	                            CAST(COALESCE(SUM(kskdm.chi_phi_thuc_te), 0.0) AS decimal) [ChiPhiThucTe],
+	                            CAST(COALESCE(SUM(kskdm.thanh_tien_dm), 0.0) AS decimal) [ChiPhiDuKien]
+                            FROM kham_suc_khoe_dinh_muc_thuc_te kskdm
+                            INNER JOIN [contract] ct ON ct.id = kskdm.[contract]
+                            INNER JOIN danh_muc_dinh_muc dmdm ON dmdm.id = kskdm.MaDinhMuc
+                            WHERE (kskdm.deleted IS NULL OR kskdm.deleted = 0) AND (ct.deleted IS NULL OR ct.deleted = 0)
+                            AND CAST(ct.ngay_hieu_luc AS DATE) BETWEEN @FromDate AND @ToDate
+                            AND EXISTS(SELECT Id FROM kham_suc_khoe_cong_ty kskct WHERE kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
+                            GROUP BY ct.code, dmdm.[name], ct.[gia_tri_hop_dong]
+                        ",
+                        Action = (DbDataReader reader) =>
+                        {
+                            response.Data.Revenues = [];
+                            while (reader.Read())
+                            {
+                                response.Data.Revenues.Add(new CompanySummaryReportDashboardRevenueModel
+                                {
+                                    MaHopDong = reader["MaHopDong"] as string ?? "",
+                                    DinhMuc = reader["DinhMuc"] as string ?? "",
+                                    GiaTriHopDong = reader["GiaTriHopDong"] as decimal? ?? 0,
+                                    ChiPhiThucTe = reader["ChiPhiThucTe"] as decimal? ?? 0,
+                                    ChiPhiDuKien = reader["ChiPhiDuKien"] as decimal? ?? 0
+                                });
+                            }
+                        }
+                    },
+                    new DashboardQuery
+                    {
+                        Sql = @"
+                            SELECT
+	                            comp.[name] [MaDonVi],
+	                            sksk.ngay_kham [NgayKham],
+	                            COUNT(1) [Count]
+                            FROM SoKhamSucKhoe sksk
+                            INNER JOIN kham_suc_khoe_cong_ty kskct ON kskct.id = sksk.MaDotKham
+                            INNER JOIN [contract] ct ON ct.id = kskct.ma_hop_dong_ksk
+                            INNER JOIN CongTy comp ON comp.id = ct.cong_ty
+                            WHERE (sksk.deleted IS NULL OR sksk.deleted = 0) AND (kskct.deleted IS NULL OR kskct.deleted = 0)
+                            AND CAST(sksk.ngay_kham AS DATE) BETWEEN @FromDate AND @ToDate
+                            AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
+                            GROUP BY comp.[name], sksk.ngay_kham
+                        ",
+                        Action = (DbDataReader reader) =>
+                        {
+                            response.Data.NoteSummaries = [];
+                            while (reader.Read())
+                            {
+                                response.Data.NoteSummaries.Add(new CompanySummaryReportDashboardNoteSummaryModel
+                                {
+                                    MaDonVi = reader["MaDonVi"] as string ?? string.Empty,
+                                    NgayKham = reader["NgayKham"] as DateTime?,
+                                    Count = reader["Count"] as int? ?? 0
+                                });
+                            }
+                        }
+                    }
+                };
+
+                await context.Database.OpenConnectionAsync();
+                foreach (var q in queries)
+                {
+                    if (q.Action == null)
+                    {
+                        continue;
+                    }
+
+                    using var cmd = context.Database.GetDbConnection().CreateCommand();
+                    cmd.CommandText = q.Sql;
+                    cmd.Parameters.Add(new SqlParameter("@FromDate", fromDate));
+                    cmd.Parameters.Add(new SqlParameter("@ToDate", toDate));
+                    cmd.Parameters.Add(new SqlParameter("@DoanKhamId", companyHelthCheckId ?? (object)DBNull.Value));
+
                     using var reader = await cmd.ExecuteReaderAsync();
 
                     q.Action(reader);

@@ -24,6 +24,11 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         private string _searchString = "";
         private string _titleAddOrUpdate = "Thêm mới";
 
+        // Select in table
+        private CancellationTokenSource? _filterCancellationTokenSource;
+        private Dictionary<int, List<UserModel>> SelectedUserItems { get; set; } = new();
+        private List<UserModel> UserItems { get; set; } = new();
+
 
         protected override async Task OnInitializedAsync()
         {
@@ -80,33 +85,51 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             await LoadData();
         }
 
-        private async Task<IEnumerable<UserModel>> LoadBenhNhanData(string searchText)
+        private async Task<List<UserModel>> LoadUserDataInTable(IEnumerable<UserModel> allItems, string filter, CancellationToken token)
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(allItems);
+
+                // Cancel previous filter operation
+                if (_filterCancellationTokenSource != null)
+                {
+                    await _filterCancellationTokenSource.CancelAsync();
+                    _filterCancellationTokenSource.Dispose();
+                }
+
+                _filterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+
+                // Debouncing - wait 300ms before making API call
+                await Task.Delay(300, _filterCancellationTokenSource.Token);
+
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
                 query += $"&filter[_and][][role][_eq]={GlobalConstant.PATIENT_ROLE_ID}";
                 query += $"&filter[_and][][ma_don_vi][_eq]={SelectedItem.ma_hop_dong_ksk?.cong_ty?.id}";
 
-                if (!string.IsNullOrEmpty(searchText))
+                if (!string.IsNullOrEmpty(filter))
                 {
-                    query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(searchText)}";
-                    query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(searchText)}";
-                    query += $"&filter[_and][0][_or][2][so_dinh_danh][_contains]={Uri.EscapeDataString(searchText)}";
-                    query += $"&filter[_and][0][_or][3][ma_benh_nhan][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(filter)}";
+                    query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(filter)}";
+                    query += $"&filter[_and][0][_or][2][so_dinh_danh][_contains]={Uri.EscapeDataString(filter)}";
+                    query += $"&filter[_and][0][_or][3][ma_benh_nhan][_contains]={Uri.EscapeDataString(filter)}";
                 }
 
+                Console.WriteLine($"Loading filter data from API for '{filter}'");
                 var result = await UserService.GetAllAsync(query);
-                return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<UserModel>() : Enumerable.Empty<UserModel>();
+                UserItems = result?.Data ?? new List<UserModel>();
+                StateHasChanged();
+                return UserItems;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading typeahead data: {ex.Message}");
-                return Enumerable.Empty<UserModel>();
+                Console.WriteLine($"Error in filterFunction: {ex.Message}");
+                return new List<UserModel>();
             }
         }
+
 
         private async Task LoadDetailData()
         {

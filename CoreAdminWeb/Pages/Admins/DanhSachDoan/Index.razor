@@ -191,27 +191,14 @@
                                                 <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
                                                     <td>@(item.Index + 1)</td>
                                                     <td>
-                                                        <BlazoredTypeahead EnableDropDown="true"
-                                                                           ShowDropDownOnFocus="true"
-                                                                           MinimumLength="0"
-                                                                           TItem="UserModel"
-                                                                           TValue="UserModel"
-                                                                           SearchMethod="LoadBenhNhanData"
-                                                                           Value="@item.Data.benh_nhan"
-                                                                           ValueExpression="@(() => item.Data.benh_nhan)"
-                                                                           ValueChanged="@(v => item.Data.benh_nhan = v)"
-                                                                           placeholder="Chọn mã khách hàng"
-                                                                           class="form-select">
-                                                            <SelectedTemplate Context="item">
-                                                                @item.ma_benh_nhan
-                                                            </SelectedTemplate>
-                                                            <ResultTemplate Context="item">
-                                                                @item.ma_benh_nhan
-                                                            </ResultTemplate>
-                                                            <NotFoundTemplate Context="item">
-                                                                Không tìm thấy dữ liệu
-                                                            </NotFoundTemplate>
-                                                        </BlazoredTypeahead>
+                                                        <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                                                                 TextSelector="c => c != null ? c.full_name : String.Empty"
+                                                                 FilterFunction="LoadUserDataInTable"
+                                                                 GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<UserModel, Guid>(items, id, c => c.id) ?? new UserModel()"
+                                                                 Datasource="UserItems"
+                                                                 Value="@(Select2Helper.GetCurrentSelectionGeneric<UserModel>(item.Data.benh_nhan, item.Index, SelectedUserItems))"
+                                                                 OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<UserModel>(e, v => item.Data.benh_nhan = v, item.Index, SelectedUserItems))"
+                                                                 Multiselect="false" />
                                                     </td>
                                                     <td>
                                                         <input type="text" class="form-input" value="@item.Data.benh_nhan?.full_name" Label="Tên khách hàng" readonly />

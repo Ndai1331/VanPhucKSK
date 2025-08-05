@@ -79,7 +79,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
 
             BuilderQuery = $"Dashboard/company-medical-data?company={CurrentUser.ma_don_vi}&fromDate={_startDateFilter:yyyy-MM-dd}&toDate={_endDateFilter:yyyy-MM-dd}";
 
-            var result = await MainService.GetInfomationAsync(BuilderQuery);
+            var result = await MainService.GeDataAsync(BuilderQuery);
             if (result.IsSuccess)
             {
                 MainModel = result.Data ?? new GeneralDashboardModel();
@@ -153,9 +153,9 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 phanLoaiSucKhoeSeries.Add(phanLoaiSucKhoeSeri);
                 benhPhoBienSeries.Add(benhSeri);
 
-                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#phanLoaiSucKhoeChart", phanLoaiSucKhoeSeries, phanLoaiucKhoeNames, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeNames.Count()), false);
-                await JsRuntime.InvokeVoidAsync("initLineBarChart", "#timelinePhanLoaiSucKhoeChart", timeLinePhanLoaiSucKhoeSeries, phanLoaiucKhoeDates, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeDates.Count()));
-                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#nhomBenhPhoBienChart", benhPhoBienSeries, benhs, GlobalConstant.PefaultChartColors.Take(benhs.Count()));
+                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#phanLoaiSucKhoeChart", phanLoaiSucKhoeSeries, phanLoaiucKhoeNames, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeNames.Count()), false, false, true);
+                await JsRuntime.InvokeVoidAsync("initLineBarChart", "#timelinePhanLoaiSucKhoeChart", timeLinePhanLoaiSucKhoeSeries, phanLoaiucKhoeDates, GlobalConstant.PefaultChartColors.Take(phanLoaiucKhoeNames.Count()));
+                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#nhomBenhPhoBienChart", benhPhoBienSeries, benhs, GlobalConstant.PefaultChartColors.Take(benhs.Count()), true, false, true);
             }
             catch (Exception ex)
             {

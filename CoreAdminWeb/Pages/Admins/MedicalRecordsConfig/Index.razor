@@ -638,6 +638,32 @@
                                     <label class="signature-label">Chữ ký:</label>
                                     <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_ket_luan" Label="Chữ ký" />
                                 </div>
+
+                                <div class="doctor-row">
+                                    <label class="doctor-label">15. Người lập sổ:</label>
+                                    <BlazoredTypeahead EnableDropDown="true"
+                                                       ShowDropDownOnFocus="true"
+                                                       MinimumLength="0"
+                                                       TItem="UserModel"
+                                                       TValue="UserModel"
+                                                       SearchMethod="LoadBacSiData"
+                                                       @bind-Value="SelectedItem.nguoi_lap_so"
+                                                       placeholder="Chọn bác sĩ"
+                                                       Class="form-select doctor-select"
+                                                       Disabled="readOnly">
+                                        <SelectedTemplate Context="item">
+                                            @item.full_name
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="item">
+                                            @item.full_name
+                                        </ResultTemplate>
+                                        <NotFoundTemplate Context="item">
+                                            Không tìm thấy dữ liệu
+                                        </NotFoundTemplate>
+                                    </BlazoredTypeahead>
+                                    <label class="signature-label">Chữ ký:</label>
+                                    <input type="text" class="form-input signature-display" readonly value="@SelectedItem.chu_ky_lap_so" Label="Chữ ký" />
+                                </div>
                             </div>
                         </div>
                         <div class="flex items-center justify-end gap-2 py-4 @(readOnly ? "hidden" : "")">
