@@ -1,4 +1,5 @@
 ﻿using CoreAdminWeb.Commons;
+using CoreAdminWeb.Enums;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
@@ -8,7 +9,6 @@ using CoreAdminWeb.Services.Contract;
 using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
-using KeudellCoding.Blazor.AdvancedBlazorSelect2;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
@@ -26,6 +26,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         IUserService UserService
     ) : BlazorCoreBase
     {
+        private List<TrangThaiHopDong> TrangThaiHopDongList { get; set; } = Enum.GetValues(typeof(TrangThaiHopDong)).Cast<TrangThaiHopDong>().ToList();
         private List<ContractModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
         private bool openAddOrUpdateModal = false;
@@ -800,7 +801,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         /// <summary>
         /// Optimized filter function with debouncing and caching
         /// </summary>
-        private async Task<List<DinhMucModel>> filterFunction(IEnumerable<DinhMucModel> allItems, string filter, CancellationToken token) 
+        private async Task<List<DinhMucModel>> filterDinhMucFunction(IEnumerable<DinhMucModel> allItems, string filter, CancellationToken token) 
         {
             try
             {
@@ -846,7 +847,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in filterFunction: {ex.Message}");
+                Console.WriteLine($"Error in filterDinhMucFunction: {ex.Message}");
                 return new List<DinhMucModel>();
             }
         }
@@ -913,7 +914,32 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         /// <summary>
         /// Update currency field with formatting and calculation
         /// </summary>
-        private async Task UpdateCurrencyField(ChangeEventArgs e, ContractDinhMucModel item, string field)
+        private async Task UpdateCurrencyField(ChangeEventArgs e, string field)
+        {
+            var inputValue = e.Value?.ToString();
+            var parsedValue = ParseCurrency(inputValue);
+
+            if (parsedValue.HasValue && parsedValue < 0)
+            {
+                AlertService.ShowAlert("Giá trị không thể nhỏ hơn 0", "warning");
+                return;
+            }
+
+            switch (field)
+            {
+                case nameof(SelectedItem.gia_tri_hop_dong):
+                    SelectedItem.gia_tri_hop_dong = (int?)parsedValue;
+                    break;
+                case nameof(SelectedItem.gia_tri_quyet_toan):
+                    SelectedItem.gia_tri_quyet_toan = (int?)parsedValue;
+                    break;
+            }
+
+            // Format the input value and update UI
+            await InvokeAsync(StateHasChanged);
+        }
+       
+        private async Task UpdateCurrencyFieldInTableDetail(ChangeEventArgs e, ContractDinhMucModel item, string field)
         {
             var inputValue = e.Value?.ToString();
             var parsedValue = ParseCurrency(inputValue);
@@ -971,7 +997,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         /// </summary>
         public async void OnDonGiaTTChanged(ChangeEventArgs e, ContractDinhMucModel item)
         {
-            await UpdateCurrencyField(e, item, nameof(item.don_gia_tt));
+            await UpdateCurrencyFieldInTableDetail(e, item, nameof(item.don_gia_tt));
         }
 
         /// <summary>
@@ -979,7 +1005,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         /// </summary>
         public async void OnDonGiaDMChanged(ChangeEventArgs e, ContractDinhMucModel item)
         {
-            await UpdateCurrencyField(e, item, nameof(item.don_gia_dm));
+            await UpdateCurrencyFieldInTableDetail(e, item, nameof(item.don_gia_dm));
         }
 
         /// <summary>
@@ -987,7 +1013,17 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         /// </summary>
         public async void OnChiPhiThucTeChanged(ChangeEventArgs e, ContractDinhMucModel item)
         {
-            await UpdateCurrencyField(e, item, nameof(item.chi_phi_thuc_te));
+            await UpdateCurrencyFieldInTableDetail(e, item, nameof(item.chi_phi_thuc_te));
+        }
+
+        public async void OnGiaTriHopDongChanged(ChangeEventArgs e)
+        {
+            await UpdateCurrencyField(e, nameof(SelectedItem.gia_tri_hop_dong));
+        }
+
+        public async void OnGiaTriQuyetToanChanged(ChangeEventArgs e)
+        {
+            await UpdateCurrencyField(e, nameof(SelectedItem.gia_tri_quyet_toan));
         }
 
         /// <summary>

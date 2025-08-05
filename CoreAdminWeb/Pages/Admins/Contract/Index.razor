@@ -5,6 +5,7 @@
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Shared.Base
+@using CoreAdminWeb.Helpers
 @inherits BlazorCoreBase
 @layout Shared.Layout.AdminLayout
 
@@ -53,7 +54,7 @@
                             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Trạng thái</MudText>
                             <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
                                 <option value="">Tất cả</option>
-                                @foreach (var item in StatusList)
+                                @foreach (var item in TrangThaiHopDongList)
                                 {
                                     <option value="@item">@item.GetDescription()</option>
                                 }
@@ -96,10 +97,10 @@
                             <td>@item.Data.ngay_hop_dong?.ToString("dd/MM/yyyy")</td>
                             <td>@item.Data.code</td>
                             <td>@item.Data.cong_ty?.name</td>
-                            <td>@item.Data.contract_type?.code</td>
+                            <td>@item.Data.contract_type?.name</td>
                             <td>@item.Data.ngay_hieu_luc?.ToString("dd/MM/yyyy")</td>
                             <td>@item.Data.ngay_het_han?.ToString("dd/MM/yyyy")</td>
-                            <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
+                            <td>@item.Data.status?.GetDescription()</td>
                             <td class="flex items-center gap-2">
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
@@ -213,10 +214,10 @@
                                                                        placeholder="Chọn loại hợp đồng"
                                                                        Class="form-select">
                                                         <SelectedTemplate Context="item">
-                                                            @item.code
+                                                            @item.name
                                                         </SelectedTemplate>
                                                         <ResultTemplate Context="item">
-                                                            @item.code
+                                                            @item.name
                                                         </ResultTemplate>
                                                         <NotFoundTemplate Context="item">
                                                             Không tìm thấy dữ liệu
@@ -269,9 +270,23 @@
                                                         value="@(SelectedItem.ngay_het_han?.ToString("dd/MM/yyyy"))"
                                                         @onchange="@(e => OnDateChanged(e, "ngay_het_han"))" required />
                                                 </div>
-                                                <div class="space-y-2 md:col-span-2">
+                                                <div class="space-y-2 md:col-span-1">
                                                     <label>Giá trị hợp đồng (VNĐ):</label>
-                                                    <input type="number" class="form-input" @bind-value="@SelectedItem.gia_tri_hop_dong" Label="Giá trị hợp đồng" />
+                                                    <input type="text" class="form-input currency-input"
+                                                        placeholder="0"
+                                                        Label="Giá trị hợp đồng (VNĐ)"
+                                                        value="@GetCurrencyDisplayValue(SelectedItem.gia_tri_hop_dong)"
+                                                        @onchange="@(e => OnGiaTriHopDongChanged(e))"
+                                                        @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
+                                                </div>
+                                                <div class="space-y-2 md:col-span-1">   
+                                                    <label>Giá trị quyết toán (VNĐ):</label>
+                                                    <input type="text" class="form-input currency-input"
+                                                        placeholder="0"
+                                                        Label="Giá trị quyết toán (VNĐ)"
+                                                        value="@GetCurrencyDisplayValue(SelectedItem.gia_tri_quyet_toan)"
+                                                        @onchange="@(e => OnGiaTriQuyetToanChanged(e))"
+                                                        @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
                                                 </div>
                                                 @* <div class="space-y-2 md:col-span-2">
                                                     <label>Khoa phòng:</label>
@@ -279,16 +294,16 @@
                                                 </div> *@
                                                 <div class="space-y-2 md:col-span-1">
                                                     <label>Người liên hệ:</label>
-                                                    <input type="text" class="form-input" @bind-value="@SelectedItem.nguoi_theo_doi" Label="Người liên hệ" />
+                                                    <input type="text" class="form-input" @bind-value="@SelectedItem.nguoi_gioi_thieu" Label="Người liên hệ" />
                                                 </div>
                                                 <div class="space-y-2 md:col-span-1">
                                                     <label>SĐT người liên hệ:</label>
                                                     <input type="text" class="form-input" @bind-value="@SelectedItem.so_dien_thoai_lien_he" Label="SĐT người liên hệ" />
                                                 </div>
-                                                @* <div class="space-y-2 md:col-span-1">
+                                                <div class="space-y-2 md:col-span-1">
                                                     <label>Email:</label>
                                                     <input type="text" class="form-input" @bind-value="@SelectedItem.email" Label="Email" />
-                                                </div> *@
+                                                </div>
                                                 <div class="space-y-2 md:col-span-1">
                                                     <label>Người thực hiện:</label>
                                                     <BlazoredTypeahead EnableDropDown="true"
@@ -313,10 +328,14 @@
                                                         </NotFoundTemplate>
                                                     </BlazoredTypeahead>
                                                 </div>
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <label>Ghi chú</label>
+                                                    <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" placeholder="Nhập ghi chú"></textarea>
+                                                </div>
                                                 <div class="space-y-2 md:col-span-1">
                                                     <label>Trạng thái</label>
                                                     <select class="form-select" @bind-value="@SelectedItem.status" @bind-value:event="onchange">
-                                                        @foreach (var item in StatusList)
+                                                        @foreach (var item in TrangThaiHopDongList)
                                                         {
                                                             <option value="@item" selected="@(SelectedItem.status == item)">@item.GetDescription()</option>
                                                         }
@@ -424,20 +443,14 @@
                                                                                 </NotFoundTemplate>
                                                                             </BlazoredTypeahead> *@
 
-
-                                                                    <Select2 
-                                                                        IdSelector="c =>  c!= null ? c.id.ToString() : String.Empty"
-                                                                        TextSelector="c =>  c!= null ? c.name : String.Empty"
-                                                                        FilterFunction="filterFunction"
-                                                                        GetElementById="async (items, id, token) => {
-                                                                            if (items == null || string.IsNullOrEmpty(id) || !int.TryParse(id, out int parsedId))
-                                                                                return null;
-                                                                            return items.FirstOrDefault(c => c != null && c.id == parsedId);
-                                                                        }"
-                                                                        Datasource="DinhMucs"
-                                                                        Value="@GetCurrentSelection(item.Data, item.Index)"
-                                                                        OnValueChanged="@(e => OnDinhMucChanged(item.Data, e , item.Index))"
-                                                                        Multiselect="false" />
+                                                                                <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                                                                                    TextSelector="c => c != null ? c.name : String.Empty"
+                                                                                    FilterFunction="filterDinhMucFunction"
+                                                                                    GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric(items, id, c => c.id) ?? new DinhMucModel()"
+                                                                                    Datasource="DinhMucs"
+                                                                                    Value="@(Select2Helper.GetCurrentSelectionGeneric<DinhMucModel>(item.Data.MaDinhMuc, item.Index, SelectedDinhMucItems))"
+                                                                                    OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<DinhMucModel>(e, v => item.Data.MaDinhMuc = v, item.Index, SelectedDinhMucItems))"
+                                                                                    Multiselect="false" />
 
                                                                         </td>
                                                                         <td>
@@ -554,5 +567,12 @@
     </div>
 }
 
+
+<style>
+    .select2-container {
+        z-index: 99999999 !important;
+        min-width: 350px !important;
+    }
+</style>
 
    
