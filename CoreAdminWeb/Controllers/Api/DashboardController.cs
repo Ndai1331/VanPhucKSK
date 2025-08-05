@@ -38,7 +38,13 @@ namespace CoreAdminWeb.Controllers.Api
                                 COUNT(1) SoDotKham,
                                 (SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = ksk.id) SoLuotKham,
                                 (SELECT SUM(kskdm.thanh_tien_tt) FROM kham_suc_khoe_dinh_muc_thuc_te kskdm WHERE kskdm.MaDotKham = ksk.id) ChiPhi,
-                                COUNT(CASE WHEN kskkt.isAbnormal = 1 THEN 1 END) CaBatThuong
+                                (
+                                    SELECT
+                                        COUNT(1)
+                                    FROM kham_suc_khoe_ket_luan kskkl
+                                    INNER JOIN SoKhamSucKhoe sksk ON sksk.id = kskkl.luot_kham
+                                    WHERE kskkl.isAbnormal = 1 and sksk.MaDotKham = ksk.id
+                                ) CaBatThuong
                             FROM kham_suc_khoe_cong_ty ksk
                             WHERE CAST(ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
                             AND ma_don_vi = @MaDonVi
@@ -61,7 +67,13 @@ namespace CoreAdminWeb.Controllers.Api
                             SELECT TOP 1
 	                            ksk.ngay_du_kien_kham [LastDate],
 	                            (SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = ksk.id) SoLuotKham,
-	                            COUNT(CASE WHEN kskkt.isAbnormal = 1 THEN 1 END) CaBatThuong
+	                            (
+                                    SELECT
+                                        COUNT(1)
+                                    FROM kham_suc_khoe_ket_luan kskkl
+                                    INNER JOIN SoKhamSucKhoe sksk ON sksk.id = kskkl.luot_kham
+                                    WHERE kskkl.isAbnormal = 1 and sksk.MaDotKham = ksk.id
+                                ) CaBatThuong
                             FROM kham_suc_khoe_cong_ty ksk
                             WHERE ksk.id = (
 	                            SELECT
@@ -88,7 +100,7 @@ namespace CoreAdminWeb.Controllers.Api
                             SELECT
                                 plsk.[name] [Name],
                                 kskct.ngay_du_kien_kham [Date],
-                                COUNT(CASE WHEN kskkt.isAbnormal = 1 THEN 1 END) [Count]
+                                COUNT(1) [Count]
                             FROM kham_suc_khoe_ket_luan kskkt
                             JOIN SoKhamSucKhoe sksk ON sksk.id = kskkt.luot_kham
                             JOIN kham_suc_khoe_cong_ty kskct ON kskct.id = sksk.MaDotKham
@@ -123,7 +135,8 @@ namespace CoreAdminWeb.Controllers.Api
                             WHERE (kskkt.deleted IS NULL OR kskkt.deleted = 0)
                             AND kskct.ngay_du_kien_kham BETWEEN @FromDate AND @ToDate
                             AND kskct.ma_don_vi = @MaDonVi
-                            GROUP BY kskkt.benh_tat_ket_luan",
+                            GROUP BY kskkt.benh_tat_ket_luan
+                            ORDER BY COUNT(1) DESC",
                         Action = (DbDataReader reader) =>
                         {
                             response.Data.CommonDiseases = [];

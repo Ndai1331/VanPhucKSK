@@ -28,7 +28,8 @@ namespace CoreAdminWeb.Services
                 + ",bs_tai_mui_hong.id,bs_tai_mui_hong.first_name,bs_tai_mui_hong.last_name"
                 + ",bs_rang_ham_mat.id,bs_rang_ham_mat.first_name,bs_rang_ham_mat.last_name"
                 + ",bs_san_phu_khoa.id,bs_san_phu_khoa.first_name,bs_san_phu_khoa.last_name"
-                + ",bs_ket_luan.id,bs_ket_luan.first_name,bs_ket_luan.last_name";
+                + ",bs_ket_luan.id,bs_ket_luan.first_name,bs_ket_luan.last_name"
+                + ",nguoi_lap_so.id,nguoi_lap_so.first_name,nguoi_lap_so.last_name";
         private readonly IHttpClientService _httpClientService;
 
         public KhamSucKhoeCongTyService(IHttpClientService httpClientService)
@@ -95,7 +96,9 @@ namespace CoreAdminWeb.Services
                 bs_ket_luan = model.bs_ket_luan?.id,
                 chu_ky_ket_luan = model.chu_ky_ket_luan,
                 Ksk_status = model.Ksk_status,
-                ma_hop_dong_ksk = model.ma_hop_dong_ksk?.id
+                ma_hop_dong_ksk = model.ma_hop_dong_ksk?.id,
+                chu_ky_lap_so = model.chu_ky_lap_so,
+                nguoi_lap_so = model.nguoi_lap_so?.id
             };
         }
 

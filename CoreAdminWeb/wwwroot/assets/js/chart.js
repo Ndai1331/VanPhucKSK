@@ -21,19 +21,31 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
         },
         dataLabels: {
             enabled: false,
+            textAnchor: 'start',
+            style: {
+                colors: ['#fff']
+            },
+            formatter: function (val, opt) {
+                return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+            },
+            offsetX: 0,
+            dropShadow: {
+                enabled: true
+            }
         },
         stroke: {
             show: true,
             width: 1,
+            colors: ['#fff']
         },
         colors: colors,
         xaxis: {
-            categories: labels,
-            axisBorder: {
-                color: "#e0e6ed",
-            },
+            categories: labels
         },
         yaxis: {
+            labels: {
+                show: true
+            },
             opposite: false,
             reversed: false,
         },
@@ -42,12 +54,17 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
         },
         plotOptions: {
             bar: {
+                barHeight: '100%',
+                distributed: true,
                 horizontal: horizontal,
+                dataLabels: {
+                    position: 'bottom'
+                },
             },
         },
         fill: {
             opacity: 0.8,
-        },
+        }
     };
     let chart = new ApexCharts(
         document.querySelector(selector),
@@ -60,125 +77,39 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
 function initLineBarChart(selector, series, labels, colors) {
     clearChart(selector);
     let chartOptions = {
+        series: series,
         chart: {
-            height: 300,
-            type: "area",
-            fontFamily: "Inter, sans-serif",
+            height: 350,
+            type: 'line',
             zoom: {
-                enabled: false,
+                enabled: false
             },
             toolbar: {
-                show: false,
-            },
+                show: false
+            }
         },
-        series: series,
+        colors: colors,
         dataLabels: {
             enabled: false,
         },
         stroke: {
-            show: true,
-            curve: "smooth",
-            width: 3,
-            lineCap: "square",
-        },
-        dropShadow: {
-            enabled: true,
-            opacity: 0.8,
-            blur: 10,
-            left: -7,
-            top: 22,
-        },
-        colors: colors,
-        markers: {
-            discrete: [
-                {
-                    seriesIndex: 0,
-                    dataPointIndex: 4,
-                    fillColor: "#323a46",
-                    strokeColor: "#fff",
-                    size: 6,
-                },
-                {
-                    seriesIndex: 1,
-                    dataPointIndex: 5,
-                    fillColor: "#A8C5DA",
-                    strokeColor: "#fff",
-                    size: 6,
-                },
-            ],
-        },
-        labels: labels,
-        xaxis: {
-            axisBorder: {
-                show: false,
-            },
-            axisTicks: {
-                show: false,
-            },
-            crosshairs: {
-                show: true,
-            },
-            labels: {
-                offsetX: 0,
-                offsetY: 5,
-                style: {
-                    fontSize: "12px",
-                    cssClass: "apexcharts-xaxis-title",
-                },
-            },
-        },
-        yaxis: {
-            tickAmount: 5,
-            labels: {
-                offsetX: -10,
-                offsetY: 0,
-                style: {
-                    fontSize: "12px",
-                    cssClass: "apexcharts-yaxis-title",
-                },
-            },
-            opposite: false,
+            curve: 'smooth'
         },
         grid: {
-            borderColor: "#e8e8e8",
-            strokeDashArray: 7,
-            xaxis: {
-                lines: {
-                    show: false,
-                },
-            },
-            yaxis: {
-                lines: {
-                    show: true,
-                },
-            },
-            padding: {
-                top: 0,
-                right: 0,
-                bottom: 0,
-                left: 0,
-            },
+            borderColor: '#e7e7e7'
+        },
+        markers: {
+            size: 1
+        },
+        xaxis: {
+            categories: labels
         },
         legend: {
-            show: false,
-        },
-        tooltip: {
-            marker: {
-                show: true,
-            },
-            x: {
-                show: false,
-            },
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                shadeIntensity: 1,
-                inverseColors: !1,
-                opacityFrom: 0,
-                opacityTo: 0,
-                stops: [100, 100],
-            },
+            position: 'top',
+            horizontalAlign: 'right',
+            floating: true,
+            offsetY: -25,
+            offsetX: -5
         }
     };
     let chart = new ApexCharts(

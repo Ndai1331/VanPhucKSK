@@ -43,7 +43,7 @@
                     return 0;
                 }
 
-                return (TotalExaminationRecords - AbnormalCases) / TotalExaminationRecords * 100;
+                return (TotalExaminationRecords - AbnormalCases) / (float)TotalExaminationRecords * 100;
             }
         }
     }

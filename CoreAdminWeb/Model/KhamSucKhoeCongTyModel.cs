@@ -1,7 +1,7 @@
+using CoreAdminWeb.Enums;
 using CoreAdminWeb.Model.Base;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.User;
-using CoreAdminWeb.Enums;
 
 namespace CoreAdminWeb.Model
 {
@@ -44,6 +44,8 @@ namespace CoreAdminWeb.Model
 
         public ContractModel? ma_hop_dong_ksk { get; set; }
         public new TrangThaiCauHinhKSK status { get; set; } = TrangThaiCauHinhKSK.published;
+        public string? chu_ky_lap_so { get; set; }
+        public UserModel? nguoi_lap_so { get; set; }
     }
     public class KhamSucKhoeCongTyCRUDModel : BaseDetailModel
     {
@@ -84,5 +86,7 @@ namespace CoreAdminWeb.Model
 
         public int? ma_hop_dong_ksk { get; set; }
         public new TrangThaiCauHinhKSK status { set; get; } = TrangThaiCauHinhKSK.published;
+        public string? chu_ky_lap_so { get; set; }
+        public Guid? nguoi_lap_so { get; set; }
     }
 }
