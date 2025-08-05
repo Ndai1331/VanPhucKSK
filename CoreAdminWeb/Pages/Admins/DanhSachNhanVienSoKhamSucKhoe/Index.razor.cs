@@ -24,7 +24,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-            
+
             // Load the KhamSucKhoeCongTy by ID if provided
             // if (Id.HasValue)
             // {
@@ -115,7 +115,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             if (selected != null)
             {
                 _selectedCongTyFilter = selected;
-            } else
+            }
+            else
             {
                 _selectedCongTyFilter = null;
             }
@@ -128,7 +129,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             if (selected != null)
             {
                 _selectedKhamSucKhoeCongTyFilter = selected;
-            } else
+            }
+            else
             {
                 _selectedKhamSucKhoeCongTyFilter = null;
             }
@@ -201,6 +203,19 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             {
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu: {ex.Message}", "danger");
             }
+        }
+        
+        private Task GoToDetail(string? userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                AlertService.ShowAlert($"Không tìm thấy thông tin người dùng!", "danger");
+
+            } else {
+                NavigationManager?.NavigateTo($"/admin/ho-so-suc-khoe-chi-tiet/{userId}");
+            }
+            return Task.CompletedTask;
+            
         }
     }
 }

@@ -133,7 +133,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
         private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
         {
-            return await LoadBlazorTypeaheadData(searchText, CongTyService);
+            var query = "&filter[_and][][status][_eq]=active";
+            return await LoadBlazorTypeaheadData(searchText, CongTyService, query);
         }
 
         private async Task<IEnumerable<ContractTypeModel>> LoadContractTypeData(string searchText)
@@ -621,6 +622,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 // Copy data from selected DinhMuc if needed
                 item.code = item.MaDinhMuc.code;
                 item.name = item.MaDinhMuc.name;
+                item.don_gia_dm = item.MaDinhMuc.DinhMuc;
+                item.don_gia_tt = item.MaDinhMuc.DonGia;
                 
                 // Recalculate amounts if quantities and prices are set
                 if (item.so_luong.HasValue && item.don_gia_tt.HasValue)

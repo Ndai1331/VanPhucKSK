@@ -86,7 +86,7 @@ public class DanhSachDoanController : ControllerBase
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
-                select sksk.ma_luot_kham, ct.code, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
+                select sksk.ma_luot_kham, ct.code, u.id as user_id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
                 ts.ten_benh, ts.tien_su_gia_dinh,
                 tl.chieu_cao, tl.can_nang, tl.bmi, tl.mach, tl.huyet_ap,
                 ck.kq_nk_tuan_hoan, ck.kq_nk_ho_hap, ck.kq_nk_tieu_hoa, ck.kq_nk_than_tiet_nieu, ck.kq_nk_noi_tiet,
@@ -105,9 +105,9 @@ public class DanhSachDoanController : ControllerBase
                 Left join kham_suc_khoe_san_phu_khoa spk on spk.ma_luot_kham = sksk.ma_luot_kham
                 Left join kham_suc_khoe_ket_luan kl on kl.ma_luot_kham = sksk.ma_luot_kham
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
-                Left join kham_suc_khoe_can_lam_sang cls on cls.ma_luot_kham = sksk.ma_luot_kham
+                Left join kham_suc_khoe_can_lam_sang cls    on cls.ma_luot_kham = sksk.ma_luot_kham
                 " + where + @"
-                GROUP BY sksk.id, sksk.ma_luot_kham, ct.code, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
+                GROUP BY sksk.id, sksk.ma_luot_kham, ct.code, u.id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
                 ts.ten_benh, ts.tien_su_gia_dinh,
                 tl.chieu_cao, tl.can_nang, tl.bmi, tl.mach, tl.huyet_ap,
                 ck.kq_nk_tuan_hoan, ck.kq_nk_ho_hap, ck.kq_nk_tieu_hoa, ck.kq_nk_than_tiet_nieu, ck.kq_nk_noi_tiet,
@@ -179,6 +179,7 @@ public class DanhSachDoanController : ControllerBase
                         {
                             ma_luot_kham = reader["ma_luot_kham"]?.ToString(),
                             code = reader["code"]?.ToString(),
+                            user_id = reader["user_id"]?.ToString(),
                             last_name = reader["last_name"]?.ToString(),
                             first_name = reader["first_name"]?.ToString(),
                             ngay_sinh = reader["ngay_sinh"] as DateTime?,

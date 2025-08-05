@@ -1,4 +1,5 @@
 @page "/admin/ho-so-suc-khoe-chi-tiet"
+@page "/admin/ho-so-suc-khoe-chi-tiet/{userId}"
 @using CoreAdminWeb.Commons.Utils
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Helpers
@@ -25,11 +26,7 @@
                 </div>
             }
 
-            <div class="grid grid-cols-1 gap-2 md:grid-cols-4 xl:grid-cols-4 sm:gap-2 pb-2">
-                @* <div class="xs:col-span-2 sm:col-span-2 md:col-span-1 xl:col-span-1 flex items-end">
-                    <MudText Typo="Typo.h2" Class="mb-1 text-base capitalize text-slate-800 dark:text-slate-100">Theo dõi tiến độ, chi phí và phân tích dữ liệu khám sức khỏe</MudText>
-                </div> *@
-
+            @* <div class="grid grid-cols-1 gap-2 md:grid-cols-4 xl:grid-cols-4 sm:gap-2 pb-2">
                 <div class="xs:col-span-2 sm:col-span-2 md:col-span-1 xl:col-span-1">
                     <MudText Typo="Typo.h2" Class="mb-4 text-base capitalize text-slate-800 dark:text-slate-100">
                         Mã khách hàng
@@ -66,7 +63,7 @@
                         Tra cứu
                     </MudButton>
                 </div>
-            </div>
+            </div> *@
 
             <div class="grid grid-cols-1 gap-4">
                 <!-- Dashboard Statistics -->

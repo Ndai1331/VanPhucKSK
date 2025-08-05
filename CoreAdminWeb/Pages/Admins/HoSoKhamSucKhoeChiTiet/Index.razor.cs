@@ -16,6 +16,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
         IUserService UserService
     ) : BlazorCoreBase
     {
+        [Parameter] public string? UserId { get; set; }
         private List<SoKhamSucKhoeModel> MainModels { get; set; } = new();
         private SoKhamSucKhoeModel SelectedItem { get; set; } = new SoKhamSucKhoeModel();
         private UserModel? CurrentUser { get; set; } = null;
@@ -45,7 +46,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
                 //     CurrentUser = resUser.Data;
                 // }
 
-                // await LoadData();
+                await LoadData();
                 StateHasChanged();
                 
                 // Wait for modal to render
@@ -61,18 +62,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
         {
             IsLoading = true;
 
-            // BuildPaginationQuery(Page, PageSize);
-            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            if (!string.IsNullOrEmpty(_searchMaKhachHang))
-            {
-                BuilderQuery += $"&filter[_and][][ma_benh_nhan][eq]={_searchMaKhachHang}";
-            }
-            if (!string.IsNullOrEmpty(_searchSoDienThoai))
-            {
-                BuilderQuery += $"&filter[_and][][so_dien_thoai][eq]={_searchMaKhachHang}";
-            }
-
-            var res = await UserService.GetUserByFilterAsync(BuilderQuery);
+            var res = await UserService.GetUserByIdAsync(Guid.Parse(UserId ?? ""));
             CurrentUser = res?.IsSuccess == true && res.Data != null
                         ? res.Data
                         : null;
