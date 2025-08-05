@@ -69,7 +69,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IDanhSachDoanSoKhamSucKhoeService<DanhSachDoanSoKhamSucKhoeModel>, DanhSachDoanSoKhamSucKhoeService>();
             services.AddScoped<ICaNhanSoKhamSucKhoeService<HoSoKhamSucKhoeTT32Model>, CaNhanSoKhamSucKhoeService>();
             services.AddScoped<IDashboardService<GeneralDashboardModel>, DashboardService>();
-            services.AddScoped<IDashboardService<CompanyReportDashboardModel>, CompanyReportDashboardService>();
+            services.AddScoped<IDashboardService<CompanySummaryReportDashboardModel>, CompanyReportDashboardService>();
             services.AddScoped(typeof(IExportExcelService<>), typeof(ExportExcelService<>));
         }
     }

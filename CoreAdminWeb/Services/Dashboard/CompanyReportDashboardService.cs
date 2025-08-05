@@ -5,21 +5,21 @@ using CoreAdminWeb.Services.IDashboardService;
 
 namespace CoreAdminWeb.Services.Dashboard
 {
-    public class CompanyReportDashboardService : IDashboardService<CompanyReportDashboardModel>
+    public class CompanyReportDashboardService : IDashboardService<CompanySummaryReportDashboardModel>
     {
-        public async Task<RequestHttpResponse<CompanyReportDashboardModel>> GeDataAsync(string query)
+        public async Task<RequestHttpResponse<CompanySummaryReportDashboardModel>> GeDataAsync(string query)
         {
             try
             {
-                var response = await LocalRequestClientService.GetAPIAsync<RequestHttpResponse<CompanyReportDashboardModel>>(query);
+                var response = await LocalRequestClientService.GetAPIAsync<RequestHttpResponse<CompanySummaryReportDashboardModel>>(query);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<CompanyReportDashboardModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
-                    : new RequestHttpResponse<CompanyReportDashboardModel> { Errors = response.Errors };
+                    ? new RequestHttpResponse<CompanySummaryReportDashboardModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
+                    : new RequestHttpResponse<CompanySummaryReportDashboardModel> { Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return CreateErrorResponse<CompanyReportDashboardModel>(ex);
+                return CreateErrorResponse<CompanySummaryReportDashboardModel>(ex);
             }
         }
         private static RequestHttpResponse<T> CreateErrorResponse<T>(Exception ex)

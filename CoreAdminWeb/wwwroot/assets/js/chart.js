@@ -5,7 +5,7 @@
     }
 }
 
-function initSimpleBarChart(selector, series, labels, colors, horizontal = true) {
+function initSimpleBarChart(selector, series, labels, colors, horizontal = true, isShowlegend = false, isDistribute = false) {
     clearChart(selector);
     let chartOptions = {
         series: series,
@@ -20,31 +20,40 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
             },
         },
         dataLabels: {
-            enabled: false,
-            textAnchor: 'start',
+            enabled: true,
+            offsetX: -6,
             style: {
+                fontSize: '12px',
                 colors: ['#fff']
             },
-            formatter: function (val, opt) {
-                return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
-            },
-            offsetX: 0,
-            dropShadow: {
-                enabled: true
+            formatter: (val) => {
+                if (!isNaN(val) && val !== '' && val !== null) {
+                    return Number(val).toLocaleString('en-EN');
+                }
+                return val;
             }
-        },
-        stroke: {
-            show: true,
-            width: 1,
-            colors: ['#fff']
         },
         colors: colors,
         xaxis: {
-            categories: labels
+            categories: labels,
+            labels: {
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            }
         },
         yaxis: {
             labels: {
-                show: true
+                show: true,
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
             },
             opposite: false,
             reversed: false,
@@ -54,18 +63,51 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true)
         },
         plotOptions: {
             bar: {
-                barHeight: '100%',
-                distributed: true,
+                distributed: isDistribute,
                 horizontal: horizontal,
                 dataLabels: {
-                    position: 'bottom'
+                    position: 'top',
                 },
-            },
+            }
         },
         fill: {
             opacity: 0.8,
+        },
+        tooltip: {
+            y: {
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            },
+            x: {
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            }
         }
     };
+
+    if (horizontal) {
+        chartOptions.plotOptions.barHeight = '100%';
+        chartOptions.plotOptions.dataLabels = {
+            position: 'left'
+        };
+    }
+
+    if (isShowlegend) {
+        chartOptions.legend = {
+            position: 'top',
+            horizontalAlign: 'left',
+            offsetX: 40
+        };
+    }
+
     let chart = new ApexCharts(
         document.querySelector(selector),
         chartOptions

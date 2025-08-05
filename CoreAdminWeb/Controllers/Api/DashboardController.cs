@@ -190,10 +190,10 @@ namespace CoreAdminWeb.Controllers.Api
         [HttpGet("company-summary-report")]
         public async Task<IActionResult> GetCompanySummaryReportData([FromQuery] int? companyHelthCheckId, [FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
         {
-            var response = new RequestHttpResponse<CompanyReportDashboardModel>();
+            var response = new RequestHttpResponse<CompanySummaryReportDashboardModel>();
             try
             {
-                response.Data = new CompanyReportDashboardModel();
+                response.Data = new CompanySummaryReportDashboardModel();
 
                 var queries = new DashboardQuery[]
                 {
@@ -206,18 +206,18 @@ namespace CoreAdminWeb.Controllers.Api
 	                            COUNT(CASE WHEN kskct.[status] <> 'locked' AND ct.[status] <> 'locked' THEN 1 END) [ProcessingCount],
 	                            COALESCE((SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = kskct.id AND sksk.[status] = 'published'),0) [PatientDoneCount],
 	                            COALESCE((SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = kskct.id AND sksk.[status] <> 'published'),0) [PatientProcessingCount],
-	                            COALESCE((SELECT SUM(thanh_tien_dm) FROM kham_suc_khoe_dinh_muc_thuc_te kskdm WHERE kskdm.[contract] = ct.id),0) [ChiPhiDuKien],
-	                            COALESCE((SELECT SUM(chi_phi_thuc_te) FROM kham_suc_khoe_dinh_muc_thuc_te kskdm WHERE kskdm.[contract] = ct.id),0) [ChiPhiThucTe]
+	                            CAST(COALESCE((SELECT SUM(thanh_tien_dm) FROM kham_suc_khoe_dinh_muc_thuc_te kskdm WHERE kskdm.[contract] = ct.id),0.0) AS decimal) [ChiPhiDuKien],
+	                            CAST(COALESCE((SELECT SUM(chi_phi_thuc_te) FROM kham_suc_khoe_dinh_muc_thuc_te kskdm WHERE kskdm.[contract] = ct.id),0.0) AS decimal) [ChiPhiThucTe]
                             FROM kham_suc_khoe_cong_ty kskct
                             INNER JOIN [contract] ct ON ct.id = kskct.ma_hop_dong_ksk
                             WHERE (kskct.deleted IS NULL OR kskct.deleted = 0) AND (ct.deleted IS NULL OR ct.deleted = 0)
                             AND CAST(kskct.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
-                            AND kskct.id = @DoanKhamId
+                            AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             GROUP BY kskct.id, ct.id
                         ",
                         Action = (DbDataReader reader) =>
                         {
-                            response.Data.Summary = new CompanyReportDashboardSummaryModel();
+                            response.Data.Summary = new CompanySummaryReportDashboardSummaryModel();
                             while (reader.Read())
                             {
                                 response.Data.Summary.Count = reader["Count"] as int? ?? 0;
@@ -240,11 +240,12 @@ namespace CoreAdminWeb.Controllers.Api
                             INNER JOIN [contract] ct ON ct.id = kskct.ma_hop_dong_ksk
                             WHERE (kskct.deleted IS NULL OR kskct.deleted = 0) AND (ct.deleted IS NULL OR ct.deleted = 0)
                             AND CAST(kskct.ngay_du_kien_kham AS DATE) > @ToDate
+                            AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             GROUP BY kskct.id, ct.id
                         ",
                         Action = (DbDataReader reader) =>
                         {
-                            response.Data.Feature = new CompanyReportDashboardSummaryFeatureModel();
+                            response.Data.Feature = new CompanySummaryReportDashboardSummaryFeatureModel();
                             while (reader.Read())
                             {
                                 response.Data.Feature.Count = reader["Count"] as int? ?? 0;
@@ -258,24 +259,27 @@ namespace CoreAdminWeb.Controllers.Api
                             SELECT
 	                            ct.code [MaHopDong],
 	                            dmdm.[name] [DinhMuc],
-	                            COALESCE(SUM(kskdm.chi_phi_thuc_te), 0) [ChiPhiThucTe],
-	                            COALESCE(SUM(kskdm.thanh_tien_dm), 0) [ChiPhiDuKien]
+	                            CAST(COALESCE(ct.[gia_tri_hop_dong], 0.0) AS decimal) [GiaTriHopDong],
+	                            CAST(COALESCE(SUM(kskdm.chi_phi_thuc_te), 0.0) AS decimal) [ChiPhiThucTe],
+	                            CAST(COALESCE(SUM(kskdm.thanh_tien_dm), 0.0) AS decimal) [ChiPhiDuKien]
                             FROM kham_suc_khoe_dinh_muc_thuc_te kskdm
                             INNER JOIN [contract] ct ON ct.id = kskdm.[contract]
                             INNER JOIN danh_muc_dinh_muc dmdm ON dmdm.id = kskdm.MaDinhMuc
                             WHERE (kskdm.deleted IS NULL OR kskdm.deleted = 0) AND (ct.deleted IS NULL OR ct.deleted = 0)
                             AND CAST(ct.ngay_hieu_luc AS DATE) BETWEEN @FromDate AND @ToDate
-                            GROUP BY ct.code, dmdm.[name]
+                            AND EXISTS(SELECT Id FROM kham_suc_khoe_cong_ty kskct WHERE kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
+                            GROUP BY ct.code, dmdm.[name], ct.[gia_tri_hop_dong]
                         ",
                         Action = (DbDataReader reader) =>
                         {
                             response.Data.Revenues = [];
                             while (reader.Read())
                             {
-                                response.Data.Revenues.Add(new CompanyReportDashboardRevenueModel
+                                response.Data.Revenues.Add(new CompanySummaryReportDashboardRevenueModel
                                 {
-                                    MaHopDong = reader["MaHopDong"] as string ?? string.Empty,
-                                    DinhMuc = reader["DinhMuc"] as string ?? string.Empty,
+                                    MaHopDong = reader["MaHopDong"] as string ?? "",
+                                    DinhMuc = reader["DinhMuc"] as string ?? "",
+                                    GiaTriHopDong = reader["GiaTriHopDong"] as decimal? ?? 0,
                                     ChiPhiThucTe = reader["ChiPhiThucTe"] as decimal? ?? 0,
                                     ChiPhiDuKien = reader["ChiPhiDuKien"] as decimal? ?? 0
                                 });
@@ -295,7 +299,7 @@ namespace CoreAdminWeb.Controllers.Api
                             INNER JOIN CongTy comp ON comp.id = ct.cong_ty
                             WHERE (sksk.deleted IS NULL OR sksk.deleted = 0) AND (kskct.deleted IS NULL OR kskct.deleted = 0)
                             AND CAST(sksk.ngay_kham AS DATE) BETWEEN @FromDate AND @ToDate
-                            AND kskct.id = @DoanKhamId
+                            AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             GROUP BY comp.[name], sksk.ngay_kham
                         ",
                         Action = (DbDataReader reader) =>
@@ -303,7 +307,7 @@ namespace CoreAdminWeb.Controllers.Api
                             response.Data.NoteSummaries = [];
                             while (reader.Read())
                             {
-                                response.Data.NoteSummaries.Add(new CompanyReportDashboardNoteSummaryModel
+                                response.Data.NoteSummaries.Add(new CompanySummaryReportDashboardNoteSummaryModel
                                 {
                                     MaDonVi = reader["MaDonVi"] as string ?? string.Empty,
                                     NgayKham = reader["NgayKham"] as DateTime?,
@@ -326,7 +330,8 @@ namespace CoreAdminWeb.Controllers.Api
                     cmd.CommandText = q.Sql;
                     cmd.Parameters.Add(new SqlParameter("@FromDate", fromDate));
                     cmd.Parameters.Add(new SqlParameter("@ToDate", toDate));
-                    cmd.Parameters.Add(new SqlParameter("@DoanKhamId", companyHelthCheckId));
+                    cmd.Parameters.Add(new SqlParameter("@DoanKhamId", companyHelthCheckId ?? (object)DBNull.Value));
+
                     using var reader = await cmd.ExecuteReaderAsync();
 
                     q.Action(reader);

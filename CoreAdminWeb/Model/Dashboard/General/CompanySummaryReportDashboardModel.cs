@@ -1,14 +1,14 @@
 ﻿namespace CoreAdminWeb.Model.Dashboard.General
 {
-    public class CompanyReportDashboardModel
+    public class CompanySummaryReportDashboardModel
     {
-        public CompanyReportDashboardSummaryModel Summary { get; set; } = new CompanyReportDashboardSummaryModel();
-        public CompanyReportDashboardSummaryFeatureModel Feature { get; set; } = new CompanyReportDashboardSummaryFeatureModel();
-        public List<CompanyReportDashboardRevenueModel> Revenues { get; set; } = new List<CompanyReportDashboardRevenueModel>();
-        public List<CompanyReportDashboardNoteSummaryModel> NoteSummaries { get; set; } = new List<CompanyReportDashboardNoteSummaryModel>();
+        public CompanySummaryReportDashboardSummaryModel Summary { get; set; } = new CompanySummaryReportDashboardSummaryModel();
+        public CompanySummaryReportDashboardSummaryFeatureModel Feature { get; set; } = new CompanySummaryReportDashboardSummaryFeatureModel();
+        public List<CompanySummaryReportDashboardRevenueModel> Revenues { get; set; } = new List<CompanySummaryReportDashboardRevenueModel>();
+        public List<CompanySummaryReportDashboardNoteSummaryModel> NoteSummaries { get; set; } = new List<CompanySummaryReportDashboardNoteSummaryModel>();
     }
 
-    public class CompanyReportDashboardSummaryModel
+    public class CompanySummaryReportDashboardSummaryModel
     {
         public int Count { get; set; }
         public int DoneCount { get; set; }
@@ -31,21 +31,22 @@
         }
     }
 
-    public class CompanyReportDashboardSummaryFeatureModel
+    public class CompanySummaryReportDashboardSummaryFeatureModel
     {
         public int Count { get; set; }
         public int PatientCount { get; set; }
     }
 
-    public class CompanyReportDashboardRevenueModel
+    public class CompanySummaryReportDashboardRevenueModel
     {
         public string MaHopDong { get; set; } = string.Empty;
         public string DinhMuc { get; set; } = string.Empty;
+        public decimal GiaTriHopDong { get; set; }
         public decimal ChiPhiThucTe { get; set; }
         public decimal ChiPhiDuKien { get; set; }
     }
 
-    public class CompanyReportDashboardNoteSummaryModel
+    public class CompanySummaryReportDashboardNoteSummaryModel
     {
         public string MaDonVi { get; set; } = string.Empty;
         public DateTime? NgayKham { get; set; }

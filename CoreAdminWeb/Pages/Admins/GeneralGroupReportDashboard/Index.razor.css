@@ -17,9 +17,13 @@
 }
 
 .card-value {
-    font-size: 2em;
+    font-size: 2.5em;
     font-weight: bold;
-    color: #1a73e8;
+    color: #00b894;
+}
+
+.feature.card-value {
+    color: #ffb300;
 }
 
 .charts-row {

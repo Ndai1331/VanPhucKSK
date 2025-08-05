@@ -1,20 +1,23 @@
-﻿using CoreAdminWeb.Helpers;
+﻿using CoreAdminWeb.Commons;
+using CoreAdminWeb.Helpers;
+using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Dashboard.General;
-using CoreAdminWeb.Model.User;
+using CoreAdminWeb.Services;
+using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.IDashboardService;
-using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
 {
-    public partial class Index(IDashboardService<CompanyReportDashboardModel> MainService, IUserService UserService) : BlazorCoreBase
+    public partial class Index(IDashboardService<CompanySummaryReportDashboardModel> MainService,
+                               IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService) : BlazorCoreBase
     {
-        private CompanyReportDashboardModel MainModel { get; set; } = new();
+        private CompanySummaryReportDashboardModel MainModel { get; set; } = new();
         private DateTime? _startDateFilter = default;
         private DateTime? _endDateFilter = default;
-        private UserModel? CurrentUser { get; set; }
+        private KhamSucKhoeCongTyModel? _doanKhamFilter { get; set; } = default;
 
         protected override async Task OnInitializedAsync()
         {
@@ -29,11 +32,6 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
                 _startDateFilter = new DateTime(dateNow.Year, dateNow.Month, 1, 0, 0, 0, DateTimeKind.Local);
                 _endDateFilter = new DateTime(dateNow.Year, dateNow.Month, DateTime.DaysInMonth(dateNow.Year, dateNow.Month), 0, 0, 0, DateTimeKind.Local);
 
-                var resUser = await UserService.GetCurrentUserAsync();
-                if (resUser.IsSuccess)
-                {
-                    CurrentUser = resUser.Data;
-                }
                 await LoadData();
                 StateHasChanged();
                 // Wait for modal to render
@@ -47,11 +45,6 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
 
         private async Task LoadData()
         {
-            if (CurrentUser == null)
-            {
-                return;
-            }
-
             DateTime dateNow = DateTime.Now;
             if (_startDateFilter.HasValue)
             {
@@ -75,23 +68,65 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
 
             IsLoading = true;
 
-            BuilderQuery = $"Dashboard/company-medical-data?company={CurrentUser.ma_don_vi}&fromDate={_startDateFilter:yyyy-MM-dd}&toDate={_endDateFilter:yyyy-MM-dd}";
+            BuilderQuery = $"Dashboard/company-summary-report?companyHelthCheckId={_doanKhamFilter?.id}&fromDate={_startDateFilter:yyyy-MM-dd}&toDate={_endDateFilter:yyyy-MM-dd}";
 
             var result = await MainService.GeDataAsync(BuilderQuery);
-            if (result.IsSuccess)
+            MainModel = result.Data ?? new CompanySummaryReportDashboardModel();
+
+            try
             {
-                MainModel = result.Data ?? new CompanyReportDashboardModel();
-                if (result.Meta != null)
+                List<dynamic> theoDoiChiPhiDoanKhamSeries = new List<dynamic>();
+                List<string> theoDoiChiPhiDoanKhamLabels = new List<string>();
+
+                var hopDongKhamSucKhoes = MainModel.Revenues
+                    .GroupBy(c => c.MaHopDong)
+                    .Select(g => new
+                    {
+                        MaHopDong = g.Key,
+                        GiaTriHopDong = g.First().GiaTriHopDong,
+                        ChiPhiDuKien = g.Sum(c => c.ChiPhiDuKien),
+                        ChiPhiThucTe = g.Sum(c => c.ChiPhiThucTe)
+                    }).ToList();
+
+                for (int i = 0; i < 3; i++)
                 {
-                    TotalItems = result.Meta.filter_count ?? 0;
-                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                    dynamic seriData = new
+                    {
+                        name = i switch
+                        {
+                            0 => "Giá trị hợp đồng",
+                            1 => "Chi phí dự kiến",
+                            _ => "Chi phí thực tế"
+                        },
+                        data = new List<decimal>()
+                    };
+
+                    foreach (var item in hopDongKhamSucKhoes)
+                    {
+                        seriData.data.Add(i switch
+                        {
+                            0 => item.GiaTriHopDong,
+                            1 => item.ChiPhiDuKien,
+                            _ => item.ChiPhiThucTe
+                        });
+
+                        if (!theoDoiChiPhiDoanKhamLabels.Any(c => c.Equals(item.MaHopDong)))
+                        {
+                            theoDoiChiPhiDoanKhamLabels.Add(item.MaHopDong);
+                        }
+                    }
+
+                    theoDoiChiPhiDoanKhamSeries.Add(seriData);
                 }
+
+
+                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#theoDoiChiPhiDoanKhamChart", theoDoiChiPhiDoanKhamSeries, theoDoiChiPhiDoanKhamLabels, GlobalConstant.PefaultChartColors.Take(3), false, true);
             }
-            else
+            catch (Exception ex)
             {
-                MainModel = new CompanyReportDashboardModel();
+                AlertService.ShowAlert($"Lỗi khi tải dữ liệu biểu đồ: {ex.Message}", "danger");
             }
-            IsLoading = false;
+
 
             //try
             //{
@@ -159,6 +194,7 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
             //{
             //    AlertService.ShowAlert($"Lỗi khi tải dữ liệu biểu đồ: {ex.Message}", "danger");
             //}
+            IsLoading = false;
         }
 
         private async Task OnValueChanged(ChangeEventArgs e, string fieldName)
@@ -189,6 +225,17 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
             {
                 AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
             }
+        }
+
+        private async Task OnDoanKhamFilterChanged(KhamSucKhoeCongTyModel? selected)
+        {
+            _doanKhamFilter = selected;
+            await LoadData();
+        }
+
+        private async Task<IEnumerable<KhamSucKhoeCongTyModel>> LoadKhamSucKhoeCongTyData(string searchText)
+        {
+            return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService);
         }
     }
 }
