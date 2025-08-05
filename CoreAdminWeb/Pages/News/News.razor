@@ -51,26 +51,7 @@
                             }
                         </ul>
                     </div> 
-                            @* <div class="flex flex-col gap-3">
-
-                    @foreach (var post in MainModels)
-                    {
-                        <div class="flex gap-2 p-3 bg-gray-100 rounded-md dark:bg-darkborder/50">
-                            <MudLink Href="#" @onclick="(e) => ViewPostDetail(post)">
-                                <img src="@post.post_images?.filename_disk" alt="@post.title" class="size-20 shrink-0">
-                            </MudLink>
-                            <div class="overflow-hidden grow">
-                                <h6 class="mb-1 capitalize truncate text-slate-800 dark:text-slate-100">
-                                        <MudLink Href="#" @onclick="(e) => ViewPostDetail(post)">@post.title  </MudLink>
-                                </h6>
-                                <ul class="flex items-center gap-3 text-xs text-muted">
-                                    <li>@((MarkupString)post.sort_description)</li>
-                                    <li>Lượt xem: @(post.view_count ?? 0)</li>
-                                </ul>
-                            </div>
-                        </div>
-                    }
-                    </div> *@
+                          
 
                 }
                 else

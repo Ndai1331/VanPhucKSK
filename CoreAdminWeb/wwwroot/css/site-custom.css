@@ -223,8 +223,11 @@
     .desktop-menu {
         display: block;
     }
-}
 
+    .mobile-topbar-menu{
+        display: none;
+    }
+}
 
 /* Admin Layout */
 @media (min-width: 1024px) {
@@ -339,4 +342,10 @@
         font-size: 0.9em;
         padding: 6px 8px;
     }
+}
+.menu-grid-cols-2 {
+    grid-template-columns:repeat(2,minmax(0,1fr))
+}
+.bg-primary-10 {
+    background-color: color-mix(in oklab, #229742 10%, transparent);
 }
