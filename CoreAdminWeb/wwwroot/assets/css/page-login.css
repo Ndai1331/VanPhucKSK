@@ -1,5 +1,15 @@
-﻿body {
-    background: linear-gradient(135deg, #229742 0%, #1a7a35 100%);
+﻿
+
+:root {
+    --ksk-primary-gradient: linear-gradient(135deg, #00d4aa 0%, #0099cc 100%);
+    --ksk-secondary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --ksk-accent-color: #00d4aa;
+    --ksk-text-dark: #2c3e50;
+    --ksk-text-light: #7f8c8d;
+}
+
+body {
+    background: var(--ksk-primary-gradient);
     min-height: 100vh;
     overflow-x: hidden;
 }
@@ -70,7 +80,7 @@
 }
 
 .login-header {
-    background: linear-gradient(135deg, #229742 0%, #1a7a35 100%);
+    background: var(--ksk-primary-gradient);
     padding: 1.75rem 2rem 1.25rem;
     text-align: center;
     position: relative;
@@ -213,8 +223,8 @@
     }
 
         .form-floating .form-control:focus {
-            border-color: #229742;
-            box-shadow: 0 0 0 0.2rem rgba(34, 151, 66, 0.15);
+            border-color: var(--ksk-accent-color);
+            box-shadow: 0 0 0 0.2rem var(--ksk-accent-color);
             background: white;
             transform: translateY(-3px);
         }
@@ -226,7 +236,7 @@
 
     .form-floating .form-control:focus + label,
     .form-floating .form-control:not(:placeholder-shown) + label {
-        color: #229742;
+        color: var(--ksk-accent-color);
         font-weight: 600;
     }
 
@@ -235,16 +245,21 @@
 }
 
 .form-check-input:checked {
-    background-color: #229742;
-    border-color: #229742;
+    background-color: var(--ksk-accent-color);
+    border-color: var(--ksk-accent-color);
+    color: var(--ksk-accent-color);
 }
 
 .form-check-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(34, 151, 66, 0.25);
+    box-shadow: 0 0 0 0.2rem var(--ksk-accent-color);
 }
 
+/* .form-check-input:hover {
+    box-shadow: 0 0 0 0.2rem var(--ksk-accent-color);
+} */
+
 .btn-login {
-    background: linear-gradient(135deg, #229742 0%, #1a7a35 100%);
+    background: var(--ksk-primary-gradient);
     border: none;
     border-radius: 16px;
     padding: 1.2rem 2rem;
@@ -255,7 +270,7 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 25px rgba(34, 151, 66, 0.3);
+    box-shadow: 0 4px 12px var(--ksk-accent-color);
 }
 
     .btn-login::before {
@@ -276,7 +291,7 @@
     .btn-login:hover {
         color: white !important;
         transform: translateY(-4px);
-        box-shadow: 0 15px 35px rgba(34, 151, 66, 0.4);
+        box-shadow: 0 12px 20px var(--ksk-accent-color);
     }
 
     .btn-login:active {
@@ -289,7 +304,7 @@
 }
 
     .back-link a {
-        color: #229742;
+        color: var(--ksk-accent-color);
         text-decoration: none;
         font-weight: 500;
         transition: all 0.3s ease;
@@ -301,9 +316,9 @@
     }
 
         .back-link a:hover {
-            color: #1a7a35;
-            transform: translateX(-5px);
-            background: rgba(34, 151, 66, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+            background: var(--ksk-primary-gradient);
         }
 
 .floating-shapes {
@@ -426,7 +441,7 @@
     }
 
     .input-group:focus-within .input-group-text {
-        color: #229742;
+        color: var(--ksk-accent-color);
         transform: translateY(-50%) scale(1.1);
     }
 
@@ -509,7 +524,7 @@
     }
 
     .input-group:focus-within .input-group-text {
-        color: #229742;
+        color: var(--ksk-accent-color);
         transform: translateY(-50%) scale(1.1);
     }
 
@@ -608,8 +623,8 @@
     }
 
         .input-group .form-control:focus {
-            border-color: #229742;
-            box-shadow: 0 0 0 0.2rem rgba(34, 151, 66, 0.15);
+            border-color: var(--ksk-accent-color);
+            box-shadow: 0 0 0 0.2rem var(--ksk-accent-color);
             background: white;
             transform: translateY(-3px);
         }
@@ -621,7 +636,7 @@
     transform: translateY(-50%);
     background: transparent;
     border: none;
-    color: #6c757d;
+    color: var(--ksk-accent-color);
     z-index: 10;
     font-size: 1.1rem;
     pointer-events: none;
@@ -632,12 +647,12 @@
 }
 
 .input-group:focus-within .input-group-text {
-    color: #229742;
+    color: var(--ksk-accent-color);
     transform: translateY(-50%) scale(1.1);
 }
 
 .input-group .form-control:focus + .input-group-text {
-    color: #229742;
+    color: var(--ksk-accent-color);
     transform: translateY(-50%) scale(1.1);
 }
 
