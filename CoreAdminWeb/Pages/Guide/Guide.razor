@@ -26,7 +26,7 @@
     else
     {
         <div class="grid grid-cols-1 gap-4">
-            <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
+            <div class="p-2 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
                 @if (MainModels.Any())
                 {
                     <div>
@@ -35,21 +35,18 @@
                             {
                                 <li>
                                     <MudLink Href="#" @onclick="(e) => ViewPostDetail(post)"
-                                    Class="flex items-start gap-2 p-2 transition-all duration-300 rounded bg-light/50 dark:bg-white/10 dark:hover:bg-white/10 hover:border-transparent hover:bg-light/50">
-                                        <div class="flex items-center flex-1 gap-2 p-1">
-                                            <div class="w-160">
-                                                <img class="flex-none object-cover overflow-hidden img-list-new" src="@post.post_images?.filename_disk" alt="@post.title">
+                                    Class="flex items-start gap-2 p-2 transition-all duration-300 rounded-sm bg-light/50 dark:bg-white/10 dark:hover:bg-white/10 hover:border-transparent hover:bg-light/50">
+                                        <div class="flex  flex-1 gap-2 p-1">
+                                            <div class="size-24">
+                                                <img class="flex-none object-cover overflow-hidden " src="@post.post_images?.filename_disk" alt="@post.title">
                                             </div>
                                             <div class="flex-1 ltr:text-left rtl:text-right">
-                                                <h2 class="line-clamp-1 dark:text-white text-base font-semibold text-black dark:text-white/80">@post.title</h2>
+                                                <h2 class="line-clamp-1 dark:text-white">@post.title</h2>
                                                 <p class="text-xs text-muted line-clamp-1">@((MarkupString)post.sort_description)</p>
+                                                <p class="flex-none text-xs text-muted mb-1.5">@post.date_created.ToString("dd/MM/yyyy")</p>
+                                                <span class="inline-block items-center rounded-sm text-xs justify-center px-1.5 py-0.5 bg-primary text-white">@(post.view_count ?? 0) lượt xem</span>
                                             </div>
-                                        </div>
-                                        <div class="ltr:text-right rtl:text-left">
-                                            <p class="flex-none text-xs text-muted mb-1.5">@post.date_created.ToString("dd/MM/yyyy")</p>
-                                            <span class="inline-block items-center rounded text-xs justify-center px-1.5 py-0.5 bg-purple text-white">@(post.view_count ?? 0) lượt xem</span>
-                                        </div>
-                                    </MudLink>
+                                        </div></MudLink>
                                 </li>
                             }
                         </ul>
