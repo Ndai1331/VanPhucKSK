@@ -176,7 +176,7 @@
     }
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 1024px) {
     .md\:col-span-4 {
         grid-column: span 4 / span 4;
     }

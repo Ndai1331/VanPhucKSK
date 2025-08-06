@@ -14,8 +14,8 @@
 
 <!-- Start Main Content -->
 <div class="bg-white  flex flex-col gap-4 min-h-[calc(100vh-212px)]">
-    <div class="grid grid-cols-1 gap-4">
-         <div class="xs:col-span-1">
+    <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
+         <div class="xs:col-span-4 sm:col-span-4 md:col-span-4 xl:col-span-4">
             <div class="gap-4 p-5 bg-light/50 dark:bg-dark rounded-2xl">
                 <h3 class="mb-4 text-xl font-semibold dark:text-white">Hướng dẫn tra cứu hoá đơn điện tử</h3>
                 <div>
@@ -27,9 +27,7 @@
                 </div>
             </div>
         </div>
-
-
-        <div class="xs:col-span-1">
+        <div class="xs:col-span-4 sm:col-span-4 md:col-span-3 xl:col-span-3">
             <MudForm class="flex-1">
                 <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập mã bệnh nhân để tìm kiếm</MudText>
                 <div class="relative">
@@ -48,10 +46,22 @@
                 </div>
             </MudForm>
         </div>
-       
+        <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1" style="align-content: flex-end;">
+             <div class="w-full gap-2">
+                <div>
+                    <MudButton Class="mud-button-root mud-button mud-button-text mud-button-text-default mud-button-text-size-medium mud-ripple w-full  btn  gap-1.5
+                    bg-success border-success text-white hover:bg-success/[0.85]
+                    hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadInvoicesAsync())">
+                        <i class="ri-search-line"></i>
+                        Tra cứu
+                    </MudButton>
+                </div>
+            </div> 
+        </div>
+    </div>
 
+    <div class="w-full grid grid-cols-1 pb-2">
         <div class="p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
-
             @if (_isLoading)
             {
                 <div class="flex justify-center items-center py-12">
