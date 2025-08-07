@@ -5,7 +5,6 @@ namespace CoreAdminWeb.Model
 {
     public class CongTyModel : BaseModel<int>
     {
-        public new int? code { get; set; }
         public string? dia_chi { get; set; }
         public string? email { get; set; }
         public string? dien_thoai { get; set; }
@@ -15,7 +14,6 @@ namespace CoreAdminWeb.Model
     }
     public class CongTyCRUDModel : BaseDetailModel
     {
-        public new int? code { get; set; }
         public string? dia_chi { get; set; }
         public string? email { get; set; }
         public string? dien_thoai { get; set; }

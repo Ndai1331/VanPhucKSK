@@ -75,47 +75,49 @@
                 </div>
             </div>
 
-            <table id="example" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Ngày ký</th>
-                        <th>Mã hợp đồng</th>
-                        <th>Công ty</th>
-                        <th>Loại hợp đồng</th>
-                        <th>Ngày hiệu lực</th>
-                        <th>Ngày hết hạn</th>
-                        <th>Trạng thái</th>
-                        <th class="flex items-center gap-2">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
-                    {
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table id="example" class="display" style="width:100%">
+                    <thead>
                         <tr>
-                            <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                            <td>@item.Data.ngay_hop_dong?.ToString("dd/MM/yyyy")</td>
-                            <td>@item.Data.code</td>
-                            <td>@item.Data.cong_ty?.name</td>
-                            <td>@item.Data.contract_type?.name</td>
-                            <td>@item.Data.ngay_hieu_luc?.ToString("dd/MM/yyyy")</td>
-                            <td>@item.Data.ngay_het_han?.ToString("dd/MM/yyyy")</td>
-                            <td>@item.Data.status.GetDescription()</td>
-                            <td class="flex items-center gap-2">
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
-                                    <i class="ri-edit-line"></i>
-                                </MudButton>
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                           @onclick="@(e => OpenDeleteModal(item.Data))">
-                                    <i class="ri-delete-bin-line"></i>
-                                </MudButton>
-                            </td>
+                            <th>STT</th>
+                            <th>Ngày ký</th>
+                            <th>Mã hợp đồng</th>
+                            <th>Công ty</th>
+                            <th>Loại hợp đồng</th>
+                            <th>Ngày hiệu lực</th>
+                            <th>Ngày hết hạn</th>
+                            <th>Trạng thái</th>
+                            <th class="flex items-center gap-2">Thao tác</th>
                         </tr>
-                    }
-                </tbody>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                        {
+                            <tr>
+                                <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                <td>@item.Data.ngay_hop_dong?.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Data.code</td>
+                                <td>@item.Data.cong_ty?.name</td>
+                                <td>@item.Data.contract_type?.name</td>
+                                <td>@item.Data.ngay_hieu_luc?.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Data.ngay_het_han?.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Data.status.GetDescription()</td>
+                                <td class="flex items-center gap-2">
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                        <i class="ri-edit-line"></i>
+                                    </MudButton>
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                            @onclick="@(e => OpenDeleteModal(item.Data))">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </MudButton>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
         </div>
         <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
     </div>
@@ -152,7 +154,7 @@
 @if (openAddOrUpdateModal)
 {
     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
-        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseAddOrUpdateModal">
+        <div class="flex items-center justify-center min-h-screen px-4">
             <div class="relative w-full max-w-5xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
                 <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
                     <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">@_titleAddOrUpdate</MudText>

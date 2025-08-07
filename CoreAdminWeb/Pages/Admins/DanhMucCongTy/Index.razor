@@ -10,7 +10,7 @@
 @inherits BlazorCoreBase
 @layout Shared.Layout.AdminLayout
 
-<PageHeader Title="Danh mục định mức" pTitle="Danh mục định mức"></PageHeader>
+<PageHeader Title="Danh mục công ty" pTitle="Danh mục công ty"></PageHeader>
 
 <!-- Start All Card -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
@@ -76,43 +76,45 @@
                 </div>
             </div>
 
-            <table id="example" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Ngày tạo</th>
-                        <th>Mã công ty</th>
-                        <th>Tên công ty</th>
-                        <th>Địa chỉ</th>
-                        <th>Trạng thái</th>
-                        <th class="flex items-center gap-2">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
-                    {
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table id="example" class="display" style="width:100%">
+                    <thead>
                         <tr>
-                            <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                            <td>@item.Data.date_created.ToString("dd/MM/yyyy")</td>
-                            <td>@item.Data.code</td>
-                            <td>@item.Data.name</td>
-                            <td>@item.Data.dia_chi</td>
-                            <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
-                            <td class="flex items-center gap-2">
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
-                                    <i class="ri-edit-line"></i>
-                                </MudButton>
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                           @onclick="@(e => OpenDeleteModal(item.Data))">
-                                    <i class="ri-delete-bin-line"></i>
-                                </MudButton>
-                            </td>
+                            <th>STT</th>
+                            <th>Ngày tạo</th>
+                            <th>Mã công ty</th>
+                            <th>Tên công ty</th>
+                            <th>Địa chỉ</th>
+                            <th>Trạng thái</th>
+                            <th class="flex items-center gap-2">Thao tác</th>
                         </tr>
-                    }
-                </tbody>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                        {
+                            <tr>
+                                <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                <td>@item.Data.date_created.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Data.code</td>
+                                <td>@item.Data.name</td>
+                                <td>@item.Data.dia_chi</td>
+                                <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
+                                <td class="flex items-center gap-2">
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                        <i class="ri-edit-line"></i>
+                                    </MudButton>
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                            @onclick="@(e => OpenDeleteModal(item.Data))">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </MudButton>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
         </div>
         <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
     </div>
@@ -148,8 +150,8 @@
 @if (openAddOrUpdateModal)
 {
     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
-        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseAddOrUpdateModal">
-            <div class="relative w-full max-w-lg p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="relative w-full max-w-5xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
                 <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
                     <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">@_titleAddOrUpdate</MudText>
                     <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseAddOrUpdateModal">
@@ -162,17 +164,15 @@
                 <div class="p-5">
                     <EditForm Model="@SelectedItem" OnValidSubmit="OnValidSubmit">
                         <div class="text-black dark:text-muted">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-3 py-2">
-                                <div class="space-y-2 xs:col-span-3 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Mã công ty</label>
-                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.code" Label="Nhập mã công ty" />
+                                    <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Nhập mã công ty" />
                                 </div>
-                                <div class="space-y-2 xs:col-span-3 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Tên công ty</label>
                                     <input type="text" class="form-input" @bind-value="@SelectedItem.name" Label="Nhập tên công ty" />
                                 </div>
-                            </div>
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 py-2">
                                 <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Số điện thoại</label>
                                     <input type="text" class="form-input" @bind-value="@SelectedItem.dien_thoai" Label="Nhập số điện thoại" />
@@ -183,12 +183,12 @@
                                     <input type="text" class="form-input" @bind-value="@SelectedItem.nguoi_lien_he" Label="Nhập người liên hệ" />
                                 </div>
 
-                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Địa chỉ</label>
                                     <input type="text" class="form-input" @bind-value="@SelectedItem.dia_chi" Label="Nhập địa chỉ" />
                                 </div>
 
-                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Email</label>
                                     <input type="text" class="form-input" @bind-value="@SelectedItem.email" Label="Nhập email" />
                                 </div>
@@ -222,12 +222,12 @@
                                     <input type="text" class="form-input" @bind-value="@SelectedItem.description" Label="Ghi chú" />
                                 </div>
 
-                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Sắp xếp</label>
                                     <input type="number" class="form-input" @bind-value="@SelectedItem.sort" Label="Sắp xếp" min="0" max="100" />
                                 </div>
 
-                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Trạng thái</label>
                                     <select class="form-select" @bind-value="@SelectedItem.status" @bind-value:event="onchange">
                                         @foreach (var item in StatusList)

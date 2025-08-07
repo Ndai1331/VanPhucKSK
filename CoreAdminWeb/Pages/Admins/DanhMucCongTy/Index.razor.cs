@@ -1,5 +1,6 @@
 ﻿using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.Base;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
@@ -81,7 +82,14 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
 
         private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
         {
-            return await LoadBlazorTypeaheadData(searchText, MainService);
+            var published = Status.published.ToString();
+            string query = "&filter[_and][][status][_eq]=" + published;
+            
+            if (SelectedItem.id > 0)
+            {
+                query += $"&filter[_and][][id][_ne]={SelectedItem.id}";
+            }
+            return await LoadBlazorTypeaheadData(searchText, MainService, query);
         }
 
         private void OpenDeleteModal(CongTyModel item)
@@ -168,15 +176,9 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
 
         private bool FormValidation()
         {
-            if (SelectedItem.code == null)
+            if (string.IsNullOrEmpty(SelectedItem.code))
             {
                 AlertService.ShowAlert("Mã là bắt buộc", "danger");
-                return false;
-            }
-
-            if (SelectedItem.code < 0)
-            {
-                AlertService.ShowAlert("Mã không được nhỏ hơn 0", "danger");
                 return false;
             }
 

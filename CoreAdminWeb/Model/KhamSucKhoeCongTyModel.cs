@@ -7,7 +7,7 @@ namespace CoreAdminWeb.Model
 {
     public class KhamSucKhoeCongTyModel : BaseModel<int>
     {
-        public int? ma_don_vi { get; set; }
+        public string? ma_don_vi { get; set; }
         public int? so_luong_du_kien { get; set; }
         public int? so_luong_thuc_te { get; set; }
         public DateTime? ngay_du_kien_kham { get; set; }
@@ -49,7 +49,7 @@ namespace CoreAdminWeb.Model
     }
     public class KhamSucKhoeCongTyCRUDModel : BaseDetailModel
     {
-        public int? ma_don_vi { get; set; }
+        public string? ma_don_vi { get; set; }
         public int? so_luong_du_kien { get; set; }
         public int? so_luong_thuc_te { get; set; }
         public DateTime? ngay_du_kien_kham { get; set; }
