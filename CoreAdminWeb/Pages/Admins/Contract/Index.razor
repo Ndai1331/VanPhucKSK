@@ -5,7 +5,7 @@
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Shared.Base
-@* @using CoreAdminWeb.Helpers *@
+@using CoreAdminWeb.Helpers
 @inherits BlazorCoreBase
 @layout Shared.Layout.AdminLayout
 
@@ -441,7 +441,7 @@
                                                                                 </NotFoundTemplate>
                                                                             </BlazoredTypeahead> *@
 
-                                                                            <Select2
+                                                                            @* <Select2
                                                                                 IdSelector="c =>  c!= null ? c.id.ToString() : String.Empty"
                                                                                 TextSelector="c =>  c!= null ? c.name : String.Empty"
                                                                                 FilterFunction="filterDinhMucFunction"
@@ -453,18 +453,18 @@
                                                                                 Datasource="DinhMucs"
                                                                                 Value="@GetCurrentSelection(item.Data, item.Index)"
                                                                                 OnValueChanged="@(e => OnDinhMucChanged(item.Data, e, item.Index))"
-                                                                                Multiselect="false" />
+                                                                                Multiselect="false" /> *@
 
                                                                                 
                                                                             
-                                                                            @* <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                                                                            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
                                                                                 TextSelector="c => c != null ? c.name : String.Empty"
                                                                                 FilterFunction="filterDinhMucFunction"
-                                                                                GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric(items, id, c => c.id) ?? new DinhMucModel()"
+                                                                                GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<DinhMucModel, int>(items, id, c => c.id) ?? new DinhMucModel()"
                                                                                 Datasource="DinhMucs"
                                                                                 Value="@(Select2Helper.GetCurrentSelectionGeneric<DinhMucModel>(item.Data.MaDinhMuc, item.Index, SelectedDinhMucItems))"
                                                                                 OnValueChanged="@(e => OnDinhMucChanged(item.Data, e, item.Index))"
-                                                                                Multiselect="false" /> *@
+                                                                                Multiselect="false" />
 
                                                                         </td>
                                                                         <td>
@@ -611,6 +611,12 @@
     .select2-container {
         z-index: 99999999 !important;
         min-width: 350px !important;
+    }
+    .currency-display {
+        min-width: 155px !important;
+    }
+    .currency-input {
+        min-width: 155px !important;
     }
 </style>
 

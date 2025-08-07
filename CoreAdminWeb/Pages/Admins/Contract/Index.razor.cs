@@ -931,10 +931,10 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             switch (field)
             {
                 case nameof(SelectedItem.gia_tri_hop_dong):
-                    SelectedItem.gia_tri_hop_dong = (int?)parsedValue;
+                    SelectedItem.gia_tri_hop_dong = parsedValue;
                     break;
                 case nameof(SelectedItem.gia_tri_quyet_toan):
-                    SelectedItem.gia_tri_quyet_toan = (int?)parsedValue;
+                    SelectedItem.gia_tri_quyet_toan = parsedValue;
                     break;
             }
 

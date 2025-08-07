@@ -32,7 +32,7 @@ public class DanhSachDoanController : ControllerBase
         try
         {
             // Validate parameters
-            var validLimit = limit <= 0 || limit > 100 ? 10 : limit;
+            var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
 
             var where = "";

@@ -232,7 +232,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 IsLoading = true;
 
                 // BuildPaginationQuery(1, int.MaxValue);
-                BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset={(Page - 1) * PageSize}";
+                BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset={0}";
 
                 if (_fromDate.HasValue)
                 {
@@ -328,7 +328,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                     var prepareData = result.Data?.Select(item =>
                         (dynamic)new
                         {
-                            stt = ((Page - 1) * PageSize) + result.Data.IndexOf(item) + 1,
+                            stt = result.Data.IndexOf(item) + 1,
                             ma_luot_kham = item.ma_luot_kham,
                             full_name = $"{item.last_name} {item.first_name}",
                             ngay_sinh = item.ngay_sinh?.ToString("dd/MM/yyyy"),
@@ -363,7 +363,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
                     var fileBytes = await ExportExcelService.ExportToExcelAsync(prepareData, fields, labels);
 
-                    var fileName = $"{"DanhSachHoSoKhamSucKhoe"}_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                    var fileName = $"{"DanhSachDoanHoSoKhamSucKhoe"}_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
                     await JsRuntime.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
                 }
                 else

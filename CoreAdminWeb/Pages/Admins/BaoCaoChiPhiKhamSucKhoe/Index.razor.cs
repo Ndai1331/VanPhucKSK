@@ -1,4 +1,5 @@
 ﻿using CoreAdminWeb.Model.Contract;
+using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
@@ -7,7 +8,8 @@ using Microsoft.JSInterop;
 namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
 {
     public partial class Index(
-        IBaseService<ContractModel> MainService
+        IBaseService<ContractModel> MainService,
+        IExportExcelService<dynamic> ExportExcelService
     ) : BlazorCoreBase
     {
         [Parameter] public int? Id { get; set; }
@@ -64,7 +66,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
                 var toDate = _toDate.Value.ToString("yyyy-MM-dd");
                 BuilderQuery += $"&filter[_and][][ngay_hop_dong][_lte]={toDate}";
             }
-            
+
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
             {
@@ -72,7 +74,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
                 if (result.Meta != null)
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
-                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                    TotalPages = result.Meta.page_count ?? 0;
                 }
             }
             else
@@ -150,6 +152,94 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
             catch (Exception ex)
             {
                 AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
+            }
+        }
+        
+        private async Task OnExcelExport()
+        {
+            try
+            {
+                IsLoading = true;
+
+                BuildPaginationQuery(1, int.MaxValue);
+                BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
+                if (!string.IsNullOrEmpty(_searchString))
+                {
+                    BuilderQuery += $"&filter[_and][1][_or][0][code][_contains]={_searchString}";
+                    BuilderQuery += $"&filter[_and][1][_or][1][name][_contains]={_searchString}";
+                }
+                if (!string.IsNullOrEmpty(_searchStatusString))
+                {
+                    BuilderQuery += $"&filter[_and][2][status][_eq]={_searchStatusString}";
+                }
+                if (_fromDate.HasValue)
+                {
+                    var fromDate = _fromDate.Value.ToString("yyyy-MM-dd");
+                    BuilderQuery += $"&filter[_and][][ngay_hop_dong][_gte]={fromDate}";
+                }
+                if (_toDate.HasValue)
+                {
+                    var toDate = _toDate.Value.ToString("yyyy-MM-dd");
+                    BuilderQuery += $"&filter[_and][][ngay_hop_dong][_lte]={toDate}";
+                }
+
+                var fields = new List<string>()
+                {
+                    "stt",
+                    "code",
+                    "cong_ty",
+                    "gia_tri_hop_dong",
+                    "tong_chi_phi_dm",
+                    "tong_chi_phi_thuc_te",
+                    "chenh_lech",
+                    "ket_qua",
+                };
+                var labels = new List<string>()
+                {
+                    "STT",
+                    "Mã hợp đồng",
+                    "Công ty",
+                    "Giá trị hợp đồng (VNĐ)",
+                    "Tổng chi phí định mức (VNĐ)",
+                    "Tổng chi phí thực tế (VNĐ)",
+                    "Chênh lệch (VNĐ)",
+                    "Kết quả"
+                };
+
+                var result = await MainService.GetAllAsync(BuilderQuery);
+                if (result.IsSuccess)
+                {
+                    var prepareData = result.Data?.Select(item =>
+                        (dynamic)new
+                        {
+                            stt = ((Page - 1) * PageSize) + result.Data.IndexOf(item) + 1,
+                            code = item.code,
+                            cong_ty = item.cong_ty?.name,
+                            gia_tri_hop_dong = item.gia_tri_hop_dong,
+                            tong_chi_phi_dm = item.chi_tiet?.Sum(x => x.thanh_tien_dm),
+                            tong_chi_phi_thuc_te = item.chi_tiet?.Sum(x => x.chi_phi_thuc_te),
+                            chenh_lech = item.gia_tri_hop_dong - item.chi_tiet?.Sum(x => x.chi_phi_thuc_te),
+                            ket_qua = item.chi_tiet?.Sum(x => x.chi_phi_thuc_te) > item.gia_tri_hop_dong ? "Vượt hợp đồng" : item.chi_tiet?.Sum(x => x.chi_phi_thuc_te) > item.chi_tiet?.Sum(x => x.thanh_tien_dm) ? "Vượt định mức" : "Đạt",
+                        }
+                    ).ToList() ?? new List<dynamic>();
+
+                    var fileBytes = await ExportExcelService.ExportToExcelAsync(prepareData, fields, labels);
+
+                    var fileName = $"{"BaoCaoChiPhiKhamSucKhoe"}_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                    await JsRuntime.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+                }
+                else
+                {
+                    AlertService.ShowAlert(result.Message ?? "Lỗi khi lấy dữ liệu để xuất excel", "danger");
+                }
+            }
+            catch
+            {
+                AlertService.ShowAlert("Lỗi khi xuất excel", "danger");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
     }
