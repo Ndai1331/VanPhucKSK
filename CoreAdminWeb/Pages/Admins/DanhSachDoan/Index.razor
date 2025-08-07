@@ -73,6 +73,7 @@
                             <th>Tên công ty</th>
                             <th>Ngày khám</th>
                             <th>Số lượng khám</th>
+                            <th>Người lập sổ</th>
                             <th class="flex items-center gap-2">Thao tác</th>
                         </tr>
                     </thead>
@@ -85,6 +86,7 @@
                                 <td>@item.Data.ma_hop_dong_ksk?.cong_ty?.name</td>
                                 <td>@item.Data.ngay_du_kien_kham?.ToString("dd/MM/yyyy")</td>
                                 <td>@item.Data.so_luong_thuc_te</td>
+                                <td>@item.Data.nguoi_lap_so?.full_name</td>
                                 <td class="flex items-center gap-2">
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-sky-500 border-sky-500"
                                                 @onclick="@(e => GoToDetail(item.Data.id))">
@@ -194,7 +196,7 @@
                                                     <td>@(item.Index + 1)</td>
                                                     <td>
                                                         <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
-                                                                 TextSelector="c => c != null ? c.full_name : String.Empty"
+                                                                 TextSelector="c => c != null ? c.ma_benh_nhan : String.Empty"
                                                                  FilterFunction="LoadUserDataInTable"
                                                                  GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<UserModel, Guid>(items, id, c => c.id) ?? new UserModel()"
                                                                  Datasource="UserItems"
@@ -203,14 +205,14 @@
                                                                  Multiselect="false" />
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-input" value="@item.Data.benh_nhan?.full_name" Label="Tên khách hàng" readonly />
+                                                        <input type="text" class="form-input w-64" value="@item.Data.benh_nhan?.full_name" Label="Tên khách hàng" readonly />
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-input" @bind-value="@item.Data.ma_luot_kham" Label="Mã điều trị" />
+                                                        <input type="text" class="form-input w-32" @bind-value="@item.Data.ma_luot_kham" Label="Mã điều trị" />
                                                     </td>
                                                     <td>
                                                         <input type="text"
-                                                               class="form-input date-picker w-1/2"
+                                                               class="form-input date-picker w-32"
                                                                placeholder="Chọn khám"
                                                                value="@(item.Data.ngay_kham?.ToString("dd/MM/yyyy"))"
                                                                @onchange="@(e => OnValueChanged(e, nameof(item.Data.ngay_kham), item.Data))" />
@@ -276,3 +278,10 @@
         </div>
     </div>
 }
+
+<style>
+    .select2-container {
+        z-index: 99999999 !important;
+        min-width: 120px !important;
+    }
+</style>

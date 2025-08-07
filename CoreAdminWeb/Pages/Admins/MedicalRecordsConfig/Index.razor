@@ -105,10 +105,10 @@
                                 <td>@item.Data.ngay_ket_thuc?.ToString("dd/MM/yyyy")</td>
                                 <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
                                 <td class="flex items-center gap-2">
-                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
+                                    @* <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
                                             @onclick="@(e => OpenAddOrUpdateModal(item.Data, true))">
                                         <i class="ri-eye-line"></i>
-                                    </MudButton>
+                                    </MudButton> *@
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                                             @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
                                         <i class="ri-edit-line"></i>
