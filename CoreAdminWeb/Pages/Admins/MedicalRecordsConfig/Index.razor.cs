@@ -18,8 +18,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                                IBaseService<ContractModel> HopDongService,
                                IUserService UserService) : BlazorCoreBase
     {
-        private List<TrangThaiCauHinhKSK> StatusList { get; set; } = Enum.GetValues(typeof(TrangThaiCauHinhKSK)).Cast<TrangThaiCauHinhKSK>().ToList();
-        
         private List<KhamSucKhoeCongTyModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
         private bool openAddOrUpdateModal = false;
@@ -29,7 +27,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
         private string _searchStatusString = "";
         private string _titleAddOrUpdate = "Thêm mới";
 
-        private string _selectedStatusString = "";
 
         private bool readOnly { get; set; } = false;
 
@@ -187,7 +184,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 }
             }
 
-            _selectedStatusString = SelectedItem.active?.ToString() ?? "True";
             if (readOnly)
             {
                 _titleAddOrUpdate = $"Thông tin hồ sơ: {SelectedItem.code}";

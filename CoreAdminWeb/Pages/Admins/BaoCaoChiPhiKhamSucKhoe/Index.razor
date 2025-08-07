@@ -50,7 +50,7 @@
                             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Trạng thái</MudText>
                             <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
                                 <option value="">Tất cả</option>
-                                @foreach (var item in StatusList)
+                                @foreach (var item in TrangThaiHopDongList)
                                 {
                                     <option value="@item">@item.GetDescription()</option>
                                 }

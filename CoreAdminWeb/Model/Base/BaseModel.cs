@@ -7,7 +7,7 @@ namespace CoreAdminWeb.Model.Base
     {
         [Description("Bản nháp")]
         draft,
-        [Description("Xuất bản")]
+        [Description("Chính thức")]
         published,
         [Description("Đã xóa")]
         removed

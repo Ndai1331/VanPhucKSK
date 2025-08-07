@@ -55,9 +55,9 @@
                             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Trạng thái</MudText>
                             <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
                                 <option value="">Tất cả</option>
-                                @foreach (var item in EnumHelper.ToList<TrangThaiHoatDong>())
+                                @foreach (var item in StatusList)
                                 {
-                                    <option value="@item.Name" selected="@(_searchStatusString == item.Name)">@item.Description</option>
+                                    <option value="@item">@item.GetDescription()</option>
                                 }
                             </select>
                         </MudForm>
@@ -97,7 +97,7 @@
                             <td>@item.Data.code</td>
                             <td>@item.Data.name</td>
                             <td>@item.Data.dia_chi</td>
-                            <td>@((MarkupString)item.Data.status.ToEnum<TrangThaiHoatDong>().GetTrangThai())</td>
+                            <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
                             <td class="flex items-center gap-2">
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
@@ -230,9 +230,9 @@
                                 <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
                                     <label>Trạng thái</label>
                                     <select class="form-select" @bind-value="@SelectedItem.status" @bind-value:event="onchange">
-                                        @foreach (var item in EnumHelper.ToList<TrangThaiHoatDong>())
+                                        @foreach (var item in StatusList)
                                         {
-                                            <option value="@item.Name" selected="@(SelectedItem.status == item.Name)">@item.Description</option>
+                                            <option value="@item">@item.GetDescription()</option>
                                         }
                                     </select>
                                 </div>

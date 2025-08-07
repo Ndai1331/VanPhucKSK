@@ -102,7 +102,7 @@
                             <td>@item.Data.so_luong_thuc_te?.ToString("N0")</td>
                             <td>@item.Data.ngay_du_kien_kham?.ToString("dd/MM/yyyy")</td>
                             <td>@item.Data.ngay_ket_thuc?.ToString("dd/MM/yyyy")</td>
-                            <td>@((MarkupString)item.Data.status.GetDescription())</td>
+                            <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
                             <td class="flex items-center gap-2">
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data, true))">
@@ -259,7 +259,7 @@
 
                                 <div class="space-y-2">
                                     <label>Trạng thái</label>
-                                    <select class="form-select" @bind="@SelectedItem.status" @bind:event="oninput" disabled="@readOnly">
+                                    <select class="form-select" @bind-value="@SelectedItem.status" @bind-value:event="onchange">
                                         @foreach (var item in StatusList)
                                         {
                                             <option value="@item">@item.GetDescription()</option>

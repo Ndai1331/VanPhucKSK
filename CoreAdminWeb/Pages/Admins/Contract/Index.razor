@@ -100,7 +100,7 @@
                             <td>@item.Data.contract_type?.name</td>
                             <td>@item.Data.ngay_hieu_luc?.ToString("dd/MM/yyyy")</td>
                             <td>@item.Data.ngay_het_han?.ToString("dd/MM/yyyy")</td>
-                            <td>@item.Data.status?.GetDescription()</td>
+                            <td>@item.Data.status.GetDescription()</td>
                             <td class="flex items-center gap-2">
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">

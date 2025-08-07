@@ -16,7 +16,6 @@ namespace CoreAdminWeb.Pages.Admins.LoaiDinhMuc
         private string _searchStatusString = "";
         private string _titleAddOrUpdate = "Thêm mới";
 
-        private string _selectedStatusString = "";
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -44,7 +43,7 @@ namespace CoreAdminWeb.Pages.Admins.LoaiDinhMuc
             }
             if (!string.IsNullOrEmpty(_searchStatusString))
             {
-                BuilderQuery += $"&filter[_and][2][active][_eq]={_searchStatusString}";
+                BuilderQuery += $"&filter[_and][2][status][_eq]={_searchStatusString}";
             }
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
@@ -108,7 +107,6 @@ namespace CoreAdminWeb.Pages.Admins.LoaiDinhMuc
         {
             _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
             SelectedItem = item != null ? item.DeepClone() : new LoaiDinhMucModel();
-            _selectedStatusString = SelectedItem.active?.ToString() ?? "True";
             openAddOrUpdateModal = true;
         }
 
@@ -167,16 +165,6 @@ namespace CoreAdminWeb.Pages.Admins.LoaiDinhMuc
             _searchStatusString = selected?.Value?.ToString() ?? string.Empty;
 
             await LoadData();
-        }
-
-        private void OnStatusChanged(ChangeEventArgs? selected)
-        {
-            _selectedStatusString = selected?.Value?.ToString() ?? string.Empty;
-            SelectedItem.active = true;
-            if (bool.TryParse(_selectedStatusString, out bool activeValue))
-            {
-                SelectedItem.active = activeValue;
-            }
         }
     }
 }

@@ -90,7 +90,7 @@
                                     <i class="ri-file-line"></i>
                                     Chi tiết hồ sơ
                                 </MudButton>
-                                @if (item.Data.ma_hop_dong_ksk?.status?.ToString().ToLower() != "locked")
+                                @if (item.Data.ma_hop_dong_ksk?.status.ToString().ToLower() != "locked")
                                 {
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                                             @onclick="@(e => OpenAddOrUpdateModal(item.Data))">

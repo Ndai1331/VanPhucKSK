@@ -1,4 +1,5 @@
-﻿using CoreAdminWeb.Model.Contract;
+﻿using CoreAdminWeb.Enums;
+using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Shared.Base;
@@ -13,6 +14,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
     ) : BlazorCoreBase
     {
         [Parameter] public int? Id { get; set; }
+        private List<TrangThaiHopDong> TrangThaiHopDongList { get; set; } = Enum.GetValues(typeof(TrangThaiHopDong)).Cast<TrangThaiHopDong>().ToList();
         private List<ContractModel> MainModels { get; set; } = new();
         private string _searchString = "";
         private string _searchStatusString = "";

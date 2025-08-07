@@ -61,7 +61,7 @@ namespace CoreAdminWeb.Services
                 description = model.description,
                 sort = model.sort,
                 active = model.active,
-                status = model.status,
+                status = model.status.ToString(),
                 ma_don_vi = model.ma_don_vi,
                 so_luong_du_kien = model.so_luong_du_kien,
                 so_luong_thuc_te = model.so_luong_thuc_te,

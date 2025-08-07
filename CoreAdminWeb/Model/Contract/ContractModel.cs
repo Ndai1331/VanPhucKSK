@@ -1,4 +1,5 @@
 using CoreAdminWeb.Enums;
+using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Model.Base;
 using CoreAdminWeb.Model.User;
 
@@ -26,7 +27,7 @@ namespace CoreAdminWeb.Model.Contract
         public FileModel? file_hd { get; set; }
         public UserModel? nhan_vien_id { get; set; }
         public List<ContractDinhMucModel>? chi_tiet { get; set; }
-        public new TrangThaiHopDong? status { get; set; } = TrangThaiHopDong.ChuaHieuLuc;
+        public new TrangThaiHopDong status { get; set; } = TrangThaiHopDong.ChuaHieuLuc;
     }
     public class ContractCRUDModel : BaseDetailModel
     {
@@ -49,6 +50,6 @@ namespace CoreAdminWeb.Model.Contract
         public string? email { get; set; }
         public string? file_hd { get; set; }
         public Guid? nhan_vien_id { get; set; }
-        public new TrangThaiHopDong? status { get; set; } = TrangThaiHopDong.ChuaHieuLuc;
+        public new string? status { get; set; } = TrangThaiHopDong.ChuaHieuLuc.ToString();
     }
 }

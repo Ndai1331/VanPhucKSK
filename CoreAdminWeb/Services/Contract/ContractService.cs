@@ -52,7 +52,7 @@ namespace CoreAdminWeb.Services.Contract
                 name = model.name,
                 description = model.description,
                 sort = model.sort,
-                status = model.status,
+                status = model.status.ToString(),
                 cong_ty = model.cong_ty?.id,
                 contract_type = model.contract_type?.id,
                 ngay_hop_dong = model.ngay_hop_dong,

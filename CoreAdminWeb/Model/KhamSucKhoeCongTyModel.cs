@@ -43,9 +43,9 @@ namespace CoreAdminWeb.Model
         public string? Ksk_status { get; set; }
 
         public ContractModel? ma_hop_dong_ksk { get; set; }
-        public new TrangThaiCauHinhKSK status { get; set; } = TrangThaiCauHinhKSK.published;
         public string? chu_ky_lap_so { get; set; }
         public UserModel? nguoi_lap_so { get; set; }
+        public new Status status { get; set; } = Status.published;
     }
     public class KhamSucKhoeCongTyCRUDModel : BaseDetailModel
     {
@@ -83,9 +83,8 @@ namespace CoreAdminWeb.Model
         public Guid? bs_ket_luan { get; set; }
         public string? chu_ky_ket_luan { get; set; }
         public string? Ksk_status { get; set; }
-
+        public new string status { get; set; } = Status.published.ToString();
         public int? ma_hop_dong_ksk { get; set; }
-        public new TrangThaiCauHinhKSK status { set; get; } = TrangThaiCauHinhKSK.published;
         public string? chu_ky_lap_so { get; set; }
         public Guid? nguoi_lap_so { get; set; }
     }
