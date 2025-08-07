@@ -29,21 +29,17 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             await base.OnInitializedAsync();
 
             // Load the KhamSucKhoeCongTy by ID if provided
-            // _ = Task.Run(async () =>
-            // {
-            //     await Task.Delay(500);
             if (Id.HasValue)
             {
                 await LoadKhamSucKhoeCongTyById(Id.Value);
             }
-            // });
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                await LoadData();
+                // await LoadData();
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -59,11 +55,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private async Task LoadData()
         {
             IsLoading = true;
-            // var maDotKham = Id;
-            // if (_selectedKhamSucKhoeCongTyFilter != null)
-            // {
-            //     maDotKham = _selectedKhamSucKhoeCongTyFilter.id;
-            // }
 
             BuilderQuery = $"DanhSachDoan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";
 
@@ -83,10 +74,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 BuilderQuery += $"&maDotKham={_selectedKhamSucKhoeCongTyFilter.id}";
             }
-            else
-            {
-                BuilderQuery += $"&maDotKham={Id}";
-            }
+            // else
+            // {
+            //     BuilderQuery += $"&maDotKham={Id}";
+            // }
 
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
