@@ -1,0 +1,1462 @@
+@page "/admin/subclinical-result-detail-page/{ma_luot_kham}"
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.Configuration
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Services.FTP
+@using CoreAdminWeb.Shared.Base
+@using CoreAdminWeb.Extensions
+@using Microsoft.Extensions.Configuration
+@using System.Linq
+@inherits BlazorCoreBase
+@inject NavigationManager Navigation
+@inject IWebHostEnvironment WebHostEnvironment
+@inject IUserService UserService
+@inject IBaseDetailService<KhamSucKhoeCanLamSangModel> KhamSucKhoeCanLamSanService
+@inject IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService
+@inject IFtpService FtpService
+@inject IConfiguration Configuration
+@implements IDisposable
+@layout Shared.Layout.AdminLayout
+
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="group-button flex justify-between items-center mb-6">
+            <div class="detail-ksk">
+                <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
+                    <i class="fas fa-file-medical me-2 text-primary"></i>
+                   Chi tiết kết quả khám lâm sàng
+                </h2>
+            </div>
+            <div class="flex gap-2">
+                 <button class="px-4 py-2 bg-purple hover:bg-purple text-white rounded transition-colors shadow-sm" @onclick="BackToList">
+                     <i class="ri-arrow-left-line me-1"></i>Quay lại
+                 </button>
+             </div>
+        </div>
+
+        @if (_isLoading)
+        {
+            <div class="flex justify-center items-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
+            </div>
+        }
+        else if (_isShowInputCCCD)
+        {
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-1 2xl:grid-cols-12">
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10 2xl:col-span-4">
+
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">📘 Hướng dẫn</h2>
+
+                    <ul class="mb-5">
+                        <li class="mb-2">Nhập CCCD/ĐT để xem kết quả khám</li>
+                        <li class="mb-2">Thời gian truy cập có giới hạn (@ExpiredResultPage ngày), vui lượng đăng nhập để xem chi tiết</li>
+                        <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
+                    </ul>
+                    <hr>
+                    <h5 class="mt-4 mb-2">📞 Hỗ trợ khách hàng</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Hotline:</strong> 1900 966 979</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Email:</strong> <a href="marketing@vanphuc.com">marketing@vanphuc.com</a></li>
+                        <li class="mb-2"><i class="bi bi-clock-fill me-2 text-primary"></i><strong>Giờ hỗ trợ:</strong> 7h – 17h</li>
+                    </ul>
+
+                </div>
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder 2xl:col-span-8 border-black/10">
+                    <ul class="mb-4 list-unstyled">
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Họ và tên:</strong> @(string.IsNullOrEmpty(GetUserFullName()) ? "*****" : CoreHelpers.GetSafeString(GetUserFullName()))</li>
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Mã lượt khám:</strong> @CoreHelpers.GetSafeString(SoKhamSucKhoeModel?.ma_luot_kham)</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Ngày khám:</strong> @CoreHelpers.FormatDate(SoKhamSucKhoeModel?.ngay_kham)</li>
+                    </ul>
+                    @* <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Xác thực xem kết quả KSK</h2> *@
+                    <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập CCCD hoặc số điện thoại</MudText>
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <input type="text" class="form-input" placeholder="CCCD hoặc SĐT" required="" @bind-value="@_so_dinh_danh">
+                        </div>
+                                                 <div class="flex flex-wrap gap-3">
+                             <MudButton type="button" Class="btn bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700 text-white transition-colors shadow-sm" OnClick="LoadDataWithCccdAsync">Xem kết quả</MudButton>
+                         </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        }
+        else if (_expired_result_page)
+        {
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-1 2xl:grid-cols-12">
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10 2xl:col-span-4">
+
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">📘 Hướng dẫn</h2>
+
+                    <ul class="mb-5">
+                        <li class="mb-2">Đăng nhập để xem kết quả khám bằng thông tin được gửi qua email</li>
+                        <li class="mb-2">Thời gian truy cập có giới hạn (@ExpiredResultPage ngày)</li>
+                        <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
+                    </ul>
+                    <hr>
+                    <h5 class="mt-4 mb-2">📞 Hỗ trợ khách hàng</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Hotline:</strong> 1900 966 979</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Email:</strong> <a href="marketing@vanphuc.com">marketing@vanphuc.com</a></li>
+                        <li class="mb-2"><i class="bi bi-clock-fill me-2 text-primary"></i><strong>Giờ hỗ trợ:</strong> 7h – 17h</li>
+                    </ul>
+
+                </div>
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder 2xl:col-span-8 border-black/10">
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thông báo</h2>
+                    <div class="flex items-center gap-2 mb-5 rounded bg-orange-500 shadow-sm">
+                         <i class="ri-alert-line me-2"></i>
+                         <strong>Thông báo:</strong> Thời gian xem kết quả đã hết hạn. Vui lòng đăng nhập để xem chi tiết.
+                     </div>
+                    <MudButton type="button" Class="btn mt-4 bg-purple hover:bg-purple text-white transition-colors shadow-sm"
+                                OnClick="LoginAsync">Đăng nhập</MudButton>
+                </div>
+
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <strong class="font-bold">Lỗi!</strong>
+                <span class="block sm:inline"> @_errorMessage</span>
+                <button class="float-right font-bold" @onclick="() => LoadDataAsync()">
+                    <i class="ri-refresh-line me-1"></i>Thử lại
+                </button>
+            </div>
+        }else
+         {
+             <div class="grid grid-cols-1 gap-4">
+                 <!-- Patient Summary Card -->
+                 <div class="bg-white dark:bg-darklight rounded-lg border border-green-200 dark:border-green-800 shadow-lg overflow-hidden">
+                     <div class="bg-green-50 dark:bg-green-900/20 px-6 py-4 border-b border-green-200 dark:border-green-800">
+                         <h3 class="px-4 text-lg font-semibold text-green-800 dark:text-green-200 flex items-center">
+                             <i class="ri-user-line me-2 text-green-600"></i>
+                             Kết quả khám cận lâm sàng
+                         </h3>
+                     </div>
+                     
+                     <div class="p-6">
+                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                             <!-- Patient Info -->
+                             <div class="space-y-3">
+                                 <div class="flex items-center">
+                                     <i class="fas fa-user me-2 text-green-600"></i>
+                                     <div>
+                                          <strong>Thông tin bệnh nhân</strong>
+                                         <p class="font-medium text-gray-900 dark:text-gray-100">@GetUserFullName()</p>
+                                     </div>
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Mã BN:</strong> @(CurrentUser?.ma_benh_nhan ?? "BN001")
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Họ tên:</strong> @GetUserFullName()
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Công ty:</strong> 
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Chẩn đoán:</strong> @SoKhamSucKhoeModel?.ChuanDoan
+                                 </div>
+                             </div>
+
+                             <!-- Exam Info -->
+                             <div class="space-y-3">
+                                 <div class="flex items-center">
+                                     <i class="fas fa-calendar-alt me-2 text-green-600"></i>
+                                     <div>
+                                         <strong>Thông tin khám</strong>
+                                     </div>
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Mã lượt khám:</strong> @(SoKhamSucKhoeModel?.ma_luot_kham ?? ma_luot_kham)
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Ngày khám:</strong> @(SoKhamSucKhoeModel?.ngay_kham?.ToString("dd/MM/yyyy") ?? "")
+                                 </div>
+                                 <div class="text-sm text-gray-600 dark:text-gray-400">
+                                     <strong>Ghi chú:</strong> @SoKhamSucKhoeModel?.GhiChu
+                                 </div>
+                             </div>
+
+                             <!-- Spacer columns -->
+                             <div></div>
+                             <div></div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <!-- Subclinical Results List -->
+                 <div class="bg-white dark:bg-darklight rounded-lg border border-gray-200 dark:border-darkborder shadow-lg overflow-hidden">
+                     <div class="bg-green-50 dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                         <h3 class="px-4 text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
+                             <i class="ri-list-check me-2 text-gray-600"></i>
+                             Danh sách kết quả cận lâm sàng
+                         </h3>
+                     </div>
+                     
+                    <div class="p-6">
+                          @if (KhamSucKhoeCanLamSanModels != null && KhamSucKhoeCanLamSanModels.Any())
+                          {
+                              <div class="space-y-4" x-data="{ activeAccordion: null }">
+                                  @{
+                                      var itemIndex = 0;
+                                  }
+                                  @foreach (var item in KhamSucKhoeCanLamSanModels)
+                                  {
+                                      var currentIndex = itemIndex++;
+                                      <div class="dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800 overflow-hidden shadow-sm">
+                                          <!-- Accordion Header -->
+                                          <button class="w-full gap-2 px-4 py-4 text-left dark:bg-green-900/10 hover:bg-green-100 dark:hover:bg-green-900/20 border-b border-green-200 dark:border-green-800 flex items-center justify-between transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                  x-on:click="activeAccordion = activeAccordion === @currentIndex ? null : @currentIndex">
+                                              <div class="flex-1">
+                                                  <h4 class="font-bold text-green-600 dark:text-green-300 mb-1">
+                                                    <i class="ri-list-check-3 me-2 text-green-600 me-2"></i> @item.name</h4>
+                                                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                      Mã CKS: @item.code | Ngày kết luận: @item.date_created.ToString("dd/MM/yyyy")
+                                                  </p>
+                                              </div>
+                                              <div class="flex items-center space-x-2  bg-green-600 text-white dark:text-green-400 font-medium px-2 py-1 rounded-md">
+                                                  <span class="text-sm">Xem chi tiết</span>
+                                                  <i class="ri-arrow-down-s-line text-white dark:text-green-400 transition-transform duration-200"
+                                                     x-bind:class="activeAccordion === @currentIndex ? 'rotate-180' : ''"></i>
+                                              </div>
+                                          </button>
+                                          
+                                          <!-- Accordion Content -->
+                                          <div class="overflow-hidden transition-all duration-300"
+                                               x-show="activeAccordion === @currentIndex"
+                                               x-transition:enter="transition-all duration-300"
+                                               x-transition:enter-start="max-h-0"
+                                               x-transition:enter-end="max-h-[1000px]"
+                                               x-transition:leave="transition-all duration-300"
+                                               x-transition:leave-start="max-h-[1000px]"
+                                               x-transition:leave-end="max-h-0">
+                                              <div class="p-4 bg-white dark:bg-gray-800">
+                                                  @if (!string.IsNullOrEmpty(item.ket_qua_cls))
+                                                  {
+                                                      <div class="mb-4">
+                                                          <h5 class="font-bold dark:text-green-300 mb-2 flex items-center">
+                                                              <i class="fas fa-clipboard-check me-2 text-green-600"></i>
+                                                              Kết luận:
+                                                          </h5>
+                                                          <p class="bg-green-50 text-gray-700 dark:text-gray-300 p-3 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                                                              @item.ket_qua_cls
+                                                          </p>
+                                                      </div>
+                                                  }
+                                                  
+                                                  @if (!string.IsNullOrEmpty(item.file_cls?.filename_download))
+                                                  {
+                                                      <div class="mb-4">
+                                                          <h5 class="font-medium text-green-700 dark:text-green-300 mb-2 flex items-center">
+                                                              <i class="fas fa-file-medical me-2 text-green-600"></i>
+                                                              Nội dung kết quả:
+                                                          </h5>
+                                                          <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                                                              @{
+                                                                  // Get file info for display
+                                                                var fileName = Path.GetFileName(item.file_cls.filename_download);
+                                                                  var localPath = GetDirectLocalPath(fileName);
+                                                                  
+                                                                  // Only attempt download if not already processed
+                                                                  if (!IsFileAvailableLocally(fileName) && !IsFileCurrentlyDownloading(fileName) && !IsFileNotFound(fileName))
+                                                                  {
+                                                                      _ = DownloadFileDirectlyAsync(fileName);
+                                                                  }
+                                                              }
+                                                              
+                                                              @if (IsFileAvailableLocally(fileName))
+                                                              {
+                                                                  <iframe src="@localPath"
+                                                                          width="100%"
+                                                                          height="600px"
+                                                                          class="border rounded-lg border-gray-300 dark:border-gray-600"
+                                                                          title="Kết quả @item.name"
+                                                                          loading="lazy">
+                                                                  </iframe>
+                                                              }
+                                                              else if (IsFileNotFound(fileName))
+                                                              {
+                                                                  <div class="flex justify-center items-center py-12">
+                                                                      <div class="text-center">
+                                                                          <i class="fas fa-file-slash text-3xl mb-2 text-orange-400"></i>
+                                                                          <span class="text-gray-600 dark:text-gray-400">File không tồn tại</span>
+                                                                          <div class="mt-2 text-xs text-gray-500">
+                                                                              File: @fileName
+                                                                          </div>
+                                                                          <div class="mt-2 text-xs text-orange-500">
+                                                                              Đã kiểm tra tất cả đường dẫn có thể
+                                                                          </div>
+                                                                      </div>
+                                                                  </div>
+                                                              }
+                                                              else if (IsFileCurrentlyDownloading(fileName))
+                                                              {
+                                                                  <div class="flex justify-center items-center py-12">
+                                                                      <div class="text-center">
+                                                                          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
+                                                                          <span class="text-gray-600 dark:text-gray-400">Đang tải từ FTP...</span>
+                                                                          <div class="mt-2 text-xs text-gray-500">
+                                                                              File: @fileName
+                                                                          </div>
+                                                                          @{
+                                                                              var retryCount = _downloadRetryCount.ContainsKey(fileName) ? _downloadRetryCount[fileName] : 0;
+                                                                          }
+                                                                          <div class="mt-1 text-xs text-blue-500">
+                                                                              Lần thử: @retryCount/@MAX_DOWNLOAD_RETRIES
+                                                                          </div>
+                                                                      </div>
+                                                                  </div>
+                                                              }
+                                                              else
+                                                              {
+                                                                  <div class="flex justify-center items-center py-12">
+                                                                      <div class="text-center">
+                                                                          <i class="fas fa-file-medical-alt text-3xl mb-2 text-red-400"></i>
+                                                                          <span class="text-gray-600 dark:text-gray-400">Không thể tải file</span>
+                                                                          <div class="mt-2 text-xs text-gray-500">
+                                                                              File: @fileName
+                                                                          </div>
+                                                                          @{
+                                                                              var retryCount = _downloadRetryCount.ContainsKey(fileName) ? _downloadRetryCount[fileName] : 0;
+                                                                          }
+                                                                          @if (retryCount < MAX_DOWNLOAD_RETRIES)
+                                                                          {
+                                                                              <button @onclick="async () => await RetryDownload(fileName)" 
+                                                                                      class="mt-2 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                                                                                  Thử lại (@retryCount/@MAX_DOWNLOAD_RETRIES)
+                                                                              </button>
+                                                                          }
+                                                                          else
+                                                                          {
+                                                                              <div class="mt-2 text-xs text-red-500">
+                                                                                  Đã thử tối đa @MAX_DOWNLOAD_RETRIES lần
+                                                                              </div>
+                                                                          }
+                                                                      </div>
+                                                                  </div>
+                                                              }
+                                                          </div>
+                                                      </div>
+                                                  }
+                                                  else
+                                                  {
+                                                      <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                                                          <i class="fas fa-file-medical-alt text-3xl mb-2 text-green-400"></i>
+                                                          <p>Không có kết quả để hiển thị</p>
+                                                      </div>
+                                                  }
+                                              </div>
+                                          </div>
+                                      </div>
+                                  }
+                              </div>
+                          }
+                          else
+                          {
+                              <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+                                  <i class="fas fa-file-medical-alt text-4xl mb-4"></i>
+                                  <p class="text-lg">Không có kết quả cận lâm sàng nào.</p>
+                              </div>
+                          }
+                      </div>
+                 </div>
+             </div>
+         }
+
+    </div>
+</div>
+
+@code {
+    #region Constants
+
+    private const string DEFAULT_PROFILE_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
+    private const int ExpiredResultPage = 7; // 7 days
+    #endregion
+
+    #region Parameters and Injection
+
+    [Parameter] public string ma_luot_kham { get; set; } = "";
+
+    #endregion
+
+    #region Private Fields
+
+    // Medical record data models
+    private List<KhamSucKhoeCanLamSangModel>? KhamSucKhoeCanLamSanModels { get; set; }
+    private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
+
+    private UserModel? CurrentUser { get; set; }
+    private string _profileImageUrl = string.Empty;
+    private bool _isLoading = true;
+    private bool _isShowInputCCCD = false;
+    private string? _errorMessage;
+    private string _imagesFolder = $"/images/";
+    private string _logoPath = $"/images/Logo/logo.png";
+    private string _ftpFolder = $"";
+    private string _so_dinh_danh = string.Empty;
+    private bool _expired_result_page = false;
+    private bool _isPublic = false;
+
+    // Local file cache for CLS results
+    private readonly Dictionary<string, string> _localFileCache = new(); // fileName -> local file path
+    private readonly Dictionary<string, bool> _downloadingFiles = new(); // track downloading status
+    private readonly Dictionary<string, CancellationTokenSource> _downloadCancellationTokens = new(); // cancellation tokens for downloads
+    private readonly Dictionary<string, bool> _fileNotFound = new(); // cache files that don't exist to avoid retry
+    private readonly Dictionary<string, int> _downloadRetryCount = new(); // track retry attempts per file
+    private readonly Dictionary<string, bool> _fileNotFoundLogged = new(); // track logged not found messages to avoid spam
+    private string _clsImagesFolder => $"/images/cls/{ma_luot_kham}/"; // Local folder for CLS files
+    private bool _isDisposed = false;
+    private const int MAX_DOWNLOAD_RETRIES = 2; // Maximum retry attempts per file
+    private const int DOWNLOAD_TIMEOUT_SECONDS = 30; // Download timeout
+
+    #endregion
+
+    #region Lifecycle Methods
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadDataAsync();
+            _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
+        }
+    }
+    #endregion
+
+    #region Data Loading Methods
+
+    /// <summary>
+    /// Initialize page data with optimized loading and error handling
+    /// </summary>
+    private async Task InitializePageDataAsync()
+    {
+        if (_isDisposed) return;
+        
+        try
+        {
+            _isLoading = true;
+            _errorMessage = null;
+
+            // Load user data first
+            await LoadUserDataAsync();
+            
+            if (_isDisposed) return; // Check after async operation
+
+            if (CurrentUser != null)
+            {
+                // Load medical data if user is authenticated
+                await LoadKetQuaCanLamSangDataAsync();
+                
+                if (_isDisposed) return; // Check after async operation
+                
+                SetProfileImagePlaceholder();
+            }
+            else
+            {
+                await LoadSoKhamSucKhoeDataAsync();
+                
+                if (_isDisposed) return; // Check after async operation
+                
+                if (SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ngay_kham != null && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
+                {
+                    _expired_result_page = true;
+                }
+                else
+                {
+                    _isShowInputCCCD = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            if (!_isDisposed)
+            {
+                _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+                AlertService?.ShowAlert(_errorMessage, "danger");
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+            // Use InvokeAsync to avoid render cycle issues only if not disposed
+            if (!_isDisposed)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+    
+
+    private async Task LoadDataWithCccdAsync()
+    {
+        if (_isDisposed) return;
+        
+        if (string.IsNullOrWhiteSpace(_so_dinh_danh))
+        {
+            if (!_isDisposed)
+            {
+                AlertService?.ShowAlert("Vui lòng nhập CCCD", "warning");
+            }
+            return;
+        }
+
+        try
+        {
+            _isLoading = true;
+            _errorMessage = null;
+
+            var userResult = await UserService.GetUserByCCCDAsync(_so_dinh_danh);
+            
+            if (_isDisposed) return; // Check after async operation
+            
+            if (userResult?.IsSuccess == true && userResult.Data != null)
+            {
+                CurrentUser = userResult.Data;
+                _isPublic = true;
+
+                // Load medical data in parallel
+                await LoadKetQuaCanLamSangDataAsync();
+                
+                if (_isDisposed) return; // Check after async operation
+
+                // Validate user matches the medical record
+                if (SoKhamSucKhoeModel != null &&
+                    string.Equals(SoKhamSucKhoeModel.ma_benh_nhan, CurrentUser.ma_benh_nhan, StringComparison.OrdinalIgnoreCase))
+                {
+                    _isShowInputCCCD = false;
+                    SetProfileImagePlaceholder();
+                }
+                else
+                {
+                    _isShowInputCCCD = true;
+                    if (!_isDisposed)
+                    {
+                        AlertService?.ShowAlert("Không tìm thấy mã bệnh nhân với lượt khám này", "danger");
+                    }
+                }
+            }
+            else
+            {
+                if (!_isDisposed)
+                {
+                    _errorMessage = $"Không tìm thấy dữ liệu với CCCD: {_so_dinh_danh}";
+                    AlertService?.ShowAlert(_errorMessage, "danger");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            if (!_isDisposed)
+            {
+                _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+                AlertService?.ShowAlert(_errorMessage, "danger");
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+            // Use InvokeAsync to avoid render cycle issues only if not disposed
+            if (!_isDisposed)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Load data asynchronously (wrapper for InitializePageDataAsync)
+    /// </summary>
+    private async Task LoadDataAsync()
+    {
+        await InitializePageDataAsync();
+    }
+
+    /// <summary>
+    /// Load user data with caching
+    /// </summary>
+    private async Task LoadUserDataAsync()
+    {
+        if (CurrentUser != null) return; // Skip if already loaded
+
+        try
+        {
+            string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+            var tasks = new[]
+            {
+                BaseServiceHelper.LoadSingleRecordAsync(SoKhamSucKhoeService, query, r => SoKhamSucKhoeModel = r),
+            };
+
+            await Task.WhenAll(tasks);
+
+            if (SoKhamSucKhoeModel != null)
+            {
+                CurrentUser = SoKhamSucKhoeModel.benh_nhan;
+            }
+
+            @* var userResult = await UserService.GetCurrentUserAsync();
+            if (userResult?.IsSuccess == true)
+            {
+                CurrentUser = userResult.Data;
+            } *@
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user data: {ex.Message}");
+            // CurrentUser will remain null, triggering CCCD input
+        }
+        
+        // Build FTP folder path based on user and medical record
+        if (CurrentUser != null)
+        {
+            _ftpFolder = $"{CurrentUser.ma_benh_nhan}/{ma_luot_kham}/";
+        }
+        else
+        {
+            _ftpFolder = $"{ma_luot_kham}/";
+        }
+    }
+
+    private async Task LoadKetQuaCanLamSangDataAsync()
+    {
+        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+        var result = await KhamSucKhoeCanLamSanService.GetAllAsync(query, true);
+        if (result?.IsSuccess == true && result.Data != null)
+        {
+            KhamSucKhoeCanLamSanModels = result.Data;
+            
+            // Create local folder for CLS files
+            EnsureClsImagesFolderExists();
+        }
+    }
+
+    /// <summary>
+    /// Ensure CLS images folder exists
+    /// </summary>
+    private void EnsureClsImagesFolderExists()
+    {
+        try
+        {
+            var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham);
+            if (!Directory.Exists(physicalPath))
+            {
+                Directory.CreateDirectory(physicalPath);
+                Console.WriteLine($"Created CLS images folder: {physicalPath}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating CLS images folder: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Clean up CLS images folder
+    /// </summary>
+    private void CleanupClsImagesFolder()
+    {
+        if (string.IsNullOrEmpty(ma_luot_kham)) return;
+
+        try
+        {
+            var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham);
+            if (Directory.Exists(physicalPath))
+            {
+                // Delete all files in the folder
+                var files = Directory.GetFiles(physicalPath);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+
+                // Delete the folder itself
+                Directory.Delete(physicalPath);
+                Console.WriteLine($"Cleanup: Deleted CLS images folder: {physicalPath}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cleaning up CLS images folder: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Get debug info for FTP paths
+    /// </summary>
+    private string GetFtpPathDebugInfo(string filePath)
+    {
+        var fileName = Path.GetFileName(filePath);
+        var paths = new[]
+        {
+            $"1: {filePath}",
+            $"2: {fileName}",
+            $"3: {_ftpFolder}{fileName}",
+            $"4: {_ftpFolder}{filePath}"
+        };
+        return string.Join(" | ", paths);
+    }
+    private async Task LoadSoKhamSucKhoeDataAsync()
+    {
+        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+        var result = await SoKhamSucKhoeService.GetAllAsync(query, true);
+        if (result?.IsSuccess == true && result.Data != null)
+        {
+            SoKhamSucKhoeModel = result.Data.FirstOrDefault();
+        }
+    }
+
+
+    /// <summary>
+    /// Set profile image placeholder
+    /// </summary>
+    private void SetProfileImagePlaceholder()
+    {
+        if (string.IsNullOrEmpty(_profileImageUrl))
+        {
+            _profileImageUrl = DEFAULT_PROFILE_IMAGE;
+        }
+    }
+
+    #endregion
+
+    #region UI Event Handlers
+    private void BackToList()
+    {
+        Navigation.NavigateTo($"/admin/ho-so-suc-khoe-chi-tiet/{CurrentUser?.id}");
+    }
+
+    private void LoginAsync()
+    {
+        Navigation.NavigateTo("/signin");
+    }
+
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Safe access to user full name
+    /// </summary>
+    private string GetUserFullName() =>
+        CurrentUser != null ? $"{CurrentUser.last_name} {CurrentUser.first_name}".Trim() : string.Empty;
+
+    /// <summary>
+    /// Render signature as HTML - either image or text
+    /// </summary>
+    /// <param name="signatureData">Signature data (hex string or text)</param>
+    /// <param name="fallbackText">Fallback text if signature is empty</param>
+    /// <param name="fileName">File name for saving image</param>
+    /// <param name="maxWidth">Maximum width for signature image</param>
+    /// <param name="maxHeight">Maximum height for signature image</param>
+    /// <returns>MarkupString containing signature HTML</returns>
+    private MarkupString RenderSignature(string? signatureData, string? fallbackText = "", string? fileName = "", int maxWidth = 120, int maxHeight = 60)
+    {
+        if (string.IsNullOrEmpty(signatureData)) return new MarkupString();
+        var html = signatureData.GetSignatureDisplayHtml(fallbackText, fileName, maxWidth, maxHeight,
+            WebHostEnvironment.WebRootPath + _imagesFolder + ma_luot_kham, Configuration["DrCoreApi:BaseUrlImage"]);
+        return new MarkupString(html);
+    }
+
+    #endregion
+
+    #region Dispose Method
+
+    /// <summary>
+    /// Clean up resources, cancel all downloads, and delete temporary files when component is disposed
+    /// </summary>
+    public void Dispose()
+    {
+        if (_isDisposed) return;
+        
+        _isDisposed = true;
+        
+        try
+        {
+            Console.WriteLine($"Disposing SubclinicalResultDetailPage for ma_luot_kham: {ma_luot_kham}");
+            
+            // 1. Cancel all active download operations
+            CancelAllDownloads();
+            
+            // 2. Clear all caches and tracking dictionaries
+            ClearAllCaches();
+            
+            // 3. Clean up temporary files and folders
+            CleanupAllTemporaryFiles();
+            
+            Console.WriteLine("Successfully disposed all resources");
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't throw exception in Dispose
+            Console.WriteLine($"Error during dispose cleanup: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Cancel all active download operations
+    /// </summary>
+    private void CancelAllDownloads()
+    {
+        try
+        {
+            var cancelledCount = 0;
+            var activeDownloads = _downloadCancellationTokens.ToList(); // Create copy to avoid modification during iteration
+            
+            foreach (var kvp in activeDownloads)
+            {
+                try
+                {
+                    if (!kvp.Value.Token.IsCancellationRequested)
+                    {
+                        kvp.Value.Cancel();
+                        cancelledCount++;
+                        Console.WriteLine($"Cancelled download: {kvp.Key}");
+                    }
+                    kvp.Value.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error cancelling download {kvp.Key}: {ex.Message}");
+                }
+            }
+            
+            if (cancelledCount > 0)
+            {
+                Console.WriteLine($"Cancelled {cancelledCount} active downloads");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during download cancellation: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Clear all caches and tracking dictionaries
+    /// </summary>
+    private void ClearAllCaches()
+    {
+        try
+        {
+            var localCacheCount = _localFileCache.Count;
+            var downloadingCount = _downloadingFiles.Count;
+            var tokenCount = _downloadCancellationTokens.Count;
+            var notFoundCount = _fileNotFound.Count;
+            var retryCount = _downloadRetryCount.Count;
+            var loggedCount = _fileNotFoundLogged.Count;
+            
+            // Clear all tracking dictionaries
+            _localFileCache.Clear();
+            _downloadingFiles.Clear();
+            _downloadCancellationTokens.Clear();
+            _fileNotFound.Clear();
+            _downloadRetryCount.Clear();
+            _fileNotFoundLogged.Clear();
+            
+            Console.WriteLine($"Cleared caches - Local: {localCacheCount}, Downloading: {downloadingCount}, Tokens: {tokenCount}, NotFound: {notFoundCount}, Retry: {retryCount}, Logged: {loggedCount}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error clearing caches: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Clean up all temporary files and folders
+    /// </summary>
+    private void CleanupAllTemporaryFiles()
+    {
+        try
+        {
+            // Clean up signature images folder
+            CleanupSignatureImages();
+            
+            // Clean up CLS files folder
+            CleanupClsImagesFolder();
+            
+            Console.WriteLine("Cleaned up all temporary files and folders");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cleaning up temporary files: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Delete all signature images in the component's folder
+    /// </summary>
+    private void CleanupSignatureImages()
+    {
+        if (string.IsNullOrEmpty(ma_luot_kham)) return;
+
+        try
+        {
+            // Delete specific folder for this medical record
+            string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder + $"{ma_luot_kham}";
+            if (Directory.Exists(folderPath))
+            {
+                // Delete all files in the folder
+                var files = Directory.GetFiles(folderPath);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+
+                // Delete the folder itself
+                Directory.Delete(folderPath);
+                Console.WriteLine($"Cleanup: Deleted signature folder: {folderPath}");
+            }
+
+            // Also clean up any stray signature files in root images folder
+            string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", ma_luot_kham);
+            if (Directory.Exists(rootImagesPath))
+            {
+                // Find and delete files that might be related to this medical record
+                var signatureFiles = Directory.GetFiles(rootImagesPath, "*");
+
+                foreach (var file in signatureFiles)
+                {
+                    File.Delete(file);
+                    Console.WriteLine($"Cleanup: Deleted stray signature file: {Path.GetFileName(file)}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cleaning up signature images: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Read file content from FTP server as string
+    /// </summary>
+    private async Task<string> ReadFileFromFTP(string fileName)
+    {
+        try
+        {
+            // Use byte download method which has better error handling
+            var bytes = await FtpService.DownloadFileAsBytesAsync(fileName);
+            if (bytes != null && bytes.Length > 0)
+            {
+                return System.Text.Encoding.UTF8.GetString(bytes);
+            }
+            return string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error reading file from FTP: {ex.Message}");
+            return string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Download file from FTP and save to local folder with retry limit and file not found cache
+    /// </summary>
+    private async Task<string> DownloadFileFromFtpToLocal(string ftpFileName)
+    {
+        if (_isDisposed || string.IsNullOrEmpty(ftpFileName) || !IsValidFileName(ftpFileName)) return string.Empty;
+
+        var localFileName = Path.GetFileName(ftpFileName);
+        var localPath = _clsImagesFolder + localFileName;
+        
+        // Check if file is already marked as not found - avoid retrying
+        if (_fileNotFound.ContainsKey(ftpFileName) && _fileNotFound[ftpFileName])
+        {
+            // Only log once per file to avoid spam
+            if (!_fileNotFoundLogged.ContainsKey(ftpFileName) || !_fileNotFoundLogged[ftpFileName])
+            {
+                Console.WriteLine($"File already marked as not found: {ftpFileName}");
+                _fileNotFoundLogged[ftpFileName] = true;
+            }
+            return string.Empty;
+        }
+        
+        // Check if already cached locally
+        if (_localFileCache.TryGetValue(ftpFileName, out string? cachedPath))
+        {
+            return cachedPath;
+        }
+
+        // Check if currently downloading
+        if (_downloadingFiles.ContainsKey(ftpFileName) && _downloadingFiles[ftpFileName])
+        {
+            return string.Empty; // Return empty, will show loading
+        }
+        
+        // Check retry count
+        var currentRetryCount = _downloadRetryCount.ContainsKey(ftpFileName) ? _downloadRetryCount[ftpFileName] : 0;
+        if (currentRetryCount >= MAX_DOWNLOAD_RETRIES)
+        {
+            Console.WriteLine($"Max retry attempts ({MAX_DOWNLOAD_RETRIES}) reached for file: {ftpFileName} - marking as not found");
+            _fileNotFound[ftpFileName] = true; // Mark as not found
+            _fileNotFoundLogged[ftpFileName] = false; // Allow logging once when marked
+            _localFileCache[ftpFileName] = string.Empty;
+            return string.Empty;
+        }
+
+        // Increment retry count
+        _downloadRetryCount[ftpFileName] = currentRetryCount + 1;
+
+        // Create cancellation token with timeout
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(DOWNLOAD_TIMEOUT_SECONDS));
+        _downloadCancellationTokens[ftpFileName] = cancellationTokenSource;
+
+        try
+        {
+            _downloadingFiles[ftpFileName] = true;
+            
+            Console.WriteLine($"Downloading FTP file: {ftpFileName} (Attempt {currentRetryCount + 1}/{MAX_DOWNLOAD_RETRIES})");
+            
+            // Check if already disposed or cancelled
+            if (_isDisposed || cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                return string.Empty;
+            }
+            
+            // Try different FTP paths
+            var pathsToTry = new[]
+            {
+                $"{CurrentUser?.ma_benh_nhan}/{ma_luot_kham}/{localFileName}",
+                $"{ma_luot_kham}/{localFileName}",
+            };
+
+            byte[]? fileBytes = null;
+            string? successfulPath = null;
+            bool fileExistsAnywhere = false;
+
+            foreach (var ftpPath in pathsToTry)
+            {
+                try
+                {
+                    // Check for cancellation before each attempt
+                    if (_isDisposed || cancellationTokenSource.Token.IsCancellationRequested)
+                    {
+                        Console.WriteLine($"Download cancelled for: {ftpFileName}");
+                        return string.Empty;
+                    }
+
+                    Console.WriteLine($"Trying FTP path: {ftpPath}");
+                    
+                    // Check if file exists first with timeout
+                    var fileExistsTask = FtpService.FileExistsAsync(ftpPath);
+                    var fileExists = await fileExistsTask.WaitAsync(cancellationTokenSource.Token);
+                    
+                    if (!fileExists) 
+                    {
+                        Console.WriteLine($"File not found at: {ftpPath}");
+                        continue;
+                    }
+                    
+                    fileExistsAnywhere = true;
+                    
+                    // Check cancellation again before downloading
+                    if (_isDisposed || cancellationTokenSource.Token.IsCancellationRequested)
+                    {
+                        return string.Empty;
+                    }
+                    
+                    // Download file with timeout
+                    var downloadTask = FtpService.DownloadFileAsBytesAsync(ftpPath);
+                    fileBytes = await downloadTask.WaitAsync(cancellationTokenSource.Token);
+                    
+                    if (fileBytes != null && fileBytes.Length > 0)
+                    {
+                        successfulPath = ftpPath;
+                        Console.WriteLine($"Successfully downloaded from: {ftpPath} ({fileBytes.Length} bytes)");
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Downloaded empty file from: {ftpPath}");
+                    }
+                }
+                catch (TimeoutException)
+                {
+                    Console.WriteLine($"Download timeout for path: {ftpPath}");
+                    continue;
+                }
+                catch (OperationCanceledException)
+                {
+                    Console.WriteLine($"Download cancelled for: {ftpFileName}");
+                    return string.Empty;
+                }
+                catch (Exception pathEx)
+                {
+                    Console.WriteLine($"Failed to download from {ftpPath}: {pathEx.Message}");
+                    continue;
+                }
+            }
+            
+            // If file doesn't exist anywhere, mark as not found
+            if (!fileExistsAnywhere)
+            {
+                Console.WriteLine($"File does not exist anywhere: {ftpFileName} - marking as not found");
+                _fileNotFound[ftpFileName] = true;
+                _fileNotFoundLogged[ftpFileName] = false; // Allow logging once when marked
+                _localFileCache[ftpFileName] = string.Empty;
+                return string.Empty;
+            }
+            
+            // Final cancellation check before saving
+            if (_isDisposed || cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                return string.Empty;
+            }
+            
+            if (fileBytes != null && fileBytes.Length > 0)
+            {
+                // Save to local file
+                var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, localFileName);
+                await File.WriteAllBytesAsync(physicalPath, fileBytes, cancellationTokenSource.Token);
+                
+                Console.WriteLine($"Saved local file: {physicalPath}");
+                // Cache the local path only if not cancelled
+                if (!_isDisposed && !cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    _localFileCache[ftpFileName] = localPath;
+                    // Reset retry count on success
+                    _downloadRetryCount.Remove(ftpFileName);
+                }
+                return localPath;
+            }
+            else
+            {
+                Console.WriteLine($"Failed to download file after {currentRetryCount + 1} attempts: {ftpFileName}");
+                
+                // Mark as not found if reached max retries
+                if (currentRetryCount + 1 >= MAX_DOWNLOAD_RETRIES)
+                {
+                    Console.WriteLine($"Marking {ftpFileName} as not found after {MAX_DOWNLOAD_RETRIES} failed attempts");
+                    _fileNotFound[ftpFileName] = true;
+                    _fileNotFoundLogged[ftpFileName] = false; // Allow logging once when marked
+                }
+                
+                _localFileCache[ftpFileName] = string.Empty;
+                return string.Empty;
+            }
+        }
+        catch (TimeoutException)
+        {
+            Console.WriteLine($"Download timeout for: {ftpFileName}");
+            return string.Empty;
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine($"Download operation cancelled for: {ftpFileName}");
+            return string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error downloading file from FTP: {ftpFileName}, Error: {ex.Message}");
+            
+            // Mark as not found if reached max retries
+            if (currentRetryCount + 1 >= MAX_DOWNLOAD_RETRIES)
+            {
+                Console.WriteLine($"Marking {ftpFileName} as not found after exception on attempt {currentRetryCount + 1}");
+                _fileNotFound[ftpFileName] = true;
+                _fileNotFoundLogged[ftpFileName] = false; // Allow logging once when marked
+            }
+            
+            _localFileCache[ftpFileName] = string.Empty;
+            return string.Empty;
+        }
+        finally
+        {
+            _downloadingFiles[ftpFileName] = false;
+            
+            // Clean up cancellation token
+            if (_downloadCancellationTokens.ContainsKey(ftpFileName))
+            {
+                _downloadCancellationTokens[ftpFileName].Dispose();
+                _downloadCancellationTokens.Remove(ftpFileName);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Get local file path for iframe or download from FTP if needed
+    /// </summary>
+    private async Task<string> GetLocalFileForIframe(string ftpFileName)
+    {
+        if (string.IsNullOrEmpty(ftpFileName)) return string.Empty;
+
+        try
+        {
+            // Skip if filename is empty or doesn't look like a file
+            if (!IsValidFileName(ftpFileName))
+            {
+                return ftpFileName; // Return original if not valid
+            }
+            
+            // Download from FTP to local folder
+            var localPath = await DownloadFileFromFtpToLocal(ftpFileName);
+            
+            // Return local path if download successful
+            if (!string.IsNullOrEmpty(localPath))
+            {
+                return localPath;
+            }
+            
+            // Fallback to original filename
+            return ftpFileName;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting local file for iframe: {ex.Message}");
+            return ftpFileName;
+        }
+    }
+
+    /// <summary>
+    /// Check if filename is valid for FTP loading
+    /// </summary>
+    private static bool IsValidFileName(string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName)) return false;
+        
+        // Check for common file extensions that should be loaded from FTP
+        var validExtensions = new[] { ".html", ".htm", ".pdf", ".txt" };
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
+        
+        return validExtensions.Contains(extension);
+    }
+
+    /// <summary>
+    /// Get direct local path for file without caching
+    /// </summary>
+    private string GetDirectLocalPath(string fileName)
+    {
+        return _clsImagesFolder + fileName;
+    }
+
+    /// <summary>
+    /// Check if file is available locally or marked as not found
+    /// </summary>
+    private bool IsFileAvailableLocally(string fileName)
+    {
+        // If file is marked as not found, don't try to load it
+        if (_fileNotFound.ContainsKey(fileName) && _fileNotFound[fileName])
+        {
+            return false;
+        }
+        
+        var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, fileName);
+        return File.Exists(physicalPath);
+    }
+
+    /// <summary>
+    /// Check if file is currently downloading
+    /// </summary>
+    private bool IsFileCurrentlyDownloading(string fileName)
+    {
+        return _downloadingFiles.ContainsKey(fileName) && _downloadingFiles[fileName];
+    }
+
+    /// <summary>
+    /// Check if file is marked as not found
+    /// </summary>
+    private bool IsFileNotFound(string fileName)
+    {
+        return _fileNotFound.ContainsKey(fileName) && _fileNotFound[fileName];
+    }
+
+    /// <summary>
+    /// Reset file status to allow re-download
+    /// </summary>
+    private void ResetFileStatus(string fileName)
+    {
+        Console.WriteLine($"Resetting file status for: {fileName}");
+        _localFileCache.Remove(fileName);
+        _downloadingFiles.Remove(fileName);
+        _fileNotFound.Remove(fileName);
+        _downloadRetryCount.Remove(fileName);
+        _fileNotFoundLogged.Remove(fileName);
+        
+        // Cancel any existing download
+        if (_downloadCancellationTokens.TryGetValue(fileName, out var token))
+        {
+            token.Cancel();
+            token.Dispose();
+            _downloadCancellationTokens.Remove(fileName);
+        }
+    }
+
+    /// <summary>
+    /// Download file directly from FTP without caching - with download attempt tracking
+    /// </summary>
+    private async Task DownloadFileDirectlyAsync(string fileName)
+    {
+        if (_isDisposed || IsFileAvailableLocally(fileName) || IsFileCurrentlyDownloading(fileName))
+            return;
+            
+        // Don't attempt download if file is already marked as not found
+        if (IsFileNotFound(fileName))
+            return;
+
+        await DownloadFileFromFtpToLocal(fileName);
+        
+        // Only update UI if not disposed
+        if (!_isDisposed)
+        {
+            StateHasChanged(); // Refresh UI after download
+        }
+    }
+
+    /// <summary>
+    /// Retry download for failed files with disposal check and reset not found status
+    /// </summary>
+    private async Task RetryDownload(string fileName)
+    {
+        if (_isDisposed) return;
+        
+        try
+        {
+            Console.WriteLine($"Manual retry for file: {fileName}");
+            
+            // Cancel existing download if any
+            if (_downloadCancellationTokens.TryGetValue(fileName, out var existingToken))
+            {
+                existingToken.Cancel();
+                existingToken.Dispose();
+                _downloadCancellationTokens.Remove(fileName);
+            }
+            
+            // Clear all tracking for this file to start fresh
+            _localFileCache.Remove(fileName);
+            _downloadingFiles.Remove(fileName);
+            _fileNotFound.Remove(fileName); // Reset not found status
+            _downloadRetryCount.Remove(fileName); // Reset retry count
+            _fileNotFoundLogged.Remove(fileName); // Reset logged status
+            
+            // Delete local file if exists
+            var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, fileName);
+            if (File.Exists(physicalPath))
+            {
+                File.Delete(physicalPath);
+                Console.WriteLine($"Deleted existing file for retry: {physicalPath}");
+            }
+            
+            // Download again if not disposed
+            if (!_isDisposed)
+            {
+                await DownloadFileDirectlyAsync(fileName);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during retry download for {fileName}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Get local file loading status for debugging
+    /// </summary>
+    private string GetFtpLoadingStatus()
+    {
+        var localCached = _localFileCache.Count;
+        var downloading = _downloadingFiles.Count(x => x.Value);
+        var notFound = _fileNotFound.Count(x => x.Value);
+        var totalRetries = _downloadRetryCount.Values.Sum();
+        var logged = _fileNotFoundLogged.Count(x => x.Value);
+        
+        return $"Local: {localCached}, Downloading: {downloading}, NotFound: {notFound}, Retries: {totalRetries}, Logged: {logged}, Folder: '{_clsImagesFolder}'";
+    }
+
+    /// <summary>
+    /// Clear all local file caches and delete downloaded files with cancellation
+    /// </summary>
+    private void ClearFtpCache()
+    {
+        if (_isDisposed) return;
+        
+        try
+        {
+            var localCount = _localFileCache.Count;
+            var downloadingCount = _downloadingFiles.Count;
+            var tokenCount = _downloadCancellationTokens.Count;
+            var notFoundCount = _fileNotFound.Count;
+            var retryCount = _downloadRetryCount.Count;
+            var loggedCount = _fileNotFoundLogged.Count;
+            
+            // Cancel all active downloads first
+            CancelAllDownloads();
+            
+            // Clear all caches and tracking
+            _localFileCache.Clear();
+            _downloadingFiles.Clear();
+            _downloadCancellationTokens.Clear();
+            _fileNotFound.Clear();
+            _downloadRetryCount.Clear();
+            _fileNotFoundLogged.Clear();
+            
+            // Delete local files
+            CleanupClsImagesFolder();
+            
+            // Recreate folder for future downloads if not disposed
+            if (!_isDisposed)
+            {
+                EnsureClsImagesFolderExists();
+            }
+            
+            Console.WriteLine($"Cleared FTP cache: {localCount} local files, {downloadingCount} downloading states, {tokenCount} tokens, {notFoundCount} not found, {retryCount} retry counts, {loggedCount} logged");
+            
+            // Refresh UI only if not disposed
+            if (!_isDisposed)
+            {
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error clearing FTP cache: {ex.Message}");
+        }
+    }
+
+
+
+    /// <summary>
+    /// Read file content from FTP server as byte array
+    /// </summary>
+    private async Task<byte[]> ReadFileAsBytesFromFTP(string fileName)
+    {
+        try
+        {
+            return await FtpService.DownloadFileAsBytesAsync(fileName);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error reading file bytes from FTP: {ex.Message}");
+            return Array.Empty<byte>();
+        }
+    }
+
+
+    /// <summary>
+    /// List files in FTP directory
+    /// </summary>
+    private async Task<List<string>> ListFilesFromFTP(string directory = "")
+    {
+        try
+        {
+            return await FtpService.ListFilesAsync(directory);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error listing files from FTP: {ex.Message}");
+            return new List<string>();
+        }
+    }
+
+    #endregion
+}

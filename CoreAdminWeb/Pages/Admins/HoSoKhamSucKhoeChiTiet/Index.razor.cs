@@ -198,11 +198,11 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
 
         private void ViewRecordDetail(SoKhamSucKhoeModel record)
         {
-            // Navigation.NavigateTo($"/record-detail-page/{record.ma_luot_kham}");
+            NavigationManager?.NavigateTo($"/admin/record-detail-page/{record.ma_luot_kham}");
         }
         private void ViewSubClinicalDetail(SoKhamSucKhoeModel record)
         {
-            // Navigation.NavigateTo($"/subclinical-result-detail-page/{record.ma_luot_kham}");
+            NavigationManager?.NavigateTo($"/admin/subclinical-result-detail-page/{record.ma_luot_kham}");
         }
 
         private async Task LoadKetLuanAsync()

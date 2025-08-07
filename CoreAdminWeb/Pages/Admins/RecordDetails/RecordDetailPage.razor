@@ -1,0 +1,699 @@
+@page "/admin/record-detail-page/{ma_luot_kham}"
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Shared.Base
+@using CoreAdminWeb.Shared.Components
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Services.PDFService
+@using Microsoft.Extensions.Configuration
+@using System.Linq
+@inherits BlazorCoreBase
+@inject NavigationManager Navigation
+@inject IWebHostEnvironment WebHostEnvironment
+@implements IDisposable
+@layout Shared.Layout.AdminLayout
+
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+    <div class="grid grid-cols-1 gap-4">
+        <div class="group-button flex justify-between items-center mb-6">
+            <div class="detail-ksk">
+                <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
+                    <i class="fas fa-file-medical me-2 text-primary"></i>
+                    Sổ Khám sức khỏe
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 mb-0">Chi tiết khám sức khỏe của bạn</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="px-4 py-2 bg-purple text-white rounded hover:bg-purple-dark transition-colors" @onclick="BackToList">
+                    <i class="ri-arrow-left-line me-1"></i>Quay lại
+                </button>
+                <button class="px-4 py-2 bg-info text-white rounded hover:bg-info-dark transition-colors"
+                        @onclick="PrintRecord" disabled="@_isLoading">
+                    <i class="ri-printer-line me-1"></i>In
+                </button>
+                <button class="px-4 py-2 bg-success text-white rounded hover:bg-success-dark transition-colors"
+                        @onclick="ExportPDF" disabled="@_isLoading">
+                    <i class="ri-file-pdf-line me-1"></i>Xuất PDF
+                </button>
+            </div>
+        </div>
+
+
+        @if (_isLoading)
+        {
+            <div class="flex justify-center items-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
+            </div>
+        }
+        else if (_isShowInputCCCD)
+        {
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-1 2xl:grid-cols-12">
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10 2xl:col-span-4">
+
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">📘 Hướng dẫn</h2>
+
+                    <ul class="mb-5">
+                        <li class="mb-2">Nhập CCCD/ĐT để xem kết quả khám</li>
+                        <li class="mb-2">Thời gian truy cập có giới hạn (7 ngày), vui lượng đăng nhập để xem chi tiết</li>
+                        <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
+                    </ul>
+                    <hr>
+                    <h5 class="mt-4 mb-2">📞 Hỗ trợ khách hàng</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Hotline:</strong> 1900 966 979</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Email:</strong> <a href="marketing@vanphuc.com">marketing@vanphuc.com</a></li>
+                        <li class="mb-2"><i class="bi bi-clock-fill me-2 text-primary"></i><strong>Giờ hỗ trợ:</strong> 7h – 17h</li>
+                    </ul>
+
+                </div>
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder 2xl:col-span-8 border-black/10">
+                    <ul class="mb-4 list-unstyled">
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Họ và tên:</strong> @(string.IsNullOrEmpty(GetUserFullName()) ? "*****" : CoreHelpers.GetSafeString(GetUserFullName()))</li>
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Mã lượt khám:</strong> @CoreHelpers.GetSafeString(SoKhamSucKhoeModel?.ma_luot_kham)</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Ngày khám:</strong> @CoreHelpers.FormatDate(SoKhamSucKhoeModel?.ngay_kham)</li>
+                    </ul>
+                    @* <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Xác thực xem kết quả KSK</h2> *@
+                    <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập CCCD hoặc số điện thoại</MudText>
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <input type="text" class="form-input" placeholder="CCCD hoặc SĐT" required="" @bind-value="@_so_dinh_danh">
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <MudButton type="button" Class="btn bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700 text-white transition-colors shadow-sm" OnClick="LoadDataWithCccdAsync">Xem kết quả</MudButton>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        }
+        else if (_expired_result_page)
+        {
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-1 2xl:grid-cols-12">
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10 2xl:col-span-4">
+
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">📘 Hướng dẫn</h2>
+
+                    <ul class="mb-5">
+                        <li class="mb-2">Đăng nhập để xem kết quả khám bằng thông tin được gửi qua email</li>
+                        <li class="mb-2">Thời gian truy cập có giới hạn (7 ngày)</li>
+                        <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
+                    </ul>
+                    <hr>
+                    <h5 class="mt-4 mb-2">📞 Hỗ trợ khách hàng</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Hotline:</strong> 1900 966 979</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Email:</strong> <a href="marketing@vanphuc.com">marketing@vanphuc.com</a></li>
+                        <li class="mb-2"><i class="bi bi-clock-fill me-2 text-primary"></i><strong>Giờ hỗ trợ:</strong> 7h – 17h</li>
+                    </ul>
+
+                </div>
+                <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder 2xl:col-span-8 border-black/10">
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thông báo</h2>
+                    <div class="flex items-center gap-2 p-3 mb-5text-white rounded bg-success">
+                        <strong>Thông báo:</strong> Thời gian xem kết quả đã hết hạn. Vui lòng đăng nhập để xem chi tiết.
+                    </div>
+                    <MudButton type="button" Class="btn mt-4  bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]"
+                               OnClick="LoginAsync">Đăng nhập</MudButton>
+                </div>
+
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <strong class="font-bold">Lỗi!</strong>
+                <span class="block sm:inline"> @_errorMessage</span>
+                <button class="float-right font-bold" @onclick="() => LoadDataAsync()">
+                    <i class="ri-refresh-line me-1"></i>Thử lại
+                </button>
+            </div>
+        }
+        else
+        {
+            <!-- Printable Medical Form Content -->
+            @if (SoKhamSucKhoeModel != null) {
+                <PDFTemplatePrint RenderSignature="RenderSignature"
+                                  SelectedItem="SoKhamSucKhoeModel"
+                                  SelectedKhamSucKhoeChuyenKhoa="KhamSucKhoeChuyenKhoaModel"
+                                  SelectedKhamSucKhoeKetLuan="KhamSucKhoeKetLuanModel"
+                                  SelectedKhamSucKhoeKetQuaCanLamSangs="KhamSucKhoeKetQuaCanLamSangs"
+                                  SelectedKhamSucKhoeNgheNghiep="KhamSucKhoeNgheNghiepModel"
+                                  SelectedKhamSucKhoeSanPhuKhoa="KhamSucKhoeSanPhuKhoaModel"
+                                  SelectedKhamSucKhoeTheLuc="KhamSucKhoeTheLucModel"
+                                  SelectedKhamSucKhoeTienSu="KhamSucKhoeTienSuModel"
+                                  _logoPath="@_logoPath"
+                                  _profileImageUrl="@_profileImageUrl" />
+            }  
+        }
+    </div>
+</div>
+
+@code {
+    #region Constants
+
+    private const string DEFAULT_PROFILE_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
+    #endregion
+
+    #region Parameters and Injection
+
+    [Parameter] public string ma_luot_kham { get; set; } = "";
+    [Inject] IUserService UserService { get; set; } = null!;
+    [Inject] IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService { get; set; } = null!;
+    [Inject] IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService { get; set; } = null!;
+    [Inject] IPdfService PdfService { get; set; } = null!;
+    [Inject] IConfiguration Configuration { get; set; } = null!;
+
+    #endregion
+
+    #region Private Fields
+
+    // Medical record data models
+    private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
+    private KhamSucKhoeChuyenKhoaModel? KhamSucKhoeChuyenKhoaModel { get; set; }
+    private KhamSucKhoeKetLuanModel? KhamSucKhoeKetLuanModel { get; set; }
+    private KhamSucKhoeNgheNghiepModel? KhamSucKhoeNgheNghiepModel { get; set; }
+    private KhamSucKhoeSanPhuKhoaModel? KhamSucKhoeSanPhuKhoaModel { get; set; }
+    private KhamSucKhoeTheLucModel? KhamSucKhoeTheLucModel { get; set; }
+    private KhamSucKhoeTienSuModel? KhamSucKhoeTienSuModel { get; set; }
+    private List<KhamSucKhoeKetQuaCanLamSangModel>? KhamSucKhoeKetQuaCanLamSangs { get; set; } = new List<KhamSucKhoeKetQuaCanLamSangModel>();
+
+    private UserModel? CurrentUser { get; set; }
+    private string _profileImageUrl = string.Empty;
+    private bool _isLoading = true;
+    private bool _isShowInputCCCD = false;
+    private string? _errorMessage;
+    private readonly string _imagesFolder = $"/images/";
+    private string _logoPath = $"/images/Logo/logo.png";
+    private string _so_dinh_danh = string.Empty;
+    private bool _expired_result_page = false;
+    private bool _isPublic = false;
+
+    #endregion
+
+    #region Lifecycle Methods
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadDataAsync();
+            _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
+        }
+    }
+    #endregion
+
+    #region Data Loading Methods
+
+    /// <summary>
+    /// Initialize page data with optimized loading and error handling
+    /// </summary>
+    private async Task InitializePageDataAsync()
+    {
+        try
+        {
+            _isLoading = true;
+            _errorMessage = null;
+
+            // Load user data first
+            await LoadUserDataAsync();
+
+            if (CurrentUser != null)
+            {
+                // Load medical data if user is authenticated
+                await LoadMedicalDataAsync();
+                SetProfileImagePlaceholder();
+            }
+            else
+            {
+                await LoadSoKhamSucKhoeDataAsync();
+
+                if (SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ngay_kham != null
+                                               && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
+                {
+                    _expired_result_page = true;
+                }
+                else
+                {
+                    _isShowInputCCCD = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+            AlertService?.ShowAlert(_errorMessage, "danger");
+        }
+        finally
+        {
+            _isLoading = false;
+            // Use InvokeAsync to avoid render cycle issues
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Load all medical record data and user information asynchronously
+    /// </summary>
+    /// <summary>
+    /// Load data with CCCD input - optimized version
+    /// </summary>
+    private async Task LoadDataWithCccdAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_so_dinh_danh))
+        {
+            AlertService?.ShowAlert("Vui lòng nhập CCCD hoặc SĐT để xem kết quả", "warning");
+            return;
+        }
+
+        try
+        {
+            _isLoading = true;
+            _errorMessage = null;
+
+            var userResult = await UserService.GetUserByCCCDAsync(_so_dinh_danh);
+            if (userResult?.IsSuccess == true && userResult.Data != null)
+            {
+                CurrentUser = userResult.Data;
+                _isPublic = true;
+
+                // Load medical data in parallel
+                await LoadMedicalDataAsync();
+
+                // Validate user matches the medical record
+                if (SoKhamSucKhoeModel != null &&
+                    string.Equals(SoKhamSucKhoeModel.ma_benh_nhan, CurrentUser.ma_benh_nhan, StringComparison.OrdinalIgnoreCase))
+                {
+                    _isShowInputCCCD = false;
+                    SetProfileImagePlaceholder();
+                }
+                else
+                {
+                    _isShowInputCCCD = true;
+                    AlertService?.ShowAlert("Không tìm thấy mã bệnh nhân với lượt khám này", "danger");
+                }
+            }
+            else
+            {
+                _errorMessage = $"Không tìm thấy dữ liệu với CCCD: {_so_dinh_danh}";
+                AlertService?.ShowAlert(_errorMessage, "danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+            AlertService?.ShowAlert(_errorMessage, "danger");
+        }
+        finally
+        {
+            _isLoading = false;
+            // Use InvokeAsync to avoid render cycle issues
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Load data asynchronously (wrapper for InitializePageDataAsync)
+    /// </summary>
+    private async Task LoadDataAsync()
+    {
+        await InitializePageDataAsync();
+    }
+
+    /// <summary>
+    /// Load user data with caching
+    /// </summary>
+    private async Task LoadUserDataAsync()
+    {
+        if (CurrentUser != null) return; // Skip if already loaded
+
+        try
+        {
+            string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+            var tasks = new[]
+            {
+                BaseServiceHelper.LoadSingleRecordAsync(SoKhamSucKhoeService, query, r => SoKhamSucKhoeModel = r),
+            };
+
+            await Task.WhenAll(tasks);
+
+            if (SoKhamSucKhoeModel != null)
+            {
+                CurrentUser = SoKhamSucKhoeModel.benh_nhan;
+            }
+
+
+            @* var userResult = await UserService.GetCurrentUserAsync();
+            if (userResult?.IsSuccess == true)
+            {
+                CurrentUser = userResult.Data;
+            } *@
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user data: {ex.Message}");
+            // CurrentUser will remain null, triggering CCCD input
+        }
+    }
+
+    /// <summary>
+    /// Load all medical record data in parallel
+    /// </summary>
+    private async Task LoadMedicalDataAsync()
+    {
+        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+        // Execute all medical data API calls in parallel for better performance
+        var tasks = new[]
+        {
+            BaseServiceHelper.LoadSingleRecordAsync(SoKhamSucKhoeService, query, r => SoKhamSucKhoeModel = r),
+            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaService, query, r => KhamSucKhoeChuyenKhoaModel = r),
+            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanService, query, r => KhamSucKhoeKetLuanModel = r),
+            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => KhamSucKhoeNgheNghiepModel = r),
+            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaService, query, r => KhamSucKhoeSanPhuKhoaModel = r),
+            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucService, query, r => KhamSucKhoeTheLucModel = r),
+            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => KhamSucKhoeTienSuModel = r),
+            BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, query, r => KhamSucKhoeKetQuaCanLamSangs = r)
+        };
+
+        if (SoKhamSucKhoeModel != null)
+        {
+            SoKhamSucKhoeModel.benh_nhan = CurrentUser;
+        }
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task LoadSoKhamSucKhoeDataAsync()
+    {
+        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+        var result = await SoKhamSucKhoeService.GetAllAsync(query, true);
+        if (result?.IsSuccess == true && result.Data != null)
+        {
+            SoKhamSucKhoeModel = result.Data.FirstOrDefault();
+        }
+    }
+
+    /// <summary>
+    /// Set profile image placeholder
+    /// </summary>
+    private void SetProfileImagePlaceholder()
+    {
+        if (string.IsNullOrEmpty(_profileImageUrl))
+        {
+            _profileImageUrl = DEFAULT_PROFILE_IMAGE;
+        }
+    }
+
+    #endregion
+
+    #region UI Event Handlers
+
+    private async Task PrintRecord()
+    {
+        if (!_isLoading)
+        {
+            // Sử dụng function mới để chỉ in phần medical form content
+            await JsRuntime.InvokeVoidAsync("printMedicalForm");
+        }
+    }
+
+    private async Task ExportPDF()
+    {
+        if (_isLoading || CurrentUser == null) return;
+
+        try
+        {
+
+            Console.WriteLine("=== Debug ExportPDF - Bắt đầu ===");
+            Console.WriteLine($"CurrentUser: {CurrentUser?.first_name} {CurrentUser?.last_name}");
+
+            // Hiển thị thông báo đang xử lý
+            AlertService?.ShowAlert("Đang xử lý ảnh chữ ký và tạo PDF, vui lòng đợi...", "info");
+
+            // Lấy HTML content từ JavaScript - giống như chức năng in
+            Console.WriteLine("Step 1: Đang lấy HTML từ JavaScript...");
+
+            string htmlContent = string.Empty;
+            try
+            {
+                // Đợi một chút để đảm bảo DOM đã render xong
+                await Task.Delay(100);
+
+                // Tăng timeout lên 2 phút để xử lý ảnh base64
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(120));
+                htmlContent = await JsRuntime.InvokeAsync<string>("getMedicalFormHtml", cts.Token);
+
+                Console.WriteLine($"Step 2: HTML content length: {htmlContent?.Length ?? 0}");
+            }
+            catch (TaskCanceledException ex)
+            {
+                Console.WriteLine($"ERROR: TaskCancelled - {ex.Message}");
+                AlertService?.ShowAlert("Timeout khi lấy nội dung HTML từ JavaScript", "danger");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: JavaScript interop failed - {ex.Message}");
+                AlertService?.ShowAlert($"Lỗi JavaScript: {ex.Message}", "danger");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(htmlContent))
+            {
+                Console.WriteLine("ERROR: HTML content is null or empty!");
+                AlertService?.ShowAlert("Không thể lấy nội dung để xuất PDF - HTML content empty", "danger");
+                return;
+            }
+
+            // Log HTML content details for debugging
+            var htmlPreview = htmlContent.Length > 500 ? htmlContent.Substring(0, 500) + "..." : htmlContent;
+            Console.WriteLine($"HTML preview (first 500 chars): {htmlPreview}");
+
+            // Check for potential problematic content
+            var hasImages = htmlContent.Contains("<img");
+            var hasSvg = htmlContent.Contains("<svg");
+            var hasLargeTable = htmlContent.Contains("ksk-table");
+            Console.WriteLine($"HTML analysis: Images={hasImages}, SVG={hasSvg}, LargeTable={hasLargeTable}");
+
+            // Log file size in different units
+            var sizeKB = htmlContent.Length / 1024.0;
+            Console.WriteLine($"HTML size: {htmlContent.Length} chars = {sizeKB:F2} KB");
+
+            // Configure PDF settings
+            Console.WriteLine("Step 3: Cấu hình PDF settings...");
+            var pdfSettings = new PdfSettings
+            {
+                FileName = $"{ma_luot_kham}_{DateTime.Now:yyyyMMdd}.pdf",
+                PageSize = "A4",
+                Orientation = "Portrait",
+                MarginTop = 10,
+                MarginBottom = 10,
+                MarginLeft = 10,
+                MarginRight = 10
+            };
+            Console.WriteLine($"PDF filename: {pdfSettings.FileName}");
+
+            // Generate PDF từ HTML content lấy từ client
+            Console.WriteLine("Step 4: Đang tạo PDF với PuppeteerSharp...");
+
+            byte[] pdfBytes;
+
+            pdfBytes = PdfService.GeneratePdfFromHtml(htmlContent, pdfSettings);
+
+            // Convert to base64 for download
+            Console.WriteLine("Step 6: Chuyển đổi PDF sang base64...");
+            var base64 = Convert.ToBase64String(pdfBytes);
+            var dataUrl = $"data:application/pdf;base64,{base64}";
+            Console.WriteLine($"Base64 length: {base64.Length}");
+
+            // Trigger download via JavaScript
+            Console.WriteLine("Step 7: Trigger download...");
+            await JsRuntime.InvokeVoidAsync("downloadFile", dataUrl, pdfSettings.FileName);
+            AlertService?.ShowAlert("Xuất PDF thành công!", "success");
+
+            Console.WriteLine("Step 8: Hoàn thành thành công!");
+
+            // Xóa ảnh chữ ký sau khi export PDF
+            try
+            {
+                // Xóa folder con chứa ảnh của mã lượt khám
+                string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder;
+                if (Directory.Exists(folderPath))
+                {
+                    // Xóa tất cả file trong folder
+                    var files = Directory.GetFiles(folderPath);
+                    foreach (var file in files)
+                    {
+                        File.Delete(file);
+                    }
+
+                    // Xóa folder sau khi xóa hết file
+                    Directory.Delete(folderPath);
+                    Console.WriteLine($"Step 9: Xóa folder và ảnh chữ ký thành công: {folderPath}");
+                }
+
+                // Xóa các ảnh có thể bị tạo nhầm ở thư mục gốc /images/
+                string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images");
+                if (Directory.Exists(rootImagesPath))
+                {
+                    // Tìm và xóa các file có tên chứa mã lượt khám hoặc tên chữ ký
+                    var signatureFiles = Directory.GetFiles(rootImagesPath, "*")
+                        .Where(f => Path.GetFileName(f).Contains(ma_luot_kham) ||
+                                    Path.GetFileName(f).Contains("ket_luan") ||
+                                    Path.GetFileName(f).Contains("tuan_hoan") ||
+                                    Path.GetFileName(f).Contains("chu_ky"))
+                        .ToArray();
+
+                    foreach (var file in signatureFiles)
+                    {
+                        File.Delete(file);
+                        Console.WriteLine($"Xóa file nhầm: {Path.GetFileName(file)}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi xóa ảnh: {ex.Message}");
+            }
+
+
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"=== ERROR in ExportPDF ===");
+           
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+            }
+
+            var errorMsg = $"Lỗi khi xuất PDF: {ex.Message}";
+            AlertService?.ShowAlert(errorMsg, "danger");
+        }
+        finally
+        {
+            Console.WriteLine("=== Debug ExportPDF - Kết thúc ===");
+        }
+    }
+
+    private void BackToList()
+    {
+        Navigation.NavigateTo($"/admin/ho-so-suc-khoe-chi-tiet/{CurrentUser?.id}");
+    }
+
+    private void LoginAsync()
+    {
+        Navigation.NavigateTo("/signin");
+    }
+
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Safe access to user full name
+    /// </summary>
+    private string GetUserFullName() =>
+        CurrentUser != null ? $"{CurrentUser.last_name} {CurrentUser.first_name}".Trim() : string.Empty;
+
+    /// <summary>
+    /// Render signature as HTML - either image or text
+    /// </summary>
+    /// <param name="signatureData">Signature data (hex string or text)</param>
+    /// <param name="fallbackText">Fallback text if signature is empty</param>
+    /// <param name="fileName">File name for saving image</param>
+    /// <param name="maxWidth">Maximum width for signature image</param>
+    /// <param name="maxHeight">Maximum height for signature image</param>
+    /// <returns>MarkupString containing signature HTML</returns>
+    private MarkupString RenderSignature(string? signatureData, string? fallbackText = "", string? fileName = "", int maxWidth = 120, int maxHeight = 60)
+    {
+        if (string.IsNullOrEmpty(signatureData)) return new MarkupString();
+        var html = signatureData.GetSignatureDisplayHtml(fallbackText, fileName, maxWidth, maxHeight,
+            WebHostEnvironment.WebRootPath + _imagesFolder + ma_luot_kham, Configuration["DrCoreApi:BaseUrlImage"]);
+        return new MarkupString(html);
+    }
+
+    #endregion
+
+    #region Dispose Method
+
+    /// <summary>
+    /// Clean up resources and delete signature images when component is disposed
+    /// </summary>
+    public void Dispose()
+    {
+        try
+        {
+            // Clean up signature images folder
+            CleanupSignatureImages();
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't throw exception in Dispose
+            Console.WriteLine($"Error during dispose cleanup: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Delete all signature images in the component's folder
+    /// </summary>
+    private void CleanupSignatureImages()
+    {
+        if (string.IsNullOrEmpty(ma_luot_kham)) return;
+
+        try
+        {
+            // Delete specific folder for this medical record
+            string folderPath = WebHostEnvironment.WebRootPath + _imagesFolder + $"{ma_luot_kham}";
+            if (Directory.Exists(folderPath))
+            {
+                // Delete all files in the folder
+                var files = Directory.GetFiles(folderPath);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+
+                // Delete the folder itself
+                Directory.Delete(folderPath);
+                Console.WriteLine($"Cleanup: Deleted signature folder: {folderPath}");
+            }
+
+            // Also clean up any stray signature files in root images folder
+            string rootImagesPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", ma_luot_kham);
+            if (Directory.Exists(rootImagesPath))
+            {
+                // Find and delete files that might be related to this medical record
+                var signatureFiles = Directory.GetFiles(rootImagesPath, "*");
+
+                foreach (var file in signatureFiles)
+                {
+                    File.Delete(file);
+                    Console.WriteLine($"Cleanup: Deleted stray signature file: {Path.GetFileName(file)}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cleaning up signature images: {ex.Message}");
+        }
+    }
+
+    #endregion
+}
