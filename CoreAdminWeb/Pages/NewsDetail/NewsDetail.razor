@@ -11,11 +11,18 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 @inject IJSRuntime JsRuntime
+@implements IDisposable
 
 <PageHeader Title="Tin tức" pTitle="Chi tiết tin tức"></PageHeader>
 
 <!-- Start Main Content -->
-<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]"
+     tabindex="0"
+     @onmousemove="@(_ => ResetIdleTimer())"
+     @onkeydown="@(_ => ResetIdleTimer())"
+     @onclick="@(_ => ResetIdleTimer())"
+     @onwheel="@(_ => ResetIdleTimer())"
+     @ontouchstart="@(_ => ResetIdleTimer())">
     @if (_isLoading)
     {
         <div class="flex justify-center items-center py-12">
@@ -104,6 +111,7 @@
         if (firstRender && !_hasInitialized)
         {
             _hasInitialized = true;
+            StartIdleTimer();
             await InitializePageDataAsync();
         }
     }
@@ -187,6 +195,55 @@
     private void BackToNews()
     {
         Navigation.NavigateTo("/news");
+    }
+
+    // Inactivity auto-redirect to /news after 5 minutes
+    private System.Timers.Timer? _idleTimer;
+    private const double InactivityMilliseconds = 5 * 60 * 1000; // 5 minutes
+
+    private void StartIdleTimer()
+    {
+        _idleTimer?.Stop();
+        _idleTimer?.Dispose();
+
+        _idleTimer = new System.Timers.Timer(InactivityMilliseconds)
+        {
+            AutoReset = false,
+            Enabled = true
+        };
+        _idleTimer.Elapsed += async (_, __) =>
+        {
+            try
+            {
+                await InvokeAsync(() =>
+                {
+                    Navigation.NavigateTo("/news", forceLoad: false);
+                });
+            }
+            catch { }
+        };
+        _idleTimer.Start();
+    }
+
+    private void ResetIdleTimer()
+    {
+        if (_idleTimer == null)
+        {
+            StartIdleTimer();
+            return;
+        }
+        _idleTimer.Stop();
+        _idleTimer.Start();
+    }
+
+    public void Dispose()
+    {
+        if (_idleTimer != null)
+        {
+            _idleTimer.Stop();
+            _idleTimer.Dispose();
+            _idleTimer = null;
+        }
     }
 } 
 } 
