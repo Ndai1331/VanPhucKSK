@@ -6,6 +6,7 @@
 }
 
 function initSimpleBarChart(selector, series, labels, colors, horizontal = true, isShowlegend = false, isDistribute = false) {
+    console.log('Init chart ' + selector);
     clearChart(selector);
     let chartOptions = {
         series: series,
@@ -116,7 +117,8 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true,
     chart.render();
 }
 
-function initLineBarChart(selector, series, labels, colors) {
+function initLineChart(selector, series, labels, colors) {
+    console.log('Init chart ' + selector);
     clearChart(selector);
     let chartOptions = {
         series: series,
@@ -144,14 +146,43 @@ function initLineBarChart(selector, series, labels, colors) {
             size: 1
         },
         xaxis: {
-            categories: labels
+            categories: labels,
+            labels: {
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            }
+        },
+        yaxis: {
+            labels: {
+                show: true,
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            },
+            opposite: false,
+            reversed: false,
         },
         legend: {
             position: 'top',
-            horizontalAlign: 'right',
+            horizontalAlign: 'center',
             floating: true,
-            offsetY: -25,
-            offsetX: -5
+        },
+        tooltip: {
+            y: {
+                formatter: (val) => {
+                    if (!isNaN(val) && val !== '' && val !== null) {
+                        return Number(val).toLocaleString('en-US');
+                    }
+                    return val;
+                }
+            }
         }
     };
     let chart = new ApexCharts(
@@ -163,6 +194,7 @@ function initLineBarChart(selector, series, labels, colors) {
 }
 
 function initAreaChart(selector, series, labels, colors) {
+    console.log('Init chart ' + selector);
     clearChart(selector);
     let chartOptions = {
         series: series,
@@ -212,6 +244,7 @@ function initAreaChart(selector, series, labels, colors) {
 }
 
 function initPieChart(selector, series, labels, colors) {
+    console.log('Init chart ' + selector);
     clearChart(selector);
     let chartOptions = {
         series: series,
@@ -219,18 +252,7 @@ function initPieChart(selector, series, labels, colors) {
             height: 300,
             type: 'pie',
         },
-        labels: labels,
-            responsive: [{
-                breakpoint: 480,
-                options: {
-                    chart: {
-                        width: 200
-                    },
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }]
+        labels: labels
     };
     let chart = new ApexCharts(
         document.querySelector(selector),
