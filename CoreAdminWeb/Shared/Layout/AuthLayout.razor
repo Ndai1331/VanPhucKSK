@@ -38,6 +38,22 @@
     
     <!-- Common utilities -->
     <script>
+        // Dynamically set favicon for auth pages as well
+        window.setFavicon = function (url) {
+            try {
+                var link = document.querySelector('link[rel~="icon"]') || document.querySelector('link[rel="shortcut icon"]');
+                if (!link) {
+                    link = document.createElement('link');
+                    link.rel = 'shortcut icon';
+                    link.type = 'image/x-icon';
+                    document.getElementsByTagName('head')[0].appendChild(link);
+                }
+                link.href = url;
+            } catch (e) {
+                console.error('setFavicon error:', e);
+            }
+        };
+        
         // Common utilities for auth pages
         window.togglePasswordVisibility = function(inputId) {
             const input = document.getElementById(inputId);
@@ -73,16 +89,59 @@
 
 
     [Inject]
-    private AlertService AlertService { get; set; }
+    private AlertService AlertService { get; set; } = default!; // DI
+    [Inject]
+    private CoreAdminWeb.Services.Settings.ISettingService SettingService { get; set; } = default!; // DI
+    [Inject]
+    private IFileService FileService { get; set; } = default!; // DI
+    [Inject]
+    private IJSRuntime JsRuntime { get; set; } = default!; // DI
 
     private SettingModel? Setting { get; set; }
     private FileModel? Logo { get; set; }
     private FileModel? Background { get; set; }
+    private FileModel? FavIcon { get; set; }
     
     
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadSettingsAndFaviconAsync();
+        }
+    }
+
+    private async Task LoadSettingsAndFaviconAsync()
+    {
+        try
+        {
+            var settingResults = await SettingService.GetCurrentSettingAsync();
+            if (settingResults.IsSuccess && settingResults.Data != null)
+            {
+                Setting = settingResults.Data;
+                if (!string.IsNullOrEmpty(Setting.public_favicon))
+                {
+                    var favIconRes = await FileService.GetPublicFileAsync(Setting.public_favicon);
+                    if (favIconRes.IsSuccess && favIconRes.Data != null)
+                    {
+                        FavIcon = favIconRes.Data;
+                        var faviconUrl = !string.IsNullOrWhiteSpace(FavIcon.filename_disk) ? FavIcon.filename_disk : FavIcon.filename_download;
+                        if (!string.IsNullOrWhiteSpace(faviconUrl))
+                        {
+                            await JsRuntime.InvokeVoidAsync("setFavicon", faviconUrl);
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+        }
     }
 
     private string FullYear { get; set; } = DateTime.Now.Year.ToString();

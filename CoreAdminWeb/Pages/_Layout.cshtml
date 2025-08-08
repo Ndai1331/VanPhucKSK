@@ -306,6 +306,23 @@
     <script src="~/js/currency-formatter.js"></script>
 <script>
  
+        // Dynamically set favicon at runtime
+        // If a favicon link exists, replace href; otherwise, create one and append to head
+        window.setFavicon = function (url) {
+            try {
+                var link = document.querySelector('link[rel~="icon"]') || document.querySelector('link[rel="shortcut icon"]');
+                if (!link) {
+                    link = document.createElement('link');
+                    link.rel = 'shortcut icon';
+                    link.type = 'image/x-icon';
+                    document.getElementsByTagName('head')[0].appendChild(link);
+                }
+                link.href = url;
+            } catch (e) {
+                console.error('setFavicon error:', e);
+            }
+        };
+
         window.preventEnterKeyDefault = function(inputId) {
             const input = document.getElementById(inputId);
             if (input) {

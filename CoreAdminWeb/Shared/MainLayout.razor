@@ -47,6 +47,7 @@
     
     private SettingModel? Setting { get; set; }
     private FileModel? Logo { get; set; }
+    private FileModel? FavIcon { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -147,6 +148,24 @@
                     if (logoRes.IsSuccess)
                     {
                         Logo = logoRes.Data;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(Setting.public_favicon) && FavIcon == null)
+                {
+                    var favIconRes = await FileService.GetFileAsync(Setting.public_favicon);
+                    if (favIconRes.IsSuccess)
+                    {
+                        FavIcon = favIconRes.Data;
+                        try
+                        {
+                            var faviconUrl = !string.IsNullOrWhiteSpace(FavIcon.filename_disk) ? FavIcon.filename_disk : FavIcon.filename_download;
+                            if (!string.IsNullOrWhiteSpace(faviconUrl))
+                            {
+                                await JsRuntime.InvokeVoidAsync("setFavicon", faviconUrl);
+                            }
+                        }
+                        catch { }
                     }
                 }
             }
