@@ -133,7 +133,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
         private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
         {
-            var query = "&filter[_and][][status][_eq]=active";
+            var query = "&filter[_and][][status][_eq]=published";
             return await LoadBlazorTypeaheadData(searchText, CongTyService, query);
         }
 
