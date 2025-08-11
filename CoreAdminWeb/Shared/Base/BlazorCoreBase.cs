@@ -60,7 +60,7 @@ namespace CoreAdminWeb.Shared.Base
 
         // Cache for query building to avoid repeated string operations
         private readonly Dictionary<string, string> _queryCache = new();
-        private readonly StringBuilder _queryBuilder = new();
+        private static readonly StringBuilder _queryBuilder = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -215,7 +215,7 @@ namespace CoreAdminWeb.Shared.Base
         /// <summary>
         /// Load typeahead data with improved caching and error handling
         /// </summary>
-        public async Task<IEnumerable<T>> LoadBlazorTypeaheadData<T>(
+        public static async Task<IEnumerable<T>> LoadBlazorTypeaheadData<T>(
             string searchText,
             IBaseService<T> service,
             string? otherQuery = "")
@@ -239,10 +239,42 @@ namespace CoreAdminWeb.Shared.Base
             }
         }
 
+        public static async Task<List<T>> LoadDataInTable<T>(
+            IEnumerable<T> allItems,
+            string filter,
+            CancellationToken token,
+            IBaseService<T> service,
+            string? otherQuery = default)
+        {
+            try
+            {
+                ArgumentNullException.ThrowIfNull(allItems);
+
+                // Debouncing - wait 300ms before making API call
+                await Task.Delay(300, token);
+
+                // If not in cache, load from API
+                Console.WriteLine($"Loading filter data from API for '{filter}'");
+                var result = await LoadBlazorTypeaheadData(filter ?? string.Empty, service, otherQuery);
+                return result?.ToList() ?? new List<T>();
+            }
+            catch (OperationCanceledException)
+            {
+                // Filter operation was cancelled (user typed more characters)
+                Console.WriteLine($"Filter operation cancelled for '{filter}'");
+                return new List<T>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in filterFunction: {ex.Message}");
+                return new List<T>();
+            }
+        }
+
         /// <summary>
         /// Build base query with optimized string building
         /// </summary>
-        private string BuildBaseQuery(string searchText = "")
+        private static string BuildBaseQuery(string searchText = "")
         {
             _queryBuilder.Clear();
             _queryBuilder.Append("filter[_and][][deleted][_eq]=false&sort=-id");

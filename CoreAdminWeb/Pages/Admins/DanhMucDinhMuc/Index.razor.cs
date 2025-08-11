@@ -80,7 +80,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucDinhMuc
 
         private async Task<IEnumerable<LoaiDinhMucModel>> LoadLoaiDinhMucData(string searchText)
         {
-            return await LoadBlazorTypeaheadData(searchText, LoaiDinhMucService, "filter[_and][][active][_eq]=true");
+            return await LoadBlazorTypeaheadData(searchText, LoaiDinhMucService);
         }
 
 
