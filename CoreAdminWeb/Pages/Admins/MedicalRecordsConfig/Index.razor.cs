@@ -27,7 +27,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
         private string _searchStatusString = "";
         private string _titleAddOrUpdate = "Thêm mới";
 
-
         private bool readOnly { get; set; } = false;
 
         protected override async Task OnInitializedAsync()
