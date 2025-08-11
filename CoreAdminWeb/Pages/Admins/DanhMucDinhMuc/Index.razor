@@ -201,11 +201,21 @@
                                 </div>
                                 <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Dự kiến chi phí (VNĐ)</label>
-                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.DinhMuc" Label="Nhập dự kiến chi phí" />
+                                    <input type="text" class="form-input currency-input"
+                                        placeholder="0"
+                                        Label="Dự kiến chi phí (VNĐ)"
+                                        value="@GetCurrencyDisplayValue(SelectedItem.DinhMuc)"
+                                        @onchange="@(e => OnDinhMucChanged(e))"
+                                        @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
                                 </div>
                                 <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Đơn giá (VNĐ)</label>
-                                    <input type="number" step="1" class="form-input" @bind-value="@SelectedItem.DonGia" Label="Nhập đơn giá" />
+                                    <input type="text" class="form-input currency-input"
+                                        placeholder="0"
+                                        Label="Đơn giá (VNĐ)"
+                                        value="@GetCurrencyDisplayValue(SelectedItem.DonGia)"
+                                        @onchange="@(e => OnDonGiaChanged(e))"
+                                        @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
                                 </div>
                                 <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
                                     <label>Ghi chú</label>

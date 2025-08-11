@@ -4,6 +4,7 @@ using CoreAdminWeb.Model;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.DanhMucDinhMuc
 {
@@ -190,5 +191,140 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucDinhMuc
 
             await LoadData();
         }
+
+        #region Currency Formatting Methods
+
+        /// <summary>
+        /// Format currency with thousand separators
+        /// </summary>
+        private string FormatCurrency(decimal? value)
+        {
+            if (!value.HasValue) return string.Empty;
+            return value.Value.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
+        }
+
+        /// <summary>
+        /// Format currency with decimal places
+        /// </summary>
+        private string FormatCurrencyWithDecimals(decimal? value)
+        {
+            if (!value.HasValue) return string.Empty;
+            return value.Value.ToString("N3", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
+        }
+
+        /// <summary>
+        /// Parse currency string back to decimal, removing thousand separators
+        /// </summary>
+        private decimal? ParseCurrency(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return null;
+            
+            // Remove thousand separators (dots) and replace comma with dot for decimal
+            var cleanInput = input.Replace(".", "").Replace(",", ".");
+            
+            if (decimal.TryParse(cleanInput, System.Globalization.NumberStyles.Any, 
+                System.Globalization.CultureInfo.InvariantCulture, out decimal result))
+            {
+                return result;
+            }
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Get formatted currency display value
+        /// </summary>
+        private string GetCurrencyDisplayValue(decimal? value)
+        {
+            return FormatCurrency(value);
+        }
+
+        /// <summary>
+        /// Update currency field with formatting and calculation
+        /// </summary>
+        private async Task UpdateCurrencyField(ChangeEventArgs e, string field)
+        {
+            var inputValue = e.Value?.ToString();
+            var parsedValue = ParseCurrency(inputValue);
+
+            if (parsedValue.HasValue && parsedValue < 0)
+            {
+                AlertService.ShowAlert("Giá trị không thể nhỏ hơn 0", "warning");
+                return;
+            }
+
+            switch (field)
+            {
+                case nameof(SelectedItem.DinhMuc):
+                    SelectedItem.DinhMuc = parsedValue;
+                    break;
+                case nameof(SelectedItem.DonGia):
+                    SelectedItem.DonGia = parsedValue;
+                    break;
+            }
+
+            // Format the input value and update UI
+            await InvokeAsync(StateHasChanged);
+        }
+       
+        public async void OnDinhMucChanged(ChangeEventArgs e)
+        {
+            await UpdateCurrencyField(e, nameof(SelectedItem.DinhMuc));
+        }
+
+        public async void OnDonGiaChanged(ChangeEventArgs e)
+        {
+            await UpdateCurrencyField(e, nameof(SelectedItem.DonGia));
+        }
+
+        /// <summary>
+        /// Handle currency input real-time formatting with immediate JavaScript call
+        /// </summary>
+        public async void OnCurrencyInputRealTimeFormatting(ChangeEventArgs e)
+        {
+            try
+            {
+                var inputValue = e.Value?.ToString();
+                if (!string.IsNullOrEmpty(inputValue))
+                {
+                    // Call JavaScript immediately to format the input
+                    await JsRuntime.InvokeVoidAsync("formatCurrencyInputRealTime", inputValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in real-time currency formatting: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Handle currency input formatting (legacy method for compatibility)
+        /// </summary>
+        public void OnCurrencyInputFormatting(ChangeEventArgs e)
+        {
+            // This will be handled by JavaScript
+        }
+
+        /// <summary>
+        /// Format currency input using JavaScript
+        /// </summary>
+        public async Task FormatCurrencyInput(ChangeEventArgs e)
+        {
+            try
+            {
+                var inputValue = e.Value?.ToString();
+                if (!string.IsNullOrEmpty(inputValue))
+                {
+                    // Let JavaScript handle the real-time formatting
+                    await JsRuntime.InvokeVoidAsync("formatCurrencyInput", inputValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error formatting currency input: {ex.Message}");
+            }
+        }
+
+        #endregion
     }
 }
