@@ -137,6 +137,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             return await LoadBlazorTypeaheadData(searchText, CongTyService, query);
         }
 
+
         private async Task<IEnumerable<ContractTypeModel>> LoadContractTypeData(string searchText)
         {
             return await LoadBlazorTypeaheadData(searchText, ContractTypeService);
