@@ -420,7 +420,7 @@
                                                                         <td>@(item.Index + 1)</td>
                                                                         <td>
                                                                             <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
-                                                                                     TextSelector="@(c => c != null ? $"{c.name}{(c.DonGia.HasValue ? " - " + FormatCurrency(c.DonGia) : "")}" : String.Empty)"
+                                                                                     TextSelector="@(c => $"{c?.name}{(c?.DonGia != null ? " - " + FormatCurrency(c.DonGia) : "")}")"
                                                                                      FilterFunction="filterDinhMucFunction"
                                                                                      GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<DinhMucModel, int>(items, id, c => c.id) ?? new DinhMucModel()"
                                                                                      Datasource="DinhMucs"

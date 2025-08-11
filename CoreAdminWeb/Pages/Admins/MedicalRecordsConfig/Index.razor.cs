@@ -100,10 +100,10 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
 
         private async Task<IEnumerable<ContractModel>> LoadHopDongData(string searchText)
         {
-            string query = "";
+            string query = $"filter[_and][][status][_eq]={TrangThaiHopDong.DangThucHien}";
             if (SelectedCongTy != null)
             {
-                query = $"filter[_and][][cong_ty][_eq]={SelectedCongTy.id}";
+                query += $"&filter[_and][][cong_ty][_eq]={SelectedCongTy.id}";
             }
             return await LoadBlazorTypeaheadData(searchText, HopDongService, query);
         }
