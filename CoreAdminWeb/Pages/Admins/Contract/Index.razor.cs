@@ -1,5 +1,6 @@
 ﻿using CoreAdminWeb.Commons;
 using CoreAdminWeb.Enums;
+using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
@@ -378,7 +379,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 }
                 else
                 {
-                    AlertService.ShowAlert(result.Message ?? "Lỗi khi thêm mới dữ liệu", "danger");
+                    AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
                 }
             }
             else
@@ -446,7 +447,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 }
                 else
                 {
-                    AlertService.ShowAlert(result.Message ?? "Lỗi khi cập nhật dữ liệu", "danger");
+                    AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
                 }
             }
         }
