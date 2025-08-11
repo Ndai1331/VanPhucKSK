@@ -59,7 +59,7 @@ namespace CoreAdminWeb.Services
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<ContractTypeModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<ContractTypeModel>> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<List<ContractTypeModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<ContractTypeModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -87,7 +87,7 @@ namespace CoreAdminWeb.Services
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<ContractTypeModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<ContractTypeModel> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<ContractTypeModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<ContractTypeModel> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -184,7 +184,7 @@ namespace CoreAdminWeb.Services
 
             try
             {
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = false });
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<ContractTypeCRUDModel>>($"items/{_collection}/{model.id}", new { deleted = true });
 
                 return new RequestHttpResponse<bool>
                 {

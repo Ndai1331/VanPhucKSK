@@ -62,7 +62,7 @@ namespace CoreAdminWeb.Services
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<DinhMucModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<DinhMucModel>> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<List<DinhMucModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<DinhMucModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -90,7 +90,7 @@ namespace CoreAdminWeb.Services
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<DinhMucModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<DinhMucModel> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<DinhMucModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<DinhMucModel> { Errors = response.Errors };
             }
             catch (Exception ex)
