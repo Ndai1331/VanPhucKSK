@@ -1,5 +1,3 @@
-
-
 INSERT INTO DRCARE_VANPHUC.dbo.Menu
 (status, sort, user_created, date_created, user_updated, date_updated, parent_id, code, name, icon, url)
 VALUES(N'published', 1, N'92ACC284-BA78-4361-86A2-E839BB87BEA5', '2025-08-12', N'92ACC284-BA78-4361-86A2-E839BB87BEA5', '2025-08-12', NULL, N'QLHD', N'Quản lý hợp đồng', N'dashboard', N'javascript:void(0)');
