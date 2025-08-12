@@ -105,7 +105,7 @@ namespace CoreAdminWeb.Services.Contract
                 }
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<ContractModel>> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<List<ContractModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<ContractModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -141,7 +141,7 @@ namespace CoreAdminWeb.Services.Contract
                 }
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<ContractModel> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<ContractModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<ContractModel> { Errors = response.Errors };
             }
             catch (Exception ex)

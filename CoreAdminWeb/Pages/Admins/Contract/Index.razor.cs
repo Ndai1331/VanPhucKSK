@@ -1,5 +1,6 @@
 ﻿using CoreAdminWeb.Commons;
 using CoreAdminWeb.Enums;
+using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
@@ -46,12 +47,12 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
 
         public Dictionary<int, List<DinhMucModel>> SelectedDinhMucItems { get; set; } = new();
-        
+
         // Cache for filtering to avoid repeated API calls
         private readonly Dictionary<string, List<DinhMucModel>> _dinhMucCache = new();
         private DateTime _lastCacheUpdate = DateTime.MinValue;
         private readonly TimeSpan _cacheExpiry = TimeSpan.FromMinutes(5);
-        
+
         // Debouncing for filter function
         private CancellationTokenSource? _filterCancellationTokenSource;
         private readonly object _cacheLock = new();
@@ -68,11 +69,11 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 await LoadData();
                 await LoadDinhMucData("");
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
-                
+
                 // Initialize currency formatting
                 await Task.Delay(100); // Small delay to ensure DOM is ready
                 await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
-                
+
                 StateHasChanged();
             }
         }
@@ -133,9 +134,10 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
         private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
         {
-            var query = "&filter[_and][][status][_eq]=active";
+            var query = "&filter[_and][][status][_eq]=published";
             return await LoadBlazorTypeaheadData(searchText, CongTyService, query);
         }
+
 
         private async Task<IEnumerable<ContractTypeModel>> LoadContractTypeData(string searchText)
         {
@@ -175,12 +177,12 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             try
             {
                 Console.WriteLine($"Loading DinhMuc data with searchText: '{searchText}'");
-                
+
                 // Check cache first
                 var cacheKey = searchText ?? string.Empty;
                 lock (_cacheLock)
                 {
-                    if (_dinhMucCache.ContainsKey(cacheKey) && 
+                    if (_dinhMucCache.ContainsKey(cacheKey) &&
                         DateTime.Now - _lastCacheUpdate < _cacheExpiry)
                     {
                         Console.WriteLine($"Using cached DinhMuc data for '{searchText}'");
@@ -188,24 +190,24 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                         return DinhMucs;
                     }
                 }
-                
+
                 // Load from API if not in cache or cache expired
                 var result = await LoadBlazorTypeaheadData(searchText ?? string.Empty, DinhMucService);
                 var resultList = result?.ToList() ?? new List<DinhMucModel>();
-                
+
                 // Update cache
                 lock (_cacheLock)
                 {
                     _dinhMucCache[cacheKey] = resultList;
                     _lastCacheUpdate = DateTime.Now;
                 }
-                
+
                 DinhMucs = resultList;
                 Console.WriteLine($"Loaded {DinhMucs.Count} DinhMuc items from API");
-                
+
                 // Trigger UI update after loading data
                 StateHasChanged();
-                
+
                 return resultList;
             }
             catch (Exception ex)
@@ -377,7 +379,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 }
                 else
                 {
-                    AlertService.ShowAlert(result.Message ?? "Lỗi khi thêm mới dữ liệu", "danger");
+                    AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
                 }
             }
             else
@@ -445,7 +447,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 }
                 else
                 {
-                    AlertService.ShowAlert(result.Message ?? "Lỗi khi cập nhật dữ liệu", "danger");
+                    AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
                 }
             }
         }
@@ -524,7 +526,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                     int.TryParse(parts[1], out int month) &&
                     int.TryParse(parts[2], out int year))
                 {
-                    var date = new DateTime(year, month, day);
+                    var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
 
                     switch (fieldName)
                     {
@@ -562,60 +564,11 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 });
             }
         }
-        /// <summary>
-        /// Get current selection for a specific ContractDinhMucModel item - Optimized version
-        /// </summary>
-        private List<DinhMucModel> GetCurrentSelection(ContractDinhMucModel item, int index)
-        {
-            // Create selection list only if item.MaDinhMuc exists
-            var selection = item?.MaDinhMuc != null 
-                ? new List<DinhMucModel> { item.MaDinhMuc } 
-                : new List<DinhMucModel>();
-            
-            // Cache the selection for this index
-            SelectedDinhMucItems[index] = selection;
-            return selection;
-        }
-
-        /// <summary>
-        /// Handle Select2 value change for DinhMuc selection - Optimized version
-        /// </summary>
-        private void OnDinhMucChanged(ContractDinhMucModel item, object? selected, int index)
-        {
-            try
-            {
-                // Optimized casting with pattern matching
-                item.MaDinhMuc = selected switch
-                {
-                    KeudellCoding.Blazor.AdvancedBlazorSelect2.Select2<DinhMucModel, List<DinhMucModel>> select2 
-                        => select2.Value?.FirstOrDefault(),
-                    KeudellCoding.Blazor.AdvancedBlazorSelect2.Select2<DinhMucModel, IEnumerable<DinhMucModel>> select2Enum 
-                        => select2Enum.Value?.FirstOrDefault(),
-                    _ => null
-                };
-
-                // Update cached selection
-                if (SelectedDinhMucItems.ContainsKey(index))
-                {
-                    SelectedDinhMucItems[index] = item.MaDinhMuc != null 
-                        ? new List<DinhMucModel> { item.MaDinhMuc } 
-                        : new List<DinhMucModel>();
-                }
-
-                // Update related calculations if needed
-                UpdateThanhTienAfterDinhMucChange(item);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in OnDinhMucChanged: {ex.Message}");
-                AlertService?.ShowAlert("Lỗi khi thay đổi định mức", "danger");
-            }
-        }
 
         /// <summary>
         /// Update calculations after DinhMuc change
         /// </summary>
-        private void UpdateThanhTienAfterDinhMucChange(ContractDinhMucModel item)
+        private static void UpdateThanhTienAfterDinhMucChange(ContractDinhMucModel item)
         {
             if (item.MaDinhMuc != null)
             {
@@ -624,13 +577,13 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 item.name = item.MaDinhMuc.name;
                 item.don_gia_dm = item.MaDinhMuc.DinhMuc;
                 item.don_gia_tt = item.MaDinhMuc.DonGia;
-                
+
                 // Recalculate amounts if quantities and prices are set
                 if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
                 {
                     item.thanh_tien_tt = item.so_luong * item.don_gia_tt;
                 }
-                
+
                 if (item.so_luong.HasValue && item.don_gia_dm.HasValue)
                 {
                     item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
@@ -737,19 +690,19 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             await JsRuntime.InvokeVoidAsync("downloadFile", fileContent, SelectedFile.Name);
         }
 
-        private Task HandleDragOver(DragEventArgs e)
+        private static Task HandleDragOver(DragEventArgs e)
         {
             e.DataTransfer.DropEffect = "copy";
             return Task.CompletedTask;
         }
 
-        private Task HandleDragEnter(DragEventArgs e)
+        private static Task HandleDragEnter(DragEventArgs e)
         {
             // Optional: Add visual feedback for drag enter
             return Task.CompletedTask;
         }
 
-        private Task HandleDragLeave(DragEventArgs e)
+        private static Task HandleDragLeave(DragEventArgs e)
         {
             // Optional: Remove visual feedback for drag leave
             return Task.CompletedTask;
@@ -771,11 +724,6 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                     )
                     {
                         SelectedItem.file_hd = fileUploaded.Data;
-                        // await MainService.UpdateAsync(SelectedItem);;
-
-                        // fileContent = string.Empty;
-                        // SelectedFile = default!;
-                        // await LoadData();
                     }
                     else
                     {
@@ -804,55 +752,12 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         /// <summary>
         /// Optimized filter function with debouncing and caching
         /// </summary>
-        private async Task<List<DinhMucModel>> filterDinhMucFunction(IEnumerable<DinhMucModel> allItems, string filter, CancellationToken token) 
+        private async Task<List<DinhMucModel>> filterDinhMucFunction(IEnumerable<DinhMucModel> allItems, string filter,
+            CancellationToken token)
         {
-            try
-            {
-                // Cancel previous filter operation
-                _filterCancellationTokenSource?.Cancel();
-                _filterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
-
-                // Debouncing - wait 300ms before making API call
-                await Task.Delay(300, _filterCancellationTokenSource.Token);
-
-                var filterKey = filter ?? string.Empty;
-                
-                // Check cache first
-                lock (_cacheLock)
-                {
-                    if (_dinhMucCache.ContainsKey(filterKey) && 
-                        DateTime.Now - _lastCacheUpdate < _cacheExpiry)
-                    {
-                        Console.WriteLine($"Using cached filter result for '{filter}'");
-                        return _dinhMucCache[filterKey];
-                    }
-                }
-
-                // If not in cache, load from API
-                Console.WriteLine($"Loading filter data from API for '{filter}'");
-                var result = await LoadBlazorTypeaheadData(filter ?? string.Empty, DinhMucService, $"limit=20&offset=0&meta=filter_count");
-                var resultList = result?.ToList() ?? new List<DinhMucModel>();
-
-                // Update cache
-                lock (_cacheLock)
-                {
-                    _dinhMucCache[filterKey] = resultList;
-                    _lastCacheUpdate = DateTime.Now;
-                }
-
-                return resultList;
-            }
-            catch (OperationCanceledException)
-            {
-                // Filter operation was cancelled (user typed more characters)
-                Console.WriteLine($"Filter operation cancelled for '{filter}'");
-                return new List<DinhMucModel>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in filterDinhMucFunction: {ex.Message}");
-                return new List<DinhMucModel>();
-            }
+            DinhMucs = await LoadDataInTable(allItems, filter, token, DinhMucService, $"limit=20&offset=0&meta=filter_count");
+            StateHasChanged();
+            return DinhMucs;
         }
 
         /// <summary>
@@ -872,44 +777,42 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         /// <summary>
         /// Format currency with thousand separators
         /// </summary>
-        private string FormatCurrency(decimal? value)
+        private static string FormatCurrency(decimal? value)
         {
-            if (!value.HasValue) return string.Empty;
-            return value.Value.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
-        }
+            if (!value.HasValue)
+            {
+                return string.Empty;
+            }
 
-        /// <summary>
-        /// Format currency with decimal places
-        /// </summary>
-        private string FormatCurrencyWithDecimals(decimal? value)
-        {
-            if (!value.HasValue) return string.Empty;
-            return value.Value.ToString("N3", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
+            return value.Value.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
         }
 
         /// <summary>
         /// Parse currency string back to decimal, removing thousand separators
         /// </summary>
-        private decimal? ParseCurrency(string? input)
+        private static decimal? ParseCurrency(string? input)
         {
-            if (string.IsNullOrWhiteSpace(input)) return null;
-            
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return null;
+            }
+
             // Remove thousand separators (dots) and replace comma with dot for decimal
             var cleanInput = input.Replace(".", "").Replace(",", ".");
-            
-            if (decimal.TryParse(cleanInput, System.Globalization.NumberStyles.Any, 
+
+            if (decimal.TryParse(cleanInput, System.Globalization.NumberStyles.Any,
                 System.Globalization.CultureInfo.InvariantCulture, out decimal result))
             {
                 return result;
             }
-            
+
             return null;
         }
 
         /// <summary>
         /// Get formatted currency display value
         /// </summary>
-        private string GetCurrencyDisplayValue(decimal? value)
+        private static string GetCurrencyDisplayValue(decimal? value)
         {
             return FormatCurrency(value);
         }
@@ -941,7 +844,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             // Format the input value and update UI
             await InvokeAsync(StateHasChanged);
         }
-       
+
         private async Task UpdateCurrencyFieldInTableDetail(ChangeEventArgs e, ContractDinhMucModel item, string field)
         {
             var inputValue = e.Value?.ToString();
@@ -979,7 +882,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         /// <summary>
         /// Recalculate thanh_tien after changes
         /// </summary>
-        private void RecalculateThanhTien(ContractDinhMucModel item)
+        private static void RecalculateThanhTien(ContractDinhMucModel item)
         {
             item.thanh_tien_tt = null;
             item.thanh_tien_dm = null;

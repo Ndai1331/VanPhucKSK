@@ -113,7 +113,7 @@ namespace CoreAdminWeb.Services
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<KhamSucKhoeCongTyModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<KhamSucKhoeCongTyModel>> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<List<KhamSucKhoeCongTyModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<KhamSucKhoeCongTyModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -141,7 +141,7 @@ namespace CoreAdminWeb.Services
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<KhamSucKhoeCongTyModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<KhamSucKhoeCongTyModel> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<KhamSucKhoeCongTyModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<KhamSucKhoeCongTyModel> { Errors = response.Errors };
             }
             catch (Exception ex)

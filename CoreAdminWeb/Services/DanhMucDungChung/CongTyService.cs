@@ -63,7 +63,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<CongTyModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<CongTyModel>> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<List<CongTyModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<CongTyModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<CongTyModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<CongTyModel> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<CongTyModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<CongTyModel> { Errors = response.Errors };
             }
             catch (Exception ex)

@@ -68,7 +68,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<SoKhamSucKhoeModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<SoKhamSucKhoeModel> { Data = response.Data?.Data }
+                    ? new RequestHttpResponse<SoKhamSucKhoeModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<SoKhamSucKhoeModel> { Errors = response.Errors };
             }
             catch (Exception ex)

@@ -1,4 +1,5 @@
-﻿using CoreAdminWeb.Helpers;
+﻿using CoreAdminWeb.Extensions;
+using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Shared.Base;
@@ -135,7 +136,7 @@ namespace CoreAdminWeb.Pages.Admins.PhanLoaiSucKhoe
                 }
                 else
                 {
-                    AlertService.ShowAlert(result.Message ?? "Lỗi khi thêm mới dữ liệu", "danger");
+                    AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
                 }
             }
             else
@@ -149,7 +150,7 @@ namespace CoreAdminWeb.Pages.Admins.PhanLoaiSucKhoe
                 }
                 else
                 {
-                    AlertService.ShowAlert(result.Message ?? "Lỗi khi cập nhật dữ liệu", "danger");
+                    AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
                 }
             }
         }

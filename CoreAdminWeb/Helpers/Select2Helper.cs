@@ -53,17 +53,14 @@
                     _ => null
                 };
 
-                if (action != null)
-                {
-                    action();
-                }
-
                 setValue(value);
 
                 if (cache.ContainsKey(index))
                 {
                     cache[index] = value != null ? new List<TModel> { value } : new List<TModel>();
                 }
+
+                action?.Invoke();
             }
             catch (Exception ex)
             {

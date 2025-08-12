@@ -27,7 +27,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
         private string _searchStatusString = "";
         private string _titleAddOrUpdate = "Thêm mới";
 
-
         private bool readOnly { get; set; } = false;
 
         protected override async Task OnInitializedAsync()
@@ -95,15 +94,15 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
 
         private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
         {
-            return await LoadBlazorTypeaheadData(searchText, CongTyService, "filter[_and][][status][_eq]=active");
+            return await LoadBlazorTypeaheadData(searchText, CongTyService, "filter[_and][][status][_eq]=published");
         }
 
         private async Task<IEnumerable<ContractModel>> LoadHopDongData(string searchText)
         {
-            string query = "";
+            string query = $"filter[_and][][status][_eq]={TrangThaiHopDong.DangThucHien}";
             if (SelectedCongTy != null)
             {
-                query = $"filter[_and][][cong_ty][_eq]={SelectedCongTy.id}";
+                query += $"&filter[_and][][cong_ty][_eq]={SelectedCongTy.id}";
             }
             return await LoadBlazorTypeaheadData(searchText, HopDongService, query);
         }
@@ -176,7 +175,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
 
             if (SelectedCongTy == null && SelectedItem.ma_don_vi != null)
             {
-                var congTyResult = await CongTyService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][code][_eq]={SelectedItem.ma_don_vi}");
+                var congTyResult = await CongTyService.GetAllAsync($"filter[_and][][status][_eq]=published&filter[_and][][code][_eq]={SelectedItem.ma_don_vi}");
                 if (congTyResult.IsSuccess && congTyResult.Data != null && congTyResult.Data.Any())
                 {
                     SelectedCongTy = congTyResult.Data.FirstOrDefault();
