@@ -7,7 +7,7 @@ namespace CoreAdminWeb.Services.Menus
 {
     public interface IMenuService
     {
-        Task<RequestHttpResponse<List<MenuResponse>>> GetMenusAsync(int external_system_id);
+        Task<RequestHttpResponse<List<MenuResponse>>> GetMenusAsync();
     }
 
     public class MenuService : IMenuService
@@ -19,16 +19,16 @@ namespace CoreAdminWeb.Services.Menus
             _httpClientService = httpClientService;
         }
 
-        public async Task<RequestHttpResponse<List<MenuResponse>>> GetMenusAsync(int external_system_id = 2)
+        public async Task<RequestHttpResponse<List<MenuResponse>>> GetMenusAsync()
         {
-            string url = $"items/Menu?fields=id,status,sort,code,name,parent_code, parent_id, icon, external_system_id&sort=sort&filter[external_system_id][_eq]={external_system_id}";
+            string url = $"items/Menu?fields=id,status,sort,code,name,parent_id,icon,url&sort=sort";
             var response = new RequestHttpResponse<List<MenuResponse>>();
             try
             {
                 var result = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<MenuResponse>>>(url);
-                if (result.IsSuccess)
+                if (result.IsSuccess && result.Data != null)
                 {
-                    response.Data = result.Data.Data;
+                    response.Data = result.Data.Data ?? new List<MenuResponse>();
                 }else{
                     response.Errors = result.Errors;
                 }
