@@ -39,62 +39,79 @@
     private List<MenuResponse> Menus  = new List<MenuResponse>
             {
                 new MenuResponse { id = 1, name = "Quản lý hợp đồng", icon = "dashboard", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
-                    new MenuResponse { id = 11, name = "Danh mục công ty", icon = "apartment", url = "/admin/cong-ty" , parent_id = 1},
-                    new MenuResponse { id = 12, name = "Loại hợp đồng", icon = "sell", url = "/admin/loai-hop-dong" , parent_id = 1},
-                    new MenuResponse { id = 13, name = "Danh mục hợp đồng", icon = "contract", url = "/admin/danh-muc-hop-dong" , parent_id = 1},
-                    new MenuResponse { id = 14, name = "Cấu hình hồ sơ KSK", icon = "settings", url = "/admin/config-ksk" , parent_id = 1},
+                    new MenuResponse { id = 2, name = "Danh mục công ty", icon = "apartment", url = "/admin/cong-ty" , parent_id = 1},
+                    new MenuResponse { id = 3, name = "Loại hợp đồng", icon = "sell", url = "/admin/loai-hop-dong" , parent_id = 1},
+                    new MenuResponse { id = 4, name = "Danh mục hợp đồng", icon = "contract", url = "/admin/danh-muc-hop-dong" , parent_id = 1},
+                    new MenuResponse { id = 5, name = "Cấu hình hồ sơ KSK", icon = "settings", url = "/admin/config-ksk" , parent_id = 1},
                 }},
 
-
-                new MenuResponse { id = 2, name = "Quản lý chi phí KSK", icon = "money", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
-                    new MenuResponse { id = 21, name = "Loại định mức", icon = "sell", url = "/admin/loai-dinh-muc" , parent_id = 2},
-                    new MenuResponse { id = 22, name = "Danh mục định mức", icon = "money", url = "/admin/danh-muc-dinh-muc" , parent_id = 2},
+                new MenuResponse { id = 6, name = "Quản lý chi phí KSK", icon = "money", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 7, name = "Loại định mức", icon = "sell", url = "/admin/loai-dinh-muc" , parent_id = 2},
+                    new MenuResponse { id = 8, name = "Danh mục định mức", icon = "money", url = "/admin/danh-muc-dinh-muc" , parent_id = 2},
                 }},
 
-                new MenuResponse { id = 3, name = "Quản lý đoàn khám", icon = "settings", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
-                    new MenuResponse { id = 31, name = "Danh sách đoàn", icon = "analytics", url = "/admin/danh-sach-doan" , parent_id = 3},
-                    @* new MenuResponse { id = 32, name = "Hồ sơ đoàn KSK", icon = "analytics", url = "/admin/danh-sach-doan-ho-so-kham-suc-khoe" , parent_id = 3}, *@
-                    new MenuResponse { id = 33, name = "Dashboard tổng quan", icon = "analytics", url = "/admin/dashboard-tong-quan" , parent_id = 3},
-                    new MenuResponse { id = 34, name = "Báo cáo chi phí KSK", icon = "area-chart", url = "/admin/bao-cao-chi-phi-ksk" , parent_id = 3},
-                    new MenuResponse { id = 35, name = "Báo cáo tổng đoàn", icon = "area-chart", url = "/admin/bao-cao-tong-doan" , parent_id = 3},
+                new MenuResponse { id = 9, name = "Quản lý đoàn khám", icon = "settings", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 12, name = "Danh sách đoàn", icon = "analytics", url = "/admin/danh-sach-doan" , parent_id = 3},
+                    new MenuResponse { id = 13, name = "Dashboard tổng quan", icon = "analytics", url = "/admin/dashboard-tong-quan" , parent_id = 3},
+                    new MenuResponse { id = 14, name = "Báo cáo chi phí KSK", icon = "area-chart", url = "/admin/bao-cao-chi-phi-ksk" , parent_id = 3},
+                    new MenuResponse { id = 15, name = "Báo cáo tổng đoàn", icon = "area-chart", url = "/admin/bao-cao-tong-doan" , parent_id = 3},
+                }},
+                new MenuResponse { id = 10, name = "Y tế cơ quan", icon = "try", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 16, name = "Dashboard tổng quan", icon = "analytics", url = "/admin/dashboard-tong-quan" , parent_id = 5},
+                    new MenuResponse { id = 17, name = "Danh sách nhân viên", icon = "contact-emergency", url = "/admin/danh-sach-nhan-vien" , parent_id = 5},
                 }},
 
-                @* new MenuResponse { id = 4, name = "Cá nhân", icon = "post", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
-                    new MenuResponse { id = 41, name = "Hồ sơ khám sức khỏe - TT32", icon = "bookmart-manager", url = "/admin/ho-so-kham-suc-khoe-tt32" , parent_id = 4},
-                    new MenuResponse { id = 42, name = "Hồ sơ sức khỏe chi tiết", icon = "assignment", url = "/admin/ho-so-suc-khoe-chi-tiet" , parent_id = 4},
-                    new MenuResponse { id = 43, name = "Tra cứu hóa đơn", icon = "credit-card-heart", url = "/admin/tra-cuu-hoa-don" , parent_id = 4},
-                }}, *@
-
-
-                new MenuResponse { id = 5, name = "Y tế cơ quan", icon = "try", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
-                    new MenuResponse { id = 51, name = "Dashboard tổng quan", icon = "analytics", url = "/admin/dashboard-tong-quan" , parent_id = 5},
-                    new MenuResponse { id = 52, name = "Danh sách nhân viên", icon = "contact-emergency", url = "/admin/danh-sach-nhan-vien" , parent_id = 5},
-                }},
-
-                new MenuResponse { id = 6, name = "Khám sức khỏe ngoại viện", icon = "emergency", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
-                    new MenuResponse { id = 61, name = "Phân loại sức khỏe", icon = "ecg", url = "/admin/phan-loai-suc-khoe" , parent_id = 6},
-                    @* new MenuResponse { id = 62, name = "Danh sách đoàn", icon = "moving-ministry", url = "/admin/danh-sach-doan" , parent_id = 6}, *@
-                    new MenuResponse { id = 63, name = "Kết quả khám sức khỏe - TT32", icon = "clinical-note", url = "/admin/ket-qua-kham-suc-khoe-tt32" , parent_id = 6},
+                new MenuResponse { id = 11, name = "Khám sức khỏe ngoại viện", icon = "emergency", url = "javascript:void(0)", sub_menus = new List<MenuResponse> {
+                    new MenuResponse { id = 18, name = "Phân loại sức khỏe", icon = "ecg", url = "/admin/phan-loai-suc-khoe" , parent_id = 6},
+                    new MenuResponse { id = 19, name = "Kết quả khám sức khỏe - TT32", icon = "clinical-note", url = "/admin/ket-qua-kham-suc-khoe-tt32" , parent_id = 6},
                 }},
             };
     private bool isLoading = true;
     private bool isAuthenticated = false;
     private bool _hasInitialized = false; // Prevent multiple initializations
-    private UserModel currentUser;
+    private UserModel? currentUser;
     
-    [Inject] private AlertService AlertService { get; set; }
-    [Inject] private ISettingService SettingService { get; set; }
-    [Inject] private IUserService UserService { get; set; }
-    [Inject] private IFileService FileService { get; set; }
+    [Inject] private AlertService AlertService { get; set; } = default!; // DI
+    [Inject] private ISettingService SettingService { get; set; } = default!; // DI
+    [Inject] private IUserService UserService { get; set; } = default!; // DI
+    [Inject] private IFileService FileService { get; set; } = default!; // DI
+    [Inject] private IMenuService MenuService { get; set; } = default!; // DI
     
     private SettingModel? Setting { get; set; }
     private FileModel? Logo { get; set; }
+
+    private List<MenuResponse> MenuServiceRes { get; set; } = new List<MenuResponse>();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             await base.OnInitializedAsync();
+            var menuRes = await MenuService.GetMenusAsync();
+            if(menuRes.IsSuccess)
+            {
+                MenuServiceRes = menuRes.Data ?? new List<MenuResponse>();
+
+                // Build parent menus and their submenus from service response
+                var parents = MenuServiceRes
+                    .Where(m => m.parent_id == null)
+                    .OrderBy(m => m.sort)
+                    .ToList();
+
+                foreach (var parent in parents)
+                {
+                    parent.sub_menus = MenuServiceRes
+                        .Where(c => c.parent_id == parent.id)
+                        .OrderBy(c => c.sort)
+                        .ToList();
+                }
+
+                Menus = parents;
+            }
+            else
+            {
+                Menus = new List<MenuResponse>();
+            }
         }
         catch (Exception ex)
         {
