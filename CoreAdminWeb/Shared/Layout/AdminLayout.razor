@@ -28,7 +28,7 @@
             <AdminTopbar OnLogout="Logout" CurrentUser="currentUser" IsAuthenticated="isAuthenticated"></AdminTopbar>
             <div class="h-[calc(100vh-60px)] relative overflow-y-auto overflow-x-hidden p-4 detached-content">
                 @Body
-                <Footer></Footer>
+                <Footer ProjectName="@Setting?.project_name"></Footer>
             </div>
         </div>
     </div>

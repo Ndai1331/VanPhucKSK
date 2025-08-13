@@ -1,11 +1,14 @@
 ﻿<div class="footer">
     <div class="footer-content">
         <div class="footer-text">
-            &copy; <span>@FullYear</span> Vạn Phúc Hospital.
+            &copy; <span>@FullYear</span> @ProjectName.
         </div>
     </div>
 </div>
 <!-- End Footer -->
 @code {
     private string FullYear { get; set; } = DateTime.Now.Year.ToString();
+
+    [Parameter]
+    public string? ProjectName { get; set; }
 }
