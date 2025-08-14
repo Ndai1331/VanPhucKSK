@@ -36,14 +36,12 @@ namespace CoreAdminWeb.Services.Imports
         public async Task ImportFromExcelWithProgressAsync(byte[] fileBytes,
                                                            string connectionId,
                                                            KhamSucKhoeCongTyModel SelectedItem,
-                                                           string? accessToken,
                                                            CancellationToken cancellationToken)
         {
             try
             {
                 ExcelPackage.License.SetNonCommercialOrganization("NonCommercial");
 
-                // 1. Đọc Excel streaming -> list model
                 List<ImportDoanKhamModel> result;
                 int percent = 0;
                 using (var ms = new MemoryStream(fileBytes))
@@ -102,17 +100,16 @@ namespace CoreAdminWeb.Services.Imports
                 await _hubContext.Clients.Client(connectionId)
                     .SendAsync("ImportProgress", "Kiểm tra dữ liệu bênh nhân đã có...", cancellationToken);
 
-                // 3. Batch query song song
                 var userTask = BatchQueryAsync(
                     ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_benh_nhan][_in]={string.Join(",", ids)}"),
                     maBenhNhans
                 );
                 var tinhTask = BatchQueryAsync(
-                    ids => _tinhService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}"),
+                    ids => _tinhService.GetAllAsync($"filter[_and][][code][_in]={string.Join(",", ids)}"),
                     maTinhs.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!).ToList()
                 );
                 var xaTask = BatchQueryAsync(
-                    ids => _xaService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}"),
+                    ids => _xaService.GetAllAsync($"filter[_and][][code][_in]={string.Join(",", ids)}"),
                     maXas.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!).ToList()
                 );
 
@@ -122,11 +119,10 @@ namespace CoreAdminWeb.Services.Imports
                 var existingTinhs = tinhTask.Result;
                 var existingXas = xaTask.Result;
 
-                var existingUserMap = existingUsers.ToDictionary(c => c.ma_benh_nhan, c => c);
-                var tinhMap = existingTinhs.ToDictionary(c => c.code ?? "", c => c.id);
-                var xaMap = existingXas.ToDictionary(c => $"{c.code}|{c.tinh?.code}", c => c.id);
+                var existingUserMap = existingUsers.DistinctBy(c => c.ma_benh_nhan).ToDictionary(c => c.ma_benh_nhan, c => c);
+                var tinhMap = existingTinhs.DistinctBy(c => c.code).ToDictionary(c => c.code ?? "", c => c.id);
+                var xaMap = existingXas.DistinctBy(c => $"{c.code}|{c.tinh?.code}").ToDictionary(c => $"{c.code}|{c.tinh?.code}", c => c.id);
 
-                // 4. Xử lý danh sách cần update và thêm mới
                 var updatingUsers = new List<UserModel>();
                 var newUsers = new List<UserModel>();
 
@@ -201,14 +197,19 @@ namespace CoreAdminWeb.Services.Imports
                 await _hubContext.Clients.Client(connectionId)
                     .SendAsync("ImportProgress", $"Đang cập nhật thông tin bệnh nhân...", cancellationToken);
 
-                // 5. Batch update / create user
                 await BatchExecuteAsync(updatingUsers, _userService.UpdateAsync);
                 await BatchExecuteAsync(newUsers, _userService.CreateAsync);
 
-                // 6. Lấy danh sách user mới nhất
-                var allUsers = existingUsers.Concat(newUsers).ToDictionary(c => c.ma_benh_nhan, c => c);
+                if (newUsers.Any())
+                {
+                    existingUsers = await BatchQueryAsync(
+                        ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_benh_nhan][_in]={string.Join(",", ids)}"),
+                        maBenhNhans
+                    );
+                }
 
-                // 7. Lấy hồ sơ khám đã tồn tại
+                var allUsers = existingUsers.DistinctBy(c => c.ma_benh_nhan).ToDictionary(c => c.ma_benh_nhan, c => c);
+
                 var existingRecords = await BatchQueryAsync(ids => _soKhamSucKhoeService.GetAllAsync(
                     $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_eq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
                 ), maLuotKhams);
@@ -222,7 +223,6 @@ namespace CoreAdminWeb.Services.Imports
                 await _hubContext.Clients.Client(connectionId)
                     .SendAsync("ImportProgress", $"Đang khởi tạo hồ sơ bệnh nhân...", cancellationToken);
 
-                // 8. Tạo hồ sơ mới
                 var medicalRecordsToCreate = result
                     .Where(c => !existingRecordKeys.Contains(c.MaLuotKham))
                     .Select(item => new SoKhamSucKhoeModel
@@ -231,6 +231,7 @@ namespace CoreAdminWeb.Services.Imports
                         ma_luot_kham = item.MaLuotKham,
                         sort = int.TryParse(item.SoThuTu, out var stt) ? stt : 0,
                         benh_nhan = allUsers.TryGetValue(item.MaBenhNhan, out var user) ? user : null,
+                        ma_benh_nhan = item.MaBenhNhan,
                         ngay_kham = SelectedItem.ngay_du_kien_kham,
                         ngay_lap_so = DateTime.Now,
                         ma_cong_ty = SelectedItem.ma_hop_dong_ksk?.cong_ty?.id,

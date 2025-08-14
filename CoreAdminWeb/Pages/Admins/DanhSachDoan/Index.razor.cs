@@ -40,7 +40,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private HubConnection? connection;
         private string? connectionId = "";
-
+        private string? importProcessingMessage { get; set; }
+        public bool isImportDone { get; set; }
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -51,23 +52,26 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                 .WithUrl(NavManager.ToAbsoluteUri("/importProgressHub"))
                 .Build();
 
-                connection.On<string>("ImportProgress", async message =>
+                connection.On<string>("ImportProgress", message =>
                 {
-                    AlertService.ShowAlert(message, "success");
-                    await InvokeAsync(StateHasChanged);
+                    isImportDone = false;
+                    importProcessingMessage = message;
+                    InvokeAsync(StateHasChanged);
                 });
 
                 connection.On<string>("ImportCompleted", async message =>
                 {
-                    AlertService.ShowAlert(message, "success");
-                    await LoadData();
+                    isImportDone = true;
+                    importProcessingMessage = message;
+                    await LoadDetailData();
                     await InvokeAsync(StateHasChanged);
                 });
 
-                connection.On<string>("ImportError", async message =>
+                connection.On<string>("ImportError", message =>
                 {
-                    AlertService.ShowAlert(message, "danger");
-                    await InvokeAsync(StateHasChanged);
+                    isImportDone = false;
+                    importProcessingMessage = message;
+                    InvokeAsync(StateHasChanged);
                 });
 
                 await connection.StartAsync();
@@ -290,6 +294,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private async Task OpenAddOrUpdateModal(KhamSucKhoeCongTyModel? item)
         {
+            isImportDone = true;
             _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
             SelectedItem = item != null ? item.DeepClone() : new KhamSucKhoeCongTyModel();
 
@@ -511,7 +516,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                     fileBytes,
                     connectionId ?? string.Empty,
                     SelectedItem,
-                    accessToken,
                     CancellationToken.None)
                 );
             }

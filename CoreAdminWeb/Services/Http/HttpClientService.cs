@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.Users;
+using CoreAdminWeb.Shared.Layout;
 using Microsoft.AspNetCore.Components.Forms;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
@@ -79,6 +80,11 @@ namespace CoreAdminWeb.Services.Http
             if (_client.DefaultRequestHeaders.Authorization == null)
             {
                 var token = await GetCurrentTokenAsync();
+                if (string.IsNullOrEmpty(token))
+                {
+                    token = AdminLayout.AccessToken;
+                }
+
                 if (!string.IsNullOrEmpty(token))
                 {
                     AttachToken(token);

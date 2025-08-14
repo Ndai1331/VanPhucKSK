@@ -488,9 +488,9 @@ namespace CoreAdminWeb.Services.Users
                     c.tinh,
                     c.xa,
                     role = GlobalConstant.PATIENT_ROLE_ID,
-                    c.status
+                    status = string.IsNullOrEmpty(c.status) ? "active" : c.status
                 }).ToList();
-                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<List<UserModel>>>($"items/users", createModel);
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<List<UserModel>>>($"users", createModel);
 
                 if (!response.IsSuccess)
                 {
