@@ -1,13 +1,15 @@
-using MudBlazor.Services;
-using CoreAdminWeb.StateService;
-using CoreAdminWeb.Model.Configuration;
-using CoreAdminWeb.Http;
-using CoreAdminWeb.DIInjections;
-using CoreAdminWeb.Commons;
-using CoreAdminWeb.Models;
 using Blazored.LocalStorage;
+using CoreAdminWeb.Commons;
+using CoreAdminWeb.DIInjections;
+using CoreAdminWeb.Http;
+using CoreAdminWeb.Hubs;
+using CoreAdminWeb.Model.Configuration;
+using CoreAdminWeb.Models;
+using CoreAdminWeb.Services.Imports;
+using CoreAdminWeb.StateService;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -28,13 +30,14 @@ builder.Services.AddServerSideBlazor(options =>
     options.HandshakeTimeout = TimeSpan.FromSeconds(30);
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
     options.MaximumParallelInvocationsPerClient = 2;
-    
+
     // Enable detailed errors in development
     options.EnableDetailedErrors = builder.Environment.IsDevelopment();
 });
 
 builder.Services.AddMudServices();
 builder.Services.AddSingleton<ModeStateService>();
+builder.Services.AddSingleton<ImportSoKhamSucKhoeService>();
 
 // Add Blazored.LocalStorage before other services that depend on it
 builder.Services.AddBlazoredLocalStorage();
@@ -52,16 +55,16 @@ builder.Services.Configure<DrCoreApi>(builder.Configuration.GetSection("DrCoreAp
 builder.Services.Configure<FTPConfig>(builder.Configuration.GetSection("FTPConfig"));
 
 // Configure HttpClient with base URL - for scoped HttpClientService (SECURE - replaces RequestClient)
-builder.Services.AddHttpClient<CoreAdminWeb.Services.Http.HttpClientService>(client =>
+builder.Services.AddHttpClient("DrCoreApi", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["DrCoreApi:BaseUrl"]);
-    client.Timeout = TimeSpan.FromSeconds(30);
+    client.BaseAddress = new Uri(builder.Configuration["DrCoreApi:BaseUrl"] ?? string.Empty);
+    client.Timeout = TimeSpan.FromSeconds(60);
 });
 
 // Configure static clients for public/non-auth endpoints
 builder.Services.AddHttpClient("DrCoreApiPublic", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["DrCoreApi:BaseUrl"]);
+    client.BaseAddress = new Uri(builder.Configuration["DrCoreApi:BaseUrl"] ?? string.Empty);
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
@@ -78,7 +81,7 @@ GlobalConstant.BaseUrl = builder.Configuration["DrCoreApi:BaseUrl"] ?? "https://
 
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        
+
 // Add ApplicationDbContext for DRCARE_CORE database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -90,7 +93,7 @@ builder.Services.Configure<IISServerOptions>(options =>
 {
     options.AutomaticAuthentication = false;
 });
-    // Add CORS policy to allow any origin
+// Add CORS policy to allow any origin
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ExposeResponseHeaders", policy =>
@@ -110,7 +113,7 @@ builder.Services
     .AddControllers();
 
 
-            
+
 var app = builder.Build();
 
 // Initialize static clients for public/non-auth endpoints (SAFE - no token sharing)
@@ -150,4 +153,5 @@ app.MapRazorPages();
 // Add Controllers mapping
 app.MapControllers();
 app.MapFallbackToPage("/_Host");
-app.Run();
+app.MapHub<ImportProgressHub>("/importProgressHub");
+await app.RunAsync();

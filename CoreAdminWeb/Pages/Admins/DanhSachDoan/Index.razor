@@ -167,12 +167,12 @@
                             <div class="flex flex-col gap-2 md:col-span-2">
                                 <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Danh sách đoàn khám</MudText>
                                 <div>
-                                    <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5
-                                        bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85]
-                                        text-nowrap">
+                                    <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5 bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85] text-nowrap"
+                                               @onclick="OpenFileDialog">
                                         <i class="ri-file-excel-2-fill"></i>
                                         Import excel
                                     </MudButton>
+                                    <InputFile id="excelFileInput" style="display:none" accept=".xlsx,.xls" OnChange="OnExcelFileSelected" />
                                 </div>
                             </div>
                             <div class="space-y-2 md:col-span-2">

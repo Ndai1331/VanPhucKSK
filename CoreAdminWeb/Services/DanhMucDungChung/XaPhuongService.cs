@@ -13,7 +13,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
     {
         private readonly string _collection = "xa_phuong";
         private readonly IHttpClientService _httpClientService;
-        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,tinh.id,tinh.name";
+        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,tinh.id,tinh.code,tinh.name";
 
         public XaPhuongService(IHttpClientService httpClientService)
         {
@@ -56,8 +56,8 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
             {
                 string url = $"items/{_collection}?fields={Fields}&{query}";
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<XaPhuongModel>>>(url);
-                
-                return response.IsSuccess 
+
+                return response.IsSuccess
                     ? new RequestHttpResponse<List<XaPhuongModel>> { Data = response.Data.Data }
                     : new RequestHttpResponse<List<XaPhuongModel>> { Errors = response.Errors };
             }
@@ -84,7 +84,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
             try
             {
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<XaPhuongModel>>($"items/{_collection}/{id}?fields={Fields}");
-                
+
                 return response.IsSuccess
                     ? new RequestHttpResponse<XaPhuongModel> { Data = response.Data.Data }
                     : new RequestHttpResponse<XaPhuongModel> { Errors = response.Errors };

@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using CoreAdminWeb.Commons;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Http;
 using CoreAdminWeb.Model.RequestHttps;
@@ -7,13 +8,14 @@ using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Net;
 using LoginResponse = CoreAdminWeb.Model.User.LoginResponse;
 
 namespace CoreAdminWeb.Services.Users
 {
     public interface IUserService
     {
-        Task<RequestHttpResponse<LoginResponse>> LoginAsync(string email, string password);
+        Task<RequestHttpResponse<LoginResponse>> LoginAsync(string phone, string password);
         Task<RequestHttpResponse<LoginResponse>> LoginAdminAsync(string email, string password);
         Task<bool> LogoutAsync();
         Task<RequestHttpResponse<UserModel>> GetCurrentUserAsync();
@@ -27,6 +29,8 @@ namespace CoreAdminWeb.Services.Users
         string GetRefreshTokenAsync();
         Task<bool> RefreshTokenAsync();
         Task<RequestHttpResponse<List<UserModel>>> GetAllAsync(string query, bool isPublic = false);
+        Task<RequestHttpResponse<List<UserModel>>> CreateAsync(List<UserModel> model);
+        Task<RequestHttpResponse<bool>> UpdateAsync(List<UserModel> model);
     }
 
     public class UserService : IUserService
@@ -35,8 +39,8 @@ namespace CoreAdminWeb.Services.Users
         private readonly ILocalStorageService _localStorage;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
         private readonly IHttpClientService _httpClientService;
-        private string _accessToken;
-        private string _refreshToken;
+        private string? _accessToken = default;
+        private string? _refreshToken = default;
 
         public UserService(
             ILocalStorageService localStorage,
@@ -55,7 +59,7 @@ namespace CoreAdminWeb.Services.Users
             }
         }
 
-        private async Task<string> GetEmailFromPhone(string phone)
+        private static async Task<string> GetEmailFromPhone(string phone)
         {
             var response = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?filter[_and][0][_and][0][so_dien_thoai][_eq]={phone}");
             if (response.IsSuccess && response.Data != null && response.Data.Data != null && response.Data.Data.Count > 0)
@@ -84,8 +88,12 @@ namespace CoreAdminWeb.Services.Users
                     _accessToken = result.Data?.Data?.access_token;
                     _refreshToken = result.Data?.Data?.refresh_token;
 
-                    _httpClientService.AttachToken(_accessToken);
-                    var claim = ClaimHepler.GetListClaim(_accessToken);
+                    List<string>? claim = default;
+                    if (!string.IsNullOrEmpty(_accessToken))
+                    {
+                        _httpClientService.AttachToken(_accessToken);
+                        claim = ClaimHepler.GetListClaim(_accessToken);
+                    }
 
                     var currentUserAsync = await GetCurrentUserAsync();
                     if (currentUserAsync.Data != null)
@@ -172,7 +180,7 @@ namespace CoreAdminWeb.Services.Users
                 await _localStorage.RemoveItemAsync("userId");
                 await _localStorage.RemoveItemAsync("role");
                 await _localStorage.RemoveItemAsync("claims");
-                (
+                await (
                     (ApiAuthenticationStateProvider)_authenticationStateProvider
                 ).MarkUserAsLoggedOut();
                 return true;
@@ -272,8 +280,8 @@ namespace CoreAdminWeb.Services.Users
                     await _localStorage.RemoveItemAsync("userId");
                     await _localStorage.RemoveItemAsync("role");
                     await _localStorage.RemoveItemAsync("claims");
-                    (
-                        (ApiAuthenticationStateProvider)_authenticationStateProvider
+                    await (
+                         (ApiAuthenticationStateProvider)_authenticationStateProvider
                     ).MarkUserAsLoggedOut();
                 }
             }
@@ -391,11 +399,11 @@ namespace CoreAdminWeb.Services.Users
 
         public string GetAccessTokenAsync()
         {
-            return _accessToken;
+            return _accessToken ?? string.Empty;
         }
         public string GetRefreshTokenAsync()
         {
-            return _refreshToken;
+            return _refreshToken ?? string.Empty;
         }
 
         public async Task<bool> RefreshTokenAsync()
@@ -451,5 +459,100 @@ namespace CoreAdminWeb.Services.Users
             }
         }
 
+        public async Task<RequestHttpResponse<List<UserModel>>> CreateAsync(List<UserModel> model)
+        {
+            if (model == null)
+            {
+                return new RequestHttpResponse<List<UserModel>>
+                {
+                    Errors = new List<ErrorResponse> { new() { Message = "Vui lòng nhập đầy đủ thông tin" } },
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
+            try
+            {
+                var createModel = model.Select(c => new
+                {
+                    c.first_name,
+                    c.last_name,
+                    c.email,
+                    c.so_dien_thoai,
+                    c.so_dinh_danh,
+                    c.gioi_tinh,
+                    c.ma_benh_nhan,
+                    c.ngay_sinh,
+                    c.dia_chi,
+                    c.noi_cap,
+                    c.ma_don_vi,
+                    c.tinh,
+                    c.xa,
+                    role = GlobalConstant.PATIENT_ROLE_ID,
+                    c.status
+                }).ToList();
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<List<UserModel>>>($"items/users", createModel);
+
+                if (!response.IsSuccess)
+                {
+                    return new RequestHttpResponse<List<UserModel>> { Errors = response.Errors };
+                }
+
+                return response.Data ?? new RequestHttpResponse<List<UserModel>>();
+            }
+            catch (Exception ex)
+            {
+                return IBaseGetService<UserModel>.CreateErrorResponse<List<UserModel>>(ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates an existing fertilizer production facility
+        /// </summary>
+        public async Task<RequestHttpResponse<bool>> UpdateAsync(List<UserModel> model)
+        {
+            if (model == null || model.Any(c => c.id == Guid.Empty) || !model.Any())
+            {
+                return new RequestHttpResponse<bool>
+                {
+                    Data = false,
+                    Errors = new List<ErrorResponse> { new() { Message = "Vui lòng chọn bản ghi để cập nhật" } },
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
+            try
+            {
+                var updateModel = model.Select(c => new
+                {
+                    c.id,
+                    c.first_name,
+                    c.last_name,
+                    c.email,
+                    c.so_dien_thoai,
+                    c.so_dinh_danh,
+                    c.gioi_tinh,
+                    c.ma_benh_nhan,
+                    c.ngay_sinh,
+                    c.dia_chi,
+                    c.noi_cap,
+                    c.ma_don_vi,
+                    c.tinh,
+                    c.xa,
+                    role = GlobalConstant.PATIENT_ROLE_ID,
+                    c.status
+                }).ToList();
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<UserModel>>>($"items/users", updateModel);
+
+                return new RequestHttpResponse<bool>
+                {
+                    Data = response.IsSuccess,
+                    Errors = response.Errors
+                };
+            }
+            catch (Exception ex)
+            {
+                return IBaseGetService<UserModel>.CreateErrorResponse<bool>(ex);
+            }
+        }
     }
 }

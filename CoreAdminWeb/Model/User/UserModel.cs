@@ -83,5 +83,11 @@ namespace CoreAdminWeb.Model.User
         [JsonPropertyName("ma_don_vi")]
         public int? ma_don_vi { get; set; }
 
+        [JsonPropertyName("tinh")]
+        public int? tinh { get; set; }
+
+        [JsonPropertyName("xa")]
+        public int? xa { get; set; }
+
     }
 }
