@@ -1,0 +1,16 @@
+﻿@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 3px solid #e5e7eb; /* Tailwind gray-200 */
+    border-top: 3px solid #22c55e; /* Tailwind green-500 */
+    border-radius: 50%;
+    animation: spinner 0.8s linear infinite;
+    vertical-align: middle;
+}

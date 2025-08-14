@@ -7,7 +7,6 @@ namespace CoreAdminWeb.Model
     }
     public class TinhCRUDModel : BaseDetailModel
     {
-
     }
     public class XaPhuongModel : BaseModel<int>
     {

@@ -70,7 +70,8 @@
     private bool isAuthenticated = false;
     private bool _hasInitialized = false; // Prevent multiple initializations
     private UserModel? currentUser;
-    
+    public static string? AccessToken { get; private set; }
+
     [Inject] private AlertService AlertService { get; set; } = default!; // DI
     [Inject] private ISettingService SettingService { get; set; } = default!; // DI
     [Inject] private IUserService UserService { get; set; } = default!; // DI
@@ -176,6 +177,8 @@
                     currentUser = resUser.Data;
                 }
             }
+
+            AccessToken = await ((ApiAuthenticationStateProvider)AuthStateProvider).GetAccessTokenAsync();
         }
         catch (Exception ex)
         {

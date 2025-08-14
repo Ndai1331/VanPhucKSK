@@ -1,10 +1,8 @@
 ﻿using Blazored.LocalStorage;
+using CoreAdminWeb.Services.Http;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using CoreAdminWeb.Http;
-using CoreAdminWeb.Model.User;
-using CoreAdminWeb.Services.Http;
 
 namespace CoreAdminWeb.Providers
 {
@@ -54,6 +52,18 @@ namespace CoreAdminWeb.Providers
             catch
             {
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            }
+        }
+
+        public async Task<string> GetAccessTokenAsync()
+        {
+            try
+            {
+                return await _localStorage.GetItemAsync<string>("accessToken") ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
             }
         }
 

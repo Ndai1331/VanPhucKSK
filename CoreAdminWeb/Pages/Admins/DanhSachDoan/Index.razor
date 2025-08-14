@@ -89,14 +89,14 @@
                                 <td>@item.Data.nguoi_lap_so?.full_name</td>
                                 <td class="flex items-center gap-2">
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-sky-500 border-sky-500"
-                                                @onclick="@(e => GoToDetail(item.Data.id))">
+                                               @onclick="@(e => GoToDetail(item.Data.id))">
                                         <i class="ri-file-line"></i>
                                         Chi tiết hồ sơ
                                     </MudButton>
                                     @if (item.Data.ma_hop_dong_ksk?.status.ToString().ToLower() != "locked")
                                     {
                                         <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                                @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                                   @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
                                             <i class="ri-edit-line"></i>
                                         </MudButton>
                                     }
@@ -165,76 +165,88 @@
 
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
                             <div class="flex flex-col gap-2 md:col-span-2">
-                                <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Danh sách đoàn khám</MudText>
+                                <div class="flex justify-between">
+                                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Danh sách đoàn khám</MudText>
+
+                                    @if (!isImportDone)
+                                    {
+                                        <div class="flex items-center gap-2">
+                                            <MudText Typo="Typo.h5" Class="text-base capitalize text-slate-800 dark:text-slate-100">@importProcessingMessage</MudText>
+                                            <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-purple-500"></div>
+                                        </div>
+                                    }
+                                </div>
                                 <div>
-                                    <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5
-                                        bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85]
-                                        text-nowrap">
+                                    <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5 bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85] text-nowrap"
+                                               @onclick="OpenFileDialog">
                                         <i class="ri-file-excel-2-fill"></i>
                                         Import excel
                                     </MudButton>
+                                    <InputFile id="excelFileInput" style="display:none" accept=".xlsx,.xls" OnChange="OnExcelFileSelected" />
                                 </div>
                             </div>
                             <div class="space-y-2 md:col-span-2">
-                                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" style="width:100%">
-                                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                            <tr>
-                                                <th>STT</th>
-                                                <th>Mã khách hàng</th>
-                                                <th>Tên khách hàng</th>
-                                                <th>Mã điều trị</th>
-                                                <th>Ngày khám</th>
-                                                <th>Ghi chú</th>
-                                                <th class="flex items-center gap-2">Tác vụ</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var item in SelectedItemsDetail.Where(c => !c.deleted).Select((v, i) => new { Data = v, Index = i }))
-                                            {
-                                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                                    <td>@(item.Index + 1)</td>
-                                                    <td>
-                                                        <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
-                                                                 TextSelector="c => c != null ? c.ma_benh_nhan : String.Empty"
-                                                                 FilterFunction="LoadUserDataInTable"
-                                                                 GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<UserModel, Guid>(items, id, c => c.id) ?? new UserModel()"
-                                                                 Datasource="UserItems"
-                                                                 Value="@(Select2Helper.GetCurrentSelectionGeneric<UserModel>(item.Data.benh_nhan, item.Index, SelectedUserItems))"
-                                                                 OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<UserModel>(e, v => item.Data.benh_nhan = v, item.Index, SelectedUserItems))"
-                                                                 Multiselect="false" />
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-input w-64" value="@item.Data.benh_nhan?.full_name" Label="Tên khách hàng" readonly />
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-input w-32" @bind-value="@item.Data.ma_luot_kham" Label="Mã điều trị" />
-                                                    </td>
-                                                    <td>
-                                                        <input type="text"
-                                                               class="form-input date-picker w-32"
-                                                               placeholder="Chọn khám"
-                                                               value="@(item.Data.ngay_kham?.ToString("dd/MM/yyyy"))"
-                                                               @onchange="@(e => OnValueChanged(e, nameof(item.Data.ngay_kham), item.Data))" />
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-input w-40" @bind-value="@item.Data.description" Label="Ghi chú" />
-                                                    </td>
-                                                    <td>
-                                                        <div class="flex items-center justify-end gap-2">
-                                                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                                        @onclick="@(e => OpenDetailDeleteModal(item.Data))">
-                                                                <i class="ri-delete-bin-line"></i>
-                                                            </MudButton>
-                                                        </div>
-                                                    </td>
+                                <div class="relative overflow-x-auto overflow-y-hidden shadow-md sm:rounded-lg">
+                                    <div style="max-height: 365px; overflow-y: auto;">
+                                        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" style="width:100%">
+                                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                                <tr>
+                                                    <th>STT</th>
+                                                    <th>Mã khách hàng</th>
+                                                    <th>Tên khách hàng</th>
+                                                    <th>Mã điều trị</th>
+                                                    <th>Ngày khám</th>
+                                                    <th>Ghi chú</th>
+                                                    <th class="flex items-center gap-2">Tác vụ</th>
                                                 </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="w-full flex items-center justify-end mt-2">
-                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnAddChiTiet">Thêm dòng</MudButton>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in SelectedItemsDetail.Where(c => !c.deleted).Select((v, i) => new { Data = v, Index = i }))
+                                                {
+                                                    <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
+                                                        <td>@(item.Index + 1)</td>
+                                                        <td>
+                                                            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                                                                     TextSelector="c => c != null ? c.ma_benh_nhan : String.Empty"
+                                                                     FilterFunction="LoadUserDataInTable"
+                                                                     GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<UserModel, Guid>(items, id, c => c.id) ?? new UserModel()"
+                                                                     Datasource="UserItems"
+                                                                     Value="@(Select2Helper.GetCurrentSelectionGeneric<UserModel>(item.Data.benh_nhan, item.Index, SelectedUserItems))"
+                                                                     OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<UserModel>(e, v => item.Data.benh_nhan = v, item.Index, SelectedUserItems))"
+                                                                     Multiselect="false" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-input w-64" value="@item.Data.benh_nhan?.full_name" Label="Tên khách hàng" readonly />
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-input w-32" @bind-value="@item.Data.ma_luot_kham" Label="Mã điều trị" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="text"
+                                                                   class="form-input date-picker w-32"
+                                                                   placeholder="Chọn khám"
+                                                                   value="@(item.Data.ngay_kham?.ToString("dd/MM/yyyy"))"
+                                                                   @onchange="@(e => OnValueChanged(e, nameof(item.Data.ngay_kham), item.Data))" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-input w-40" @bind-value="@item.Data.description" Label="Ghi chú" />
+                                                        </td>
+                                                        <td>
+                                                            <div class="flex items-center justify-end gap-2">
+                                                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                                                           @onclick="@(e => OpenDetailDeleteModal(item.Data))">
+                                                                    <i class="ri-delete-bin-line"></i>
+                                                                </MudButton>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="w-full flex items-center justify-end mt-2">
+                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnAddChiTiet">Thêm dòng</MudButton>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -1,12 +1,13 @@
+using Blazored.LocalStorage;
+using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.RequestHttps;
+using CoreAdminWeb.Services.Users;
+using CoreAdminWeb.Shared.Layout;
 using Microsoft.AspNetCore.Components.Forms;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Text;
-using CoreAdminWeb.Model;
-using CoreAdminWeb.Model.RequestHttps;
-using Blazored.LocalStorage;
-using CoreAdminWeb.Services.Users;
 
 namespace CoreAdminWeb.Services.Http
 {
@@ -16,7 +17,6 @@ namespace CoreAdminWeb.Services.Http
     public class HttpClientService : IHttpClientService
     {
         private readonly HttpClient _client;
-        private readonly IConfiguration _configuration;
         private readonly ILocalStorageService _localStorage;
         private readonly CancellationTokenSource _tokenSource = new();
         private const long UploadLimit = 25214400; // ~24MB
@@ -25,12 +25,10 @@ namespace CoreAdminWeb.Services.Http
         // Event để thông báo khi cần logout
         public event EventHandler? OnLogoutRequired;
 
-        public HttpClientService(HttpClient client, ILocalStorageService localStorage, IConfiguration configuration)
+        public HttpClientService(IHttpClientFactory client, ILocalStorageService localStorage, IConfiguration configuration)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
             _localStorage = localStorage ?? throw new ArgumentNullException(nameof(localStorage));
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _client.BaseAddress = new Uri(_configuration["DrCoreApi:BaseUrl"]);
+            _client = client.CreateClient("DrCoreApi");
         }
 
         public void SetUserService(IUserService userService)
@@ -82,6 +80,11 @@ namespace CoreAdminWeb.Services.Http
             if (_client.DefaultRequestHeaders.Authorization == null)
             {
                 var token = await GetCurrentTokenAsync();
+                if (string.IsNullOrEmpty(token))
+                {
+                    token = AdminLayout.AccessToken;
+                }
+
                 if (!string.IsNullOrEmpty(token))
                 {
                     AttachToken(token);
@@ -125,13 +128,13 @@ namespace CoreAdminWeb.Services.Http
                 var originalAuth = _client.DefaultRequestHeaders.Authorization;
                 RemoveToken();
                 var response = await _client.GetAsync(URL, _tokenSource.Token);
-                
+
                 // Restore original auth header
                 if (originalAuth != null)
                 {
                     _client.DefaultRequestHeaders.Authorization = originalAuth;
                 }
-                
+
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -341,7 +344,10 @@ namespace CoreAdminWeb.Services.Http
         {
             void AddTextIfNotNull(object? value, string key)
             {
-                if (value == null) return;
+                if (value == null)
+                {
+                    return;
+                }
 
                 string stringValue = value switch
                 {
@@ -374,11 +380,11 @@ namespace CoreAdminWeb.Services.Http
         private async Task<RequestHttpResponse<T>> ReturnApiResponse<T>(HttpResponseMessage response, int retryCount = 0)
         {
             var result = new RequestHttpResponse<T>();
-            
+
             try
             {
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     result.Data = JsonConvert.DeserializeObject<T>(jsonResponse);
@@ -386,7 +392,7 @@ namespace CoreAdminWeb.Services.Http
                 }
 
                 var errorResponse = JsonConvert.DeserializeObject<GraphQLErrorResponse>(jsonResponse);
-                
+
                 // Check if token is expired
                 if (errorResponse?.errors?.Any(e => e.extensions?.code == "TOKEN_EXPIRED") == true)
                 {
@@ -413,7 +419,7 @@ namespace CoreAdminWeb.Services.Http
                         if (!string.IsNullOrEmpty(newToken))
                         {
                             AttachToken(newToken);
-                            
+
                             // Retry the original request
                             var originalRequest = response.RequestMessage;
                             if (originalRequest != null)
@@ -472,4 +478,4 @@ namespace CoreAdminWeb.Services.Http
             _tokenSource?.Dispose();
         }
     }
-} 
+}

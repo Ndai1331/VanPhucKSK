@@ -1,18 +1,25 @@
-﻿using CoreAdminWeb.Commons;
+﻿using Blazored.LocalStorage;
+using CoreAdminWeb.Commons;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Imports;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 {
     public partial class Index(IBaseService<KhamSucKhoeCongTyModel> MainService,
                                IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService,
-                               IUserService UserService) : BlazorCoreBase
+                               IUserService UserService,
+                               ImportSoKhamSucKhoeService importSoKhamSucKhoeService,
+                               NavigationManager NavManager,
+                               ILocalStorageService localStorage) : BlazorCoreBase
     {
         private List<KhamSucKhoeCongTyModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
@@ -29,10 +36,51 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         private Dictionary<int, List<UserModel>> SelectedUserItems { get; set; } = new();
         private List<UserModel> UserItems { get; set; } = new();
 
+        private const long MaxExcelFileSize = 25 * 1024 * 1024; // 25MB, adjust as needed
 
+        private HubConnection? connection;
+        private string? connectionId = "";
+        private string? importProcessingMessage { get; set; }
+        public bool isImportDone { get; set; }
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
+
+            try
+            {
+                connection = new HubConnectionBuilder()
+                .WithUrl(NavManager.ToAbsoluteUri("/importProgressHub"))
+                .Build();
+
+                connection.On<string>("ImportProgress", message =>
+                {
+                    isImportDone = false;
+                    importProcessingMessage = message;
+                    InvokeAsync(StateHasChanged);
+                });
+
+                connection.On<string>("ImportCompleted", async message =>
+                {
+                    isImportDone = true;
+                    importProcessingMessage = message;
+                    await LoadDetailData();
+                    await InvokeAsync(StateHasChanged);
+                });
+
+                connection.On<string>("ImportError", message =>
+                {
+                    isImportDone = false;
+                    importProcessingMessage = message;
+                    InvokeAsync(StateHasChanged);
+                });
+
+                await connection.StartAsync();
+                connectionId = connection.ConnectionId;
+            }
+            catch
+            {
+                AlertService.ShowAlert("Lỗi khi khởi tạo socket", "danger");
+            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -246,6 +294,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private async Task OpenAddOrUpdateModal(KhamSucKhoeCongTyModel? item)
         {
+            isImportDone = true;
             _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
             SelectedItem = item != null ? item.DeepClone() : new KhamSucKhoeCongTyModel();
 
@@ -429,6 +478,56 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             {
                 AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
             }
+        }
+
+        private async Task OnExcelFileSelected(InputFileChangeEventArgs e)
+        {
+            try
+            {
+                var file = e.File;
+                if (file == null)
+                {
+                    AlertService.ShowAlert("Vui lòng chọn file excel!", "warning");
+                    return;
+                }
+                if (
+                    file.ContentType != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    && file.ContentType != "application/vnd.ms-excel")
+                {
+                    AlertService.ShowAlert("Vui lòng chọn file Excel hợp lệ!", "warning");
+                    return;
+                }
+
+                // Additional check to ensure file.Size is not greater than MaxExcelFileSize
+                if (file.Size <= 0 || file.Size > MaxExcelFileSize)
+                {
+                    AlertService.ShowAlert("Kích thước file không hợp lệ hoặc vượt quá giới hạn cho phép!", "warning");
+                    return;
+                }
+
+                using var stream = file.OpenReadStream(file.Size);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                var fileBytes = ms.ToArray();
+
+                var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+                // Gọi hàm import excel từ service
+                _ = Task.Run(() => importSoKhamSucKhoeService.ImportFromExcelWithProgressAsync(
+                    fileBytes,
+                    connectionId ?? string.Empty,
+                    SelectedItem,
+                    CancellationToken.None)
+                );
+            }
+            catch (Exception ex)
+            {
+                AlertService.ShowAlert($"Lỗi khi import file: {ex.Message}", "danger");
+            }
+        }
+
+        private async Task OpenFileDialog()
+        {
+            await JsRuntime.InvokeVoidAsync("eval", "document.getElementById('excelFileInput').click()");
         }
     }
 }
