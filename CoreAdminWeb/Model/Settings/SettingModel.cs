@@ -38,6 +38,9 @@
         public string? public_registration_email_filter { get; set; }
 
         public int? lock_result_page_after { get; set; } = 7;
+        public string? contract_folder_id { get; set; }
+        public string? doctor_role_id { get; set; }
+        public string? patient_role_id { get; set; }
         public List<VisualEditorUrl> visual_editor_urls { get; set; } = new List<VisualEditorUrl>();
     }
 

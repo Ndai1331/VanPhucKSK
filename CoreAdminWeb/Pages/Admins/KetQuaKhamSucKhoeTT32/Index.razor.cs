@@ -4,6 +4,7 @@ using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
+using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Files;
@@ -97,7 +98,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private bool openSyncKetQuaCanLamSangModal { get; set; } = false;
         private bool onReadonly => SelectedItem.status == Model.Base.Status.published;
 
-        private bool onBS => CurrentUser?.role?.ToLower() == GlobalConstant.DOCTOR_ROLE_ID.ToLower().ToString();
+        private bool onBS { get; set; } = false;
         private bool onBSHoHap => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ho_hap?.id == CurrentUser.id;
         private bool onBSTuanHoan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tuan_hoan?.id == CurrentUser.id;
         private bool onBSTieuHoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tieu_hoa?.id == CurrentUser.id;
@@ -114,6 +115,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private bool onBSKetLuan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ket_luan?.id == CurrentUser.id || true;
 
         private string imageWebRootPath { get; set; } = string.Empty;
+
+        private SettingModel? Setting { get; set; } = default;
+        private string? doctorRoleId { get; set; } = default;
+        
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -124,6 +129,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             if (firstRender)
             {
                 await LoadData();
+                await LoadSettingsAsync();
                 _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 SetProfileImagePlaceholder();
@@ -155,6 +161,26 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             if (string.IsNullOrEmpty(_profileImageUrl))
             {
                 _profileImageUrl = DEFAULT_PROFILE_IMAGE;
+            }
+        }
+
+        private async Task LoadSettingsAsync()
+        {
+            try
+            {
+                if (Setting != null) return; // Skip if already loaded
+                
+                var settingResults = await SettingService.GetCurrentSettingAsync();
+                if (settingResults.IsSuccess)
+                {
+                    Setting = settingResults.Data;
+                    doctorRoleId = Setting?.doctor_role_id ?? "";
+                    onBS = CurrentUser?.role?.ToLower() == doctorRoleId?.ToLower().ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading settings: {ex.Message}");
             }
         }
 
@@ -406,7 +432,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
-                query += $"&filter[_and][][role][_eq]={GlobalConstant.DOCTOR_ROLE_ID}";
+                query += $"&filter[_and][][role][_eq]={doctorRoleId}";
 
                 if (!string.IsNullOrEmpty(searchText))
                 {
