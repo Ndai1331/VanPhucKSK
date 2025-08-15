@@ -14,7 +14,7 @@
 <!-- Start All Card -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
     <div class="grid grid-cols-1 gap-4">
-        <div class="card">
+        <div class="card mb-10">
             @if (IsLoading)
             {
                 <div class="flex flex-col items-center justify-center gap-3">
@@ -74,115 +74,43 @@
                     </div>
                 </div>
             </div>
-
-            <table id="example" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Mã</th>
-                        <th>Tên</th>
-                        <th>Ghi chú</th>
-                        <th>Trạng thái</th>
-                        <th class="flex items-center gap-2">Tác vụ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in MainModels)
-                    {
+            
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table id="example" class="display" style="width:100%">
+                    <thead>
                         <tr>
-                            <td>@item.code</td>
-                            <td>@item.name</td>
-                            <td>@item.description</td>
-                            <td>@((MarkupString)item.status.GetTrangThai())</td>
-                            <td class="flex items-center gap-2">
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                           @onclick="@(e => OpenAddOrUpdateModal(item))">
-                                    <i class="ri-edit-line"></i>
-                                </MudButton>
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                           @onclick="@(e => OpenDeleteModal(item))">
-                                    <i class="ri-delete-bin-line"></i>
-                                </MudButton>
-                            </td>
+                            <th>Mã</th>
+                            <th>Tên</th>
+                            <th>Ghi chú</th>
+                            <th>Trạng thái</th>
+                            <th class="flex items-center gap-2">Tác vụ</th>
                         </tr>
-                    }
-                </tbody>
-                
-            </table>
-        </div>
-
-        <div class="w-full grid grid-cols-1 pb-2">
-                <div class="flex items-center justify-between p-4">
-                    <div class="flex items-center gap-2">
-                        <span>Hiển thị</span>
-                        <select class="form-select" @bind="PageSize" @bind:event="oninput" @onchange="async (e) => await OnPageSizeChanged(LoadData)">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                        <span>mục</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-
-                        <div>
-                            <ul class="inline-flex my-2 -space-x-px list-inside">
-                                <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-l-lg rtl:rounded-r-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await PreviousPage(LoadData)" disabled="@(Page <= 1)">Trước</MudLink></li>
-                                @{
-                                    var startPage = Math.Max(1, Page - 1);
-                                    var endPage = Math.Min(TotalPages, Page + 1);
-
-                                    // Always show first page
-                                    <li>
-                                        <a href="#"
-                                            class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
-                                            @onclick="async (e) => await SelectedPage(1, LoadData)">1</a>
-                                    </li>
-
-                                    // Show ellipsis if needed
-                                    if (startPage > 2)
-                                    {
-                                        <li><span class="px-3 py-2">...</span></li>
-                                    }
-
-                                    // Show pages around current page
-                                    for (int i = startPage; i <= endPage; i++)
-                                    {
-                                        if (i > 1 && i < TotalPages)
-                                        {   
-                                            var currentPage = i; // Local variable to avoid closure issues
-                                            <li>
-                                                <a href="#"
-                                                    class="px-3 py-2 text-black  border border-black/10
-                                                    hover:bg-purple hover:text-white dark:bg-transparent
-                                                    dark:text-white dark:border-darkborder dark:hover:bg-purple
-                                                    dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
-                                                    @onclick="async (e) => await SelectedPage(currentPage, LoadData)">@i</a>
-                                            </li>
-                                        }
-                                    }
-
-                                    // Show ellipsis if needed
-                                    if (endPage < TotalPages - 1)
-                                    {
-                                        <li><span class="px-3 py-2">...</span></li>
-                                    }
-
-                                    // Always show last page if there is more than one page
-                                    if (TotalPages > 1)
-                                    {
-                                        <li>
-                                            <a href="#"
-                                                class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
-                                                @onclick="async (e) => await SelectedPage(TotalPages, LoadData)">@TotalPages</a>
-                                        </li>
-                                    }
-                                }
-                                <li><MudLink Href="#" Class="px-3 py-2 bg-white border cursor-not-allowed ltr:ml-0 rtl:mr-0 ltr:rounded-r-lg rtl:rounded-l-lg text-black/50 border-black/10 dark:bg-transparent dark:text-darkmuted dark:border-darkborder" @onclick="async (e) => await NextPage(LoadData)" disabled="@(Page >= TotalPages)">Sau</MudLink></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in MainModels)
+                        {
+                            <tr>
+                                <td>@item.code</td>
+                                <td>@item.name</td>
+                                <td>@item.description</td>
+                                <td>@((MarkupString)item.status.GetTrangThai())</td>
+                                <td class="flex items-center gap-2">
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                            @onclick="@(e => OpenAddOrUpdateModal(item))">
+                                        <i class="ri-edit-line"></i>
+                                    </MudButton>
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                            @onclick="@(e => OpenDeleteModal(item))">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </MudButton>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
+            <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
+        </div>
     </div>
 </div>
 <!-- End All Card -->
@@ -340,7 +268,18 @@
         IsLoading = false;
     }
    
+    private async Task OnPageSizeChanged(int newSize)
+        {
+            Page = 1;
+            PageSize = newSize;
+            await LoadData();
+        }
 
+        private async Task SelectedPage(int page)
+        {
+            Page = page;
+            await LoadData();
+        }
 
     private void OpenDeleteModal(ContractTypeModel item)
     {

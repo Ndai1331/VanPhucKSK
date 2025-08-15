@@ -15,7 +15,7 @@
 <!-- Start All Card -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
     <div class="grid grid-cols-1 gap-4">
-        <div class="card">
+        <div class="card mb-10">
             @if (IsLoading)
             {
                 <div class="flex flex-col items-center justify-center gap-3">
@@ -107,8 +107,8 @@
 
                 </table>
             </div>
+            <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
         </div>
-        <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
     </div>
 </div>
 <!-- End All Card -->

@@ -13,7 +13,7 @@
 <!-- Start All Card -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
     <div class="grid grid-cols-1 gap-4">
-        <div class="card">
+        <div class="card mb-10">
             @if (IsLoading)
             {
                 <div class="flex flex-col items-center justify-center gap-3">
@@ -73,43 +73,45 @@
                 </div>
             </div>
 
-            <table id="example" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Ngày tạo</th>
-                        <th>Mã loại định mức</th>
-                        <th>Tên loại định mức</th>
-                        <th>Trạng thái</th>
-                        <th class="flex items-center gap-2">Tác vụ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
-                    {
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table id="example" class="display" style="width:100%">
+                    <thead>
                         <tr>
-                            <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                            <td>@item.Data.date_created.ToString("dd/MM/yyyy")</td>
-                            <td>@item.Data.code</td>
-                            <td>@item.Data.name</td>
-                            <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
-                            <td class="flex items-center gap-2">
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                           @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
-                                    <i class="ri-edit-line"></i>
-                                </MudButton>
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                           @onclick="@(e => OpenDeleteModal(item.Data))">
-                                    <i class="ri-delete-bin-line"></i>
-                                </MudButton>
-                            </td>
+                            <th>STT</th>
+                            <th>Ngày tạo</th>
+                            <th>Mã loại định mức</th>
+                            <th>Tên loại định mức</th>
+                            <th>Trạng thái</th>
+                            <th class="flex items-center gap-2">Tác vụ</th>
                         </tr>
-                    }
-                </tbody>
-                
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                        {
+                            <tr>
+                                <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                <td>@item.Data.date_created.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Data.code</td>
+                                <td>@item.Data.name</td>
+                                <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
+                                <td class="flex items-center gap-2">
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                            @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
+                                        <i class="ri-edit-line"></i>
+                                    </MudButton>
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                            @onclick="@(e => OpenDeleteModal(item.Data))">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </MudButton>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    
+                </table>
+            </div>
+            <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
         </div>
-        <CoreAdminWeb.Shared.Components.Pagination Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" />
     </div>
 </div>
 <!-- End All Card -->

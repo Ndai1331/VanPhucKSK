@@ -123,7 +123,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                     query += $"&filter[_and][0][_or][2][ma_benh_nhan][_contains]={Uri.EscapeDataString(searchText)}";
                     query += $"&filter[_and][0][_or][3][so_dinh_danh][_contains]={Uri.EscapeDataString(searchText)}";
                 }
-
+    
                 var result = await UserService.GetAllAsync(query);
                 return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<UserModel>() : Enumerable.Empty<UserModel>();
             }
