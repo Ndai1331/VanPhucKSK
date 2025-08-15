@@ -70,7 +70,7 @@
     private bool isAuthenticated = false;
     private bool _hasInitialized = false; // Prevent multiple initializations
     private UserModel? currentUser;
-    public static string? AccessToken { get; private set; }
+    public static string? AccessToken { get; set; }
 
     [Inject] private AlertService AlertService { get; set; } = default!; // DI
     [Inject] private ISettingService SettingService { get; set; } = default!; // DI

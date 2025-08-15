@@ -1,5 +1,4 @@
 using Blazored.LocalStorage;
-using CoreAdminWeb.Commons;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Http;
 using CoreAdminWeb.Model.RequestHttps;
@@ -487,7 +486,7 @@ namespace CoreAdminWeb.Services.Users
                     c.ma_don_vi,
                     c.tinh,
                     c.xa,
-                    role = GlobalConstant.PATIENT_ROLE_ID,
+                    c.role,
                     status = string.IsNullOrEmpty(c.status) ? "active" : c.status
                 }).ToList();
                 var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<List<UserModel>>>($"users", createModel);
@@ -538,7 +537,7 @@ namespace CoreAdminWeb.Services.Users
                     c.ma_don_vi,
                     c.tinh,
                     c.xa,
-                    role = GlobalConstant.PATIENT_ROLE_ID,
+                    c.role,
                     c.status
                 }).ToList();
                 var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<UserModel>>>($"items/users", updateModel);

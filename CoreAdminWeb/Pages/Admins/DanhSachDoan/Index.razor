@@ -172,7 +172,17 @@
                                     {
                                         <div class="flex items-center gap-2">
                                             <MudText Typo="Typo.h5" Class="text-base capitalize text-slate-800 dark:text-slate-100">@importProcessingMessage</MudText>
-                                            <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-purple-500"></div>
+                                            @if (!isImportError)
+                                            {
+                                                <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-purple-700 border-solid"></div>
+                                            }
+                                            @if (isImportError)
+                                            {
+                                                <svg class="w-5 h-5 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                                    <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 9l-6 6m0-6l6 6"/>
+                                                </svg>
+                                            }
                                         </div>
                                     }
                                 </div>
@@ -290,7 +300,27 @@
         </div>
     </div>
 }
-
+@if (isErrorPopup)
+{
+    <div class="fixed inset-0 bg-black/50 z-[99999] flex items-center justify-center">
+        <div class="bg-white dark:bg-darklight rounded-lg shadow-lg p-6 max-w-md max-w-5xl border border-danger">
+            <div class="flex items-center justify-between mb-4">
+                <MudText Typo="Typo.h6" Class="text-danger font-semibold">Lỗi nhập dữ liệu</MudText>
+                <MudButton Class="text-danger" OnClick="@(() => isErrorPopup = false)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </MudButton>
+            </div>
+            <div class="relative overflow-auto max-h-96">
+                <div class="text-danger mb-4 whitespace-pre-wrap">@importProcessingMessage</div>
+            </div>
+            <div class="flex justify-end">
+                <MudButton Class="btn btn-danger" OnClick="@(() => isErrorPopup = false)">Đóng</MudButton>
+            </div>
+        </div>
+    </div>
+}
 <style>
     .select2-container {
         z-index: 99999999 !important;

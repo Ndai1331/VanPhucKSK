@@ -1,5 +1,4 @@
-﻿using CoreAdminWeb.Commons;
-using CoreAdminWeb.Enums;
+﻿using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
@@ -118,7 +117,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private SettingModel? Setting { get; set; } = default;
         private string? doctorRoleId { get; set; } = default;
-        
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -168,8 +167,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         {
             try
             {
-                if (Setting != null) return; // Skip if already loaded
-                
+                if (Setting != null)
+                {
+                    return; // Skip if already loaded
+                }
+
                 var settingResults = await SettingService.GetCurrentSettingAsync();
                 if (settingResults.IsSuccess)
                 {
@@ -328,7 +330,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 }
 
                 SelectedItem.benh_nhan = SelectedUser;
-                string query = $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
+                string query = $"filter[_and][][ma_luot_kham][_eq]={SelectedItem.ma_luot_kham}";
 
                 var tasks = new[]
                 {
@@ -337,7 +339,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaService, query, r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucService, query, r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, query, r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, $"filter[_and][][id][_eq]={SelectedItem.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),
                     BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, query, r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KhamSucKhoeKetQuaCanLamSangModel>()),
                 };
