@@ -1,6 +1,4 @@
-﻿using Blazored.LocalStorage;
-using CoreAdminWeb.Commons;
-using CoreAdminWeb.Helpers;
+﻿using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
@@ -18,8 +16,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                                IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService,
                                IUserService UserService,
                                ImportSoKhamSucKhoeService importSoKhamSucKhoeService,
-                               NavigationManager NavManager,
-                               ILocalStorageService localStorage) : BlazorCoreBase
+                               NavigationManager NavManager) : BlazorCoreBase
     {
         private List<KhamSucKhoeCongTyModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
@@ -42,6 +39,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         private string? connectionId = "";
         private string? importProcessingMessage { get; set; }
         public bool isImportDone { get; set; }
+        public bool isErrorPopup { get; set; }
+        public bool isImportError { get; set; }
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -54,6 +53,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
                 connection.On<string>("ImportProgress", message =>
                 {
+                    isImportError = false;
                     isImportDone = false;
                     importProcessingMessage = message;
                     InvokeAsync(StateHasChanged);
@@ -62,14 +62,20 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                 connection.On<string>("ImportCompleted", async message =>
                 {
                     isImportDone = true;
+                    isImportError = false;
                     importProcessingMessage = message;
+
+                    SelectedItemsDetail = new List<SoKhamSucKhoeModel>();
+
                     await LoadDetailData();
                     await InvokeAsync(StateHasChanged);
                 });
 
-                connection.On<string>("ImportError", message =>
+                connection.On<string, bool>("ImportError", (message, isPopup) =>
                 {
-                    isImportDone = false;
+                    isImportError = true;
+                    isImportDone = isPopup;
+                    isErrorPopup = isPopup;
                     importProcessingMessage = message;
                     InvokeAsync(StateHasChanged);
                 });
@@ -154,7 +160,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
-                query += $"&filter[_and][][role][_eq]={GlobalConstant.PATIENT_ROLE_ID}";
+                query += $"&filter[_and][][role][_eq]={CurrentSetting.patient_role_id}";
                 query += $"&filter[_and][][ma_don_vi][_eq]={SelectedItem.ma_hop_dong_ksk?.cong_ty?.id}";
 
                 if (!string.IsNullOrEmpty(filter))
@@ -510,12 +516,12 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                 await stream.CopyToAsync(ms);
                 var fileBytes = ms.ToArray();
 
-                var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
                 // Gọi hàm import excel từ service
                 _ = Task.Run(() => importSoKhamSucKhoeService.ImportFromExcelWithProgressAsync(
                     fileBytes,
                     connectionId ?? string.Empty,
                     SelectedItem,
+                    CurrentSetting.patient_role_id ?? string.Empty,
                     CancellationToken.None)
                 );
             }
@@ -527,6 +533,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private async Task OpenFileDialog()
         {
+            // Clear the file input before processing
+            await JsRuntime.InvokeVoidAsync("eval", "document.getElementById('excelFileInput').value = ''");
             await JsRuntime.InvokeVoidAsync("eval", "document.getElementById('excelFileInput').click()");
         }
     }

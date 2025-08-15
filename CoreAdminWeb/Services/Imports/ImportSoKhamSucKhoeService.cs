@@ -10,6 +10,7 @@ using CoreAdminWeb.Services.Users;
 using Microsoft.AspNetCore.SignalR;
 using OfficeOpenXml;
 using System.Globalization;
+using System.Text;
 
 namespace CoreAdminWeb.Services.Imports
 {
@@ -36,6 +37,7 @@ namespace CoreAdminWeb.Services.Imports
         public async Task ImportFromExcelWithProgressAsync(byte[] fileBytes,
                                                            string connectionId,
                                                            KhamSucKhoeCongTyModel SelectedItem,
+                                                           string userRole,
                                                            CancellationToken cancellationToken)
         {
             try
@@ -43,6 +45,7 @@ namespace CoreAdminWeb.Services.Imports
                 ExcelPackage.License.SetNonCommercialOrganization("NonCommercial");
 
                 List<ImportDoanKhamModel> result;
+                StringBuilder errorBuilder = new StringBuilder();
                 int percent = 0;
                 using (var ms = new MemoryStream(fileBytes))
                 using (var package = new ExcelPackage(ms))
@@ -51,9 +54,24 @@ namespace CoreAdminWeb.Services.Imports
                     var rowCount = worksheet.Dimension.Rows;
                     var colCount = worksheet.Dimension.Columns;
 
-                    result = new List<ImportDoanKhamModel>(rowCount - 1);
+                    result = new List<ImportDoanKhamModel>();
                     for (int row = 2; row <= rowCount; row++)
                     {
+                        // Bỏ qua dòng trống (tất cả các cột đều rỗng)
+                        bool isEmptyRow = true;
+                        for (int col = 1; col <= colCount; col++)
+                        {
+                            if (!string.IsNullOrWhiteSpace(worksheet.Cells[row, col].Text))
+                            {
+                                isEmptyRow = false;
+                                break;
+                            }
+                        }
+                        if (isEmptyRow)
+                        {
+                            continue;
+                        }
+
                         var model = new ImportDoanKhamModel
                         {
                             MaLuotKham = worksheet.Cells[row, 1].Text,
@@ -71,16 +89,19 @@ namespace CoreAdminWeb.Services.Imports
                             Email = colCount > 12 ? worksheet.Cells[row, 13].Text : null,
                         };
 
-                        if (!string.IsNullOrWhiteSpace(model.MaBenhNhan) || !string.IsNullOrWhiteSpace(model.MaLuotKham))
+                        int nextPercent = (int)Math.Round((double)(row - 1) * 100 / (rowCount - 1));
+                        if (row == rowCount || percent != nextPercent)
                         {
-                            int nextPercent = (int)Math.Round((double)(row - 1) * 100 / (rowCount - 1));
-                            if (row == rowCount || percent != nextPercent)
-                            {
-                                percent = nextPercent;
-                                await _hubContext.Clients.Client(connectionId)
-                                    .SendAsync("ImportProgress", $"Đang đọc dữ liệu import {percent}%", cancellationToken);
-                            }
-                            result.Add(model);
+                            percent = nextPercent;
+                            await _hubContext.Clients.Client(connectionId)
+                                .SendAsync("ImportProgress", $"Đang đọc dữ liệu import {percent}%", cancellationToken);
+                        }
+                        result.Add(model);
+
+                        var validate = ValidateImportData(model);
+                        if (!string.IsNullOrEmpty(validate))
+                        {
+                            errorBuilder.Append($"\nDòng {row}: Các trường {validate} là bắt buộc");
                         }
                     }
                 }
@@ -89,6 +110,53 @@ namespace CoreAdminWeb.Services.Imports
                 {
                     await _hubContext.Clients.Client(connectionId)
                         .SendAsync("ImportCompleted", "Không có dữ liệu để import!");
+                    return;
+                }
+
+                if (errorBuilder.Length > 0)
+                {
+                    await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ImportError", $"Dữ liệu import không hợp lệ:{errorBuilder}", true);
+
+                    return;
+                }
+
+                var emailDuplicates = result
+                    .GroupBy(c => c.Email)
+                    .Where(c => c.Count() > 1)
+                    .Select(c => new { Email = c.Key, Count = c.Count() })
+                    .ToList();
+
+                var maBenhNhanDuplicates = result
+                    .GroupBy(c => c.MaBenhNhan)
+                    .Where(c => c.Count() > 1)
+                    .Select(c => new { MaBenhNhan = c.Key, Count = c.Count() })
+                    .ToList();
+
+                var maLuotKhamDuplicates = result
+                    .GroupBy(c => c.MaLuotKham)
+                    .Where(c => c.Count() > 1)
+                    .Select(c => new { MaLuotKham = c.Key, Count = c.Count() })
+                    .ToList();
+                if (emailDuplicates.Any())
+                {
+                    await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ImportError", $"Email bị trùng lặp: {string.Join("; ", emailDuplicates.Select(c => $"'{c.Email}'"))}", true);
+
+                    return;
+                }
+                if (maBenhNhanDuplicates.Any())
+                {
+                    await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ImportError", $"Mã bệnh nhân bị trùng lặp: {string.Join("; ", maBenhNhanDuplicates.Select(c => $"'{c.MaBenhNhan}'"))}", true);
+
+                    return;
+                }
+                if (maLuotKhamDuplicates.Any())
+                {
+                    await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ImportError", $"Mã lượt khám bị trùng lặp: {string.Join("; ", maLuotKhamDuplicates.Select(c => $"'{c.MaLuotKham}'"))}", true);
+
                     return;
                 }
 
@@ -156,6 +224,7 @@ namespace CoreAdminWeb.Services.Imports
                         existingUser.ma_don_vi = SelectedItem.ma_hop_dong_ksk?.cong_ty?.id;
                         existingUser.tinh = tinhMap.TryGetValue(item.MaTinh ?? "", out var tinhId) ? tinhId : null;
                         existingUser.xa = xaMap.TryGetValue($"{item.MaXa}|{item.MaTinh}", out var xaId) ? xaId : null;
+                        existingUser.role = userRole;
 
                         updatingUsers.Add(existingUser);
                     }
@@ -180,7 +249,8 @@ namespace CoreAdminWeb.Services.Imports
                             ma_benh_nhan = item.MaBenhNhan,
                             ma_don_vi = SelectedItem.ma_hop_dong_ksk?.cong_ty?.id,
                             tinh = tinhMap.TryGetValue(item.MaTinh ?? "", out var tinhId) ? tinhId : null,
-                            xa = xaMap.TryGetValue($"{item.MaXa}|{item.MaTinh}", out var xaId) ? xaId : null
+                            xa = xaMap.TryGetValue($"{item.MaXa}|{item.MaTinh}", out var xaId) ? xaId : null,
+                            role = userRole,
                         });
                     }
 
@@ -191,11 +261,28 @@ namespace CoreAdminWeb.Services.Imports
                         await _hubContext.Clients.Client(connectionId)
                             .SendAsync("ImportProgress", $"Đang xử lý thông tin bệnh nhân {percent}%", cancellationToken);
                     }
+
                     rowIndex++;
                 }
 
                 await _hubContext.Clients.Client(connectionId)
                     .SendAsync("ImportProgress", $"Đang cập nhật thông tin bệnh nhân...", cancellationToken);
+
+                if (newUsers.Any())
+                {
+                    var existingByEmail = await BatchQueryAsync(
+                        ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][email][_in]={string.Join(",", ids)}"),
+                        newUsers.Select(c => c.email).Distinct().ToList()
+                    );
+
+                    if (existingByEmail != null && existingByEmail.Any())
+                    {
+                        await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ImportError", $"Email đã tồn tại trên hệ thống: {string.Join("; ", existingByEmail.Select(c => $"'{c.email}'"))}", true);
+
+                        return;
+                    }
+                }
 
                 await BatchExecuteAsync(updatingUsers, _userService.UpdateAsync);
                 await BatchExecuteAsync(newUsers, _userService.CreateAsync);
@@ -247,7 +334,7 @@ namespace CoreAdminWeb.Services.Imports
             catch (Exception ex)
             {
                 await _hubContext.Clients.Client(connectionId)
-                .SendAsync("ImportError", $"Lỗi khi import: {ex.Message}");
+                .SendAsync("ImportError", $"Lỗi khi import: {ex.Message}", false);
             }
         }
         static async Task<List<T>> BatchQueryAsync<T>(Func<List<string>, Task<RequestHttpResponse<List<T>>>> queryFunc, List<string> ids, int batchSize = 200)
@@ -278,6 +365,52 @@ namespace CoreAdminWeb.Services.Imports
             {
                 await execFunc(batch.ToList());
             }
+        }
+
+        static string ValidateImportData(ImportDoanKhamModel import)
+        {
+            StringBuilder builder = new StringBuilder();
+            if (string.IsNullOrEmpty(import.MaBenhNhan))
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append(", ");
+                }
+
+                builder.Append("Mã bệnh nhân");
+            }
+
+            if (string.IsNullOrEmpty(import.MaLuotKham))
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append(", ");
+                }
+
+                builder.Append("Mã lượt khám");
+            }
+
+            if (string.IsNullOrEmpty(import.CCCD))
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append(", ");
+                }
+
+                builder.Append("Số định danh");
+            }
+
+            if (string.IsNullOrEmpty(import.Email))
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append(", ");
+                }
+
+                builder.Append("Email");
+            }
+
+            return builder.ToString();
         }
     }
 }
