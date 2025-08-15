@@ -101,7 +101,7 @@ namespace CoreAdminWeb.Services.Imports
                         var validate = ValidateImportData(model);
                         if (!string.IsNullOrEmpty(validate))
                         {
-                            errorBuilder.Append($"\nDòng {row}: Các trường {validate} là bắt buộc");
+                            errorBuilder.Append($"\nDòng {row}: Các trường {validate} bị rỗng hoặc không đúng định dạng");
                         }
                     }
                 }
@@ -408,6 +408,15 @@ namespace CoreAdminWeb.Services.Imports
                 }
 
                 builder.Append("Email");
+            }
+
+            if (!DateTime.TryParseExact(import.NgaySinh, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append(", ");
+                }
+                builder.Append("Ngày sinh");
             }
 
             return builder.ToString();
