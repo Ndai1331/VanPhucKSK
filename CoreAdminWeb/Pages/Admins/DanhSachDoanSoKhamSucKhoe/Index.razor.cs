@@ -85,8 +85,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 MainModels = result.Data ?? new List<DanhSachDoanSoKhamSucKhoeModel>();
                 if (result.Meta != null)
                 {
-                    TotalItems = result.Meta.filter_count ?? 0;
-                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                     TotalItems = result.Meta.filter_count ?? 0;
+                    TotalPages = result.Meta.page_count ?? 0;
                 }
             }
             else
