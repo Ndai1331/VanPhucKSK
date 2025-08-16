@@ -11,9 +11,9 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
     /// </summary>
     public class XaPhuongService : IBaseService<XaPhuongModel>
     {
-        private readonly string _collection = "xa_phuong";
+        private readonly string _collection = "xa";
         private readonly IHttpClientService _httpClientService;
-        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,tinh.id,tinh.code,tinh.name";
+        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,tinh.id,tinh.ma,tinh.ten";
 
         public XaPhuongService(IHttpClientService httpClientService)
         {
