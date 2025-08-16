@@ -12,7 +12,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
     /// <summary>
     /// Service for managing fertilizer production facilities
     /// </summary>
-    public class KhamSucKhoeCanLamSanService : IBaseDetailService<KhamSucKhoeCanLamSangModel>
+    public class KhamSucKhoeCanLamSangService : IBaseDetailService<KhamSucKhoeCanLamSangModel>
     {
         private readonly string _collection = "kham_suc_khoe_can_lam_sang";
         private readonly IHttpClientService _httpClientService;
@@ -21,7 +21,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             + ",luot_kham.id,luot_kham.ma_luot_kham"
             + ",file_cls.id,file_cls.filename_disk,file_cls.filename_download";
 
-        public KhamSucKhoeCanLamSanService(IHttpClientService httpClientService)
+        public KhamSucKhoeCanLamSangService(IHttpClientService httpClientService)
         {
             _httpClientService = httpClientService;
         }

@@ -28,7 +28,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                IBaseDetailService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService,
                                IBaseDetailService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService,
                                IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService,
-                               IBaseGetService<KetQuaCanLamSangModel> KhamSucKhoeCanLamSangService,
+                               IBaseGetService<KetQuaCanLamSangModel> KetQuaCanLamSangService,
                                IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService,
                                IPdfService PdfService,
                                IConfiguration Configuration,
@@ -442,16 +442,14 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 var query = "sort=-id";
 
-                query += "&filter[_and][][deleted][_eq]=false";
-
                 if (!string.IsNullOrEmpty(searchText))
                 {
-                    query += $"&filter[_and][0][_or][0][ma_cls][_contains]={Uri.EscapeDataString(searchText)}";
-                    query += $"&filter[_and][0][_or][1][ten_cls][_contains]={Uri.EscapeDataString(searchText)}";
-                    query += $"&filter[_and][0][_or][1][danh_gia_cls][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][0][ma_can_lam_sang][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][1][ten_can_lam_san][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][1][ket_luan_can_lam_sang][_contains]={Uri.EscapeDataString(searchText)}";
                 }
 
-                var result = await KhamSucKhoeCanLamSangService.GetAllAsync(query);
+                var result = await KetQuaCanLamSangService.GetAllAsync(query);
                 return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<KetQuaCanLamSangModel>() : Enumerable.Empty<KetQuaCanLamSangModel>();
             }
             catch (Exception ex)

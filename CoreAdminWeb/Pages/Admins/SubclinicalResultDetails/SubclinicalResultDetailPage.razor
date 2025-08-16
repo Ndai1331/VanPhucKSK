@@ -15,7 +15,7 @@
 @inject NavigationManager Navigation
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IUserService UserService
-@inject IBaseGetService<KetQuaCanLamSangModel> KhamSucKhoeCanLamSanService
+@inject IBaseGetService<KetQuaCanLamSangModel> KetQuaCanLamSangService
 @inject IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService
 @inject IFtpService FtpService
 @inject IConfiguration Configuration
@@ -633,7 +633,7 @@
     private async Task LoadKetQuaCanLamSangDataAsync()
     {
         string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
-        var result = await KhamSucKhoeCanLamSanService.GetAllAsync(query, true);
+        var result = await KetQuaCanLamSangService.GetAllAsync(query, true);
         if (result?.IsSuccess == true && result.Data != null)
         {
             KhamSucKhoeCanLamSanModels = result.Data;
