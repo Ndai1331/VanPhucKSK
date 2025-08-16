@@ -218,8 +218,13 @@ namespace CoreAdminWeb.Services.Http
             {
                 await EnsureTokenAttachedAsync();
 
+                if (file.Size > UploadLimit)
+                {
+                    throw new FileLoadException($"File size is {BytesToMB(file.Size)}MB greater than {BytesToMB(UploadLimit)}MB");
+                }
+
                 using var content = new MultipartFormDataContent();
-                using var stream = file.OpenReadStream(UploadLimit);
+                using var stream = file.OpenReadStream(file.Size);
                 var streamContent = new StreamContent(stream);
                 streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
                 content.Add(streamContent, "file", file.Name);
@@ -252,8 +257,13 @@ namespace CoreAdminWeb.Services.Http
 
                 foreach (var file in files)
                 {
+                    if (file.Size > UploadLimit)
+                    {
+                        throw new FileLoadException($"File size is {BytesToMB(file.Size)}MB greater than {BytesToMB(UploadLimit)}MB");
+                    }
+
                     var ms = new MemoryStream();
-                    await file.OpenReadStream(UploadLimit).CopyToAsync(ms);
+                    await file.OpenReadStream(file.Size).CopyToAsync(ms);
                     ms.Seek(0, SeekOrigin.Begin);
                     content.Add(new StreamContent(ms), "files", file.Name);
                     streams.Add(ms);
@@ -447,8 +457,8 @@ namespace CoreAdminWeb.Services.Http
                 result.Errors = errorResponse?.errors?.Select(e => new ErrorResponse
                 {
                     Message = e.message,
-                    Code = e.extensions?.code,
-                    Reason = e.extensions?.reason
+                    Code = e.extensions?.code ?? string.Empty,
+                    Reason = e.extensions?.reason ?? string.Empty
                 }).ToList() ?? new List<ErrorResponse>
                 {
                     new()
@@ -476,6 +486,12 @@ namespace CoreAdminWeb.Services.Http
         public void Dispose()
         {
             _tokenSource?.Dispose();
+        }
+
+        // Helper method to convert bytes to MB (rounded to 2 decimal places)
+        private static double BytesToMB(long bytes)
+        {
+            return Math.Round(bytes / 1024.0 / 1024.0, 2);
         }
     }
 }

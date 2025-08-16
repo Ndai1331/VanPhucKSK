@@ -96,8 +96,8 @@ public class DanhSachDoanController : ControllerBase
                 -- Gộp tất cả kết quả cận lâm sàng thành một cột, phân cách bằng dấu |
                STRING_AGG(
                     CASE 
-                        WHEN cls.ten_can_lam_san IS NOT NULL AND cls.ket_luan_can_lam_sang IS NOT NULL 
-                        THEN CONCAT(cls.ten_can_lam_san, ': ', cls.ket_luan_can_lam_sang) 
+                        WHEN kqcls.ten_can_lam_san IS NOT NULL AND kqcls.ket_luan_can_lam_sang IS NOT NULL 
+                        THEN CONCAT(kqcls.ten_can_lam_san, ': ', kqcls.ket_luan_can_lam_sang) 
                         ELSE NULL 
                     END, 
                     ' | '
@@ -112,7 +112,8 @@ public class DanhSachDoanController : ControllerBase
                 Left join kham_suc_khoe_san_phu_khoa spk on spk.ma_luot_kham = sksk.ma_luot_kham
                 Left join kham_suc_khoe_ket_luan kl on kl.ma_luot_kham = sksk.ma_luot_kham
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
-                Left join ket_qua_can_lam_san cls    on cls.ma_luot_kham = sksk.ma_luot_kham
+                Left join kham_suc_khoe_ket_qua_can_lam_sang cls    on cls.luot_kham = sksk.id
+                Left join ket_qua_can_lam_san kqcls    on kqcls.id = cls.kq_cls
                 " + where + @"
                 GROUP BY sksk.id, sksk.ma_luot_kham, ct.code, u.id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
                 ts.ten_benh, ts.tien_su_gia_dinh,
