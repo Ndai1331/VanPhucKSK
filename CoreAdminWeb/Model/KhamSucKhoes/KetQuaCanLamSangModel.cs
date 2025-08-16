@@ -12,9 +12,9 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? ket_luan_can_lam_sang { get; set; }
         public string? ma_benh_nhan { get; set; }
         public int? IdCLS { get; set; }
-        public bool SendMail { get; set; } = false;
-        public bool SendNotification { get; set; } = false;
-        public bool SendZaloOa { get; set; } = false;
+        public bool? SendMail { get; set; } = false;
+        public bool? SendNotification { get; set; } = false;
+        public bool? SendZaloOa { get; set; } = false;
         public string? ma_loai_chi_dinh { get; set; }
         public FileModel? file_cls { get; set; }
     }
