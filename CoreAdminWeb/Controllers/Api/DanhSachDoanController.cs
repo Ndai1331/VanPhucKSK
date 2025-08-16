@@ -94,7 +94,14 @@ public class DanhSachDoanController : ControllerBase
                 spk.ket_qua, ck.benh_mat, ck.benh_tai_mui_hong, ck.benh_rhm, ck.kq_da_lieu,
                 kl.benh_tat_ket_luan, kl.de_nghi, plsk.name as phan_loai_suc_khoe,
                 -- Gộp tất cả kết quả cận lâm sàng thành một cột, phân cách bằng dấu |
-                STRING_AGG(CONCAT(cls.ten_can_lam_san, ': ', cls.ket_luan_can_lam_sang), ' | ') AS can_lam_sang_results
+               STRING_AGG(
+                    CASE 
+                        WHEN cls.ten_can_lam_san IS NOT NULL AND cls.ket_luan_can_lam_sang IS NOT NULL 
+                        THEN CONCAT(cls.ten_can_lam_san, ': ', cls.ket_luan_can_lam_sang) 
+                        ELSE NULL 
+                    END, 
+                    ' | '
+                ) AS can_lam_sang_results
                 from SoKhamSucKhoe sksk 
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
                 Left join contract hd on hd.id = ct.ma_hop_dong_ksk
@@ -187,10 +194,9 @@ public class DanhSachDoanController : ControllerBase
 
                             ten_benh = reader["ten_benh"]?.ToString(),
                             tien_su_gia_dinh = reader["tien_su_gia_dinh"]?.ToString(),
-
-                            chieu_cao = reader["chieu_cao"] as decimal?,
-                            can_nang = reader["can_nang"] as decimal?,
-                            bmi = reader["bmi"] as decimal?,
+                            chieu_cao = reader["chieu_cao"]?.ToString(),
+                            can_nang = reader["can_nang"]?.ToString(),
+                            bmi = reader["bmi"]?.ToString(),
                             mach = reader["mach"] as int?,
                             huyet_ap = reader["huyet_ap"]?.ToString(),
                             kq_nk_tuan_hoan = reader["kq_nk_tuan_hoan"]?.ToString(),

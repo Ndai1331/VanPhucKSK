@@ -17,9 +17,9 @@ namespace CoreAdminWeb.Model
         public string? tien_su_gia_dinh { get; set; }
         
         // Thể lực
-        public decimal? chieu_cao { get; set; }
-        public decimal? can_nang { get; set; }
-        public decimal? bmi { get; set; }
+        public string? chieu_cao { get; set; }
+        public string? can_nang { get; set; }
+        public string? bmi { get; set; }
         public int? mach { get; set; }
         public string? huyet_ap { get; set; }
         
