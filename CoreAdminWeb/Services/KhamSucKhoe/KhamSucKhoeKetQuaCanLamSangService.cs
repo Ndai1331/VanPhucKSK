@@ -18,7 +18,8 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
 
         private readonly string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
             + ",ket_qua_cls.id,ket_qua_cls.ten_cls,ket_qua_cls.ket_qua_cls,ket_qua_cls.danh_gia_cls,ket_qua_cls.chi_so_cls"
-            + ",kq_cls.id,kq_cls.ten_can_lam_san,kq_cls.ket_luan_can_lam_sang"
+            + ",kq_cls.id,kq_cls.ma_can_lam_sang,kq_cls.ten_can_lam_san,kq_cls.ket_luan_can_lam_sang"
+            + ",kq_cls.file_cls.id,kq_cls.file_cls.filename_disk,kq_cls.file_cls.filename_download"
             + ",luot_kham.id,luot_kham.ma_luot_kham";
 
         public KhamSucKhoeKetQuaCanLamSangService(IHttpClientService httpClientService)
@@ -44,7 +45,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             }
             catch (Exception ex)
             {
-                return IBaseGetService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>(ex);
+                return IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>(ex);
             }
         }
 
@@ -72,7 +73,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             }
             catch (Exception ex)
             {
-                return IBaseGetService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<KhamSucKhoeKetQuaCanLamSangModel>(ex);
+                return IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<KhamSucKhoeKetQuaCanLamSangModel>(ex);
             }
         }
 
@@ -128,7 +129,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             }
             catch (Exception ex)
             {
-                return IBaseGetService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>(ex);
+                return IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>(ex);
             }
         }
 
@@ -174,7 +175,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             }
             catch (Exception ex)
             {
-                return IBaseGetService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<bool>(ex);
+                return IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<bool>(ex);
             }
         }
 
@@ -211,7 +212,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             }
             catch (Exception ex)
             {
-                return IBaseGetService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<bool>(ex);
+                return IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<bool>(ex);
             }
         }
     }
