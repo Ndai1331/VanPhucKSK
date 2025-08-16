@@ -15,7 +15,7 @@
 @inject NavigationManager Navigation
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IUserService UserService
-@inject IBaseGetService<KetQuaCanLamSangModel> KetQuaCanLamSangService
+@inject IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService
 @inject IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService
 @inject IFtpService FtpService
 @inject IConfiguration Configuration
@@ -221,7 +221,7 @@
                                                     <i class="ri-list-check-3 me-2 text-green-600 me-2"></i> @item.name
                                                 </h4>
                                                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                                                    Mã CKS: @item.code | Ngày kết luận: @item.date_created.ToString("dd/MM/yyyy")
+                                                    Mã CKS: @item.kq_cls?.ma_can_lam_sang | Ngày kết luận: @item.kq_cls?.date_created.ToString("dd/MM/yyyy")
                                                 </p>
                                             </div>
                                             <div class="flex items-center space-x-2  bg-green-600 text-white dark:text-green-400 font-medium px-2 py-1 rounded-md">
@@ -241,7 +241,7 @@
                                              x-transition:leave-start="max-h-[1000px]"
                                              x-transition:leave-end="max-h-0">
                                             <div class="p-4 bg-white dark:bg-gray-800">
-                                                @if (!string.IsNullOrEmpty(item.ket_luan_can_lam_sang))
+                                                @if (!string.IsNullOrEmpty(item.ket_qua))
                                                 {
                                                     <div class="mb-4">
                                                         <h5 class="font-bold dark:text-green-300 mb-2 flex items-center">
@@ -249,12 +249,12 @@
                                                             Kết luận:
                                                         </h5>
                                                         <p class="bg-green-50 text-gray-700 dark:text-gray-300 p-3 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
-                                                            @item.ket_luan_can_lam_sang
+                                                            @item.ket_qua
                                                         </p>
                                                     </div>
                                                 }
 
-                                                @if (!string.IsNullOrEmpty(item.file_cls?.filename_download))
+                                                @if (!string.IsNullOrEmpty(item.kq_cls?.file_cls?.filename_download))
                                                 {
                                                     <div class="mb-4">
                                                         <h5 class="font-medium text-green-700 dark:text-green-300 mb-2 flex items-center">
@@ -264,7 +264,7 @@
                                                         <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-green-200 dark:border-green-800">
                                                             @{
                                                                 // Get file info for display
-                                                                var fileName = Path.GetFileName(item.file_cls.filename_download);
+                                                                var fileName = Path.GetFileName(item.kq_cls.file_cls.filename_download);
                                                                 var localPath = GetDirectLocalPath(fileName);
 
                                                                 // Only attempt download if not already processed
@@ -380,7 +380,7 @@
     #region Constants
 
     private const string DEFAULT_PROFILE_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23f8f9fa' stroke='%23dee2e6' stroke-width='1'/%3E%3Ctext x='60' y='80' text-anchor='middle' fill='%236c757d' font-size='12'%3EẢnh 4x6 cm%3C/text%3E%3C/svg%3E";
-    private const int ExpiredResultPage = 7; // 7 days
+    private new const int ExpiredResultPage = 7; // 7 days
     #endregion
 
     #region Parameters and Injection
@@ -392,7 +392,7 @@
     #region Private Fields
 
     // Medical record data models
-    private List<KetQuaCanLamSangModel>? KhamSucKhoeCanLamSanModels { get; set; }
+    private List<KhamSucKhoeKetQuaCanLamSangModel>? KhamSucKhoeCanLamSanModels { get; set; }
     private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
 
     private UserModel? CurrentUser { get; set; }
@@ -459,7 +459,7 @@
             if (CurrentUser != null)
             {
                 // Load medical data if user is authenticated
-                await LoadKetQuaCanLamSangDataAsync();
+                await LoadKhamSucKhoeKetQuaCanLamSangDataAsync();
 
                 if (_isDisposed) return; // Check after async operation
 
@@ -529,7 +529,7 @@
                 _isPublic = true;
 
                 // Load medical data in parallel
-                await LoadKetQuaCanLamSangDataAsync();
+                await LoadKhamSucKhoeKetQuaCanLamSangDataAsync();
 
                 if (_isDisposed) return; // Check after async operation
 
@@ -617,10 +617,13 @@
         }
     }
 
-    private async Task LoadKetQuaCanLamSangDataAsync()
+    private async Task LoadKhamSucKhoeKetQuaCanLamSangDataAsync()
     {
-        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
-        var result = await KetQuaCanLamSangService.GetAllAsync(query, true);
+        string query = $"filter[_and][][luot_kham][ma_luot_kham][_eq]={ma_luot_kham}";
+        query += $"&filter[_and][][kq_cls][_nnull]=true";
+        query += $"&filter[_and][][deleted][_eq]=false";
+        query += $"&sort=kq_cls";
+        var result = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query, true);
         if (result?.IsSuccess == true && result.Data != null)
         {
             KhamSucKhoeCanLamSanModels = result.Data;

@@ -11,7 +11,7 @@
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
 @inject IUserService UserService
-@inject IBaseGetService<KetQuaCanLamSangModel> KetQuaCanLamSangService
+@inject IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService
 
 <!-- Start Main Content -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
@@ -78,10 +78,10 @@
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.ma_luot_kham</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.ma_can_lam_sang</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.ten_can_lam_san</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.luot_kham?.ma_luot_kham</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.kq_cls?.ma_can_lam_sang</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.kq_cls?.ten_can_lam_san</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.luot_kham?.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
                             <MudTd DataLabel="Thao tác">
                                 <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context))">
                                     <i class="ri-eye-line me-1"></i>Xem chi tiết
@@ -183,7 +183,7 @@
     private UserModel? CurrentUser { get; set; }
 
     // Subclinical result Records
-    private List<KetQuaCanLamSangModel> MainModels = new List<KetQuaCanLamSangModel>();
+    private List<KhamSucKhoeKetQuaCanLamSangModel> MainModels = new List<KhamSucKhoeKetQuaCanLamSangModel>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -266,14 +266,14 @@
         try
         {
             // Build query for paginated results
-            BuildPaginationQuery(Page, PageSize, "ngay_kham");
+            BuildPaginationQuery(Page, PageSize, "luot_kham.ngay_kham");
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            // BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
+            BuilderQuery += $"&filter[_and][1][kq_cls][_nnull]=true";
 
-            var result = await KetQuaCanLamSangService.GetAllAsync(BuilderQuery);
+            var result = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
             {
-                MainModels = result.Data ?? new List<KetQuaCanLamSangModel>();
+                MainModels = result.Data ?? new List<KhamSucKhoeKetQuaCanLamSangModel>();
 
                 if (result.Meta != null)
                 {
@@ -283,13 +283,13 @@
             }
             else
             {
-                MainModels = new List<KetQuaCanLamSangModel>();
+                MainModels = new List<KhamSucKhoeKetQuaCanLamSangModel>();
             }
         }
         catch (Exception ex)
         {
             AlertService.ShowAlert("Lỗi khi tải hồ sơ khám bệnh: " + ex.Message, "danger");
-            MainModels = new List<KetQuaCanLamSangModel>();
+            MainModels = new List<KhamSucKhoeKetQuaCanLamSangModel>();
         }
     }
 
@@ -313,8 +313,8 @@
         };
     }
 
-    private void ViewRecordDetail(KetQuaCanLamSangModel record)
+    private void ViewRecordDetail(KhamSucKhoeKetQuaCanLamSangModel record)
     {
-        Navigation.NavigateTo($"/subclinical-result-detail-page/{record.ma_luot_kham}");
+        Navigation.NavigateTo($"/subclinical-result-detail-page/{record.luot_kham?.ma_luot_kham}");
     }
 }
