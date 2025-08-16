@@ -3,7 +3,6 @@ using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
-using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Files;
@@ -115,9 +114,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private string imageWebRootPath { get; set; } = string.Empty;
 
-        private SettingModel? Setting { get; set; } = default;
-        private string? doctorRoleId { get; set; } = default;
-
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -128,7 +124,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             if (firstRender)
             {
                 await LoadData();
-                await LoadSettingsAsync();
                 _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 SetProfileImagePlaceholder();
@@ -140,6 +135,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     if (resUser.IsSuccess)
                     {
                         CurrentUser = resUser.Data;
+
+                        onBS = CurrentUser?.role?.ToLower() == CurrentSetting.doctor_role_id?.ToLower().ToString();
                     }
                 });
 
@@ -160,29 +157,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             if (string.IsNullOrEmpty(_profileImageUrl))
             {
                 _profileImageUrl = DEFAULT_PROFILE_IMAGE;
-            }
-        }
-
-        private async Task LoadSettingsAsync()
-        {
-            try
-            {
-                if (Setting != null)
-                {
-                    return; // Skip if already loaded
-                }
-
-                var settingResults = await SettingService.GetCurrentSettingAsync();
-                if (settingResults.IsSuccess)
-                {
-                    Setting = settingResults.Data;
-                    doctorRoleId = Setting?.doctor_role_id ?? "";
-                    onBS = CurrentUser?.role?.ToLower() == doctorRoleId?.ToLower().ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading settings: {ex.Message}");
             }
         }
 
@@ -434,7 +408,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
-                query += $"&filter[_and][][role][_eq]={doctorRoleId}";
+                query += $"&filter[_and][][role][_eq]={CurrentSetting.doctor_role_id}";
 
                 if (!string.IsNullOrEmpty(searchText))
                 {
