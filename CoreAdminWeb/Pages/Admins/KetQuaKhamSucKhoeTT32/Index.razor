@@ -6,12 +6,13 @@
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Model
-@using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Model.Contract
+@using CoreAdminWeb.Model.KhamSucKhoes
+@using CoreAdminWeb.Model.User
+@using CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32.Components
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Shared.Components
-@using CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32.Components
 @inherits BlazorCoreBase
 @layout Shared.Layout.AdminLayout
 
@@ -161,7 +162,9 @@
                                                 <KhamTheLuc onReadonly="onReadonly"
                                                             onBS="onBS"
                                                             SelectedKhamSucKhoeTheLuc="SelectedKhamSucKhoeTheLuc"
-                                                            LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeData" />
+                                                            LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                            PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                            SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
                                             </div>
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KHÁM CHUYÊN KHOA:</MudText>
@@ -177,41 +180,53 @@
                                                                    onBSThanKinh="onBSThanKinh"
                                                                    onBSTamThan="onBSTamThan"
                                                                    SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeData" />
+                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                   PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                   SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Ngoại khoa - Da liễu:</MudText>
                                                 <KhamChuyenKhoaNgoaiKhoaDaLieu onReadonly="onReadonly"
                                                                                onBSNgoaiKhoa="onBSNgoaiKhoa"
                                                                                SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                               LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeData" />
+                                                                               LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                               PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                               SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
                                             </div>
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Sản phụ khoa:</MudText>
                                                 <KhamChuyenKhoaSanPhuKhoa onReadonly="onReadonly"
                                                                           onBSSanPhuKhoa="onBSSanPhuKhoa"
                                                                           SelectedKhamSucKhoeSanPhuKhoa="SelectedKhamSucKhoeSanPhuKhoa"
-                                                                          LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeData" />
+                                                                          LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                          PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                          SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
                                             </div>
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Mắt:</MudText>
                                                 <KhamChuyenKhoaMat onReadonly="onReadonly"
                                                                    onBSMat="onBSMat"
                                                                    SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeData" />
+                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                   PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                   SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
                                             </div>
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tai - mũi - họng:</MudText>
                                                 <KhamChuyenKhoaTaiMuiHong onReadonly="onReadonly"
                                                                           onBSTaiMuiHong="onBSTaiMuiHong"
                                                                           SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                          LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeData" />
+                                                                          LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                          PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                          SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
                                             </div>
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Răng - hàm - mặt:</MudText>
                                                 <KhamChuyenKhoaRangHamMat onReadonly="onReadonly"
                                                                           onBSRangHamMat="onBSRangHamMat"
                                                                           SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                          LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeData" />
+                                                                          LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                          PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                          SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
                                             </div>
                                         </div>
                                     </div>
@@ -229,12 +244,16 @@
                                             </div>
                                             <div class="space-y-2 md:col-span-2">
                                                 <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KẾT LUẬN</MudText>
-                                                <KetLuan LoadBacSiData="LoadBacSiData"
-                                                         LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeData"
+                                                <KetLuan LoadBacSiData="LoadDoctorSelect2"
+                                                         LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                          onBSKetLuan="onBSKetLuan"
                                                          onReadonly="onReadonly"
                                                          OnValueChanged="OnValueChanged"
-                                                         SelectedKhamSucKhoeKetLuan="SelectedKhamSucKhoeKetLuan" />
+                                                         SelectedKhamSucKhoeKetLuan="SelectedKhamSucKhoeKetLuan"
+                                                         PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                         SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes"
+                                                         SelectedUsers="SelectedUsers"
+                                                         Users="Users"/>
                                             </div>
                                         </div>
                                     </div>
@@ -326,19 +345,19 @@
                                                     <BlazoredTypeahead EnableDropDown="true"
                                                                        ShowDropDownOnFocus="true"
                                                                        MinimumLength="0"
-                                                                       TItem="KhamSucKhoeCanLamSangModel"
-                                                                       TValue="KhamSucKhoeCanLamSangModel"
+                                                                       TItem="KetQuaCanLamSangModel"
+                                                                       TValue="KetQuaCanLamSangModel"
                                                                        SearchMethod="LoadKetQuaCanLamSangData"
-                                                                       Value="@item.ket_qua_cls"
-                                                                       ValueExpression="@(() => item.ket_qua_cls)"
+                                                                       Value="@item.kq_cls"
+                                                                       ValueExpression="@(() => item.kq_cls)"
                                                                        ValueChanged="@(selected => OnKetQuaCanLamSangChanged(selected, item))"
                                                                        placeholder="Chọn kết quả"
                                                                        class="form-select">
                                                         <SelectedTemplate Context="item">
-                                                            @item.ten_cls | @item.ket_qua_cls | @item.danh_gia_cls | @item.chi_so_cls
+                                                            @item.ket_luan_can_lam_sang
                                                         </SelectedTemplate>
                                                         <ResultTemplate Context="item">
-                                                            @item.ten_cls | @item.ket_qua_cls | @item.danh_gia_cls | @item.chi_so_cls
+                                                            @item.ket_luan_can_lam_sang
                                                         </ResultTemplate>
                                                         <NotFoundTemplate Context="item">
                                                             Không tìm thấy dữ liệu

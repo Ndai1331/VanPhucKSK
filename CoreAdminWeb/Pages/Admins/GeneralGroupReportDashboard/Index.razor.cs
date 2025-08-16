@@ -1,7 +1,7 @@
 ﻿using CoreAdminWeb.Commons;
 using CoreAdminWeb.Helpers;
-using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Dashboard.General;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.IDashboardService;

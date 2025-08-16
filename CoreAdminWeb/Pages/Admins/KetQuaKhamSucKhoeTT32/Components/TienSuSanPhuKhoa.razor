@@ -2,6 +2,7 @@
 @using CoreAdminWeb.Enums
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.KhamSucKhoes
 <div class="flex items-center gap-2">
     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</MudText>
     <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width: 150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />

@@ -1,10 +1,8 @@
-﻿using CoreAdminWeb.Commons;
-using CoreAdminWeb.Enums;
+﻿using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
-using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Contract;
@@ -55,9 +53,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private readonly TimeSpan _cacheExpiry = TimeSpan.FromMinutes(5);
 
         // Debouncing for filter function
-        private CancellationTokenSource? _filterCancellationTokenSource;
         private readonly object _cacheLock = new();
-        private SettingModel? Setting { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -70,7 +66,6 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 await LoadData();
                 await LoadDinhMucData("");
-                await LoadSettingsAsync();
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
 
                 // Initialize currency formatting
@@ -78,24 +73,6 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
 
                 StateHasChanged();
-            }
-        }
-
-        private async Task LoadSettingsAsync()
-        {
-            try
-            {
-                if (Setting != null) return; // Skip if already loaded
-                
-                var settingResults = await SettingService.GetCurrentSettingAsync();
-                if (settingResults.IsSuccess)
-                {
-                    Setting = settingResults.Data;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading settings: {ex.Message}");
             }
         }
 
@@ -172,14 +149,13 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
-                // query += $"&filter[_and][][role][_eq]={GlobalConstant.DOCTOR_ROLE_ID}";
 
                 if (!string.IsNullOrEmpty(searchText))
                 {
                     query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(searchText)}";
                     query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(searchText)}";
                 }
-    
+
                 var result = await UserService.GetAllAsync(query);
                 return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<UserModel>() : Enumerable.Empty<UserModel>();
             }
@@ -203,8 +179,9 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 var cacheKey = searchText ?? string.Empty;
                 lock (_cacheLock)
                 {
+                    var dateNow = DateTime.Now;
                     if (_dinhMucCache.ContainsKey(cacheKey) &&
-                        DateTime.Now - _lastCacheUpdate < _cacheExpiry)
+                        (dateNow - _lastCacheUpdate) < _cacheExpiry)
                     {
                         Console.WriteLine($"Using cached DinhMuc data for '{searchText}'");
                         DinhMucs = _dinhMucCache[cacheKey];
@@ -734,13 +711,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 try
                 {
-                    if (Setting == null)
-                    {
-                        var settingsTask = LoadSettingsAsync();
-                        await Task.WhenAll(settingsTask);
-                    }
-
-                    UploadFileCRUD.folder = Guid.Parse(Setting?.contract_folder_id ?? "");
+                    UploadFileCRUD.folder = Guid.Parse(CurrentSetting.contract_folder_id ?? "");
                     var fileUploaded = await _fileService.UploadFileAsync(SelectedFile, UploadFileCRUD);
 
                     if (

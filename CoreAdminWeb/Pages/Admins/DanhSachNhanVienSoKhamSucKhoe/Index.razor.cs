@@ -7,6 +7,7 @@ using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using CoreAdminWeb.Extensions;
+using CoreAdminWeb.Model.KhamSucKhoes;
 
 namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
 {

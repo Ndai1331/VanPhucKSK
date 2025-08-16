@@ -1,6 +1,7 @@
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.Dashboard.General;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
@@ -44,6 +45,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseGetService<MedicalAgencyModel>, MedicalAgencyService>();
             services.AddScoped<IBaseGetService<PostModel>, PostService>();
             services.AddScoped<IBaseGetService<HoaDonDienTuModel>, ElectronicInvoiceService>();
+            services.AddScoped<IBaseGetService<KetQuaCanLamSangModel>, KetQuaCanLamSangService>();
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IBaseService<LoaiDinhMucModel>, LoaiDinhMucService>();
             services.AddScoped<IBaseService<DinhMucModel>, DinhMucService>();

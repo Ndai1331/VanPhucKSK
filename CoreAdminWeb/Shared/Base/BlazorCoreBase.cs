@@ -52,11 +52,11 @@ namespace CoreAdminWeb.Shared.Base
         public string AcceptFileTypes { get; set; } = "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/pdf,application/zip, application/x-7z-compressed, application/x-rar-compressed, application/x-tar, application/x-gzip, application/x-bzip2, application/x-compressed, application/x-compressed-tar, application/x-compressed-zip, application/x-compressed-rar, application/x-compressed-7z";
 
         // Cached status list - created once
-        public static readonly List<Model.Base.Status> StatusList = new()
-        {
+        public static readonly List<Model.Base.Status> StatusList =
+        [
             Model.Base.Status.draft,
             Model.Base.Status.published
-        };
+        ];
 
         protected List<MenuResponse> Menus { get; set; } = new List<MenuResponse>();
 

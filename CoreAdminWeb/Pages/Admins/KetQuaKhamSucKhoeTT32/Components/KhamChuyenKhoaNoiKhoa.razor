@@ -1,212 +1,118 @@
-﻿@using CoreAdminWeb.Model
+﻿@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.KhamSucKhoes
 <div class="space-y-2 md:col-span-2">
     <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Nội khoa:</MudText>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
         <div class="flex items-center gap-2">
             <span style="min-width:90px;">1. Tuần hoàn:</span>
             <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan" readonly="@(onReadonly || !onReadonly && !onBSTuanHoan)" />
-            <BlazoredTypeahead EnableDropDown="true"
-                               ShowDropDownOnFocus="true"
-                               MinimumLength="0"
-                               TItem="PhanLoaiSucKhoeModel"
-                               TValue="PhanLoaiSucKhoeModel"
-                               SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                               @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan"
-                               placeholder="Chọn phân loại"
-                               class="form-select"
-                               style="width:120px;"
-                               Disabled="@(onReadonly || !onReadonly && !onBSTuanHoan)">
-                <SelectedTemplate Context="item">
-                    @item.name
-                </SelectedTemplate>
-                <ResultTemplate Context="item">
-                    @item.name
-                </ResultTemplate>
-                <NotFoundTemplate Context="item">
-                    Không tìm thấy dữ liệu
-                </NotFoundTemplate>
-            </BlazoredTypeahead>
+            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                     TextSelector="c => c != null ? c.name : String.Empty"
+                     FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                     GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                     Datasource="PhanLoaiSucKhoes"
+                     Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan, 2, SelectedPhanLoaiSucKhoes))"
+                     OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan = v, 2, SelectedPhanLoaiSucKhoes))"
+                     Multiselect="false"
+                     class="@(onReadonly || !onReadonly && !onBSTuanHoan ? "select2-disabled" : "")" />
         </div>
         <div class="flex items-center gap-2">
             <span style="min-width:90px;">2. Hô hấp:</span>
             <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap" readonly="@(onReadonly || !onReadonly && !onBSHoHap)" />
-            <BlazoredTypeahead EnableDropDown="true"
-                               ShowDropDownOnFocus="true"
-                               MinimumLength="0"
-                               TItem="PhanLoaiSucKhoeModel"
-                               TValue="PhanLoaiSucKhoeModel"
-                               SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                               @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap"
-                               placeholder="Chọn phân loại"
-                               class="form-select"
-                               style="width:120px;"
-                               Disabled="@(onReadonly || !onReadonly && !onBSHoHap)">
-                <SelectedTemplate Context="item">
-                    @item.name
-                </SelectedTemplate>
-                <ResultTemplate Context="item">
-                    @item.name
-                </ResultTemplate>
-                <NotFoundTemplate Context="item">
-                    Không tìm thấy dữ liệu
-                </NotFoundTemplate>
-            </BlazoredTypeahead>
+            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                     TextSelector="c => c != null ? c.name : String.Empty"
+                     FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                     GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                     Datasource="PhanLoaiSucKhoes"
+                     Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap, 3, SelectedPhanLoaiSucKhoes))"
+                     OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap = v, 3, SelectedPhanLoaiSucKhoes))"
+                     Multiselect="false"
+                     class="@(onReadonly || !onReadonly && !onBSHoHap ? "select2-disabled" : "")" />
         </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
         <div class="flex items-center gap-2">
             <span style="min-width:90px;">3. Tiêu hóa:</span>
             <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa" readonly="@(onReadonly || !onReadonly && !onBSTieuHoa)" />
-            <BlazoredTypeahead EnableDropDown="true"
-                               ShowDropDownOnFocus="true"
-                               MinimumLength="0"
-                               TItem="PhanLoaiSucKhoeModel"
-                               TValue="PhanLoaiSucKhoeModel"
-                               SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                               @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa"
-                               placeholder="Chọn phân loại"
-                               class="form-select"
-                               style="width:120px;"
-                               Disabled="@(onReadonly || !onReadonly && !onBSTieuHoa)">
-                <SelectedTemplate Context="item">
-                    @item.name
-                </SelectedTemplate>
-                <ResultTemplate Context="item">
-                    @item.name
-                </ResultTemplate>
-                <NotFoundTemplate Context="item">
-                    Không tìm thấy dữ liệu
-                </NotFoundTemplate>
-            </BlazoredTypeahead>
+            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                     TextSelector="c => c != null ? c.name : String.Empty"
+                     FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                     GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                     Datasource="PhanLoaiSucKhoes"
+                     Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa, 4, SelectedPhanLoaiSucKhoes))"
+                     OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa = v, 4, SelectedPhanLoaiSucKhoes))"
+                     Multiselect="false"
+                     class="@(onReadonly || !onReadonly && !onBSTieuHoa ? "select2-disabled" : "")" />
         </div>
         <div class="flex items-center gap-2">
             <span style="min-width:90px;">4. Thận - TN:</span>
             <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu" readonly="@(onReadonly || !onReadonly && !onBSThanTietNieu)" />
-            <BlazoredTypeahead EnableDropDown="true"
-                               ShowDropDownOnFocus="true"
-                               MinimumLength="0"
-                               TItem="PhanLoaiSucKhoeModel"
-                               TValue="PhanLoaiSucKhoeModel"
-                               SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                               @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu"
-                               placeholder="Chọn phân loại"
-                               class="form-select"
-                               style="width:120px;"
-                               Disabled="@(onReadonly || !onReadonly && !onBSThanTietNieu)">
-                <SelectedTemplate Context="item">
-                    @item.name
-                </SelectedTemplate>
-                <ResultTemplate Context="item">
-                    @item.name
-                </ResultTemplate>
-                <NotFoundTemplate Context="item">
-                    Không tìm thấy dữ liệu
-                </NotFoundTemplate>
-            </BlazoredTypeahead>
+            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                     TextSelector="c => c != null ? c.name : String.Empty"
+                     FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                     GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                     Datasource="PhanLoaiSucKhoes"
+                     Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu, 5, SelectedPhanLoaiSucKhoes))"
+                     OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu = v, 5, SelectedPhanLoaiSucKhoes))"
+                     Multiselect="false"
+                     class="@(onReadonly || !onReadonly && !onBSThanTietNieu ? "select2-disabled" : "")" />
         </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
         <div class="flex items-center gap-2">
             <span style="min-width:90px;">5. Nội tiết:</span>
             <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet" readonly="@(onReadonly || !onReadonly && !onBSNoiTiet)" />
-            <BlazoredTypeahead EnableDropDown="true"
-                               ShowDropDownOnFocus="true"
-                               MinimumLength="0"
-                               TItem="PhanLoaiSucKhoeModel"
-                               TValue="PhanLoaiSucKhoeModel"
-                               SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                               @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet"
-                               placeholder="Chọn phân loại"
-                               class="form-select"
-                               style="width:120px;"
-                               Disabled="@(onReadonly || !onReadonly && !onBSNoiTiet)">
-                <SelectedTemplate Context="item">
-                    @item.name
-                </SelectedTemplate>
-                <ResultTemplate Context="item">
-                    @item.name
-                </ResultTemplate>
-                <NotFoundTemplate Context="item">
-                    Không tìm thấy dữ liệu
-                </NotFoundTemplate>
-            </BlazoredTypeahead>
+            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                     TextSelector="c => c != null ? c.name : String.Empty"
+                     FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                     GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                     Datasource="PhanLoaiSucKhoes"
+                     Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet, 6, SelectedPhanLoaiSucKhoes))"
+                     OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet = v, 6, SelectedPhanLoaiSucKhoes))"
+                     Multiselect="false"
+                     class="@(onReadonly || !onReadonly && !onBSNoiTiet ? "select2-disabled" : "")" />
         </div>
         <div class="flex items-center gap-2">
             <span style="min-width:90px;">6. CXK:</span>
             <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop" readonly="@(onReadonly || !onReadonly && !onBSCoXuongKhop)" />
-            <BlazoredTypeahead EnableDropDown="true"
-                               ShowDropDownOnFocus="true"
-                               MinimumLength="0"
-                               TItem="PhanLoaiSucKhoeModel"
-                               TValue="PhanLoaiSucKhoeModel"
-                               SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                               @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop"
-                               placeholder="Chọn phân loại"
-                               class="form-select"
-                               style="width:120px;"
-                               Disabled="@(onReadonly || !onReadonly && !onBSCoXuongKhop)">
-                <SelectedTemplate Context="item">
-                    @item.name
-                </SelectedTemplate>
-                <ResultTemplate Context="item">
-                    @item.name
-                </ResultTemplate>
-                <NotFoundTemplate Context="item">
-                    Không tìm thấy dữ liệu
-                </NotFoundTemplate>
-            </BlazoredTypeahead>
+            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                     TextSelector="c => c != null ? c.name : String.Empty"
+                     FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                     GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                     Datasource="PhanLoaiSucKhoes"
+                     Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop, 7, SelectedPhanLoaiSucKhoes))"
+                     OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop = v, 7, SelectedPhanLoaiSucKhoes))"
+                     Multiselect="false"
+                     class="@(onReadonly || !onReadonly && !onBSCoXuongKhop ? "select2-disabled" : "")" />
         </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
         <div class="flex items-center gap-2">
             <span style="min-width:90px;">7. Thần kinh:</span>
             <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh" readonly="@(onReadonly || !onReadonly && !onBSThanKinh)" />
-            <BlazoredTypeahead EnableDropDown="true"
-                               ShowDropDownOnFocus="true"
-                               MinimumLength="0"
-                               TItem="PhanLoaiSucKhoeModel"
-                               TValue="PhanLoaiSucKhoeModel"
-                               SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                               @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh"
-                               placeholder="Chọn phân loại"
-                               class="form-select"
-                               style="width:120px;"
-                               Disabled="@(onReadonly || !onReadonly && !onBSThanKinh)">
-                <SelectedTemplate Context="item">
-                    @item.name
-                </SelectedTemplate>
-                <ResultTemplate Context="item">
-                    @item.name
-                </ResultTemplate>
-                <NotFoundTemplate Context="item">
-                    Không tìm thấy dữ liệu
-                </NotFoundTemplate>
-            </BlazoredTypeahead>
+            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                     TextSelector="c => c != null ? c.name : String.Empty"
+                     FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                     GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                     Datasource="PhanLoaiSucKhoes"
+                     Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh, 8, SelectedPhanLoaiSucKhoes))"
+                     OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh = v, 8, SelectedPhanLoaiSucKhoes))"
+                     Multiselect="false"
+                     class="@(onReadonly || !onReadonly && !onBSThanKinh ? "select2-disabled" : "")" />
         </div>
         <div class="flex items-center gap-2">
             <span style="min-width:90px;">8. Tâm thần:</span>
             <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than" readonly="@(onReadonly || !onReadonly && !onBSTamThan)" />
-            <BlazoredTypeahead EnableDropDown="true"
-                               ShowDropDownOnFocus="true"
-                               MinimumLength="0"
-                               TItem="PhanLoaiSucKhoeModel"
-                               TValue="PhanLoaiSucKhoeModel"
-                               SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                               @bind-Value="@SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than"
-                               placeholder="Chọn phân loại"
-                               class="form-select"
-                               style="width:120px;"
-                               Disabled="@(onReadonly || !onReadonly && !onBSTamThan)">
-                <SelectedTemplate Context="item">
-                    @item.name
-                </SelectedTemplate>
-                <ResultTemplate Context="item">
-                    @item.name
-                </ResultTemplate>
-                <NotFoundTemplate Context="item">
-                    Không tìm thấy dữ liệu
-                </NotFoundTemplate>
-            </BlazoredTypeahead>
+            <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                     TextSelector="c => c != null ? c.name : String.Empty"
+                     FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                     GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                     Datasource="PhanLoaiSucKhoes"
+                     Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than, 9, SelectedPhanLoaiSucKhoes))"
+                     OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than = v, 9, SelectedPhanLoaiSucKhoes))"
+                     Multiselect="false"
+                     class="@(onReadonly || !onReadonly && !onBSTamThan ? "select2-disabled" : "")" />
         </div>
     </div>
 </div>
@@ -233,14 +139,18 @@
     [Parameter]
     public bool onBSTamThan { get; set; } = false;
     [Parameter]
-    public Func<string?, Task<IEnumerable<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+    public Dictionary<int, List<PhanLoaiSucKhoeModel>> SelectedPhanLoaiSucKhoes { get; set; } = new Dictionary<int, List<PhanLoaiSucKhoeModel>>();
+    [Parameter]
+    public List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
+    [Parameter]
+    public Func<IEnumerable<PhanLoaiSucKhoeModel>, string?, CancellationToken, Task<List<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
 
-    private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(string? search)
+    private async Task<List<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(IEnumerable<PhanLoaiSucKhoeModel> allItems, string filter, CancellationToken token)
     {
         if (LoadPhanLoaiSucKhoeData != null)
         {
-            return await LoadPhanLoaiSucKhoeData.Invoke(search);
+            return await LoadPhanLoaiSucKhoeData.Invoke(allItems, filter, token);
         }
-        return Enumerable.Empty<PhanLoaiSucKhoeModel>();
+        return new List<PhanLoaiSucKhoeModel>();
     }
 }

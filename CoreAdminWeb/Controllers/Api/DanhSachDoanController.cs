@@ -1,12 +1,12 @@
 
+using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.RequestHttps;
+using CoreAdminWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using CoreAdminWeb.Models;
-using CoreAdminWeb.Model;
-using System.Net;
 using System.Data;
-using CoreAdminWeb.Model.RequestHttps;
+using System.Net;
 
 namespace CoreAdminWeb.Controllers.Api;
 
@@ -25,7 +25,7 @@ public class DanhSachDoanController : ControllerBase
     }
 
     [HttpGet("medical-data")]
-    public async Task<IActionResult> GetMedicalData([FromQuery]string? maDotKham, [FromQuery]string? congTy, [FromQuery]DateTime? fromDate, [FromQuery]DateTime? toDate, [FromQuery]int offset = 0, [FromQuery]int limit = 10)
+    public async Task<IActionResult> GetMedicalData([FromQuery] string? maDotKham, [FromQuery] string? congTy, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, [FromQuery] int offset = 0, [FromQuery] int limit = 10)
     {
 
         var response = new RequestHttpResponse<List<MedicalExaminationDto>>();
@@ -94,7 +94,7 @@ public class DanhSachDoanController : ControllerBase
                 spk.ket_qua, ck.benh_mat, ck.benh_tai_mui_hong, ck.benh_rhm, ck.kq_da_lieu,
                 kl.benh_tat_ket_luan, kl.de_nghi, plsk.name as phan_loai_suc_khoe,
                 -- Gộp tất cả kết quả cận lâm sàng thành một cột, phân cách bằng dấu |
-                STRING_AGG(CONCAT(cls.ten_cls, ': ', cls.ket_qua_cls), ' | ') AS can_lam_sang_results
+                STRING_AGG(CONCAT(cls.ten_can_lam_san, ': ', cls.ket_luan_can_lam_sang), ' | ') AS can_lam_sang_results
                 from SoKhamSucKhoe sksk 
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
                 Left join contract hd on hd.id = ct.ma_hop_dong_ksk
@@ -105,7 +105,7 @@ public class DanhSachDoanController : ControllerBase
                 Left join kham_suc_khoe_san_phu_khoa spk on spk.ma_luot_kham = sksk.ma_luot_kham
                 Left join kham_suc_khoe_ket_luan kl on kl.ma_luot_kham = sksk.ma_luot_kham
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
-                Left join kham_suc_khoe_can_lam_sang cls    on cls.ma_luot_kham = sksk.ma_luot_kham
+                Left join ket_qua_can_lam_san cls    on cls.ma_luot_kham = sksk.ma_luot_kham
                 " + where + @"
                 GROUP BY sksk.id, sksk.ma_luot_kham, ct.code, u.id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
                 ts.ten_benh, ts.tien_su_gia_dinh,
@@ -143,7 +143,7 @@ public class DanhSachDoanController : ControllerBase
                 {
                     countCommand.Parameters.Add(new SqlParameter("@toDate", toDate));
                 }
-                
+
                 var countResult = await countCommand.ExecuteScalarAsync();
                 totalCount = Convert.ToInt32(countResult ?? 0);
             }
@@ -170,7 +170,7 @@ public class DanhSachDoanController : ControllerBase
                 }
                 dataCommand.Parameters.Add(new SqlParameter("@offset", validOffset));
                 dataCommand.Parameters.Add(new SqlParameter("@limit", validLimit));
-                
+
                 using (var reader = await dataCommand.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
@@ -184,10 +184,10 @@ public class DanhSachDoanController : ControllerBase
                             first_name = reader["first_name"]?.ToString(),
                             ngay_sinh = reader["ngay_sinh"] as DateTime?,
                             gioi_tinh = reader["gioi_tinh"]?.ToString(),
-                            
+
                             ten_benh = reader["ten_benh"]?.ToString(),
                             tien_su_gia_dinh = reader["tien_su_gia_dinh"]?.ToString(),
-                            
+
                             chieu_cao = reader["chieu_cao"] as decimal?,
                             can_nang = reader["can_nang"] as decimal?,
                             bmi = reader["bmi"] as decimal?,
@@ -202,20 +202,20 @@ public class DanhSachDoanController : ControllerBase
                             kq_nk_than_kinh = reader["kq_nk_than_kinh"]?.ToString(),
                             kq_nk_tam_than = reader["kq_nk_tam_than"]?.ToString(),
                             kq_ngoai_khoa = reader["kq_ngoai_khoa"]?.ToString(),
-                            
+
                             ket_qua_san_phu_khoa = reader["ket_qua"]?.ToString(),
-                            
+
                             benh_mat = reader["benh_mat"]?.ToString(),
                             benh_tai_mui_hong = reader["benh_tai_mui_hong"]?.ToString(),
                             benh_rhm = reader["benh_rhm"]?.ToString(),
                             kq_da_lieu = reader["kq_da_lieu"]?.ToString(),
-                            
+
                             benh_tat_ket_luan = reader["benh_tat_ket_luan"]?.ToString(),
                             de_nghi = reader["de_nghi"]?.ToString(),
                             phan_loai_suc_khoe = reader["phan_loai_suc_khoe"]?.ToString(),
                             can_lam_sang_results = reader["can_lam_sang_results"]?.ToString()
                         };
-                        
+
                         results.Add(item);
                     }
                 }

@@ -1,16 +1,18 @@
 @page "/"
+@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.KhamSucKhoes
+@using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Services
+@using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Shared.Base
-@using CoreAdminWeb.Model
-@using CoreAdminWeb.Extensions
-@using CoreAdminWeb.Model.User
-@using CoreAdminWeb.Services.BaseServices
 @layout CoreAdminWeb.Shared.MainLayout
 @inherits BlazorCoreBase
-@inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
-@inject IJSRuntime JsRuntime
+@inject IUserService UserService
+@inject IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService
+@inject IBaseDetailService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService
 
 @* <PageHeader Title="Hồ sơ khám sức khỏe" pTitle="Tổng quan sức khỏe và lịch sử khám bệnh của bạn"></PageHeader>
  *@
@@ -83,7 +85,7 @@
                     <div class="md:col-span-2">
                         <strong>Địa chỉ:</strong> <span>@CurrentUser?.dia_chi</span>
                     </div>
-                    <div class="md:col-span-1"> 
+                    <div class="md:col-span-1">
                         <strong>SĐT:</strong> <span>@CurrentUser?.so_dien_thoai</span>
                     </div>
                     <div class="md:col-span-1">
@@ -139,7 +141,7 @@
                         </NoRecordsContent>
                     </MudTable>
                 </div>
-                
+
                 <div class="w-full grid grid-cols-1 pb-2">
                     <div class="flex items-center justify-between p-4">
                         <div class="flex items-center gap-2">
@@ -164,8 +166,8 @@
                                         // Always show first page
                                         <li>
                                             <a href="#"
-                                                class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
-                                                @onclick="async (e) => await SelectedPage(1, LoadMedicalRecords)">1</a>
+                                               class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == 1 ? "bg-purple text-white" : "bg-white")"
+                                               @onclick="async (e) => await SelectedPage(1, LoadMedicalRecords)">1</a>
                                         </li>
 
                                         // Show ellipsis if needed
@@ -178,16 +180,16 @@
                                         for (int i = startPage; i <= endPage; i++)
                                         {
                                             if (i > 1 && i < TotalPages)
-                                            {   
+                                            {
                                                 var currentPage = i; // Local variable to avoid closure issues
-                                                <li>
-                                                    <a href="#"
-                                                        class="px-3 py-2 text-black  border border-black/10
-                                                        hover:bg-purple hover:text-white dark:bg-transparent
-                                                        dark:text-white dark:border-darkborder dark:hover:bg-purple
-                                                        dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
-                                                        @onclick="async (e) => await SelectedPage(currentPage, LoadMedicalRecords)">@i</a>
-                                                </li>
+                                                                     <li>
+                                                                         <a href="#"
+                                                                            class="px-3 py-2 text-black  border border-black/10
+                                                                                             hover:bg-purple hover:text-white dark:bg-transparent
+                                                                                             dark:text-white dark:border-darkborder dark:hover:bg-purple
+                                                                                             dark:hover:text-white dark:hover:border-purple @(Page == i ? "bg-purple text-white" : "bg-white")"
+                                                                            @onclick="async (e) => await SelectedPage(currentPage, LoadMedicalRecords)">@i</a>
+                                                                     </li>
                                             }
                                         }
 
@@ -202,8 +204,8 @@
                                         {
                                             <li>
                                                 <a href="#"
-                                                    class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
-                                                    @onclick="async (e) => await SelectedPage(TotalPages, LoadMedicalRecords)">@TotalPages</a>
+                                                   class="px-3 py-2 text-black  border border-black/10 hover:bg-purple hover:text-white dark:bg-transparent dark:text-white dark:border-darkborder dark:hover:bg-purple dark:hover:text-white dark:hover:border-purple @(Page == TotalPages ? "bg-purple text-white" : "bg-white")"
+                                                   @onclick="async (e) => await SelectedPage(TotalPages, LoadMedicalRecords)">@TotalPages</a>
                                             </li>
                                         }
                                     }
@@ -212,26 +214,21 @@
                             </div>
                         </div>
                     </div>
-                </div> 
+                </div>
             </div>
-          
+
         </div>
     }
 </div>
 
 @code {
-    [Inject] AlertService AlertService { get; set; }
-    [Inject] IUserService UserService { get; set; }
-    [Inject] IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService { get; set; }
-    [Inject] IBaseDetailService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService { get; set; }
-    
     // State management
     private bool _isLoading = true;
     private bool _hasInitialized = false; // Prevent multiple initializations
-    
+
     // User data
     private UserModel? CurrentUser { get; set; }
-    
+
     // Medical Records
     private List<SoKhamSucKhoeModel> MainModels = new List<SoKhamSucKhoeModel>();
     private DateTime? NgayKhamGanNhat = null;
@@ -242,13 +239,13 @@
     {
         await base.OnInitializedAsync();
     }
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !_hasInitialized)
         {
             _hasInitialized = true;
-           
+
             await InitializePageDataAsync();
         }
     }
@@ -261,23 +258,25 @@
         try
         {
             _isLoading = true;
-            
+
             // Load user data first
             await LoadCurrentUserAsync();
-            
+
             if (CurrentUser != null)
             {
                 // Load medical records and latest exam date in parallel
                 var medicalRecordsTask = LoadMedicalRecordsAsync();
                 var latestExamTask = LoadLatestExamDateAsync();
                 await Task.WhenAll(medicalRecordsTask, latestExamTask);
-                
+
                 // Only load conclusion if we have the latest exam code
                 if (!string.IsNullOrEmpty(MaLuotKhamGanNhat))
                 {
                     await LoadKetLuanAsync();
                 }
-            }else{
+            }
+            else
+            {
                 await InvokeAsync(() => NavigationManager?.NavigateTo("/news"));
             }
         }
@@ -299,7 +298,7 @@
     private async Task LoadCurrentUserAsync()
     {
         if (CurrentUser != null) return; // Skip if already loaded
-        
+
         try
         {
             var resUser = await UserService.GetCurrentUserAsync();
@@ -320,19 +319,19 @@
     private async Task LoadMedicalRecordsAsync()
     {
         if (CurrentUser?.ma_benh_nhan == null) return;
-        
+
         try
         {
             // Build query for paginated results
             BuildPaginationQuery(Page, PageSize, "ngay_kham");
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
             BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
-            
+
             var result = await SoKhamSucKhoeService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
             {
                 MainModels = result.Data ?? new List<SoKhamSucKhoeModel>();
-                
+
                 if (result.Meta != null)
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
@@ -357,7 +356,7 @@
     private async Task LoadLatestExamDateAsync()
     {
         if (CurrentUser?.ma_benh_nhan == null) return;
-        
+
         try
         {
             // Separate query to get only the latest exam date
@@ -365,7 +364,7 @@
             query += $"&filter[_and][0][deleted][_eq]=false";
             query += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
             query += $"&fields=ngay_kham,ma_luot_kham"; // Only get the date field for performance
-            
+
             var result = await SoKhamSucKhoeService.GetAllAsync(query);
             if (result.IsSuccess && result.Data?.Any() == true)
             {
@@ -418,14 +417,14 @@
     private async Task LoadKetLuanAsync()
     {
         if (CurrentUser?.ma_benh_nhan == null) return;
-        
+
         try
         {
             // Separate query to get only the latest exam date
             string query = $"limit=1&offset=0&sort=-id";
             query += $"&filter[_and][0][ma_luot_kham][_eq]={MaLuotKhamGanNhat}";
             query += $"&fields=phan_loai_suc_khoe,ma_luot_kham"; // Only get the date field for performance
-            
+
             var result = await KhamSucKhoeKetLuanService.GetAllAsync(query);
             if (result.IsSuccess && result.Data?.Any() == true)
             {
@@ -443,4 +442,4 @@
         }
     }
 
-} 
+}

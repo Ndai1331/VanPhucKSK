@@ -1,5 +1,5 @@
 using CoreAdminWeb.Http;
-using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;
@@ -18,6 +18,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
 
         private readonly string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
             + ",ket_qua_cls.id,ket_qua_cls.ten_cls,ket_qua_cls.ket_qua_cls,ket_qua_cls.danh_gia_cls,ket_qua_cls.chi_so_cls"
+            + ",kq_cls.id,kq_cls.ten_can_lam_san,kq_cls.ket_luan_can_lam_sang"
             + ",luot_kham.id,luot_kham.ma_luot_kham";
 
         public KhamSucKhoeKetQuaCanLamSangService(IHttpClientService httpClientService)
@@ -88,6 +89,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 luot_kham = model.luot_kham?.id,
                 ket_qua = model.ket_qua,
                 ket_qua_cls = model.ket_qua_cls?.id,
+                kq_cls = model.kq_cls?.id,
                 type = model.type,
             };
         }

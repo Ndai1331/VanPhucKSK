@@ -1,7 +1,7 @@
 using CoreAdminWeb.Model.Base;
 using CoreAdminWeb.Model.User;
 
-namespace CoreAdminWeb.Model
+namespace CoreAdminWeb.Model.KhamSucKhoes
 {
     public class KhamSucKhoeKetLuanModel : BaseModel<int>
     {
