@@ -52,7 +52,7 @@
         <div>
             <input type="checkbox" class="form-check-input" id="cbx1_@YesNo.Co.ToString()"
                    @onchange="e => OnDauBungKinhChangedHandler(YesNo.Co.ToString())"
-                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)"
+                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == true)"
                    disabled="@(onReadonly || !onReadonly && !onBS)">
             <label class="form-check-label rtl\:mr-3" for="cbx1_@YesNo.Co.ToString()">
                 @YesNo.Co.GetDescription()
@@ -61,7 +61,7 @@
         <div>
             <input type="checkbox" class="form-check-input" id="cbx2_@YesNo.Khong.ToString()"
                    @onchange="e => OnDauBungKinhChangedHandler(YesNo.Khong.ToString())"
-                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)"
+                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == false)"
                    disabled="@(onReadonly || !onReadonly && !onBS)">
             <label class="form-check-label rtl\:mr-3" for="cbx2_@YesNo.Khong.ToString()">
                 @YesNo.Khong.GetDescription()
