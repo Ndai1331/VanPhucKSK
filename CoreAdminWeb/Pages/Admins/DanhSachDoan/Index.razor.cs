@@ -65,8 +65,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                     isImportError = false;
                     importProcessingMessage = message;
 
-                    SelectedItemsDetail = new List<SoKhamSucKhoeModel>();
-
                     await LoadDetailData();
                     await InvokeAsync(StateHasChanged);
                 });
@@ -516,6 +514,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                 await stream.CopyToAsync(ms);
                 var fileBytes = ms.ToArray();
 
+                SelectedItemsDetail = new List<SoKhamSucKhoeModel>();
+
                 // Gọi hàm import excel từ service
                 _ = Task.Run(() => importSoKhamSucKhoeService.ImportFromExcelWithProgressAsync(
                     fileBytes,
@@ -528,6 +528,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             catch (Exception ex)
             {
                 AlertService.ShowAlert($"Lỗi khi import file: {ex.Message}", "danger");
+                await LoadDetailData();
             }
         }
 

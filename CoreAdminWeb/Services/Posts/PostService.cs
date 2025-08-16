@@ -73,7 +73,7 @@ namespace CoreAdminWeb.Services.Posts
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<PostModel>>($"items/{_collection}/{id}?fields={Fields}");
                 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<PostModel> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<PostModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<PostModel> { Errors = response.Errors };
             }
             catch (Exception ex)

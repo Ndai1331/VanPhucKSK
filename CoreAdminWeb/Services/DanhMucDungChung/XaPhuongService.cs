@@ -39,8 +39,8 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
         {
             return new()
             {
-                code = model.code,
-                name = model.name,
+                ma = model.ma,
+                ten = model.ten,
                 description = model.description,
                 sort = model.sort,
                 tinh = model.tinh?.id ?? 0
@@ -58,7 +58,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<XaPhuongModel>>>(url);
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<List<XaPhuongModel>> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<List<XaPhuongModel>> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<List<XaPhuongModel>> { Errors = response.Errors };
             }
             catch (Exception ex)
@@ -86,7 +86,7 @@ namespace CoreAdminWeb.Services.DanhMucDungChung
                 var response = await _httpClientService.GetAPIAsync<RequestHttpResponse<XaPhuongModel>>($"items/{_collection}/{id}?fields={Fields}");
 
                 return response.IsSuccess
-                    ? new RequestHttpResponse<XaPhuongModel> { Data = response.Data.Data }
+                    ? new RequestHttpResponse<XaPhuongModel> { Data = response.Data?.Data, Meta = response.Data?.Meta }
                     : new RequestHttpResponse<XaPhuongModel> { Errors = response.Errors };
             }
             catch (Exception ex)

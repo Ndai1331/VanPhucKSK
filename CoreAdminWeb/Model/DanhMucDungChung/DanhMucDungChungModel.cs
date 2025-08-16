@@ -4,16 +4,24 @@ namespace CoreAdminWeb.Model
 {
     public class TinhModel : BaseModel<int>
     {
+        public string? ma { get; set; }
+        public string? ten { get; set; }
     }
     public class TinhCRUDModel : BaseDetailModel
     {
+        public string? ma { get; set; }
+        public string? ten { get; set; }
     }
     public class XaPhuongModel : BaseModel<int>
     {
+        public string? ma { get; set; }
+        public string? ten { get; set; }
         public TinhModel? tinh { get; set; }
     }
     public class XaPhuongCRUDModel : BaseDetailModel
     {
+        public string? ma { get; set; }
+        public string? ten { get; set; }
         public int? tinh { get; set; }
     }
     public class LoaiDinhMucModel : BaseModel<int>
