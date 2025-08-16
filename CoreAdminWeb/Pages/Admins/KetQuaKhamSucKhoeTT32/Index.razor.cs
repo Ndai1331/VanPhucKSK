@@ -650,8 +650,28 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             }
                         }
 
+                        if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
+                        {
+                            var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
+                                return;
+                            }
+                        }
+
                         SelectedKhamSucKhoeChuyenKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeChuyenKhoaService, query);
                         SelectedKhamSucKhoeTheLuc = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTheLucService, query);
+                        SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
                         break;
 
                     case "tab3":
