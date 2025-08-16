@@ -19,7 +19,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
         private readonly string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
             + ",phan_loai_suc_khoe.id,phan_loai_suc_khoe.code,phan_loai_suc_khoe.name"
             + ",luot_kham.id,luot_kham.ma_luot_kham"
-            + ",bs_ket_luan.id,bs_ket_luan.ma_benh_nhan"
+            + ",bs_ket_luan.id,bs_ket_luan.ma_benh_nhan,bs_ket_luan.first_name,bs_ket_luan.last_name"
             + ",file_url.id,file_url.filename_disk,file_url.filename_download";
 
         public KhamSucKhoeKetLuanService(IHttpClientService httpClientService)
