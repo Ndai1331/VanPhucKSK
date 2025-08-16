@@ -106,7 +106,8 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 Type = model.Type,
                 deleted = model.deleted,
                 benh_nhan = model.benh_nhan?.id,
-                MaDotKham = model.MaDotKham?.id
+                MaDotKham = model.MaDotKham?.id,
+                sort = model.sort,
             };
         }
 
