@@ -455,6 +455,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
 
             openSyncKetQuaCanLamSangModal = true;
+            StateHasChanged();
         }
         private void CloseSyncKetQuaCanLamSangModal()
         {
@@ -566,172 +567,140 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 string query = "&filter[_and][0][deleted][_eq]=false" +
                                $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
 
-                switch (activeDefTab)
+                if (SelectedKhamSucKhoeTienSu.id > 0)
                 {
-                    case "tab1":
-                        if (SelectedKhamSucKhoeTienSu.id > 0)
-                        {
-                            var result = await KhamSucKhoeTienSuService.UpdateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            var result = await KhamSucKhoeTienSuService.CreateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
-                                return;
-                            }
-                        }
+                    var result = await KhamSucKhoeTienSuService.UpdateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
+                        return;
+                    }
+                }
+                else
+                {
+                    var result = await KhamSucKhoeTienSuService.CreateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
+                        return;
+                    }
+                }
 
-                        if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
-                        {
-                            var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
-                                return;
-                            }
-                        }
+                if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
+                {
+                    var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
+                        return;
+                    }
+                }
+                else
+                {
+                    var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
+                        return;
+                    }
+                }
 
-                        SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
-                        SelectedKhamSucKhoeTienSu = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTienSuService, query);
-                        break;
+                if (SelectedKhamSucKhoeTheLuc.id > 0)
+                {
+                    var result = await KhamSucKhoeTheLucService.UpdateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
+                        return;
+                    }
+                }
+                else
+                {
+                    var result = await KhamSucKhoeTheLucService.CreateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
+                        return;
+                    }
+                }
 
-                    case "tab2":
-                        if (SelectedKhamSucKhoeTheLuc.id > 0)
-                        {
-                            var result = await KhamSucKhoeTheLucService.UpdateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            var result = await KhamSucKhoeTheLucService.CreateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
-                                return;
-                            }
-                        }
+                if (SelectedKhamSucKhoeChuyenKhoa.id > 0)
+                {
+                    var result = await KhamSucKhoeChuyenKhoaService.UpdateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
+                        return;
+                    }
+                }
+                else
+                {
+                    var result = await KhamSucKhoeChuyenKhoaService.CreateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
+                        return;
+                    }
+                }
 
-                        if (SelectedKhamSucKhoeChuyenKhoa.id > 0)
-                        {
-                            var result = await KhamSucKhoeChuyenKhoaService.UpdateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            var result = await KhamSucKhoeChuyenKhoaService.CreateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
-                                return;
-                            }
-                        }
+                if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
+                {
+                    var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
+                        return;
+                    }
+                }
+                else
+                {
+                    var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
+                        return;
+                    }
+                }
 
-                        if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
-                        {
-                            var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
-                                return;
-                            }
-                        }
+                if (SelectedKhamSucKhoeKetLuan.id > 0)
+                {
+                    var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                        return;
+                    }
+                }
+                else
+                {
+                    var result = await KhamSucKhoeKetLuanService.CreateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                        return;
+                    }
+                }
 
-                        SelectedKhamSucKhoeChuyenKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeChuyenKhoaService, query);
-                        SelectedKhamSucKhoeTheLuc = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTheLucService, query);
-                        SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
-                        break;
+                SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
+                SelectedKhamSucKhoeTienSu = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTienSuService, query);
+                SelectedKhamSucKhoeChuyenKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeChuyenKhoaService, query);
+                SelectedKhamSucKhoeTheLuc = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTheLucService, query);
+                SelectedKhamSucKhoeKetLuan = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeKetLuanService, query);
 
-                    case "tab3":
-                        if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
-                        {
-                            var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
-                                return;
-                            }
-                        }
+                var resKhamSucKhoeKetQuaCanLamSang = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query);
+                SelectedKhamSucKhoeKetQuaCanLamSangs = resKhamSucKhoeKetQuaCanLamSang?.IsSuccess == true && resKhamSucKhoeKetQuaCanLamSang.Data != null
+                    ? resKhamSucKhoeKetQuaCanLamSang.Data
+                    : new List<KhamSucKhoeKetQuaCanLamSangModel>();
 
-                        if (SelectedKhamSucKhoeKetLuan.id > 0)
-                        {
-                            var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            var result = await KhamSucKhoeKetLuanService.CreateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
-                                return;
-                            }
-                        }
-
-                        SelectedKhamSucKhoeKetLuan = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeKetLuanService, query);
-
-                        var resKhamSucKhoeKetQuaCanLamSang = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query);
-                        SelectedKhamSucKhoeKetQuaCanLamSangs = resKhamSucKhoeKetQuaCanLamSang?.IsSuccess == true && resKhamSucKhoeKetQuaCanLamSang.Data != null
-                            ? resKhamSucKhoeKetQuaCanLamSang.Data
-                            : new List<KhamSucKhoeKetQuaCanLamSangModel>();
-
-                        if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
-                        {
-                            SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
+                if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
+                {
+                    SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
                             {
                                 new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.CDHATDCN.ToString(), sort = 0 },
                                 new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNCongThucMau.ToString(), sort = 1 },
                                 new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNNuocTieu.ToString(), sort = 2 },
                                 new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNKhac.ToString(), sort = 3 }
                             };
-                        }
-
-                        break;
                 }
             }
             catch
