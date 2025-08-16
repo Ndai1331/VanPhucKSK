@@ -1,4 +1,5 @@
 using CoreAdminWeb.Model.Base;
+using CoreAdminWeb.Model.KhamSucKhoes;
 
 namespace CoreAdminWeb.Model.DanhSachDoan
 {

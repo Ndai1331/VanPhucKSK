@@ -1,4 +1,6 @@
-﻿@using CoreAdminWeb.Model
+﻿@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.KhamSucKhoes
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 items-end">
     <div>
         <label class="block text-sm mb-1" for="chieu-cao">Chiều cao (cm):</label>
@@ -28,26 +30,15 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 items-end">
     <div>
         <label class="block text-sm mb-1" for="phan-loai-the-luc">Phân loại thể lực:</label>
-        <BlazoredTypeahead EnableDropDown="true"
-                           ShowDropDownOnFocus="true"
-                           MinimumLength="0"
-                           TItem="PhanLoaiSucKhoeModel"
-                           TValue="PhanLoaiSucKhoeModel"
-                           SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                           @bind-Value="@SelectedKhamSucKhoeTheLuc.phan_loai"
-                           placeholder="Chọn phân loại"
-                           class="form-select"
-                           Disabled="@(onReadonly || !onReadonly && !onBS)">
-            <SelectedTemplate Context="item">
-                @item.name
-            </SelectedTemplate>
-            <ResultTemplate Context="item">
-                @item.name
-            </ResultTemplate>
-            <NotFoundTemplate Context="item">
-                Không tìm thấy dữ liệu
-            </NotFoundTemplate>
-        </BlazoredTypeahead>
+        <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                 TextSelector="c => c != null ? c.name : String.Empty"
+                 FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                 GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                 Datasource="PhanLoaiSucKhoes"
+                 Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeTheLuc.phan_loai, 15, SelectedPhanLoaiSucKhoes))"
+                 OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeTheLuc.phan_loai = v, 15, SelectedPhanLoaiSucKhoes))"
+                 Multiselect="false"
+                 class="@(onReadonly || !onReadonly && !onBS ? "select2-disabled" : "")" />
     </div>
 </div>
 
@@ -59,14 +50,18 @@
     [Parameter]
     public bool onBS { get; set; } = false;
     [Parameter]
-    public Func<string?, Task<IEnumerable<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+    public Dictionary<int, List<PhanLoaiSucKhoeModel>> SelectedPhanLoaiSucKhoes { get; set; } = new Dictionary<int, List<PhanLoaiSucKhoeModel>>();
+    [Parameter]
+    public List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
+    [Parameter]
+    public Func<IEnumerable<PhanLoaiSucKhoeModel>, string?, CancellationToken, Task<List<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
 
-    private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(string? search)
+    private async Task<List<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(IEnumerable<PhanLoaiSucKhoeModel> allItems, string filter, CancellationToken token)
     {
         if (LoadPhanLoaiSucKhoeData != null)
         {
-            return await LoadPhanLoaiSucKhoeData.Invoke(search);
+            return await LoadPhanLoaiSucKhoeData.Invoke(allItems, filter, token);
         }
-        return Enumerable.Empty<PhanLoaiSucKhoeModel>();
+        return new List<PhanLoaiSucKhoeModel>();
     }
 }

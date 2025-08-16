@@ -1,5 +1,5 @@
 ﻿using CoreAdminWeb.Helpers;
-using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Imports;

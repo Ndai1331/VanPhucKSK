@@ -1,5 +1,5 @@
 using CoreAdminWeb.Http;
-using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Http;

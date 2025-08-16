@@ -6,13 +6,20 @@ namespace CoreAdminWeb.Helpers
     {
         public static void SetFieldValue<TValue1, TValue2>(TValue1 value1, TValue2 value2, string fieldName, object? value)
         {
-            if (EqualityComparer<TValue1>.Default.Equals(value1, default(TValue1)) || EqualityComparer<TValue2>.Default.Equals(value2, default(TValue2)) || string.IsNullOrWhiteSpace(fieldName))
+            if (string.IsNullOrWhiteSpace(fieldName))
             {
                 return;
             }
 
-            SetFieldValue(value1, fieldName, value);
-            SetFieldValue(value2, fieldName, value);
+            if (!EqualityComparer<TValue1>.Default.Equals(value1, default(TValue1)))
+            {
+                SetFieldValue(value1, fieldName, value);
+            }
+
+            if (!EqualityComparer<TValue2>.Default.Equals(value2, default(TValue2)))
+            {
+                SetFieldValue(value2, fieldName, value);
+            }
         }
         public static void SetFieldValue<TTarget>(TTarget target, string fieldName, object? value)
         {

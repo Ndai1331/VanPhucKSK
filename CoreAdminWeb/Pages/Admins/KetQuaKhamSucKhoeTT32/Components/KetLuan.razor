@@ -1,38 +1,29 @@
-﻿@using CoreAdminWeb.Model
+﻿@using CoreAdminWeb.Helpers
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.KhamSucKhoes
 @using CoreAdminWeb.Model.User
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2 items-center">
     <div>
         <label class="block text-sm font-normal">Phân loại sức khỏe:</label>
-        <BlazoredTypeahead EnableDropDown="true"
-                           ShowDropDownOnFocus="true"
-                           MinimumLength="0"
-                           TItem="PhanLoaiSucKhoeModel"
-                           TValue="PhanLoaiSucKhoeModel"
-                           SearchMethod="LoadPhanLoaiSucKhoeDataHandler"
-                           @bind-Value="@SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe"
-                           placeholder="Chọn phân loại"
-                           class="form-select"
-                           style="width:120px;"
-                           Disabled="@(onReadonly || !onReadonly && !onBSKetLuan)">
-            <SelectedTemplate Context="item">
-                @item.name
-            </SelectedTemplate>
-            <ResultTemplate Context="item">
-                @item.name
-            </ResultTemplate>
-            <NotFoundTemplate Context="item">
-                Không tìm thấy dữ liệu
-            </NotFoundTemplate>
-        </BlazoredTypeahead>
+        <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                 TextSelector="c => c != null ? c.name : String.Empty"
+                 FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
+                 GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                 Datasource="PhanLoaiSucKhoes"
+                 Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe, 0, SelectedPhanLoaiSucKhoes))"
+                 OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe = v, 0, SelectedPhanLoaiSucKhoes))"
+                 Multiselect="false"
+                 class="@(onReadonly || !onReadonly && !onBSKetLuan ? "select2-disabled" : "")" />
     </div>
 
     <div>
+        <label class="block text-sm font-normal" for="cbx_bat_thuong">
+            Ca bất thường
+        </label>
         <input type="checkbox" class="form-check-input" id="cbx_bat_thuong"
                @bind="SelectedKhamSucKhoeKetLuan.isAbnormal"
                disabled="@(onReadonly || !onReadonly && !onBSKetLuan)">
-        <label class="form-check-label rtl\:mr-3" for="cbx_bat_thuong">
-            Ca bất thường
-        </label>
+        
     </div>
 </div>
 <div class="mb-2">
@@ -50,31 +41,20 @@
                class="form-input @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "date-picker")"
                placeholder="Chọn ngày"
                value="@(SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd/MM/yyyy"))"
-               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)))"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan), item: SelectedKhamSucKhoeKetLuan))"
                readonly="@(onReadonly || !onReadonly && !onBSKetLuan)" />
     </div>
     <div>
         <label class="block text-sm font-normal">Người kết luận:</label>
-        <BlazoredTypeahead EnableDropDown="true"
-                           ShowDropDownOnFocus="true"
-                           MinimumLength="0"
-                           TItem="UserModel"
-                           TValue="UserModel"
-                           SearchMethod="LoadBacSiDataHandler"
-                           @bind-Value="@SelectedKhamSucKhoeKetLuan.bs_ket_luan"
-                           placeholder="Chọn bác sĩ"
-                           class="form-select"
-                           Disabled="@(onReadonly || !onReadonly && !onBSKetLuan)">
-            <SelectedTemplate Context="item">
-                @item.full_name
-            </SelectedTemplate>
-            <ResultTemplate Context="item">
-                @item.full_name
-            </ResultTemplate>
-            <NotFoundTemplate Context="item">
-                Không tìm thấy dữ liệu
-            </NotFoundTemplate>
-        </BlazoredTypeahead>
+        <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                 TextSelector="c => c != null ? c.full_name : String.Empty"
+                 FilterFunction="LoadBacSiDataHandler"
+                 GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<UserModel, Guid>(items, id, c => c.id) ?? new UserModel()"
+                 Datasource="Users"
+                 Value="@(Select2Helper.GetCurrentSelectionGeneric<UserModel>(SelectedKhamSucKhoeKetLuan.bs_ket_luan, 0, SelectedUsers))"
+                 OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<UserModel>(e, v => SelectedKhamSucKhoeKetLuan.bs_ket_luan = v, 0, SelectedUsers))"
+                 Multiselect="false"
+                 class="select2-disabled" />
     </div>
 </div>
 
@@ -86,35 +66,43 @@
     [Parameter]
     public bool onBSKetLuan { get; set; } = false;
     [Parameter]
-    public Func<ChangeEventArgs, string, bool, bool, Task>? OnValueChanged { get; set; }
+    public Func<ChangeEventArgs, string, bool, bool, object, Task>? OnValueChanged { get; set; }
     [Parameter]
-    public Func<string?, Task<IEnumerable<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+    public Dictionary<int, List<PhanLoaiSucKhoeModel>> SelectedPhanLoaiSucKhoes { get; set; } = new Dictionary<int, List<PhanLoaiSucKhoeModel>>();
     [Parameter]
-    public Func<string?, Task<IEnumerable<UserModel>>>? LoadBacSiData { get; set; }
+    public List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
+    [Parameter]
+    public Dictionary<int, List<UserModel>> SelectedUsers { get; set; } = new Dictionary<int, List<UserModel>>();
+    [Parameter]
+    public List<UserModel> Users{ get; set; } = new();
+    [Parameter]
+    public Func<IEnumerable<PhanLoaiSucKhoeModel>, string?, CancellationToken, Task<List<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+    [Parameter]
+    public Func<IEnumerable<UserModel>, string?, CancellationToken, Task<List<UserModel>>>? LoadBacSiData { get; set; }
 
-    private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(string? search)
+    private async Task<List<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(IEnumerable<PhanLoaiSucKhoeModel> allItems, string filter, CancellationToken token)
     {
         if (LoadPhanLoaiSucKhoeData != null)
         {
-            return await LoadPhanLoaiSucKhoeData.Invoke(search);
+            return await LoadPhanLoaiSucKhoeData.Invoke(allItems, filter, token);
         }
-        return Enumerable.Empty<PhanLoaiSucKhoeModel>();
+        return new List<PhanLoaiSucKhoeModel>();
     }
 
-    private async Task<IEnumerable<UserModel>> LoadBacSiDataHandler(string? search)
+    private async Task<List<UserModel>> LoadBacSiDataHandler(IEnumerable<UserModel> allItems, string filter, CancellationToken token)
     {
         if (LoadBacSiData != null)
         {
-            return await LoadBacSiData.Invoke(search);
+            return await LoadBacSiData.Invoke(allItems, filter, token);
         }
-        return Enumerable.Empty<UserModel>();
+        return new List<UserModel>();
     }
 
-    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true)
+    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true, object item = default!)
     {
         if (OnValueChanged != null)
         {
-            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate);
+            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate, item);
         }
     }
 }

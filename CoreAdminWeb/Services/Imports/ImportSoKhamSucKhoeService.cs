@@ -3,6 +3,7 @@ using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Hubs;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.DanhSachDoan;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;

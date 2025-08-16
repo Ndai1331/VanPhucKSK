@@ -3,6 +3,7 @@ using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Files;
@@ -27,7 +28,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                IBaseDetailService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucService,
                                IBaseDetailService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService,
                                IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService,
-                               IBaseDetailService<KhamSucKhoeCanLamSangModel> KhamSucKhoeCanLamSangService,
+                               IBaseGetService<KetQuaCanLamSangModel> KetQuaCanLamSangService,
                                IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService,
                                IPdfService PdfService,
                                IConfiguration Configuration,
@@ -114,6 +115,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private string imageWebRootPath { get; set; } = string.Empty;
 
+        private Dictionary<int, List<PhanLoaiSucKhoeModel>> SelectedPhanLoaiSucKhoes { get; set; } = new();
+        private List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
+
+        private Dictionary<int, List<UserModel>> SelectedUsers { get; set; } = new();
+        private List<UserModel> Users { get; set; } = new();
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -361,9 +367,63 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             await LoadData();
         }
 
-        private async Task<IEnumerable<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeData(string searchText)
+        private async Task<List<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeSelect2(IEnumerable<PhanLoaiSucKhoeModel> allItems, string filter, CancellationToken token)
         {
-            return await LoadBlazorTypeaheadData(searchText, PhanLoaiSucKhoaService, "filter[_and][][active][_eq]=true");
+            try
+            {
+                ArgumentNullException.ThrowIfNull(allItems);
+
+                PhanLoaiSucKhoes = await LoadDataInTable(allItems, filter, token, PhanLoaiSucKhoaService, "filter[_and][][active][_eq]=true");
+                StateHasChanged();
+                return PhanLoaiSucKhoes;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in filterFunction: {ex.Message}");
+                return new List<PhanLoaiSucKhoeModel>();
+            }
+        }
+
+        private async Task<List<UserModel>> LoadDoctorSelect2(IEnumerable<UserModel> allItems, string filter, CancellationToken token)
+        {
+            try
+            {
+                ArgumentNullException.ThrowIfNull(allItems);
+
+                // Debouncing - wait 300ms before making API call
+                await Task.Delay(300, token);
+
+                var query = "sort=-id";
+                query += "&filter[_and][][status][_eq]=active";
+                query += $"&filter[_and][][role][_eq]={CurrentSetting.doctor_role_id}";
+
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(filter)}";
+                    query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(filter)}";
+                }
+
+                var result = await UserService.GetAllAsync(query);
+
+                if (!result.IsSuccess)
+                {
+                    Console.WriteLine($"Error loading users: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+                    Users = new List<UserModel>();
+                }
+                else
+                {
+                    Console.WriteLine($"Loaded {result.Data?.Count} users successfully.");
+                    Users = result.Data ?? new List<UserModel>();
+                }
+
+                StateHasChanged();
+                return Users;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in filterFunction: {ex.Message}");
+                return new List<UserModel>();
+            }
         }
 
         private async Task<IEnumerable<ContractModel>> LoadContractData(string searchText)
@@ -376,53 +436,26 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService);
         }
 
-        private async Task<IEnumerable<KhamSucKhoeCanLamSangModel>> LoadKetQuaCanLamSangData(string searchText)
+        private async Task<IEnumerable<KetQuaCanLamSangModel>> LoadKetQuaCanLamSangData(string searchText)
         {
             try
             {
                 var query = "sort=-id";
 
-                query += "&filter[_and][][deleted][_eq]=false";
-
                 if (!string.IsNullOrEmpty(searchText))
                 {
-                    query += $"&filter[_and][0][_or][0][ma_cls][_contains]={Uri.EscapeDataString(searchText)}";
-                    query += $"&filter[_and][0][_or][1][ten_cls][_contains]={Uri.EscapeDataString(searchText)}";
-                    query += $"&filter[_and][0][_or][1][danh_gia_cls][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][0][ma_can_lam_sang][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][1][ten_can_lam_san][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][1][ket_luan_can_lam_sang][_contains]={Uri.EscapeDataString(searchText)}";
                 }
 
-                var result = await KhamSucKhoeCanLamSangService.GetAllAsync(query);
-                return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<KhamSucKhoeCanLamSangModel>() : Enumerable.Empty<KhamSucKhoeCanLamSangModel>();
+                var result = await KetQuaCanLamSangService.GetAllAsync(query);
+                return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<KetQuaCanLamSangModel>() : Enumerable.Empty<KetQuaCanLamSangModel>();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading typeahead data: {ex.Message}");
-                return Enumerable.Empty<KhamSucKhoeCanLamSangModel>();
-            }
-        }
-
-        private async Task<IEnumerable<UserModel>> LoadBacSiData(string searchText)
-        {
-            try
-            {
-                var query = "sort=-id";
-
-                query += "&filter[_and][][status][_eq]=active";
-                query += $"&filter[_and][][role][_eq]={CurrentSetting.doctor_role_id}";
-
-                if (!string.IsNullOrEmpty(searchText))
-                {
-                    query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(searchText)}";
-                    query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(searchText)}";
-                }
-
-                var result = await UserService.GetAllAsync(query);
-                return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<UserModel>() : Enumerable.Empty<UserModel>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading typeahead data: {ex.Message}");
-                return Enumerable.Empty<UserModel>();
+                return Enumerable.Empty<KetQuaCanLamSangModel>();
             }
         }
 
@@ -564,9 +597,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             return c;
                         }).ToList();
 
-                string query = "&filter[_and][0][deleted][_eq]=false" +
-                               $"&filter[_and][][ma_luot_kham][_contains]={SelectedItem.ma_luot_kham}";
-
                 if (SelectedKhamSucKhoeTienSu.id > 0)
                 {
                     var result = await KhamSucKhoeTienSuService.UpdateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
@@ -681,27 +711,9 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
                 }
 
-                SelectedKhamSucKhoeSanPhuKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeSanPhuKhoaService, query);
-                SelectedKhamSucKhoeTienSu = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTienSuService, query);
-                SelectedKhamSucKhoeChuyenKhoa = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeChuyenKhoaService, query);
-                SelectedKhamSucKhoeTheLuc = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeTheLucService, query);
-                SelectedKhamSucKhoeKetLuan = await BaseServiceHelper.GetFirstOrDefaultAsync(KhamSucKhoeKetLuanService, query);
+                AlertService.ShowAlert("Lưu thông tin khám sức khỏe thành công!", "success");
 
-                var resKhamSucKhoeKetQuaCanLamSang = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query);
-                SelectedKhamSucKhoeKetQuaCanLamSangs = resKhamSucKhoeKetQuaCanLamSang?.IsSuccess == true && resKhamSucKhoeKetQuaCanLamSang.Data != null
-                    ? resKhamSucKhoeKetQuaCanLamSang.Data
-                    : new List<KhamSucKhoeKetQuaCanLamSangModel>();
-
-                if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
-                {
-                    SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
-                            {
-                                new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.CDHATDCN.ToString(), sort = 0 },
-                                new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNCongThucMau.ToString(), sort = 1 },
-                                new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNNuocTieu.ToString(), sort = 2 },
-                                new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNKhac.ToString(), sort = 3 }
-                            };
-                }
+                await LoadDetailData(SelectedItem.id);
             }
             catch
             {
@@ -1029,7 +1041,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
         }
 
-        private async Task OnValueChanged(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true)
+        private async Task OnValueChanged(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true, object item = default!)
         {
             try
             {
@@ -1037,18 +1049,18 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     if (e.Value == null || string.IsNullOrEmpty(e.Value.ToString()))
                     {
-                        ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, null);
+                        ReflectionHelper.SetFieldValue(this, item, fieldName, null);
                         return;
                     }
                     var value = e.Value.ToString();
-                    ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, value);
+                    ReflectionHelper.SetFieldValue(this, item, fieldName, value);
                     return;
                 }
 
                 var dateStr = e.Value?.ToString();
                 if (string.IsNullOrEmpty(dateStr))
                 {
-                    ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, null);
+                    ReflectionHelper.SetFieldValue(this, item, fieldName, null);
                 }
                 else
                 {
@@ -1059,7 +1071,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         int.TryParse(parts[2], out int year))
                     {
                         var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
-                        ReflectionHelper.SetFieldValue(this, SelectedItem, fieldName, date);
+                        ReflectionHelper.SetFieldValue(this, item, fieldName, date);
                     }
                 }
 
@@ -1129,12 +1141,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             SelectedKhamSucKhoeSanPhuKhoa.para = $"{para1}|{para2}|{para3}|{para4}";
         }
 
-        private void OnKetQuaCanLamSangChanged(KhamSucKhoeCanLamSangModel? selected, KhamSucKhoeKetQuaCanLamSangModel item)
+        private void OnKetQuaCanLamSangChanged(KetQuaCanLamSangModel? selected, KhamSucKhoeKetQuaCanLamSangModel item)
         {
             try
             {
-                item.ket_qua_cls = selected;
-                item.ket_qua = $"{selected?.ten_cls} | {selected?.ket_qua_cls} | {selected?.danh_gia_cls} | {selected?.chi_so_cls}";
+                item.kq_cls = selected;
+                item.ket_qua = selected?.ket_luan_can_lam_sang;
             }
             catch (Exception ex)
             {

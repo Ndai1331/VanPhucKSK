@@ -1,15 +1,16 @@
 @page "/admin/record-detail-page/{ma_luot_kham}"
-@using CoreAdminWeb.Model
-@using CoreAdminWeb.Model.User
+@using System.Linq
+@using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Helpers
-@using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Model
+@using CoreAdminWeb.Model.KhamSucKhoes
+@using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Services.PDFService
+@using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Shared.Components
-@using CoreAdminWeb.Extensions
-@using CoreAdminWeb.Services.PDFService
 @using Microsoft.Extensions.Configuration
-@using System.Linq
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
 @inject IWebHostEnvironment WebHostEnvironment

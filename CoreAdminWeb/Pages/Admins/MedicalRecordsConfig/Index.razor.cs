@@ -1,9 +1,8 @@
-﻿using CoreAdminWeb.Commons;
-using CoreAdminWeb.Enums;
+﻿using CoreAdminWeb.Enums;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
-using CoreAdminWeb.Model.Settings;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
@@ -29,8 +28,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
         private string _titleAddOrUpdate = "Thêm mới";
 
         private bool readOnly { get; set; } = false;
-        private SettingModel? Setting { get; set; } = default;
-        private string? doctorRoleId { get; set; } = default;
 
         protected override async Task OnInitializedAsync()
         {
@@ -42,28 +39,8 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             if (firstRender)
             {
                 await LoadData();
-                await LoadSettingsAsync();
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
-            }
-        }
-
-        private async Task LoadSettingsAsync()
-        {
-            try
-            {
-                if (Setting != null) return; // Skip if already loaded
-                
-                var settingResults = await SettingService.GetCurrentSettingAsync();
-                if (settingResults.IsSuccess)
-                {
-                    Setting = settingResults.Data;
-                    doctorRoleId = Setting?.doctor_role_id ?? "";
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading settings: {ex.Message}");
             }
         }
 
@@ -137,7 +114,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 var query = "sort=-id";
 
                 query += "&filter[_and][][status][_eq]=active";
-                query += $"&filter[_and][][role][_eq]={doctorRoleId}";
+                query += $"&filter[_and][][role][_eq]={CurrentSetting.doctor_role_id}";
 
                 if (!string.IsNullOrEmpty(searchText))
                 {
@@ -146,7 +123,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                     query += $"&filter[_and][0][_or][2][ma_benh_nhan][_contains]={Uri.EscapeDataString(searchText)}";
                     query += $"&filter[_and][0][_or][3][so_dinh_danh][_contains]={Uri.EscapeDataString(searchText)}";
                 }
-    
+
                 var result = await UserService.GetAllAsync(query);
                 return result?.IsSuccess == true ? result.Data ?? Enumerable.Empty<UserModel>() : Enumerable.Empty<UserModel>();
             }
@@ -316,16 +293,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
 
             await LoadData();
         }
-
-        // private void OnStatusChanged(ChangeEventArgs? selected)
-        // {
-        //     _selectedStatusString = selected?.Value?.ToString() ?? string.Empty;
-        //     SelectedItem.active = true;
-        //     if (bool.TryParse(_selectedStatusString, out bool activeValue))
-        //     {
-        //         SelectedItem.active = activeValue;
-        //     }
-        // }
 
         private void OnCongTyChanged(CongTyModel? selected)
         {

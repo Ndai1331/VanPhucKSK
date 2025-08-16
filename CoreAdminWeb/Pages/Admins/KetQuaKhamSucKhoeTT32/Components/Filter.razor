@@ -1,5 +1,6 @@
 ﻿@using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.Contract
+@using CoreAdminWeb.Model.KhamSucKhoes
 
 <div class="space-y-2">
     <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày khám</MudText>
@@ -105,7 +106,7 @@
     [Parameter]
     public KhamSucKhoeCongTyModel? _khamSucKhoeCongTyFilter { get; set; } = default;
     [Parameter]
-    public Func<ChangeEventArgs, string , bool , bool, Task>? OnValueChanged { get; set; }
+    public Func<ChangeEventArgs, string , bool , bool, object, Task>? OnValueChanged { get; set; }
     [Parameter]
     public EventCallback<ContractModel?> ContractFilterChanged { get; set; }
     [Parameter]
@@ -123,11 +124,11 @@
         await LoadData.InvokeAsync();
     }
 
-    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true)
+    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true, object item = default!)
     {
         if (OnValueChanged != null)
         {
-            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate);
+            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate, item);
         }
     }
 

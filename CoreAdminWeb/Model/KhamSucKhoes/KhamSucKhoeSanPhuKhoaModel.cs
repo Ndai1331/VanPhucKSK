@@ -1,6 +1,6 @@
 using CoreAdminWeb.Model.Base;
 
-namespace CoreAdminWeb.Model
+namespace CoreAdminWeb.Model.KhamSucKhoes
 {
     public class KhamSucKhoeSanPhuKhoaModel : BaseModel<int>
     {

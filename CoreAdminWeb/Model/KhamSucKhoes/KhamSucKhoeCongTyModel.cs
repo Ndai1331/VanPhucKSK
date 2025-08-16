@@ -3,7 +3,7 @@ using CoreAdminWeb.Model.Base;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.User;
 
-namespace CoreAdminWeb.Model
+namespace CoreAdminWeb.Model.KhamSucKhoes
 {
     public class KhamSucKhoeCongTyModel : BaseModel<int>
     {
