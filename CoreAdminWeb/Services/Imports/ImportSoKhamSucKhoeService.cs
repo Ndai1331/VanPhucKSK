@@ -173,11 +173,11 @@ namespace CoreAdminWeb.Services.Imports
                     maBenhNhans
                 );
                 var tinhTask = BatchQueryAsync(
-                    ids => _tinhService.GetAllAsync($"filter[_and][][code][_in]={string.Join(",", ids)}"),
+                    ids => _tinhService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}"),
                     maTinhs.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!).ToList()
                 );
                 var xaTask = BatchQueryAsync(
-                    ids => _xaService.GetAllAsync($"filter[_and][][code][_in]={string.Join(",", ids)}"),
+                    ids => _xaService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}"),
                     maXas.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!).ToList()
                 );
 
@@ -188,8 +188,8 @@ namespace CoreAdminWeb.Services.Imports
                 var existingXas = xaTask.Result;
 
                 var existingUserMap = existingUsers.DistinctBy(c => c.ma_benh_nhan).ToDictionary(c => c.ma_benh_nhan, c => c);
-                var tinhMap = existingTinhs.DistinctBy(c => c.code).ToDictionary(c => c.code ?? "", c => c.id);
-                var xaMap = existingXas.DistinctBy(c => $"{c.code}|{c.tinh?.code}").ToDictionary(c => $"{c.code}|{c.tinh?.code}", c => c.id);
+                var tinhMap = existingTinhs.DistinctBy(c => c.ma).ToDictionary(c => c.ma ?? "", c => c.id);
+                var xaMap = existingXas.DistinctBy(c => $"{c.ma}|{c.tinh?.ma}").ToDictionary(c => $"{c.ma}|{c.tinh?.ma}", c => c.id);
 
                 var updatingUsers = new List<UserModel>();
                 var newUsers = new List<UserModel>();

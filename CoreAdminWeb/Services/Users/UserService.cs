@@ -540,7 +540,7 @@ namespace CoreAdminWeb.Services.Users
                     c.role,
                     c.status
                 }).ToList();
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<UserModel>>>($"items/users", updateModel);
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<UserModel>>>($"users", updateModel);
 
                 return new RequestHttpResponse<bool>
                 {
