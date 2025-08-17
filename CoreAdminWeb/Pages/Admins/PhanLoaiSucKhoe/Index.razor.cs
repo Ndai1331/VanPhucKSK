@@ -38,6 +38,7 @@ namespace CoreAdminWeb.Pages.Admins.PhanLoaiSucKhoe
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";

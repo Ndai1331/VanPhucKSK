@@ -173,6 +173,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuildPaginationQuery(Page, PageSize);

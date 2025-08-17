@@ -59,6 +59,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuilderQuery = $"DanhSachDoan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";

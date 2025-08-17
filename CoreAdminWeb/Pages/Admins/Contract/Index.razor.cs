@@ -83,6 +83,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuildPaginationQuery(Page, PageSize);

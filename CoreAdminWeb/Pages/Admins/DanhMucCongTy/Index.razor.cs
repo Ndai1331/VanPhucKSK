@@ -40,6 +40,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuildPaginationQuery(Page, PageSize);

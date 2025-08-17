@@ -51,6 +51,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuildPaginationQuery(Page, PageSize);

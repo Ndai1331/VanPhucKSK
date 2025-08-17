@@ -70,6 +70,7 @@ namespace CoreAdminWeb.Pages.Folder
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuilderQuery = $"limit={PageSize}&offset={(Page - 1) * PageSize}&meta=filter_count";

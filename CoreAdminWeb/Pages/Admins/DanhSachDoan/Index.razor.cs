@@ -104,6 +104,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuildPaginationQuery(Page, PageSize);

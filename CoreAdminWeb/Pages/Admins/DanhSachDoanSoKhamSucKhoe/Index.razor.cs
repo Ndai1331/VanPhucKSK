@@ -27,18 +27,17 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-
-            // Load the KhamSucKhoeCongTy by ID if provided
-            if (Id.HasValue)
-            {
-                await LoadKhamSucKhoeCongTyById(Id.Value);
-            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
+                // Load the KhamSucKhoeCongTy by ID if provided
+                if (Id.HasValue)
+                {
+                    await LoadKhamSucKhoeCongTyById(Id.Value);
+                }
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -58,6 +57,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuilderQuery = $"DanhSachDoan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";
@@ -205,6 +205,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
         private async Task LoadKhamSucKhoeCongTyById(int id)
         {
+            IsLoading = true;
             try
             {
                 var result = await KhamSucKhoeCongTyService.GetByIdAsync(id.ToString());
@@ -218,7 +219,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu: {ex.Message}", "danger");
             }
-
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task OnExcelExport()

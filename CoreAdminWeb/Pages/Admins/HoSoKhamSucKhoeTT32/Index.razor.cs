@@ -123,6 +123,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuilderQuery = $"CaNhan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";

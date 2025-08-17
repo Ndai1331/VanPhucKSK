@@ -38,6 +38,7 @@ namespace CoreAdminWeb.Pages.Admins.LoaiDinhMuc
             if (isReset)
             {
                 ResetPage();
+                await Task.Delay(100);
             }
 
             BuildPaginationQuery(Page, PageSize);
