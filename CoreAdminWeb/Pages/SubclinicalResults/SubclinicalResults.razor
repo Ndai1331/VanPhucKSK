@@ -1,4 +1,5 @@
 @page "/subclinical-result-page"
+@using CoreAdminWeb.Enums
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.KhamSucKhoes
@@ -80,7 +81,7 @@
                             <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
                             <MudTd DataLabel="Ngày khám">@context.luot_kham?.ma_luot_kham</MudTd>
                             <MudTd DataLabel="Ngày khám">@context.kq_cls?.ma_can_lam_sang</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.kq_cls?.ten_can_lam_san</MudTd>
+                            <MudTd DataLabel="Ngày khám">@(context.kq_cls?.ten_can_lam_san ?? context.type?.GetDescriptionFromString<KetQuaCanLamSang>())</MudTd>
                             <MudTd DataLabel="Ngày khám">@context.luot_kham?.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
                             <MudTd DataLabel="Thao tác">
                                 <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context))">

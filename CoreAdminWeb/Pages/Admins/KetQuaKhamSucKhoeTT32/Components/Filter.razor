@@ -84,7 +84,7 @@
                value="@_tenBenhNhanString"
                @onchange="@(e => OnValueChangedHandler(e, nameof(_tenBenhNhanString), true, false))" />
         <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap"
-                   OnClick="LoadData">
+                   OnClick="LoadDataHandler">
             Tìm kiếm
         </MudButton>
     </div>
@@ -116,12 +116,12 @@
     [Parameter]
     public Func<string?, Task<IEnumerable<KhamSucKhoeCongTyModel>>>? LoadKhamSucKhoeCongTyData { get; set; }
     [Parameter]
-    public EventCallback LoadData { get; set; }
+    public EventCallback<bool> LoadData { get; set; }
 
 
     private async Task LoadDataHandler()
     {
-        await LoadData.InvokeAsync();
+        await LoadData.InvokeAsync(true);
     }
 
     private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true, object item = default!)
