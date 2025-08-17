@@ -1,7 +1,6 @@
+using CoreAdminWeb.Http;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.Settings;
-using CoreAdminWeb.Services.Http;
-using CoreAdminWeb.Http;
 namespace CoreAdminWeb.Services.Settings
 {
     public interface ISettingService
@@ -11,23 +10,23 @@ namespace CoreAdminWeb.Services.Settings
 
     public class SettingService : ISettingService
     {
-        private readonly IHttpClientService _httpClientService;
-
-        public SettingService(IHttpClientService httpClientService)
-        {
-            _httpClientService = httpClientService;
-        }
+        private readonly string _collection = "settings";
+        private const string Fields = "*"
+            + ",phieu_ksk_nam.id,phieu_ksk_nam.filename_disk,phieu_ksk_nam.filename_download"
+            + ",phieu_ksk_nu.id,phieu_ksk_nu.filename_disk,phieu_ksk_nu.filename_download"
+            + ",thcn_nu.id,thcn_nu.filename_disk,thcn_nu.filename_download"
+            + ",thcn_nam.id,thcn_nam.filename_disk,thcn_nam.filename_download";
 
         public async Task<RequestHttpResponse<SettingModel>> GetCurrentSettingAsync()
         {
             var response = new RequestHttpResponse<SettingModel>();
             try
             {
-                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<SettingModel>>("settings");
+                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<SettingModel>>($"{_collection}?fields={Fields}");
 
                 if (result.IsSuccess)
                 {
-                    response.Data = result.Data.Data;
+                    response.Data = result.Data?.Data;
                 }
                 else
                 {
@@ -41,4 +40,4 @@ namespace CoreAdminWeb.Services.Settings
             return response;
         }
     }
-} 
+}

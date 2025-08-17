@@ -216,6 +216,25 @@ namespace CoreAdminWeb.Shared.Base
         }
 
         /// <summary>
+        /// Optimized keyboard event handler with debouncing
+        /// </summary>
+        public async Task OnInputKeyDownSearch(KeyboardEventArgs e, Func<bool, Task> loadData)
+        {
+            if (e.Key == "Enter" && !e.ShiftKey)
+            {
+                try
+                {
+                    await JsRuntime.InvokeVoidAsync("preventEnterKeyDefault", "search");
+                    await loadData.Invoke(true);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in search: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
         /// Load typeahead data with improved caching and error handling
         /// </summary>
         public static async Task<IEnumerable<T>> LoadBlazorTypeaheadData<T>(
@@ -288,97 +307,6 @@ namespace CoreAdminWeb.Shared.Base
             }
 
             return _queryBuilder.ToString();
-        }
-
-        /// <summary>
-        /// Optimized page size change handler
-        /// </summary>
-        public async Task OnPageSizeChanged(Func<Task> loadData)
-        {
-            if (PageSize <= 0)
-            {
-                return;
-            }
-
-            Page = 1;
-            TotalItems = 0;
-
-            // Clear query cache since page size changed
-            _queryCache.Clear();
-
-            try
-            {
-                await loadData();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error changing page size: {ex.Message}");
-                AlertService?.ShowAlert("Lỗi khi thay đổi kích thước trang", "danger");
-            }
-        }
-
-        /// <summary>
-        /// Navigate to previous page with validation
-        /// </summary>
-        public async Task PreviousPage(Func<Task> loadData)
-        {
-            if (Page > 1)
-            {
-                Page--;
-                try
-                {
-                    await loadData();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error navigating to previous page: {ex.Message}");
-                    Page++; // Revert on error
-                }
-            }
-        }
-
-        /// <summary>
-        /// Navigate to selected page with validation
-        /// </summary>
-        public async Task SelectedPage(int page, Func<Task> loadData)
-        {
-            if (page < 1 || page > TotalPages)
-            {
-                return;
-            }
-
-            var previousPage = Page;
-            Page = page;
-
-            try
-            {
-                await loadData();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error navigating to page {page}: {ex.Message}");
-                Page = previousPage; // Revert on error
-            }
-        }
-
-        /// <summary>
-        /// Navigate to next page with validation
-        /// </summary>
-        public async Task NextPage(Func<Task> loadData)
-        {
-            if (Page < TotalPages)
-            {
-                Page++;
-                try
-                {
-                    await loadData();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error navigating to next page: {ex.Message}");
-                    Page--; // Revert on error
-                }
-            }
         }
 
         /// <summary>

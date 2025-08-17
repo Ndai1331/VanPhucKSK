@@ -32,9 +32,15 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucDinhMuc
             }
         }
 
-        private async Task LoadData()
+        private async Task LoadData(bool isReset = false)
         {
             IsLoading = true;
+
+            if (isReset)
+            {
+                ResetPage();
+                await Task.Delay(100);
+            }
 
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -56,6 +62,11 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucDinhMuc
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
                     TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+
+                    if (Page > TotalPages)
+                    {
+                        await SelectedPage(TotalPages);
+                    }
                 }
             }
             else
@@ -189,7 +200,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucDinhMuc
         {
             _searchStatusString = selected?.Value?.ToString() ?? string.Empty;
 
-            await LoadData();
+            await LoadData(true);
         }
 
         #region Currency Formatting Methods
@@ -197,44 +208,55 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucDinhMuc
         /// <summary>
         /// Format currency with thousand separators
         /// </summary>
-        private string FormatCurrency(decimal? value)
+        private static string FormatCurrency(decimal? value)
         {
-            if (!value.HasValue) return string.Empty;
+            if (!value.HasValue)
+            {
+                return string.Empty;
+            }
+
             return value.Value.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
         }
 
         /// <summary>
         /// Format currency with decimal places
         /// </summary>
-        private string FormatCurrencyWithDecimals(decimal? value)
+        private static string FormatCurrencyWithDecimals(decimal? value)
         {
-            if (!value.HasValue) return string.Empty;
+            if (!value.HasValue)
+            {
+                return string.Empty;
+            }
+
             return value.Value.ToString("N3", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
         }
 
         /// <summary>
         /// Parse currency string back to decimal, removing thousand separators
         /// </summary>
-        private decimal? ParseCurrency(string? input)
+        private static decimal? ParseCurrency(string? input)
         {
-            if (string.IsNullOrWhiteSpace(input)) return null;
-            
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return null;
+            }
+
             // Remove thousand separators (dots) and replace comma with dot for decimal
             var cleanInput = input.Replace(".", "").Replace(",", ".");
-            
-            if (decimal.TryParse(cleanInput, System.Globalization.NumberStyles.Any, 
+
+            if (decimal.TryParse(cleanInput, System.Globalization.NumberStyles.Any,
                 System.Globalization.CultureInfo.InvariantCulture, out decimal result))
             {
                 return result;
             }
-            
+
             return null;
         }
 
         /// <summary>
         /// Get formatted currency display value
         /// </summary>
-        private string GetCurrencyDisplayValue(decimal? value)
+        private static string GetCurrencyDisplayValue(decimal? value)
         {
             return FormatCurrency(value);
         }
@@ -266,7 +288,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucDinhMuc
             // Format the input value and update UI
             await InvokeAsync(StateHasChanged);
         }
-       
+
         public async void OnDinhMucChanged(ChangeEventArgs e)
         {
             await UpdateCurrencyField(e, nameof(SelectedItem.DinhMuc));

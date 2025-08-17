@@ -1,13 +1,12 @@
-﻿using CoreAdminWeb.Helpers;
+﻿using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.KhamSucKhoes;
+using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
-using CoreAdminWeb.Services;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using CoreAdminWeb.Extensions;
-using CoreAdminWeb.Model.KhamSucKhoes;
 
 namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 {
@@ -28,19 +27,17 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-
-            // Load the KhamSucKhoeCongTy by ID if provided
-            if (Id.HasValue)
-            {
-                await LoadKhamSucKhoeCongTyById(Id.Value);
-            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                // await LoadData();
+                // Load the KhamSucKhoeCongTy by ID if provided
+                if (Id.HasValue)
+                {
+                    await LoadKhamSucKhoeCongTyById(Id.Value);
+                }
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -53,32 +50,34 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             }
         }
 
-        private async Task LoadData()
+        private async Task LoadData(bool isReset = false)
         {
             IsLoading = true;
+
+            if (isReset)
+            {
+                ResetPage();
+                await Task.Delay(100);
+            }
 
             BuilderQuery = $"DanhSachDoan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";
 
             if (_fromDate.HasValue)
             {
-                BuilderQuery += $"&fromDate={_fromDate.Value.ToString("yyyy-MM-dd")}";
+                BuilderQuery += $"&fromDate={_fromDate.Value:yyyy-MM-dd}";
             }
             if (_toDate.HasValue)
             {
-                BuilderQuery += $"&toDate={_toDate.Value.ToString("yyyy-MM-dd")}";
+                BuilderQuery += $"&toDate={_toDate.Value:yyyy-MM-dd}";
             }
             if (_selectedCongTyFilter != null)
             {
-                BuilderQuery += $"&congTy={_selectedCongTyFilter.id.ToString()}";
+                BuilderQuery += $"&congTy={_selectedCongTyFilter.id}";
             }
             if (_selectedKhamSucKhoeCongTyFilter != null)
             {
                 BuilderQuery += $"&maDotKham={_selectedKhamSucKhoeCongTyFilter.id}";
             }
-            // else
-            // {
-            //     BuilderQuery += $"&maDotKham={Id}";
-            // }
 
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
@@ -86,8 +85,13 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 MainModels = result.Data ?? new List<DanhSachDoanSoKhamSucKhoeModel>();
                 if (result.Meta != null)
                 {
-                     TotalItems = result.Meta.filter_count ?? 0;
+                    TotalItems = result.Meta.filter_count ?? 0;
                     TotalPages = result.Meta.page_count ?? 0;
+
+                    if (Page > TotalPages)
+                    {
+                        await SelectedPage(TotalPages);
+                    }
                 }
             }
             else
@@ -131,7 +135,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 _selectedCongTyFilter = null;
             }
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private async Task OnKhamSucKhoeCongTyFilterChanged(KhamSucKhoeCongTyModel? selected)
@@ -145,7 +149,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 _selectedKhamSucKhoeCongTyFilter = null;
             }
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private async Task OnDateChanged(ChangeEventArgs e, string fieldName, bool isFilter = false)
@@ -190,7 +194,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
                 if (isFilter)
                 {
-                    await LoadData();
+                    await LoadData(true);
                 }
             }
             catch (Exception ex)
@@ -201,6 +205,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
         private async Task LoadKhamSucKhoeCongTyById(int id)
         {
+            IsLoading = true;
             try
             {
                 var result = await KhamSucKhoeCongTyService.GetByIdAsync(id.ToString());
@@ -214,7 +219,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu: {ex.Message}", "danger");
             }
-
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task OnExcelExport()
@@ -228,15 +236,15 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
                 if (_fromDate.HasValue)
                 {
-                    BuilderQuery += $"&fromDate={_fromDate.Value.ToString("yyyy-MM-dd")}";
+                    BuilderQuery += $"&fromDate={_fromDate.Value:yyyy-MM-dd}";
                 }
                 if (_toDate.HasValue)
                 {
-                    BuilderQuery += $"&toDate={_toDate.Value.ToString("yyyy-MM-dd")}";
+                    BuilderQuery += $"&toDate={_toDate.Value:yyyy-MM-dd}";
                 }
                 if (_selectedCongTyFilter != null)
                 {
-                    BuilderQuery += $"&congTy={_selectedCongTyFilter.id.ToString()}";
+                    BuilderQuery += $"&congTy={_selectedCongTyFilter.id}";
                 }
                 if (_selectedKhamSucKhoeCongTyFilter != null)
                 {

@@ -36,31 +36,31 @@
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày</MudText>
                         <div class="flex items-center gap-2 sm:gap-4">
                             <input type="text"
-                                class="form-input date-picker w-1/2"
-                                placeholder="Từ ngày"
-                                value="@(_fromDate?.ToString("dd/MM/yyyy"))"
-                                @onchange="@(e => OnDateChanged(e, nameof(_fromDate), true))" />
+                                   class="form-input date-picker w-1/2"
+                                   placeholder="Từ ngày"
+                                   value="@(_fromDate?.ToString("dd/MM/yyyy"))"
+                                   @onchange="@(e => OnDateChanged(e, nameof(_fromDate), true))" />
                             <span class="mx-2 flex items-center text-gray-500">-</span>
                             <input type="text"
-                                class="form-input date-picker w-1/2"
-                                placeholder="Đến ngày"
-                                value="@(_toDate?.ToString("dd/MM/yyyy"))"
-                                @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
+                                   class="form-input date-picker w-1/2"
+                                   placeholder="Đến ngày"
+                                   value="@(_toDate?.ToString("dd/MM/yyyy"))"
+                                   @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
                         </div>
                     </div>
                     <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tên công ty</MudText>
                         <BlazoredTypeahead EnableDropDown="true"
-                                        ShowDropDownOnFocus="true"
-                                        MinimumLength="0"
-                                        TItem="CongTyModel"
-                                        TValue="CongTyModel"
-                                        SearchMethod="LoaCongTyFilterData"
-                                        Value="_selectedCongTyFilter"
-                                        ValueExpression="@(() => _selectedCongTyFilter)"
-                                        ValueChanged="OnCongTyFilterChanged"
-                                        placeholder="Chọn công ty"
-                                        Class="form-select">
+                                           ShowDropDownOnFocus="true"
+                                           MinimumLength="0"
+                                           TItem="CongTyModel"
+                                           TValue="CongTyModel"
+                                           SearchMethod="LoaCongTyFilterData"
+                                           Value="_selectedCongTyFilter"
+                                           ValueExpression="@(() => _selectedCongTyFilter)"
+                                           ValueChanged="OnCongTyFilterChanged"
+                                           placeholder="Chọn công ty"
+                                           Class="form-select">
                             <SelectedTemplate Context="item">
                                 @item.name
                             </SelectedTemplate>
@@ -75,18 +75,18 @@
                     <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Mã hồ sơ</MudText>
                         <BlazoredTypeahead EnableDropDown="true"
-                                        ShowDropDownOnFocus="true"
-                                        MinimumLength="0"
-                                        TItem="UserModel"
-                                        TValue="UserModel"
-                                        SearchMethod="LoadBenhNhanFilterData"
-                                        Value="_benhNhanFilter"
-                                        ValueExpression="@(() => _benhNhanFilter)"
-                                        ValueChanged="OnBenhNhanFilterChanged"
-                                        placeholder="Mã khách hàng"
-                                        Class="form-select">
+                                           ShowDropDownOnFocus="true"
+                                           MinimumLength="0"
+                                           TItem="UserModel"
+                                           TValue="UserModel"
+                                           SearchMethod="LoadBenhNhanFilterData"
+                                           Value="_benhNhanFilter"
+                                           ValueExpression="@(() => _benhNhanFilter)"
+                                           ValueChanged="OnBenhNhanFilterChanged"
+                                           placeholder="Mã khách hàng"
+                                           Class="form-select">
                             <SelectedTemplate Context="item">
-                                @item.ma_benh_nhan    
+                                @item.ma_benh_nhan
                             </SelectedTemplate>
                             <ResultTemplate Context="item">
                                 @item.ma_benh_nhan
@@ -98,20 +98,18 @@
                     </div>
 
                     <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
-                        @* <div> *@
-                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-success border-success text-white hover:bg-success/[0.85]
-                            hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadData())">
-                                <i class="ri-search-line"></i>
-                                Thống kê
-                            </MudButton>
-                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            hover:border-success/[0.85] text-nowrap" @onclick="async e => await LoadData(true)">
+                            <i class="ri-search-line"></i>
+                            Thống kê
+                        </MudButton>
+                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
                             text-nowrap">
-                                <i class="ri-file-excel-2-fill"></i>
-                                Xuất excel
-                            </MudButton>
-                        @* </div> *@
+                            <i class="ri-file-excel-2-fill"></i>
+                            Xuất excel
+                        </MudButton>
                     </div>
                 </div>
             </div>
@@ -140,10 +138,10 @@
                                 <td>@item.Data.last_name @item.Data.first_name</td>
                                 <td>@item.Data.ma_luot_kham</td>
                                 <td>@item.Data.ngay_kham?.ToString("dd/MM/yyyy")</td>
-                                <td>@item.Data.cong_ty</td>    
-                                <td>@item.Data.phan_loai_suc_khoe</td>    
-                                <td class="whitespace-pre-wrap">@item.Data.benh_tat_ket_luan</td>    
-                                <td class="whitespace-pre-wrap">@item.Data.de_nghi</td>    
+                                <td>@item.Data.cong_ty</td>
+                                <td>@item.Data.phan_loai_suc_khoe</td>
+                                <td class="whitespace-pre-wrap">@item.Data.benh_tat_ket_luan</td>
+                                <td class="whitespace-pre-wrap">@item.Data.de_nghi</td>
                             </tr>
                         }
                     </tbody>
@@ -171,16 +169,16 @@
                 </div>
 
                 <PDFTemplatePrint RenderSignature="RenderSignature"
-                    SelectedItem="SelectedItem"
-                    SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                    SelectedKhamSucKhoeKetLuan="SelectedKhamSucKhoeKetLuan"
-                    SelectedKhamSucKhoeKetQuaCanLamSangs="SelectedKhamSucKhoeKetQuaCanLamSangs"
-                    SelectedKhamSucKhoeNgheNghiep="SelectedKhamSucKhoeNgheNghiep"
-                    SelectedKhamSucKhoeSanPhuKhoa="SelectedKhamSucKhoeSanPhuKhoa"
-                    SelectedKhamSucKhoeTheLuc="SelectedKhamSucKhoeTheLuc"
-                    SelectedKhamSucKhoeTienSu="SelectedKhamSucKhoeTienSu"
-                    _logoPath="@_logoPath"
-                    _profileImageUrl="@_profileImageUrl" />
+                                  SelectedItem="SelectedItem"
+                                  SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                  SelectedKhamSucKhoeKetLuan="SelectedKhamSucKhoeKetLuan"
+                                  SelectedKhamSucKhoeKetQuaCanLamSangs="SelectedKhamSucKhoeKetQuaCanLamSangs"
+                                  SelectedKhamSucKhoeNgheNghiep="SelectedKhamSucKhoeNgheNghiep"
+                                  SelectedKhamSucKhoeSanPhuKhoa="SelectedKhamSucKhoeSanPhuKhoa"
+                                  SelectedKhamSucKhoeTheLuc="SelectedKhamSucKhoeTheLuc"
+                                  SelectedKhamSucKhoeTienSu="SelectedKhamSucKhoeTienSu"
+                                  _logoPath="@_logoPath"
+                                  _profileImageUrl="@_profileImageUrl" />
 
                 <div class="p-5 flex items-center justify-end gap-2 py-4">
                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="DownloadPDF">Tải PDF</MudButton>

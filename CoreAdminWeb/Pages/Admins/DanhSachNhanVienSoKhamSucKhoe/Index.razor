@@ -34,31 +34,31 @@
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày</MudText>
                         <div class="flex items-center gap-2 sm:gap-4">
                             <input type="text"
-                                class="form-input date-picker w-1/2"
-                                placeholder="Từ ngày"
-                                value="@(_fromDate?.ToString("dd/MM/yyyy"))"
-                                @onchange="@(e => OnDateChanged(e, nameof(_fromDate), true))" />
+                                   class="form-input date-picker w-1/2"
+                                   placeholder="Từ ngày"
+                                   value="@(_fromDate?.ToString("dd/MM/yyyy"))"
+                                   @onchange="@(e => OnDateChanged(e, nameof(_fromDate), true))" />
                             <span class="mx-2 flex items-center text-gray-500">-</span>
                             <input type="text"
-                                class="form-input date-picker w-1/2"
-                                placeholder="Đến ngày"
-                                value="@(_toDate?.ToString("dd/MM/yyyy"))"
-                                @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
+                                   class="form-input date-picker w-1/2"
+                                   placeholder="Đến ngày"
+                                   value="@(_toDate?.ToString("dd/MM/yyyy"))"
+                                   @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
                         </div>
                     </div>
                     <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tên công ty</MudText>
                         <BlazoredTypeahead EnableDropDown="true"
-                                        ShowDropDownOnFocus="true"
-                                        MinimumLength="0"
-                                        TItem="CongTyModel"
-                                        TValue="CongTyModel"
-                                        SearchMethod="LoaCongTyFilterData"
-                                        Value="_selectedCongTyFilter"
-                                        ValueExpression="@(() => _selectedCongTyFilter)"
-                                        ValueChanged="OnCongTyFilterChanged"
-                                        placeholder="Chọn công ty"
-                                        Class="form-select">
+                                           ShowDropDownOnFocus="true"
+                                           MinimumLength="0"
+                                           TItem="CongTyModel"
+                                           TValue="CongTyModel"
+                                           SearchMethod="LoaCongTyFilterData"
+                                           Value="_selectedCongTyFilter"
+                                           ValueExpression="@(() => _selectedCongTyFilter)"
+                                           ValueChanged="OnCongTyFilterChanged"
+                                           placeholder="Chọn công ty"
+                                           Class="form-select">
                             <SelectedTemplate Context="item">
                                 @item.name
                             </SelectedTemplate>
@@ -73,16 +73,16 @@
                     <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Mã hồ sơ</MudText>
                         <BlazoredTypeahead EnableDropDown="true"
-                                        ShowDropDownOnFocus="true"
-                                        MinimumLength="0"
-                                        TItem="KhamSucKhoeCongTyModel"
-                                        TValue="KhamSucKhoeCongTyModel"
-                                        SearchMethod="LoadKhamSucKhoeCongTyData"
-                                        Value="_selectedKhamSucKhoeCongTyFilter"
-                                        ValueExpression="@(() => _selectedKhamSucKhoeCongTyFilter)"
-                                        ValueChanged="OnKhamSucKhoeCongTyFilterChanged"
-                                        placeholder="Chọn hồ sơ khám sức khỏe"
-                                        Class="form-select">
+                                           ShowDropDownOnFocus="true"
+                                           MinimumLength="0"
+                                           TItem="KhamSucKhoeCongTyModel"
+                                           TValue="KhamSucKhoeCongTyModel"
+                                           SearchMethod="LoadKhamSucKhoeCongTyData"
+                                           Value="_selectedKhamSucKhoeCongTyFilter"
+                                           ValueExpression="@(() => _selectedKhamSucKhoeCongTyFilter)"
+                                           ValueChanged="OnKhamSucKhoeCongTyFilterChanged"
+                                           placeholder="Chọn hồ sơ khám sức khỏe"
+                                           Class="form-select">
                             <SelectedTemplate Context="item">
                                 @item.code
                             </SelectedTemplate>
@@ -96,20 +96,18 @@
                     </div>
 
                     <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2">
-                        @* <div> *@
-                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-success border-success text-white hover:bg-success/[0.85]
-                            hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadData())">
-                                <i class="ri-search-line"></i>
-                                Thống kê
-                            </MudButton>
-                            <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                            hover:border-success/[0.85] text-nowrap" @onclick="async e => await LoadData(true)">
+                            <i class="ri-search-line"></i>
+                            Thống kê
+                        </MudButton>
+                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
                             text-nowrap" OnClick="OnExcelExport">
-                                <i class="ri-file-excel-2-fill"></i>
-                                Xuất excel
-                            </MudButton>
-                        @* </div> *@
+                            <i class="ri-file-excel-2-fill"></i>
+                            Xuất excel
+                        </MudButton>
                     </div>
                 </div>
             </div>
@@ -171,34 +169,31 @@
                                 <td>@item.Data.chieu_cao</td>
                                 <td>@item.Data.can_nang</td>
                                 <td>@item.Data.bmi</td>
-                                <td>@item.Data.mach</td>    
-                                <td>@item.Data.huyet_ap</td>    
-                                <td>@item.Data.kq_nk_tuan_hoan</td>    
-                                <td>@item.Data.kq_nk_ho_hap</td>    
-                                <td>@item.Data.kq_nk_tieu_hoa</td>    
-                                <td>@item.Data.kq_nk_than_tiet_nieu</td>    
-                                <td>@item.Data.kq_nk_noi_tiet</td>    
-                                <td>@item.Data.kq_nk_co_xuong_khop</td>    
-                                <td>@item.Data.kq_nk_than_kinh</td>    
-                                <td>@item.Data.kq_nk_tam_than</td>    
-                                <td>@item.Data.kq_ngoai_khoa</td>    
-                                <td>@item.Data.ket_qua_san_phu_khoa</td>    
-                                <td>@item.Data.benh_mat</td>    
-                                <td>@item.Data.benh_tai_mui_hong</td>    
-                                <td>@item.Data.benh_rhm</td>    
-                                <td>@item.Data.kq_da_lieu</td>   
+                                <td>@item.Data.mach</td>
+                                <td>@item.Data.huyet_ap</td>
+                                <td>@item.Data.kq_nk_tuan_hoan</td>
+                                <td>@item.Data.kq_nk_ho_hap</td>
+                                <td>@item.Data.kq_nk_tieu_hoa</td>
+                                <td>@item.Data.kq_nk_than_tiet_nieu</td>
+                                <td>@item.Data.kq_nk_noi_tiet</td>
+                                <td>@item.Data.kq_nk_co_xuong_khop</td>
+                                <td>@item.Data.kq_nk_than_kinh</td>
+                                <td>@item.Data.kq_nk_tam_than</td>
+                                <td>@item.Data.kq_ngoai_khoa</td>
+                                <td>@item.Data.ket_qua_san_phu_khoa</td>
+                                <td>@item.Data.benh_mat</td>
+                                <td>@item.Data.benh_tai_mui_hong</td>
+                                <td>@item.Data.benh_rhm</td>
+                                <td>@item.Data.kq_da_lieu</td>
                                 <td>
                                     @if (!string.IsNullOrEmpty(item.Data.can_lam_sang_results))
                                     {
                                         var results = item.Data.can_lam_sang_results.Split('|');
                                         if (results.Length > 1)
                                         {
-                                            @foreach (var result in results)
+                                            @foreach (var result in results.Where(c => !string.IsNullOrEmpty(c.Trim())))
                                             {
-                                                if(!string.IsNullOrEmpty(result.Trim()))
-                                                {
-                                                    <div>- @result.Trim()</div>
-                                                }
+                                                <div>- @result.Trim()</div>
                                             }
                                         }
                                         else
@@ -207,9 +202,9 @@
                                         }
                                     }
                                 </td>
-                                <td>@item.Data.phan_loai_suc_khoe</td>    
-                                <td class="wrap-long-content">@item.Data.benh_tat_ket_luan?.Trim()</td>    
-                                <td class="wrap-long-content">@item.Data.de_nghi?.Trim()</td>    
+                                <td>@item.Data.phan_loai_suc_khoe</td>
+                                <td class="wrap-long-content">@item.Data.benh_tat_ket_luan?.Trim()</td>
+                                <td class="wrap-long-content">@item.Data.de_nghi?.Trim()</td>
                             </tr>
                         }
                     </tbody>
@@ -222,37 +217,56 @@
 </div>
 
 <style>
-.wrap-long-content {
-    min-width: 600px;
-    white-space: pre-wrap;
-}
+    .wrap-long-content {
+        min-width: 600px;
+        white-space: pre-wrap;
+    }
 
-.frozen-columns-table {
-    border-collapse: separate;
-    border-spacing: 0;
-}
+    .frozen-columns-table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
 
-.frozen-col {
-    position: sticky;
-    background-color: white;
-    border-right: 2px solid #e5e7eb;
-}
+    .frozen-col {
+        position: sticky;
+        background-color: white;
+        border-right: 2px solid #e5e7eb;
+    }
 
-.dark .frozen-col {
-    background-color: var(--tw-bg-darklight);
-}
+    .dark .frozen-col {
+        background-color: var(--tw-bg-darklight);
+    }
 
-.frozen-col-1 { left: 0; min-width: 60px; }
-.frozen-col-2 { left: 60px; min-width: 200px; }
-.frozen-col-3 { left: 260px; min-width: 200px; }
-.frozen-col-4 { left: 460px; min-width: 100px; }
-.frozen-col-5 { left: 560px; min-width: 80px; }
+    .frozen-col-1 {
+        left: 0;
+        min-width: 60px;
+    }
 
-.frozen-columns-table thead .frozen-col {
-    background-color: #f9fafb;
-}
+    .frozen-col-2 {
+        left: 60px;
+        min-width: 200px;
+    }
 
-.dark .frozen-columns-table thead .frozen-col {
-    background-color: var(--tw-bg-gray-700);
-}
+    .frozen-col-3 {
+        left: 260px;
+        min-width: 200px;
+    }
+
+    .frozen-col-4 {
+        left: 460px;
+        min-width: 100px;
+    }
+
+    .frozen-col-5 {
+        left: 560px;
+        min-width: 80px;
+    }
+
+    .frozen-columns-table thead .frozen-col {
+        background-color: #f9fafb;
+    }
+
+    .dark .frozen-columns-table thead .frozen-col {
+        background-color: var(--tw-bg-gray-700);
+    }
 </style>

@@ -69,7 +69,7 @@
                                        @bind-value:event="oninput"
                                        @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadData)">
 
-                                <MudButton OnClick="LoadData" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
+                                <MudButton OnClick="async e => await LoadData(true)" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
                                         <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z" fill="currentColor"></path>
                                     </svg>
@@ -82,7 +82,7 @@
                         @* <div> *@
                             <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-success border-success text-white hover:bg-success/[0.85]
-                            hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadData())">
+                            hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadData(true))">
                                 <i class="ri-search-line"></i>
                                 Thống kê
                             </MudButton>

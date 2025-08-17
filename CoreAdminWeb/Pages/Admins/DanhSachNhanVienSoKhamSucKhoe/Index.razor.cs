@@ -1,13 +1,12 @@
-﻿using CoreAdminWeb.Helpers;
+﻿using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Model;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using CoreAdminWeb.Extensions;
-using CoreAdminWeb.Model.KhamSucKhoes;
 
 namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
 {
@@ -53,21 +52,28 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             }
         }
 
-        private async Task LoadData()
+        private async Task LoadData(bool isReset = false)
         {
             IsLoading = true;
+
+            if (isReset)
+            {
+                ResetPage();
+                await Task.Delay(100);
+            }
+
             BuilderQuery = $"DanhSachDoan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";
             if (_fromDate.HasValue)
             {
-                BuilderQuery += $"&fromDate={_fromDate.Value.ToString("yyyy-MM-dd")}";
+                BuilderQuery += $"&fromDate={_fromDate.Value:yyyy-MM-dd}";
             }
             if (_toDate.HasValue)
             {
-                BuilderQuery += $"&toDate={_toDate.Value.ToString("yyyy-MM-dd")}";
+                BuilderQuery += $"&toDate={_toDate.Value:yyyy-MM-dd}";
             }
             if (_selectedCongTyFilter != null)
             {
-                BuilderQuery += $"&congTy={_selectedCongTyFilter.id.ToString()}";
+                BuilderQuery += $"&congTy={_selectedCongTyFilter.id}";
             }
             if (_selectedKhamSucKhoeCongTyFilter != null)
             {
@@ -82,6 +88,11 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
                     TotalPages = result.Meta.page_count ?? 0;
+
+                    if (Page > TotalPages)
+                    {
+                        await SelectedPage(TotalPages);
+                    }
                 }
             }
             else
@@ -125,7 +136,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                 _selectedCongTyFilter = null;
             }
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private async Task OnKhamSucKhoeCongTyFilterChanged(KhamSucKhoeCongTyModel? selected)
@@ -139,7 +150,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                 _selectedKhamSucKhoeCongTyFilter = null;
             }
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private async Task OnDateChanged(ChangeEventArgs e, string fieldName, bool isFilter = false)
@@ -184,28 +195,12 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
 
                 if (isFilter)
                 {
-                    await LoadData();
+                    await LoadData(true);
                 }
             }
             catch (Exception ex)
             {
                 AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
-            }
-        }
-
-        private async Task LoadKhamSucKhoeCongTyById(int id)
-        {
-            try
-            {
-                var result = await KhamSucKhoeCongTyService.GetByIdAsync(id.ToString());
-                if (result?.IsSuccess == true && result.Data != null)
-                {
-                    _selectedKhamSucKhoeCongTyFilter = result.Data;
-                }
-            }
-            catch (Exception ex)
-            {
-                AlertService.ShowAlert($"Lỗi khi tải dữ liệu: {ex.Message}", "danger");
             }
         }
 
@@ -223,7 +218,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             return Task.CompletedTask;
 
         }
-        
+
         private async Task OnExcelExport()
         {
             try
@@ -233,15 +228,15 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                 BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset={0}";
                 if (_fromDate.HasValue)
                 {
-                    BuilderQuery += $"&fromDate={_fromDate.Value.ToString("yyyy-MM-dd")}";
+                    BuilderQuery += $"&fromDate={_fromDate.Value:yyyy-MM-dd}";
                 }
                 if (_toDate.HasValue)
                 {
-                    BuilderQuery += $"&toDate={_toDate.Value.ToString("yyyy-MM-dd")}";
+                    BuilderQuery += $"&toDate={_toDate.Value:yyyy-MM-dd}";
                 }
                 if (_selectedCongTyFilter != null)
                 {
-                    BuilderQuery += $"&congTy={_selectedCongTyFilter.id.ToString()}";
+                    BuilderQuery += $"&congTy={_selectedCongTyFilter.id}";
                 }
                 if (_selectedKhamSucKhoeCongTyFilter != null)
                 {

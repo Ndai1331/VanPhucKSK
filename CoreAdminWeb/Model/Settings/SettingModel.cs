@@ -42,6 +42,11 @@
         public string? doctor_role_id { get; set; }
         public string? patient_role_id { get; set; }
         public List<VisualEditorUrl> visual_editor_urls { get; set; } = new List<VisualEditorUrl>();
+
+        public FileModel? phieu_ksk_nam { get; set; }
+        public FileModel? phieu_ksk_nu { get; set; }
+        public FileModel? thcn_nu { get; set; }
+        public FileModel? thcn_nam { get; set; }
     }
 
     public class VisualEditorUrl

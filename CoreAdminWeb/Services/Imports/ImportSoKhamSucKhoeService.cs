@@ -56,7 +56,7 @@ namespace CoreAdminWeb.Services.Imports
                     var colCount = worksheet.Dimension.Columns;
 
                     result = new List<ImportDoanKhamModel>();
-                    for (int row = 2; row <= rowCount; row++)
+                    for (int row = 3; row <= rowCount; row++)
                     {
                         // Bỏ qua dòng trống (tất cả các cột đều rỗng)
                         bool isEmptyRow = true;
@@ -90,7 +90,7 @@ namespace CoreAdminWeb.Services.Imports
                             Email = colCount > 12 ? worksheet.Cells[row, 13].Text : null,
                         };
 
-                        int nextPercent = (int)Math.Round((double)(row - 1) * 100 / (rowCount - 1));
+                        int nextPercent = (int)Math.Round((double)(row - 2) * 100 / (rowCount - 2));
                         if (row == rowCount || percent != nextPercent)
                         {
                             percent = nextPercent;

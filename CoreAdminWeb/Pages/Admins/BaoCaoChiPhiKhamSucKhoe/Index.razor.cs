@@ -43,9 +43,14 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
             }
         }
 
-        private async Task LoadData()
+        private async Task LoadData(bool isResetPage = false)
         {
             IsLoading = true;
+
+            if (isResetPage)
+            {
+                ResetPage();
+            }
 
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -77,6 +82,11 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
                     TotalPages = result.Meta.page_count ?? 0;
+
+                    if (Page > TotalPages)
+                    {
+                        await SelectedPage(TotalPages);
+                    }
                 }
             }
             else
@@ -103,7 +113,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
         {
             _searchStatusString = selected?.Value?.ToString() ?? string.Empty;
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private async Task OnDateChanged(ChangeEventArgs e, string fieldName, bool isFilter = false)
@@ -148,7 +158,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
 
                 if (isFilter)
                 {
-                    await LoadData();
+                    await LoadData(true);
                 }
             }
             catch (Exception ex)
@@ -156,7 +166,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
                 AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
             }
         }
-        
+
         private async Task OnExcelExport()
         {
             try

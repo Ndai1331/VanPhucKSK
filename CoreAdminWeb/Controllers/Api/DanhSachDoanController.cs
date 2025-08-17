@@ -94,13 +94,13 @@ public class DanhSachDoanController : ControllerBase
                 spk.ket_qua, ck.benh_mat, ck.benh_tai_mui_hong, ck.benh_rhm, ck.kq_da_lieu,
                 kl.benh_tat_ket_luan, kl.de_nghi, plsk.name as phan_loai_suc_khoe,
                 -- Gộp tất cả kết quả cận lâm sàng thành một cột, phân cách bằng dấu |
-               STRING_AGG(
-                    CASE 
+               (SELECT STRING_AGG(CASE 
                         WHEN kqcls.ten_can_lam_san IS NOT NULL AND kqcls.ket_luan_can_lam_sang IS NOT NULL 
                         THEN CONCAT(kqcls.ten_can_lam_san, ': ', kqcls.ket_luan_can_lam_sang) 
-                        ELSE NULL 
-                    END, 
-                    ' | '
+                        ELSE NULL
+                    END,
+                    ' | ' )
+                    FROM ket_qua_can_lam_san kqcls WHERE kqcls.id = cls.kq_cls                    
                 ) AS can_lam_sang_results
                 from SoKhamSucKhoe sksk 
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
@@ -113,15 +113,7 @@ public class DanhSachDoanController : ControllerBase
                 Left join kham_suc_khoe_ket_luan kl on kl.ma_luot_kham = sksk.ma_luot_kham
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
                 Left join kham_suc_khoe_ket_qua_can_lam_sang cls    on cls.luot_kham = sksk.id
-                Left join ket_qua_can_lam_san kqcls    on kqcls.id = cls.kq_cls
                 " + where + @"
-                GROUP BY sksk.id, sksk.ma_luot_kham, ct.code, u.id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
-                ts.ten_benh, ts.tien_su_gia_dinh,
-                tl.chieu_cao, tl.can_nang, tl.bmi, tl.mach, tl.huyet_ap,
-                ck.kq_nk_tuan_hoan, ck.kq_nk_ho_hap, ck.kq_nk_tieu_hoa, ck.kq_nk_than_tiet_nieu, ck.kq_nk_noi_tiet,
-                ck.kq_nk_co_xuong_khop, ck.kq_nk_than_kinh, ck.kq_nk_tam_than, ck.kq_ngoai_khoa,
-                spk.ket_qua, ck.benh_mat, ck.benh_tai_mui_hong, ck.benh_rhm, ck.kq_da_lieu,
-                kl.benh_tat_ket_luan, kl.de_nghi, plsk.name
                 ORDER BY sksk.id
                 OFFSET @offset ROWS 
                 FETCH NEXT @limit ROWS ONLY";
