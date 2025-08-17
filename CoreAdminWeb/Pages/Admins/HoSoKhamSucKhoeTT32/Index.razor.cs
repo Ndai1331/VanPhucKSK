@@ -116,11 +116,14 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             }
         }
 
-        private async Task LoadData()
+        private async Task LoadData(bool isReset = false)
         {
             IsLoading = true;
-            // var benhNhan = _benhNhanFilter != null ? _benhNhanFilter.id.ToString() : "";
-            // var congTy = _selectedCongTyFilter != null ? _selectedCongTyFilter.id.ToString() : "";
+
+            if (isReset)
+            {
+                ResetPage();
+            }
 
             BuilderQuery = $"CaNhan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";
             if (_benhNhanFilter != null)
@@ -148,6 +151,11 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
                     TotalPages = result.Meta.page_count ?? 0;
+
+                    if (Page > TotalPages)
+                    {
+                        await SelectedPage(TotalPages);
+                    }
                 }
             }
             else
@@ -197,7 +205,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                 _selectedCongTyFilter = null;
             }
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private async Task OnBenhNhanFilterChanged(UserModel? selected)
@@ -211,7 +219,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                 _benhNhanFilter = null;
             }
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private async Task OnDateChanged(ChangeEventArgs e, string fieldName, bool isFilter = false)
@@ -256,7 +264,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 
                 if (isFilter)
                 {
-                    await LoadData();
+                    await LoadData(true);
                 }
             }
             catch (Exception ex)

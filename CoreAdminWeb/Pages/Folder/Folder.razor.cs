@@ -1,12 +1,12 @@
 ﻿using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Services.BaseServices;
-using CoreAdminWeb.Shared.Base;
-using Microsoft.JSInterop;
 using CoreAdminWeb.Services.Files;
+using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Folder
 {
@@ -63,9 +63,14 @@ namespace CoreAdminWeb.Pages.Folder
             }
         }
 
-        private async Task LoadFiles()
-        { 
+        private async Task LoadFiles(bool isReset = false)
+        {
             int index = 2;
+
+            if (isReset)
+            {
+                ResetPage();
+            }
 
             BuilderQuery = $"limit={PageSize}&offset={(Page - 1) * PageSize}&meta=filter_count";
 
@@ -76,11 +81,11 @@ namespace CoreAdminWeb.Pages.Folder
             }
             else
             {
-                BuilderQuery += $"&filter[_and][1][folder][_eq]={SelectedItem.id }";
+                BuilderQuery += $"&filter[_and][1][folder][_eq]={SelectedItem.id}";
             }
 
 
-            if(!string.IsNullOrEmpty(_searchString))
+            if (!string.IsNullOrEmpty(_searchString))
             {
                 BuilderQuery += $"&filter[_and][{index}][_or][0][filename_disk][_contains]={_searchString}"
                 + $"&filter[_and][{index}][_or][1][type][_contains]={_searchString}"
@@ -88,7 +93,7 @@ namespace CoreAdminWeb.Pages.Folder
                 index++;
             }
 
-            if(!string.IsNullOrEmpty(_coQuanBanHanhSearchString))
+            if (!string.IsNullOrEmpty(_coQuanBanHanhSearchString))
             {
                 BuilderQuery += $"&filter[_and][{index}][co_quan_ban_hanh][_contains]={_coQuanBanHanhSearchString}";
             }
@@ -102,26 +107,27 @@ namespace CoreAdminWeb.Pages.Folder
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
                     TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+
+                    if (Page > TotalPages)
+                    {
+                        await SelectedPage(TotalPages);
+                    }
                 }
             }
         }
 
-        private async Task OnDelete()
+        private async Task OnPageSizeChanged(int newSize)
         {
-            if (SelectedItem.parent is null || SelectedItem.parent == Guid.Empty)
-            {
-                AlertService.ShowAlert("Không có dữ liệu để xóa", "warning");
-                return;
-            }
+            Page = 1;
+            PageSize = newSize;
+            await LoadFiles();
         }
 
-        private void CloseDeleteModal()
+        private async Task SelectedPage(int page)
         {
-            SelectedItem = new FolderModel();
-
-            openDeleteModal = false;
+            Page = page;
+            await LoadFiles();
         }
-
 
         private async Task SelectOnlyOneFolder(FolderModel selected)
         {
@@ -145,13 +151,15 @@ namespace CoreAdminWeb.Pages.Folder
             {
                 f.isSelected = false;
                 if (f.sub_folders != null && f.sub_folders.Any())
+                {
                     DeselectAll(f.sub_folders);
+                }
             }
         }
 
         private void OpenCreateFolderModal()
         {
-            
+
             openCreateFolderModal = true;
         }
 
@@ -163,7 +171,7 @@ namespace CoreAdminWeb.Pages.Folder
 
         private async Task CreateFolder()
         {
-            if(string.IsNullOrEmpty(SelectedCreateItem.name))
+            if (string.IsNullOrEmpty(SelectedCreateItem.name))
             {
                 AlertService.ShowAlert("Vui lòng nhập tên thư mục", "warning");
                 return;
@@ -204,8 +212,8 @@ namespace CoreAdminWeb.Pages.Folder
             try
             {
                 UploadFileCRUD.folder = SelectedItem.id == Guid.Empty ? null : SelectedItem.id;
-                var result = await FileService.UploadFileAsync(UploadFile,UploadFileCRUD);
-                if(result.IsSuccess)
+                var result = await FileService.UploadFileAsync(UploadFile, UploadFileCRUD);
+                if (result.IsSuccess)
                 {
                     await LoadFiles();
                     AlertService.ShowAlert("Thêm mới file thành công!", "success");
@@ -226,7 +234,7 @@ namespace CoreAdminWeb.Pages.Folder
                 StateHasChanged();
             }
         }
-        
+
         private async Task ProcessFile(IBrowserFile file)
         {
 
@@ -306,7 +314,7 @@ namespace CoreAdminWeb.Pages.Folder
                 {
                     switch (fieldName)
                     {
-                     
+
                     }
                     return;
                 }
@@ -321,7 +329,7 @@ namespace CoreAdminWeb.Pages.Folder
 
                     switch (fieldName)
                     {
-                       
+
                     }
                 }
             }

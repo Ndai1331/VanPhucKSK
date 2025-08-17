@@ -166,11 +166,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
         }
 
-        private async Task LoadData(bool isResetPage = false)
+        private async Task LoadData(bool isReset = false)
         {
             IsLoading = true;
 
-            if (isResetPage)
+            if (isReset)
             {
                 ResetPage();
             }

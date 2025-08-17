@@ -1,5 +1,4 @@
-﻿using CoreAdminWeb.Helpers;
-using CoreAdminWeb.Model.KhamSucKhoes;
+﻿using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
@@ -36,19 +35,9 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
         {
             if (firstRender)
             {
-                // DateTime dateNow = DateTime.Now;
-                // _startDateFilter = new DateTime(dateNow.Year, dateNow.Month, 1, 0, 0, 0, DateTimeKind.Local);
-                // _endDateFilter = new DateTime(dateNow.Year, dateNow.Month, DateTime.DaysInMonth(dateNow.Year, dateNow.Month), 0, 0, 0, DateTimeKind.Local);
-
-                // var resUser = await UserService.GetCurrentUserAsync();
-                // if (resUser.IsSuccess)
-                // {
-                //     CurrentUser = resUser.Data;
-                // }
-
                 await LoadData();
                 StateHasChanged();
-                
+
                 // Wait for modal to render
                 _ = Task.Run(async () =>
                 {
@@ -67,20 +56,6 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
                         ? res.Data
                         : null;
 
-            // if (result.IsSuccess)
-            // {
-            //     MainModels = result.Data ?? new List<SoKhamSucKhoeModel>();
-            //     if (result.Meta != null)
-            //     {
-            //         TotalItems = result.Meta.filter_count ?? 0;
-            //         TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
-            //     }
-            // }
-            // else
-            // {
-            //     MainModels = new List<SoKhamSucKhoeModel>();
-            // }
-
             try
             {
                 if (CurrentUser != null)
@@ -95,7 +70,9 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
                     {
                         await LoadKetLuanAsync();
                     }
-                } else {
+                }
+                else
+                {
                     AlertService.ShowAlert($"Không tìm thấy bệnh nhân theo thông tin tìm kiếm!", "warning");
                 }
             }
@@ -109,24 +86,33 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
 
         private async Task LoadMedicalRecordsAsync()
         {
-            if (CurrentUser?.ma_benh_nhan == null) return;
-            
+            if (CurrentUser?.ma_benh_nhan == null)
+            {
+                return;
+            }
+
             try
             {
                 // Build query for paginated results
                 BuildPaginationQuery(Page, PageSize, "ngay_kham");
                 BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
                 BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
-                
+
                 var result = await MainService.GetAllAsync(BuilderQuery);
                 if (result.IsSuccess)
                 {
                     MainModels = result.Data ?? new List<SoKhamSucKhoeModel>();
-                    
+
                     if (result.Meta != null)
                     {
                         TotalItems = result.Meta.filter_count ?? 0;
                         TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+
+                        if (Page > TotalPages)
+                        {
+                            Page = TotalPages;
+                            await LoadMedicalRecordsAsync();
+                        }
                     }
                 }
                 else
@@ -146,8 +132,11 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
         /// </summary>
         private async Task LoadLatestExamDateAsync()
         {
-            if (CurrentUser?.ma_benh_nhan == null) return;
-            
+            if (CurrentUser?.ma_benh_nhan == null)
+            {
+                return;
+            }
+
             try
             {
                 // Separate query to get only the latest exam date
@@ -155,7 +144,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
                 query += $"&filter[_and][0][deleted][_eq]=false";
                 query += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
                 query += $"&fields=ngay_kham,ma_luot_kham"; // Only get the date field for performance
-                
+
                 var result = await MainService.GetAllAsync(query);
                 if (result.IsSuccess && result.Data?.Any() == true)
                 {
@@ -196,6 +185,19 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
             };
         }
 
+        private async Task OnPageSizeChanged(int newSize)
+        {
+            Page = 1;
+            PageSize = newSize;
+            await LoadMedicalRecords();
+        }
+
+        private async Task SelectedPage(int page)
+        {
+            Page = page;
+            await LoadMedicalRecords();
+        }
+
         private void ViewRecordDetail(SoKhamSucKhoeModel record)
         {
             NavigationManager?.NavigateTo($"/admin/record-detail-page/{record.ma_luot_kham}");
@@ -207,15 +209,18 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
 
         private async Task LoadKetLuanAsync()
         {
-            if (CurrentUser?.ma_benh_nhan == null) return;
-            
+            if (CurrentUser?.ma_benh_nhan == null)
+            {
+                return;
+            }
+
             try
             {
                 // Separate query to get only the latest exam date
                 string query = $"limit=1&offset=0&sort=-id";
                 query += $"&filter[_and][0][ma_luot_kham][_eq]={MaLuotKhamGanNhat}";
                 query += $"&fields=phan_loai_suc_khoe,ma_luot_kham"; // Only get the date field for performance
-                
+
                 var result = await KhamSucKhoeKetLuanService.GetAllAsync(query);
                 if (result.IsSuccess && result.Data?.Any() == true)
                 {

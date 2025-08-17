@@ -76,9 +76,14 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             }
         }
 
-        private async Task LoadData()
+        private async Task LoadData(bool isReset = false)
         {
             IsLoading = true;
+
+            if (isReset)
+            {
+                ResetPage();
+            }
 
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -99,6 +104,11 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
                     TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+
+                    if (Page > TotalPages)
+                    {
+                        await SelectedPage(TotalPages);
+                    }
                 }
             }
             else
@@ -477,7 +487,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         {
             _searchStatusString = selected?.Value?.ToString() ?? string.Empty;
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private void OnCongTyChanged(CongTyModel? selected)
