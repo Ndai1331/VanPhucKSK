@@ -117,7 +117,7 @@
                             <tr>
                                 <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                 <td>@item.Data.code</td>
-                                <td>@item.Data.cong_ty?.name</td>
+                                <td style="min-width: 300px; white-space: pre-wrap;">@item.Data.cong_ty?.name</td>
                                 <td>@item.Data.gia_tri_hop_dong?.ToString("N0")</td>
                                 <td>@item.Data.chi_tiet?.Sum(x => x.thanh_tien_dm)?.ToString("N0")</td>
                                 <td>@item.Data.chi_tiet?.Sum(x => x.chi_phi_thuc_te)?.ToString("N0")</td>

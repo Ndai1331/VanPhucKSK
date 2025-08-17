@@ -96,8 +96,8 @@
                                 <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                 <td>@item.Data.date_created.ToString("dd/MM/yyyy")</td>
                                 <td>@item.Data.code</td>
-                                <td>@item.Data.name</td>
-                                <td>@item.Data.dia_chi</td>
+                                <td style="white-space: pre-wrap;">@item.Data.name</td>
+                                <td style="white-space: pre-wrap;">@item.Data.dia_chi</td>
                                 <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
                                 <td class="flex items-center gap-2">
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"

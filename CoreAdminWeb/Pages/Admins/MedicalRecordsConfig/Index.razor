@@ -97,7 +97,7 @@
                             <tr>
                                 <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                 <td>@item.Data.code</td>
-                                <td>@item.Data.ma_hop_dong_ksk?.cong_ty?.name</td>
+                                <td style="white-space: pre-wrap;">@item.Data.ma_hop_dong_ksk?.cong_ty?.name</td>
                                 <td>@item.Data.ma_hop_dong_ksk?.code</td>
                                 <td>@item.Data.so_luong_du_kien?.ToString("N0")</td>
                                 <td>@item.Data.so_luong_thuc_te?.ToString("N0")</td>

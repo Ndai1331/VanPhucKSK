@@ -83,7 +83,7 @@
                             <tr>
                                 <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                 <td>@item.Data.code</td>
-                                <td>@item.Data.ma_hop_dong_ksk?.cong_ty?.name</td>
+                                <td style="white-space: pre-wrap;">@item.Data.ma_hop_dong_ksk?.cong_ty?.name</td>
                                 <td>@item.Data.ngay_du_kien_kham?.ToString("dd/MM/yyyy")</td>
                                 <td>@item.Data.so_luong_thuc_te</td>
                                 <td>@item.Data.nguoi_lap_so?.full_name</td>
