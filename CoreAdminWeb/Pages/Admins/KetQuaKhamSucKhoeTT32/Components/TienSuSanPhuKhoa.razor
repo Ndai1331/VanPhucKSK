@@ -3,136 +3,138 @@
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.KhamSucKhoes
-<div class="flex items-center gap-2">
-    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</MudText>
-    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width: 150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
-</div>
-<div class="flex items-center gap-2">
-    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Tính chất kinh nguyệt:</MudText>
 
-    <div class="flex items-center gap-5">
-        @foreach (var item in EnumHelper.ToList<TinhChatKinh>())
-        {
-            <div>
-                <input type="checkbox" class="form-check-input" id="cbx_@item.Name"
-                       value="@item.Name"
-                       @onchange="e => OnTinhChatKinhChangedHandler(item.Name)"
-                       checked="@(item.Name.Equals(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))"
-                       disabled="@(onReadonly || !onReadonly && !onBS)">
-                <label class="form-check-label rtl\:mr-3" for="cbx_@item.Name">
-                    @item.Description
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="flex flex-col items-start gap-2">
+        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</MudText>
+        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
+    </div>
+    <div class="flex flex-col items-start gap-2">
+        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Tính chất kinh nguyệt:</MudText>
+
+        <div class="grid md:grid-cols-2 w-full items-center gap-4">
+            @foreach (var item in EnumHelper.ToList<TinhChatKinh>())
+            {
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" class="form-check-input" id="cbx_@item.Name"
+                        value="@item.Name"
+                        @onchange="e => OnTinhChatKinhChangedHandler(item.Name)"
+                        checked="@(item.Name.Equals(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))"
+                        disabled="@(onReadonly || !onReadonly && !onBS)">
+                    <label class="form-check-label rtl\:mr-3" for="cbx_@item.Name">
+                        @item.Description
+                    </label>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="flex flex-col items-start gap-2">
+        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
+            Chu kỳ kinh (Ngày):
+        </MudText>
+        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
+    </div>
+    <div class="flex flex-col items-start gap-2">
+        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Đau bụng kinh:</MudText>
+
+        <div class="grid md:grid-cols-2 w-full items-center gap-4">
+            <div class="flex items-center gap-2">
+                <input type="checkbox" class="form-check-input" id="cbx1_@YesNo.Co.ToString()"
+                    @onchange="e => OnDauBungKinhChangedHandler(YesNo.Co.ToString())"
+                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == true)"
+                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <label class="form-check-label rtl\:mr-3" for="cbx1_@YesNo.Co.ToString()">
+                    @YesNo.Co.GetDescription()
                 </label>
             </div>
-        }
-    </div>
-</div>
-<div class="flex items-center gap-5">
-    <div class="flex items-center gap-2">
-        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
-            Chu kỳ kinh:
-        </MudText>
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
-        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
-            ngày
-        </MudText>
-    </div>
-    <div class="flex items-center gap-2">
-        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
-            Lượng kinh:
-        </MudText>
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:150px;" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.luong_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
-        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
-            ngày
-        </MudText>
-    </div>
-</div>
-<div class="flex items-center gap-2">
-    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Đau bụng kinh:</MudText>
-
-    <div class="flex items-center gap-5">
-        <div>
-            <input type="checkbox" class="form-check-input" id="cbx1_@YesNo.Co.ToString()"
-                   @onchange="e => OnDauBungKinhChangedHandler(YesNo.Co.ToString())"
-                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == true)"
-                   disabled="@(onReadonly || !onReadonly && !onBS)">
-            <label class="form-check-label rtl\:mr-3" for="cbx1_@YesNo.Co.ToString()">
-                @YesNo.Co.GetDescription()
-            </label>
-        </div>
-        <div>
-            <input type="checkbox" class="form-check-input" id="cbx2_@YesNo.Khong.ToString()"
-                   @onchange="e => OnDauBungKinhChangedHandler(YesNo.Khong.ToString())"
-                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == false)"
-                   disabled="@(onReadonly || !onReadonly && !onBS)">
-            <label class="form-check-label rtl\:mr-3" for="cbx2_@YesNo.Khong.ToString()">
-                @YesNo.Khong.GetDescription()
-            </label>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" class="form-check-input" id="cbx2_@YesNo.Khong.ToString()"
+                    @onchange="e => OnDauBungKinhChangedHandler(YesNo.Khong.ToString())"
+                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == false)"
+                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <label class="form-check-label rtl\:mr-3" for="cbx2_@YesNo.Khong.ToString()">
+                    @YesNo.Khong.GetDescription()
+                </label>
+            </div>
         </div>
     </div>
-</div>
-<div class="flex items-center gap-2">
-    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
-        PARA:
-    </MudText>
-
-    <div class="flex items-center gap-1">
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;" value="@para1" @onchange="e => OnParaChangedHandler(e, 0)" readonly="@(onReadonly || !onReadonly && !onBS)">
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;" value="@para2" @onchange="e => OnParaChangedHandler(e, 1)" readonly="@(onReadonly || !onReadonly && !onBS)">
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;" value="@para3" @onchange="e => OnParaChangedHandler(e, 2)" readonly="@(onReadonly || !onReadonly && !onBS)">
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" style="width:50px;" value="@para4" @onchange="e => OnParaChangedHandler(e, 3)" readonly="@(onReadonly || !onReadonly && !onBS)">
+    <div class="flex flex-col items-start gap-2">
+        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
+            Lượng kinh (Ngày):
+        </MudText>
+        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.luong_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
-</div>
-<div class="flex items-center gap-2">
-    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Số lần mổ sản phụ khoa:</MudText>
+    <div class="flex flex-col items-start gap-2">
+        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Số lần mổ sản phụ khoa:</MudText>
 
-    <div class="flex items-center gap-5">
+        <div class="grid md:grid-cols-2 w-full items-center gap-4">
+            <div class="flex items-center gap-2">
+                <input type="checkbox" class="form-check-input" id="cbx3_@YesNo.Co.ToString()"
+                    @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Co)"
+                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)"
+                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
+                    @YesNo.Co.GetDescription()
+                </label>
+                |
+                <div class="flex items-center">
+                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100" Style="width: 80px;">Ghi rõ:</MudText>
+                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" class="form-check-input" id="cbx4_@YesNo.Khong.ToString()"
+                    @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Khong)"
+                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Khong)"
+                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
+                    @YesNo.Khong.GetDescription()
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-col items-start gap-2">
+        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
+            PARA:
+        </MudText>
+
         <div class="flex items-center gap-2">
-            <input type="checkbox" class="form-check-input" id="cbx3_@YesNo.Co.ToString()"
-                   @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Co)"
-                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)"
-                   disabled="@(onReadonly || !onReadonly && !onBS)">
-            <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
-                @YesNo.Co.GetDescription()
-            </label>
-            <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
-        </div>
-        <div>
-            <input type="checkbox" class="form-check-input" id="cbx4_@YesNo.Khong.ToString()"
-                   @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Khong)"
-                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Khong)"
-                   disabled="@(onReadonly || !onReadonly && !onBS)">
-            <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
-                @YesNo.Khong.GetDescription()
-            </label>
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" value="@para1" @onchange="e => OnParaChangedHandler(e, 0)" readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" value="@para2" @onchange="e => OnParaChangedHandler(e, 1)" readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" value="@para3" @onchange="e => OnParaChangedHandler(e, 2)" readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" value="@para4" @onchange="e => OnParaChangedHandler(e, 3)" readonly="@(onReadonly || !onReadonly && !onBS)">
         </div>
     </div>
-</div>
-<div class="flex items-center gap-2">
-    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Có đang áp dụng BPTT không:</MudText>
+    <div class="flex flex-col items-start gap-2">
+        <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Có đang áp dụng BPTT không:</MudText>
 
-    <div class="flex items-center gap-5">
-        <div class="flex items-center gap-2">
-            <input type="checkbox" class="form-check-input" id="cbx5_@YesNo.Co.ToString()"
-                   @onchange="e => OnApDungBPPTChangedHandler(YesNo.Co.ToString())"
-                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)"
-                   disabled="@(onReadonly || !onReadonly && !onBS)">
-            <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
-                @YesNo.Co.GetDescription()
-            </label>
-            <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
-        </div>
-        <div>
-            <input type="checkbox" class="form-check-input" id="cbx6_@YesNo.Khong.ToString()"
-                   @onchange="e => OnApDungBPPTChangedHandler(YesNo.Khong.ToString())"
-                   checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)"
-                   disabled="@(onReadonly || !onReadonly && !onBS)">
-            <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
-                @YesNo.Khong.GetDescription()
-            </label>
+        <div class="grid md:grid-cols-2 w-full items-center gap-4">
+            <div class="flex items-center gap-2">
+                <input type="checkbox" class="form-check-input" id="cbx5_@YesNo.Co.ToString()"
+                    @onchange="e => OnApDungBPPTChangedHandler(YesNo.Co.ToString())"
+                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)"
+                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
+                    @YesNo.Co.GetDescription()
+                </label>
+                |
+                <div class="flex items-center">
+                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100" Style="width: 80px;">Ghi rõ:</MudText>
+                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" class="form-check-input" id="cbx6_@YesNo.Khong.ToString()"
+                    @onchange="e => OnApDungBPPTChangedHandler(YesNo.Khong.ToString())"
+                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)"
+                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
+                    @YesNo.Khong.GetDescription()
+                </label>
+            </div>
         </div>
     </div>
+
 </div>
 
 @code {

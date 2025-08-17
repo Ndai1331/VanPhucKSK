@@ -16,14 +16,13 @@
                  class="@(onReadonly || !onReadonly && !onBSKetLuan ? "select2-disabled" : "")" />
     </div>
 
-    <div>
-        <label class="block text-sm font-normal" for="cbx_bat_thuong">
-            Ca bất thường
-        </label>
+    <div class="flex items-center gap-2 mt-5">
         <input type="checkbox" class="form-check-input" id="cbx_bat_thuong"
                @bind="SelectedKhamSucKhoeKetLuan.isAbnormal"
                disabled="@(onReadonly || !onReadonly && !onBSKetLuan)">
-        
+        <label class="block text-sm font-normal" for="cbx_bat_thuong">
+            Ca bất thường
+        </label>
     </div>
 </div>
 <div class="mb-2">

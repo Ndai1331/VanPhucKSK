@@ -3,7 +3,7 @@
 @using CoreAdminWeb.Model.KhamSucKhoes
 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-3">
     <div class="flex items-center gap-2">
-        <span style="min-width:90px;">11. Sản PK:</span>
+        <span style="min-width:120px;">11. Sản PK:</span>
         <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.ket_qua" readonly="@(onReadonly || !onReadonly && !onBSSanPhuKhoa)" />
         <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
                  TextSelector="c => c != null ? c.name : String.Empty"
