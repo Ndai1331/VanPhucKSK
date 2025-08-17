@@ -29,8 +29,12 @@ namespace CoreAdminWeb.Model.Contract
         public List<ContractDinhMucModel>? chi_tiet { get; set; }
         public new TrangThaiHopDong status { get; set; } = TrangThaiHopDong.ChuaHieuLuc;
     }
-    public class ContractCRUDModel : BaseDetailModel
+    public class ContractCRUDModel
     {
+        public string? code { get; set; }
+        public string? name { get; set; }
+        public bool? deleted { get; set; } = false;
+        public string? description { get; set; }
         public int? cong_ty { get; set; }
         public int? contract_type { get; set; }
         public DateTime? ngay_hop_dong { get; set; }
@@ -42,7 +46,7 @@ namespace CoreAdminWeb.Model.Contract
         public decimal? ti_le_chap_nhan_thanh_toan { get; set; }
         public int? phe_duyet { get; set; }
         public int? han_che { get; set; }
-        public string? ten_khoa_phong { get; set; }
+        // public string? ten_khoa_phong { get; set; }
         public string? nguoi_theo_doi { get; set; }
         public string? so_dien_thoai_lien_he { get; set; }
         public string? nguoi_gioi_thieu { get; set; }

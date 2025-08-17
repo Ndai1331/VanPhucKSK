@@ -51,7 +51,7 @@ namespace CoreAdminWeb.Services.Contract
                 code = model.code,
                 name = model.name,
                 description = model.description,
-                sort = model.sort,
+                // sort = model.sort,
                 status = model.status.ToString(),
                 cong_ty = model.cong_ty?.id,
                 contract_type = model.contract_type?.id,
