@@ -166,9 +166,14 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
         }
 
-        private async Task LoadData()
+        private async Task LoadData(bool isResetPage = false)
         {
             IsLoading = true;
+
+            if (isResetPage)
+            {
+                ResetPage();
+            }
 
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -1078,7 +1083,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 if (isFilter)
                 {
-                    await LoadData();
+                    await LoadData(true);
                 }
             }
             catch (Exception ex)
@@ -1091,14 +1096,14 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         {
             _contractFilter = contract;
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private async Task KhamSucKhoeCongTyChanged(KhamSucKhoeCongTyModel? khamSucKhoeCongTy)
         {
             _khamSucKhoeCongTyFilter = khamSucKhoeCongTy;
 
-            await LoadData();
+            await LoadData(true);
         }
 
         private void OnTinhChatKinhChanged(string value)
