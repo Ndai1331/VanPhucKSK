@@ -148,7 +148,7 @@
                                   SelectedKhamSucKhoeSanPhuKhoa="KhamSucKhoeSanPhuKhoaModel"
                                   SelectedKhamSucKhoeTheLuc="KhamSucKhoeTheLucModel"
                                   SelectedKhamSucKhoeTienSu="KhamSucKhoeTienSuModel"
-                                  _logoPath="@_logoPath"
+                                  _logoPath="@LogoImage"
                                   _profileImageUrl="@_profileImageUrl" />
             }  
         }
@@ -196,7 +196,6 @@
     private bool _isShowInputCCCD = false;
     private string? _errorMessage;
     private readonly string _imagesFolder = $"/images/";
-    private string _logoPath = $"/images/Logo/logo.png";
     private string _so_dinh_danh = string.Empty;
     private bool _expired_result_page = false;
     private bool _isPublic = false;
@@ -214,7 +213,6 @@
         if (firstRender)
         {
             await LoadDataAsync();
-            _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
         }
     }
     #endregion

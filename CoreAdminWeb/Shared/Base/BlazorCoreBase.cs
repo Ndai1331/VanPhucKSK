@@ -3,6 +3,7 @@ using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.Settings;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -30,6 +31,9 @@ namespace CoreAdminWeb.Shared.Base
         [Inject]
         protected IJSRuntime JsRuntime { get; set; } = null!;
 
+        [Inject] private IFileService FileService { get; set; }
+
+
         // Cached authentication state to avoid repeated calls
         private bool? _cachedIsAuthenticated;
         private DateTime _authCacheTime = DateTime.MinValue;
@@ -47,6 +51,7 @@ namespace CoreAdminWeb.Shared.Base
         public int TotalItems { get; set; }
         public string BuilderQuery { get; set; } = "";
         public SettingModel CurrentSetting { get; set; } = new SettingModel();
+        public string LogoImage { get; set; } = "assets/images/logo_horizontal_color.png";
 
         // Cached file types string
         public string AcceptFileTypes { get; set; } = "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/pdf,application/zip, application/x-7z-compressed, application/x-rar-compressed, application/x-tar, application/x-gzip, application/x-bzip2, application/x-compressed, application/x-compressed-tar, application/x-compressed-zip, application/x-compressed-rar, application/x-compressed-7z";
@@ -93,6 +98,20 @@ namespace CoreAdminWeb.Shared.Base
             if (settingResults.IsSuccess)
             {
                 CurrentSetting = settingResults.Data ?? new SettingModel();
+                if (!string.IsNullOrEmpty(CurrentSetting.project_logo))
+                {
+                    var logoRes = await FileService.GetFileAsync(CurrentSetting.project_logo);
+                    if (logoRes.IsSuccess)
+                    {
+                        if (logoRes.Data != null)
+                        {
+                            if (!string.IsNullOrWhiteSpace(logoRes.Data.filename_disk))
+                            {
+                                LogoImage = logoRes.Data.filename_disk;
+                            }
+                        }
+                    }
+                }
                 ExpiredResultPage = settingResults.Data?.lock_result_page_after ?? 7;
             }
         }
