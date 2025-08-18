@@ -99,7 +99,7 @@
                              SelectedItem="SelectedItem"
                              SelectedUser="SelectedUser" />
 
-                <div class="flex justify-end gap-2">
+                <div class="flex gap-2">
                     <input type="checkbox" class="form-check-input" id="cbx5_showall"
                            @onchange="@OnShowAll"
                            checked="@isShowOnlyMe">
@@ -191,20 +191,24 @@
                                                     <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KHÁM CHUYÊN KHOA:</MudText>
                                                 </div>
                                             }
-                                            <KhamChuyenKhoaNoiKhoa onReadonly="onReadonly"
-                                                                   onBSTuanHoan="onBSTuanHoan"
-                                                                   onBSHoHap="onBSHoHap"
-                                                                   onBSTieuHoa="onBSTieuHoa"
-                                                                   onBSThanTietNieu="onBSThanTietNieu"
-                                                                   onBSNoiTiet="onBSNoiTiet"
-                                                                   onBSCoXuongKhop="onBSCoXuongKhop"
-                                                                   onBSThanKinh="onBSThanKinh"
-                                                                   onBSTamThan="onBSTamThan"
-                                                                   isShowOnlyMe="isShowOnlyMe"
-                                                                   SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                   PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                   SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
+                                            @if (!isShowOnlyMe || isShowOnlyMe && (onBSTuanHoan || onBSHoHap || onBSTieuHoa || onBSThanTietNieu || onBSNoiTiet || onBSCoXuongKhop || onBSThanKinh || onBSTamThan))
+                                            {
+                                                <KhamChuyenKhoaNoiKhoa onReadonly="onReadonly"
+                                                                       onBSTuanHoan="onBSTuanHoan"
+                                                                       onBSHoHap="onBSHoHap"
+                                                                       onBSTieuHoa="onBSTieuHoa"
+                                                                       onBSThanTietNieu="onBSThanTietNieu"
+                                                                       onBSNoiTiet="onBSNoiTiet"
+                                                                       onBSCoXuongKhop="onBSCoXuongKhop"
+                                                                       onBSThanKinh="onBSThanKinh"
+                                                                       onBSTamThan="onBSTamThan"
+                                                                       isShowOnlyMe="isShowOnlyMe"
+                                                                       SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                       LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                       PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                       SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
+                                            }
+                                            
                                             @if (!isShowOnlyMe || isShowOnlyMe && onBSNgoaiKhoa)
                                             {
                                                 <div class="space-y-2 md:col-span-2">
@@ -307,23 +311,25 @@
 
                             <div class="flex items-center justify-end gap-2 py-4">
                                 @if (
-                                                                !onReadonly
-                                                                || onBSHoHap
-                                                                || onBSTuanHoan
-                                                                || onBSTieuHoa
-                                                                || onBSThanTietNieu
-                                                                || onBSNoiTiet
-                                                                || onBSCoXuongKhop
-                                                                || onBSThanKinh
-                                                                || onBSTamThan
-                                                                || onBSNgoaiKhoa
-                                                                || onBSMat
-                                                                || onBSTaiMuiHong
-                                                                || onBSRangHamMat
-                                                                || onBSSanPhuKhoa
-                                                                || onBSKetLuan
-                                                                || onBS
-                                                                )
+                                    !onReadonly
+                                    && (
+                                        onBSHoHap
+                                        || onBSTuanHoan
+                                        || onBSTieuHoa
+                                        || onBSThanTietNieu
+                                        || onBSNoiTiet
+                                        || onBSCoXuongKhop
+                                        || onBSThanKinh
+                                        || onBSTamThan
+                                        || onBSNgoaiKhoa
+                                        || onBSMat
+                                        || onBSTaiMuiHong
+                                        || onBSRangHamMat
+                                        || onBSSanPhuKhoa
+                                        || onBSKetLuan
+                                        || onBS
+                                    )
+                                )
                                 {
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
                                                OnClick="OnValidSubmit">

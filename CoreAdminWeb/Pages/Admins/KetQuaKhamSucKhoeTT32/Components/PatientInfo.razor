@@ -17,26 +17,15 @@
             <div class="col-span-3 md:col-span-1">Ngày sinh: <span id="view-ngay-sinh">@SelectedUser.ngay_sinh?.ToString("dd/MM/yyyy")</span></div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-1">
-            <div class="col-span-3 md:col-span-1">Thời gian khám: <span id="view-thoi-gian-kham">@SelectedItem.MaDotKham?.ngay_du_kien_kham?.ToString("HH:mm dd/MM/yyyy")</span></div>
+            <div class="col-span-3 md:col-span-1">Thời gian khám: <span id="view-thoi-gian-kham">@SelectedItem.ngay_kham?.ToString("HH:mm dd/MM/yyyy")</span></div>
             <div class="col-span-3 md:col-span-1">Hợp đồng: <span id="view-hop-dong">@SelectedItem.MaDotKham?.ma_hop_dong_ksk?.code</span></div>
             <div class="col-span-3 md:col-span-1">Mã hồ sơ: <span id="view-ma-hoso">@SelectedItem.MaDotKham?.code</span></div>
         </div>
     </div>
     <div class="col-span-1 md:col-span-1 flex justify-center items-start -mt-5">
-        <div class="avatar-container" onclick="document.getElementById('fileInput').click()" style="position: relative;">
+        <div class="avatar-container">
             <img id="avatarPreview" src="@(!string.IsNullOrEmpty(SelectedUser.avatar) ? $"{GlobalConstant.BaseUrl}assets/{SelectedUser.avatar}" : "assets/images/avatar-1.png")" alt="Avatar Preview" class="avatar-img" />
-            <div class="upload-overlay">
-                <i class="ri-upload-line ri-font-size-3 upload-icon"></i>
-            </div>
-            <div style="position: absolute; right: 4px; bottom: 4px; z-index: 2;">
-                <i class="ri-camera-line ri-font-size-3 capture-icon" title="Chụp ảnh"></i>
-            </div>
         </div>
-        <InputFile id="fileInput"
-                   accept="image/*"
-                   OnChange="HandleFileSelectHandler"
-                   class="hidden"
-                   disabled="@(onReadonly || !onReadonly && !onBS)" />
     </div>
 </div>
 

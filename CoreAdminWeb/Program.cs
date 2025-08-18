@@ -8,7 +8,9 @@ using CoreAdminWeb.Models;
 using CoreAdminWeb.Services.Imports;
 using CoreAdminWeb.StateService;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MudBlazor.Services;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,7 +81,7 @@ builder.Services.AddHttpClient("LocalApi", client =>
 GlobalConstant.BaseUrl = builder.Configuration["DrCoreApi:BaseUrl"] ?? "https://core.hpte.vn/";
 
 
-
+builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 // Add ApplicationDbContext for DRCARE_CORE database
@@ -153,5 +155,33 @@ app.MapRazorPages();
 // Add Controllers mapping
 app.MapControllers();
 app.MapFallbackToPage("/_Host");
-app.MapHub<ImportProgressHub>("/importProgressHub");
+app.MapHub<ProgressHub>("/progressHub");
+
+app.MapGet("/downloads/{ticketId}", (
+    string ticketId,
+    IMemoryCache cache,
+    FileExtensionContentTypeProvider contentTypeProvider
+) =>
+{
+    if (!cache.TryGetValue(ticketId, out string? filePath) || !System.IO.File.Exists(filePath))
+    {
+        return Results.NotFound("Expired file download, pls collect again.");
+    }
+
+    var fileName = Path.GetFileName(filePath);
+    if (!contentTypeProvider.TryGetContentType(fileName, out var contentType))
+    {
+        contentType = "application/octet-stream";
+    }
+
+    var deletingStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.DeleteOnClose);
+
+    return Results.File(
+        deletingStream,
+        contentType: contentType,
+        fileDownloadName: fileName,
+        enableRangeProcessing: true
+    );
+});
+
 await app.RunAsync();

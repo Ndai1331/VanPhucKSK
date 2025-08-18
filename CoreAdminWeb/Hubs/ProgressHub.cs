@@ -2,7 +2,7 @@
 
 namespace CoreAdminWeb.Hubs
 {
-    public class ImportProgressHub : Hub
+    public class ProgressHub : Hub
     {
     }
 }

@@ -47,6 +47,8 @@
         public FileModel? phieu_ksk_nu { get; set; }
         public FileModel? thcn_nu { get; set; }
         public FileModel? thcn_nam { get; set; }
+
+        public string? email_prefix { get; set; }
     }
 
     public class VisualEditorUrl

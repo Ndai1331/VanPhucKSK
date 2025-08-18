@@ -1,10 +1,12 @@
-﻿using CoreAdminWeb.Enums;
+﻿using CoreAdminWeb.Commons.Validations;
+using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Hubs;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.DanhSachDoan;
 using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.RequestHttps;
+using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Users;
@@ -17,12 +19,12 @@ namespace CoreAdminWeb.Services.Imports
 {
     public class ImportSoKhamSucKhoeService
     {
-        private readonly IHubContext<ImportProgressHub> _hubContext;
+        private readonly IHubContext<ProgressHub> _hubContext;
         private readonly IBaseDetailService<SoKhamSucKhoeModel> _soKhamSucKhoeService;
         private readonly IUserService _userService;
         private readonly IBaseService<TinhModel> _tinhService;
         private readonly IBaseService<XaPhuongModel> _xaService;
-        public ImportSoKhamSucKhoeService(IHubContext<ImportProgressHub> hubContext, IServiceScopeFactory serviceScopeFactory)
+        public ImportSoKhamSucKhoeService(IHubContext<ProgressHub> hubContext, IServiceScopeFactory serviceScopeFactory)
         {
             _hubContext = hubContext;
             using (var scope = serviceScopeFactory.CreateScope())
@@ -38,7 +40,7 @@ namespace CoreAdminWeb.Services.Imports
         public async Task ImportFromExcelWithProgressAsync(byte[] fileBytes,
                                                            string connectionId,
                                                            KhamSucKhoeCongTyModel SelectedItem,
-                                                           string userRole,
+                                                           SettingModel settings,
                                                            CancellationToken cancellationToken)
         {
             try
@@ -97,13 +99,29 @@ namespace CoreAdminWeb.Services.Imports
                             await _hubContext.Clients.Client(connectionId)
                                 .SendAsync("ImportProgress", $"Đang đọc dữ liệu import {percent}%", cancellationToken);
                         }
-                        result.Add(model);
 
                         var validate = ValidateImportData(model);
+                        if (string.IsNullOrWhiteSpace(model.Email?.Trim()))
+                        {
+                            model.Email = $"{model.MaBenhNhan}{settings.email_prefix}";
+                            if (!model.Email.IsValidEmail())
+                            {
+                                model.Email = string.Empty;
+                                if (!string.IsNullOrEmpty(validate))
+                                {
+                                    validate += ", ";
+                                }
+
+                                validate += "Email";
+                            }
+                        }
                         if (!string.IsNullOrEmpty(validate))
                         {
                             errorBuilder.Append($"\nDòng {row}: Các trường {validate} bị rỗng hoặc không đúng định dạng");
                         }
+
+                        result.Add(model);
+
                     }
                 }
 
@@ -225,7 +243,7 @@ namespace CoreAdminWeb.Services.Imports
                         existingUser.ma_don_vi = SelectedItem.ma_hop_dong_ksk?.cong_ty?.id;
                         existingUser.tinh = tinhMap.TryGetValue(item.MaTinh ?? "", out var tinhId) ? tinhId : null;
                         existingUser.xa = xaMap.TryGetValue($"{item.MaXa}|{item.MaTinh}", out var xaId) ? xaId : null;
-                        existingUser.role = userRole;
+                        existingUser.role = settings.patient_role_id ?? string.Empty;
 
                         updatingUsers.Add(existingUser);
                     }
@@ -251,7 +269,7 @@ namespace CoreAdminWeb.Services.Imports
                             ma_don_vi = SelectedItem.ma_hop_dong_ksk?.cong_ty?.id,
                             tinh = tinhMap.TryGetValue(item.MaTinh ?? "", out var tinhId) ? tinhId : null,
                             xa = xaMap.TryGetValue($"{item.MaXa}|{item.MaTinh}", out var xaId) ? xaId : null,
-                            role = userRole,
+                            role = settings.patient_role_id ?? string.Empty,
                         });
                     }
 
@@ -320,7 +338,7 @@ namespace CoreAdminWeb.Services.Imports
                         sort = int.TryParse(item.SoThuTu, out var stt) ? stt : 0,
                         benh_nhan = allUsers.TryGetValue(item.MaBenhNhan, out var user) ? user : null,
                         ma_benh_nhan = item.MaBenhNhan,
-                        ngay_kham = SelectedItem.ngay_du_kien_kham,
+                        ngay_kham = SelectedItem.ngay_du_kien_kham ?? DateTime.Now,
                         ngay_lap_so = DateTime.Now,
                         ma_cong_ty = SelectedItem.ma_hop_dong_ksk?.cong_ty?.id,
                         nguoi_lap = SelectedItem.nguoi_lap_so?.full_name,
@@ -391,27 +409,7 @@ namespace CoreAdminWeb.Services.Imports
                 builder.Append("Mã lượt khám");
             }
 
-            if (string.IsNullOrEmpty(import.CCCD))
-            {
-                if (builder.Length > 0)
-                {
-                    builder.Append(", ");
-                }
-
-                builder.Append("Số định danh");
-            }
-
-            if (string.IsNullOrEmpty(import.Email))
-            {
-                if (builder.Length > 0)
-                {
-                    builder.Append(", ");
-                }
-
-                builder.Append("Email");
-            }
-
-            if (!DateTime.TryParseExact(import.NgaySinh, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+            if (!string.IsNullOrEmpty(import.NgaySinh) && !DateTime.TryParseExact(import.NgaySinh, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
             {
                 if (builder.Length > 0)
                 {

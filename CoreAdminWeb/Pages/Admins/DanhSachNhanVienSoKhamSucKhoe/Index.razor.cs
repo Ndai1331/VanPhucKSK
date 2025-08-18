@@ -1,4 +1,5 @@
 ﻿using CoreAdminWeb.Extensions;
+using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Services;
@@ -86,8 +87,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                 MainModels = result.Data ?? new List<DanhSachDoanSoKhamSucKhoeModel>();
                 if (result.Meta != null)
                 {
-                    TotalItems = result.Meta.filter_count ?? 0;
-                    TotalPages = result.Meta.page_count ?? 0;
+                    TotalItems = result.Meta.total_count ?? 0;
+                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
 
                     if (Page > TotalPages)
                     {
@@ -158,40 +159,29 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             try
             {
                 var dateStr = e.Value?.ToString();
-                if (string.IsNullOrEmpty(dateStr))
-                {
-                    switch (fieldName)
-                    {
-                        case "_fromDate":
-                            _fromDate = null;
-                            break;
+                var olderData = ReflectionHelper.GetFieldValue(this, fieldName);
 
-                        case "_toDate":
-                            _toDate = null;
-                            break;
+                DateTime? newDate = null;
+                if (!string.IsNullOrEmpty(dateStr))
+                {
+                    var parts = dateStr.Split('/');
+                    if (parts.Length == 3 &&
+                        int.TryParse(parts[0], out int day) &&
+                        int.TryParse(parts[1], out int month) &&
+                        int.TryParse(parts[2], out int year))
+                    {
+                        newDate = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
                     }
+                }
+
+                // Compare old and new value, do nothing if unchanged
+                if ((olderData == null && newDate == null) ||
+                    (olderData is DateTime oldDate && newDate.HasValue && oldDate == newDate.Value))
+                {
                     return;
                 }
 
-                var parts = dateStr.Split('/');
-                if (parts.Length == 3 &&
-                    int.TryParse(parts[0], out int day) &&
-                    int.TryParse(parts[1], out int month) &&
-                    int.TryParse(parts[2], out int year))
-                {
-                    var date = new DateTime(year, month, day);
-
-                    switch (fieldName)
-                    {
-                        case "_fromDate":
-                            _fromDate = date;
-                            break;
-
-                        case "_toDate":
-                            _toDate = date;
-                            break;
-                    }
-                }
+                ReflectionHelper.SetFieldValue(this, fieldName, newDate);
 
                 if (isFilter)
                 {

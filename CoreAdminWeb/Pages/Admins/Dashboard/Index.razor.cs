@@ -77,6 +77,13 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
 
             IsLoading = true;
 
+            if (!CurrentUser.ma_don_vi.HasValue || CurrentUser.ma_don_vi <= 0)
+            {
+                AlertService.ShowAlert($"Không tìm thấy thông tin công ty", "danger");
+                IsLoading = false;
+                return;
+            }
+
             BuilderQuery = $"Dashboard/company-medical-data?company={CurrentUser.ma_don_vi}&fromDate={_startDateFilter:yyyy-MM-dd}&toDate={_endDateFilter:yyyy-MM-dd}";
 
             var result = await MainService.GeDataAsync(BuilderQuery);
@@ -168,11 +175,10 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             try
             {
                 var dateStr = e.Value?.ToString();
-                if (string.IsNullOrEmpty(dateStr))
-                {
-                    ReflectionHelper.SetFieldValue(this, fieldName, null);
-                }
-                else
+                var olderData = ReflectionHelper.GetFieldValue(this, fieldName);
+
+                DateTime? newDate = null;
+                if (!string.IsNullOrEmpty(dateStr))
                 {
                     var parts = dateStr.Split('/');
                     if (parts.Length == 3 &&
@@ -180,11 +186,18 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                         int.TryParse(parts[1], out int month) &&
                         int.TryParse(parts[2], out int year))
                     {
-                        var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
-                        ReflectionHelper.SetFieldValue(this, fieldName, date);
+                        newDate = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
                     }
                 }
 
+                // Compare old and new value, do nothing if unchanged
+                if ((olderData == null && newDate == null) ||
+                    (olderData is DateTime oldDate && newDate.HasValue && oldDate == newDate.Value))
+                {
+                    return;
+                }
+
+                ReflectionHelper.SetFieldValue(this, fieldName, newDate);
                 await LoadData();
             }
             catch (Exception ex)
