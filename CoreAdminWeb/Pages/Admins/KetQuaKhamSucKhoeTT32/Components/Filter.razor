@@ -26,7 +26,7 @@
                    SearchMethod="LoadContractDataHandler"
                    Value="_contractFilter"
                    ValueExpression="@(() => _contractFilter)"
-                   ValueChanged="ContractFilterChanged"
+                   ValueChanged="ContractFilterChangedHandler"
                    placeholder="Chọn hơp đồng"
                    class="form-select">
     <SelectedTemplate Context="item">
@@ -47,7 +47,7 @@
                    SearchMethod="LoadKhamSucKhoeCongTyData"
                    Value="_khamSucKhoeCongTyFilter"
                    ValueExpression="@(() => _khamSucKhoeCongTyFilter)"
-                   ValueChanged="KhamSucKhoeCongTyChanged"
+                   ValueChanged="KhamSucKhoeCongTyChangedHandler"
                    placeholder="Mã hồ sơ khám"
                    class="form-select">
     <SelectedTemplate Context="item">

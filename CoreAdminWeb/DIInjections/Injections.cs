@@ -16,6 +16,7 @@ using CoreAdminWeb.Services.Http;
 using CoreAdminWeb.Services.ICaNhanSoKhamSucKhoeService;
 using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
 using CoreAdminWeb.Services.IDashboardService;
+using CoreAdminWeb.Services.Imports;
 using CoreAdminWeb.Services.KhamSucKhoe;
 using CoreAdminWeb.Services.Menus;
 using CoreAdminWeb.Services.PDFService;
@@ -75,6 +76,8 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IDashboardService<GeneralDashboardModel>, DashboardService>();
             services.AddScoped<IDashboardService<CompanySummaryReportDashboardModel>, CompanyReportDashboardService>();
             services.AddScoped(typeof(IExportExcelService<>), typeof(ExportExcelService<>));
+            services.AddScoped(typeof(ImportSoKhamSucKhoeService));
+            services.AddScoped(typeof(ExportKSKDataService));
         }
     }
 }
