@@ -20,7 +20,7 @@
     </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end mb-2">
-    <div class="col-span-1 flex items-center gap-2 pl-select">
+    <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Bệnh về mắt:</label>
         <input type="text" class="mr-2 form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSMat ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_mat" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
         <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
@@ -31,7 +31,7 @@
                  Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_mat, 1, SelectedPhanLoaiSucKhoes))"
                  OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_mat = v, 1, SelectedPhanLoaiSucKhoes))"
                  Multiselect="false"
-                 class="@(onReadonly || !onReadonly && !onBSMat ? "select2-disabled" : "")" />
+                class="@((onReadonly || !onReadonly && !onBSMat ? "select2-disabled " : "") + "select2-phan-loai")" />
     </div>
 </div>
 

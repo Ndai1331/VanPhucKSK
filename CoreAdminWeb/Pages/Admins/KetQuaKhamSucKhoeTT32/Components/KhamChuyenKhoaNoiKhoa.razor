@@ -17,7 +17,7 @@
                          Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan, 2, SelectedPhanLoaiSucKhoes))"
                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan = v, 2, SelectedPhanLoaiSucKhoes))"
                          Multiselect="false"
-                         class="@(onReadonly || !onReadonly && !onBSTuanHoan ? "select2-disabled" : "")" />
+                         class="@((onReadonly || !onReadonly && !onBSTuanHoan ? "select2-disabled " : "") + "select2-phan-loai")" />
             </div>
         }
         @if (!isShowOnlyMe || isShowOnlyMe && onBSHoHap)
@@ -33,7 +33,7 @@
                          Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap, 3, SelectedPhanLoaiSucKhoes))"
                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap = v, 3, SelectedPhanLoaiSucKhoes))"
                          Multiselect="false"
-                         class="@(onReadonly || !onReadonly && !onBSHoHap ? "select2-disabled" : "")" />
+                         class="@((onReadonly || !onReadonly && !onBSHoHap ? "select2-disabled " : "") + "select2-phan-loai")" />
             </div>
         }
         @if (!isShowOnlyMe || isShowOnlyMe && onBSTieuHoa)
@@ -49,7 +49,7 @@
                          Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa, 4, SelectedPhanLoaiSucKhoes))"
                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa = v, 4, SelectedPhanLoaiSucKhoes))"
                          Multiselect="false"
-                         class="@(onReadonly || !onReadonly && !onBSTieuHoa ? "select2-disabled" : "")" />
+                         class="@((onReadonly || !onReadonly && !onBSTieuHoa ? "select2-disabled " : "") + "select2-phan-loai")" />
             </div>
         }
         @if (!isShowOnlyMe || isShowOnlyMe && onBSThanTietNieu)
@@ -65,7 +65,7 @@
                          Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu, 5, SelectedPhanLoaiSucKhoes))"
                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu = v, 5, SelectedPhanLoaiSucKhoes))"
                          Multiselect="false"
-                         class="@(onReadonly || !onReadonly && !onBSThanTietNieu ? "select2-disabled" : "")" />
+                         class="@((onReadonly || !onReadonly && !onBSThanTietNieu ? "select2-disabled " : "") + "select2-phan-loai")" />
             </div>
         }
         @if (!isShowOnlyMe || isShowOnlyMe && onBSNoiTiet)
@@ -81,7 +81,7 @@
                          Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet, 6, SelectedPhanLoaiSucKhoes))"
                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet = v, 6, SelectedPhanLoaiSucKhoes))"
                          Multiselect="false"
-                         class="@(onReadonly || !onReadonly && !onBSNoiTiet ? "select2-disabled" : "")" />
+                         class="@((onReadonly || !onReadonly && !onBSNoiTiet ? "select2-disabled " : "") + "select2-phan-loai")" />
             </div>
         }
         @if (!isShowOnlyMe || isShowOnlyMe && onBSCoXuongKhop)
@@ -97,7 +97,7 @@
                          Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop, 7, SelectedPhanLoaiSucKhoes))"
                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop = v, 7, SelectedPhanLoaiSucKhoes))"
                          Multiselect="false"
-                         class="@(onReadonly || !onReadonly && !onBSCoXuongKhop ? "select2-disabled" : "")" />
+                         class="@((onReadonly || !onReadonly && !onBSCoXuongKhop ? "select2-disabled " : "") + "select2-phan-loai")" />
             </div>
         }
         @if (!isShowOnlyMe || isShowOnlyMe && onBSThanKinh)
@@ -113,7 +113,7 @@
                          Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh, 8, SelectedPhanLoaiSucKhoes))"
                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh = v, 8, SelectedPhanLoaiSucKhoes))"
                          Multiselect="false"
-                         class="@(onReadonly || !onReadonly && !onBSThanKinh ? "select2-disabled" : "")" />
+                         class="@((onReadonly || !onReadonly && !onBSThanKinh ? "select2-disabled " : "") + "select2-phan-loai")" />
             </div>
         }
         @if (!isShowOnlyMe || isShowOnlyMe && onBSTamThan)
@@ -129,7 +129,7 @@
                          Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than, 9, SelectedPhanLoaiSucKhoes))"
                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than = v, 9, SelectedPhanLoaiSucKhoes))"
                          Multiselect="false"
-                         class="@(onReadonly || !onReadonly && !onBSTamThan ? "select2-disabled" : "")" />
+                         class="@((onReadonly || !onReadonly && !onBSTamThan ? "select2-disabled " : "") + "select2-phan-loai")" />
             </div>
         }
     </div>

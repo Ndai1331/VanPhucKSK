@@ -391,11 +391,6 @@
     background-color: rgb(249 251 253 / var(--tw-bg-opacity));
 }
 
-.pl-select + .select2-container {
-    width: 120px !important;
-    flex: 0 0 120px !important;
+.select2-phan-loai .select2-selection--single {
+    min-width: 80px !important;
 }
-
-    .pl-select + .select2-container .select2-selection {
-        width: 100% !important;
-    }
