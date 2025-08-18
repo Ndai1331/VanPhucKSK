@@ -150,7 +150,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
         private async Task<IEnumerable<ContractTypeModel>> LoadContractTypeData(string searchText)
         {
-            return await LoadBlazorTypeaheadData(searchText, ContractTypeService);
+            var query = "&filter[_and][][status][_eq]=published";
+            return await LoadBlazorTypeaheadData(searchText, ContractTypeService, query);
         }
 
         private async Task<IEnumerable<UserModel>> LoadNhanVienData(string searchText)
@@ -584,19 +585,12 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 // Copy data from selected DinhMuc if needed
                 item.code = item.MaDinhMuc.code;
                 item.name = item.MaDinhMuc.name;
-                item.don_gia_dm = item.MaDinhMuc.DinhMuc;
-                item.don_gia_tt = item.MaDinhMuc.DonGia;
+                item.don_gia_dm = item.MaDinhMuc.DinhMuc ?? 0;
+                item.don_gia_tt = item.MaDinhMuc.DonGia ?? 0;
 
                 // Recalculate amounts if quantities and prices are set
-                if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
-                {
-                    item.thanh_tien_tt = item.so_luong * item.don_gia_tt;
-                }
-
-                if (item.so_luong.HasValue && item.don_gia_dm.HasValue)
-                {
-                    item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
-                }
+                item.thanh_tien_tt = item.so_luong.HasValue ? item.so_luong * item.don_gia_tt : 0;
+                item.thanh_tien_dm = item.so_luong.HasValue ? item.so_luong * item.don_gia_dm : 0;
             }
         }
 
@@ -626,8 +620,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                     break;
             }
 
-            item.thanh_tien_tt = null;
-            item.thanh_tien_dm = null;
+            item.thanh_tien_tt = 0;
+            item.thanh_tien_dm = 0;
 
             if (item.so_luong.HasValue && item.don_gia_tt.HasValue)
             {

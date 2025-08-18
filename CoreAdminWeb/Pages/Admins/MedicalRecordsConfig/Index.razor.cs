@@ -115,7 +115,12 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             {
                 query += $"&filter[_and][][cong_ty][_eq]={SelectedCongTy.id}";
             }
-            return await LoadBlazorTypeaheadData(searchText, HopDongService, query);
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                query += $"&filter[_and][0][_or][0][code][_contains]={Uri.EscapeDataString(searchText)}";
+                query += $"&filter[_and][0][_or][1][name][_contains]={Uri.EscapeDataString(searchText)}";
+            }
+            return await LoadBlazorTypeaheadData("", HopDongService, query);
         }
 
         private async Task<IEnumerable<UserModel>> LoadBacSiData(string searchText)
