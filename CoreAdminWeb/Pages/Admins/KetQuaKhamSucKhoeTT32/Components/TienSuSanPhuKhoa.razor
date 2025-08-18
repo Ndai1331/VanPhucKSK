@@ -12,7 +12,7 @@
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Tính chất kinh nguyệt:</MudText>
 
-        <div class="grid md:grid-cols-2 w-full items-center gap-4">
+        <div class="grid md:grid-cols-2 w-full items-center gap-4 h-full">
             @foreach (var item in EnumHelper.ToList<TinhChatKinh>())
             {
                 <div class="flex items-center gap-2">
@@ -37,7 +37,7 @@
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Đau bụng kinh:</MudText>
 
-        <div class="grid md:grid-cols-2 w-full items-center gap-4">
+        <div class="grid md:grid-cols-2 w-full items-center gap-4 h-full">
             <div class="flex items-center gap-2">
                 <input type="checkbox" class="form-check-input" id="cbx1_@YesNo.Co.ToString()"
                     @onchange="e => OnDauBungKinhChangedHandler(YesNo.Co.ToString())"
@@ -67,7 +67,7 @@
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Số lần mổ sản phụ khoa:</MudText>
 
-        <div class="grid md:grid-cols-2 w-full items-center gap-4">
+        <div class="grid md:grid-cols-2 w-full items-center gap-4 h-full">
             <div class="flex items-center gap-2">
                 <input type="checkbox" class="form-check-input" id="cbx3_@YesNo.Co.ToString()"
                     @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Co)"
@@ -76,11 +76,6 @@
                 <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
                     @YesNo.Co.GetDescription()
                 </label>
-                |
-                <div class="flex items-center">
-                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100" Style="width: 80px;">Ghi rõ:</MudText>
-                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
-                </div>
             </div>
             <div class="flex items-center gap-2">
                 <input type="checkbox" class="form-check-input" id="cbx4_@YesNo.Khong.ToString()"
@@ -91,6 +86,13 @@
                     @YesNo.Khong.GetDescription()
                 </label>
             </div>
+            @if (SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co) {
+                <div class="md:col-span-2">
+                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
+                    @* <label class="block text-sm font-normal">Ghi rõ:</label> *@
+                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" rows="2" @bind="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)"></textarea>
+                </div>
+            }
         </div>
     </div>
     <div class="flex flex-col items-start gap-2">
@@ -108,7 +110,7 @@
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Có đang áp dụng BPTT không:</MudText>
 
-        <div class="grid md:grid-cols-2 w-full items-center gap-4">
+        <div class="grid md:grid-cols-2 w-full items-center gap-4 h-full">
             <div class="flex items-center gap-2">
                 <input type="checkbox" class="form-check-input" id="cbx5_@YesNo.Co.ToString()"
                     @onchange="e => OnApDungBPPTChangedHandler(YesNo.Co.ToString())"
@@ -117,11 +119,6 @@
                 <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
                     @YesNo.Co.GetDescription()
                 </label>
-                |
-                <div class="flex items-center">
-                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100" Style="width: 80px;">Ghi rõ:</MudText>
-                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
-                </div>
             </div>
             <div class="flex items-center gap-2">
                 <input type="checkbox" class="form-check-input" id="cbx6_@YesNo.Khong.ToString()"
@@ -132,6 +129,15 @@
                     @YesNo.Khong.GetDescription()
                 </label>
             </div>
+            
+            @if (SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true) {
+                <div class="md:col-span-2">
+                    <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
+                    @* <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" /> *@
+                    @* <label class="block text-sm font-normal">Ghi rõ:</label> *@
+                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" rows="2" @bind="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)"></textarea>
+                </div>
+            }
         </div>
     </div>
 

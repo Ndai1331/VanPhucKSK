@@ -28,6 +28,19 @@ namespace CoreAdminWeb.Commons.Utils
             };
             return $"<span style=\"padding: 4px 12px;border-radius: 12px;font-size: 13px;font-weight: 600;{strStyle}\">{description}</span>";
         }
+        public static string GetTrangThai(this TrangThaiHopDong trangThai)
+        {
+            string description = trangThai.GetDescription();
+            string strClass = trangThai switch
+            {
+                TrangThaiHopDong.ChuaHieuLuc => "text-danger",
+                TrangThaiHopDong.DangThucHien => "text-warning",
+                TrangThaiHopDong.HoanThanh => "text-success",
+                TrangThaiHopDong.locked => "text-sky-500",
+                _ => ""
+            };
+            return $"<span class=\"{strClass}\">{description}</span>";
+        }
         public static string GetTrangThai(this bool? active)
         {
             if (active == null)

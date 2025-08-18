@@ -81,7 +81,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
                 if (result.Meta != null)
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
-                    TotalPages = result.Meta.page_count ?? 0;
+                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
 
                     if (Page > TotalPages)
                     {
