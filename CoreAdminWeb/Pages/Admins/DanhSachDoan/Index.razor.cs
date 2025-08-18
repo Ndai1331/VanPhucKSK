@@ -532,7 +532,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                     fileBytes,
                     connectionId ?? string.Empty,
                     SelectedItem,
-                    CurrentSetting.patient_role_id ?? string.Empty,
+                    CurrentSetting,
                     CancellationToken.None)
                 );
             }
