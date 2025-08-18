@@ -10,6 +10,8 @@ using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
@@ -46,7 +48,6 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         private CongTyModel? _selectedCongTyFilter = null;
         private UserModel? _benhNhanFilter { get; set; } = null;
         private bool openDetailModal = false;
-        // private HoSoKhamSucKhoeTT32Model SelectedItem { get; set; } = new HoSoKhamSucKhoeTT32Model();
         private SoKhamSucKhoeModel SelectedItem { get; set; } = new SoKhamSucKhoeModel();
         private UserModel SelectedUser { get; set; } = new UserModel();
         private KhamSucKhoeChuyenKhoaModel SelectedKhamSucKhoeChuyenKhoa { get; set; } = new KhamSucKhoeChuyenKhoaModel();
@@ -149,7 +150,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                 if (result.Meta != null)
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
-                    TotalPages = result.Meta.page_count ?? 0;
+                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
 
                     if (Page > TotalPages)
                     {
@@ -226,40 +227,29 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             try
             {
                 var dateStr = e.Value?.ToString();
-                if (string.IsNullOrEmpty(dateStr))
-                {
-                    switch (fieldName)
-                    {
-                        case "_fromDate":
-                            _fromDate = null;
-                            break;
+                var olderData = ReflectionHelper.GetFieldValue(this, fieldName);
 
-                        case "_toDate":
-                            _toDate = null;
-                            break;
+                DateTime? newDate = null;
+                if (!string.IsNullOrEmpty(dateStr))
+                {
+                    var parts = dateStr.Split('/');
+                    if (parts.Length == 3 &&
+                        int.TryParse(parts[0], out int day) &&
+                        int.TryParse(parts[1], out int month) &&
+                        int.TryParse(parts[2], out int year))
+                    {
+                        newDate = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
                     }
+                }
+
+                // Compare old and new value, do nothing if unchanged
+                if ((olderData == null && newDate == null) ||
+                    (olderData is DateTime oldDate && newDate.HasValue && oldDate == newDate.Value))
+                {
                     return;
                 }
 
-                var parts = dateStr.Split('/');
-                if (parts.Length == 3 &&
-                    int.TryParse(parts[0], out int day) &&
-                    int.TryParse(parts[1], out int month) &&
-                    int.TryParse(parts[2], out int year))
-                {
-                    var date = new DateTime(year, month, day);
-
-                    switch (fieldName)
-                    {
-                        case "_fromDate":
-                            _fromDate = date;
-                            break;
-
-                        case "_toDate":
-                            _toDate = date;
-                            break;
-                    }
-                }
+                ReflectionHelper.SetFieldValue(this, fieldName, newDate);
 
                 if (isFilter)
                 {
@@ -673,5 +663,4 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             }
         }
     }
-
 }

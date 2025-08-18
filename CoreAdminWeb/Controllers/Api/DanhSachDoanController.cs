@@ -86,7 +86,7 @@ public class DanhSachDoanController : ControllerBase
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
-                select sksk.ma_luot_kham, ct.code, u.id as user_id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
+                select sksk.id, sksk.ma_luot_kham, ct.code, u.id as user_id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
                 ts.ten_benh, ts.tien_su_gia_dinh,
                 tl.chieu_cao, tl.can_nang, tl.bmi, tl.mach, tl.huyet_ap,
                 ck.kq_nk_tuan_hoan, ck.kq_nk_ho_hap, ck.kq_nk_tieu_hoa, ck.kq_nk_than_tiet_nieu, ck.kq_nk_noi_tiet,
@@ -177,6 +177,7 @@ public class DanhSachDoanController : ControllerBase
                     {
                         var item = new MedicalExaminationDto
                         {
+                            id = reader["id"] as int?,
                             ma_luot_kham = reader["ma_luot_kham"]?.ToString(),
                             code = reader["code"]?.ToString(),
                             user_id = reader["user_id"]?.ToString(),

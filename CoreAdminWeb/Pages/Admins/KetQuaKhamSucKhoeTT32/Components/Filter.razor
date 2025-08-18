@@ -9,13 +9,13 @@
                class="form-input date-picker w-1/2"
                placeholder="Chọn ngày bắt đầu"
                value="@(_startDateFilter?.ToString("dd/MM/yyyy"))"
-               @onchange="@(e => OnValueChangedHandler(e, nameof(_startDateFilter)))" />
+               @onchange="@(e => OnValueChangedHandler(e, nameof(_startDateFilter), true))" />
         <span class="mx-2 flex items-center text-gray-500">-</span>
         <input type="text"
                class="form-input date-picker w-1/2"
                placeholder="Chọn ngày kết thúc"
                value="@(_endDateFilter?.ToString("dd/MM/yyyy"))"
-               @onchange="@(e => OnValueChangedHandler(e, nameof(_endDateFilter)))" />
+               @onchange="@(e => OnValueChangedHandler(e, nameof(_endDateFilter), true))" />
     </div>
 </div>
 <BlazoredTypeahead EnableDropDown="true"

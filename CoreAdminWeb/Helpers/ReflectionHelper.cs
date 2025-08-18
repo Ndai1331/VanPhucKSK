@@ -46,5 +46,26 @@ namespace CoreAdminWeb.Helpers
                 field.SetValue(target, value);
             }
         }
+        public static object? GetFieldValue<TTarget>(TTarget target, string fieldName)
+        {
+            var type = target?.GetType(); // Use null-conditional operator to prevent null dereference  
+#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields  
+            var property = type?.GetProperty(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+#pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields  
+            if (property != null)
+            {
+                return property.GetValue(target);
+            }
+
+#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields  
+            var field = type?.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+#pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields  
+            if (field != null)
+            {
+                return field.GetValue(target);
+            }
+
+            return null;
+        }
     }
 }

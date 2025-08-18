@@ -1,4 +1,8 @@
-﻿namespace CoreAdminWeb.Extensions
+﻿using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace CoreAdminWeb.Extensions
 {
     public static class StringExtension
     {
@@ -19,6 +23,30 @@
             }
 
             return (firstName, lastName);
+        }
+
+        public static string ToNormalChar(this string str, string rplStr = "")
+        {
+            if (string.IsNullOrEmpty(str))
+            {
+                return str;
+            }
+
+            string normalized = str.Normalize(NormalizationForm.FormD);
+            StringBuilder result = new StringBuilder();
+
+            foreach (char c in normalized)
+            {
+                UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (category != UnicodeCategory.NonSpacingMark)
+                {
+                    result.Append(c);
+                }
+            }
+
+            string withoutDiacritics = result.ToString().Normalize(NormalizationForm.FormC);
+
+            return Regex.Replace(withoutDiacritics, "[^a-zA-Z0-9_.]+", rplStr, RegexOptions.Compiled);
         }
     }
 }

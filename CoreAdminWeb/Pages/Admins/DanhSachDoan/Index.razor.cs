@@ -48,7 +48,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             try
             {
                 connection = new HubConnectionBuilder()
-                .WithUrl(NavManager.ToAbsoluteUri("/importProgressHub"))
+                .WithUrl(NavManager.ToAbsoluteUri("/progressHub"))
                 .Build();
 
                 connection.On<string>("ImportProgress", message =>
@@ -532,7 +532,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                     fileBytes,
                     connectionId ?? string.Empty,
                     SelectedItem,
-                    CurrentSetting.patient_role_id ?? string.Empty,
+                    CurrentSetting,
                     CancellationToken.None)
                 );
             }

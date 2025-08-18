@@ -1,6 +1,7 @@
 @page "/admin/ho-so-kham-suc-khoe-tt32"
 @using CoreAdminWeb.Commons.Helpers
 @using CoreAdminWeb.Commons.Utils
+@using CoreAdminWeb.Enums
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Model
@@ -104,12 +105,6 @@
                             <i class="ri-search-line"></i>
                             Thống kê
                         </MudButton>
-                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
-                            bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
-                            text-nowrap">
-                            <i class="ri-file-excel-2-fill"></i>
-                            Xuất excel
-                        </MudButton>
                     </div>
                 </div>
             </div>
@@ -132,7 +127,7 @@
                     <tbody>
                         @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
                         {
-                            <tr @onclick="@(async () => await OpenDetailModal(item.Data))">
+                            <tr @onclick="@(async () => await OpenDetailModal(item.Data))" class="cursor-pointer">
                                 <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                 <td>@item.Data.ma_benh_nhan</td>
                                 <td>@item.Data.last_name @item.Data.first_name</td>
