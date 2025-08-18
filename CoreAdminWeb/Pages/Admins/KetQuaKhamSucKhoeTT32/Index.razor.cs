@@ -130,21 +130,18 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         {
             if (firstRender)
             {
+                var resUser = await UserService.GetCurrentUserAsync();
+                if (resUser.IsSuccess)
+                {
+                    CurrentUser = resUser.Data;
+
+                    onBS = CurrentUser?.role?.ToLower() == CurrentSetting.doctor_role_id?.ToLower().ToString();
+                }
+
+                SetProfileImagePlaceholder();
                 await LoadData();
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
-                SetProfileImagePlaceholder();
                 StateHasChanged();
-
-                _ = Task.Run(async () =>
-                {
-                    var resUser = await UserService.GetCurrentUserAsync();
-                    if (resUser.IsSuccess)
-                    {
-                        CurrentUser = resUser.Data;
-
-                        onBS = CurrentUser?.role?.ToLower() == CurrentSetting.doctor_role_id?.ToLower().ToString();
-                    }
-                });
 
                 // Wait for modal to render
                 _ = Task.Run(async () =>
@@ -173,7 +170,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             if (isReset)
             {
                 ResetPage();
-                await Task.Delay(100);
             }
 
             BuildPaginationQuery(Page, PageSize);
@@ -215,6 +211,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     TotalItems = result.Meta.filter_count ?? 0;
                     TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+
+                    if (Page > TotalPages)
+                    {
+                        await SelectedPage(TotalPages);
+                    }
                 }
             }
             else
@@ -222,6 +223,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 MainModels = new List<SoKhamSucKhoeModel>();
             }
             IsLoading = false;
+            StateHasChanged();
         }
 
         private async Task OnRowClick(int soKhamSKId)
@@ -1102,6 +1104,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     await LoadData(true);
                 }
+                StateHasChanged();
             }
             catch (Exception ex)
             {

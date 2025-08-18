@@ -1,11 +1,15 @@
-﻿using CoreAdminWeb.Extensions;
+﻿using CoreAdminWeb.Enums;
+using CoreAdminWeb.Extensions;
+using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
+using CoreAdminWeb.Services.Imports;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
@@ -14,7 +18,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         IDanhSachDoanSoKhamSucKhoeService<DanhSachDoanSoKhamSucKhoeModel> MainService,
         IBaseService<CongTyModel> CongTyService,
         IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService,
-        IExportExcelService<dynamic> ExportExcelService
+        IExportExcelService<dynamic> ExportExcelService,
+        IConfiguration Configuration,
+        NavigationManager NavManager,
+        ExportKSKDataService ExportKSKDataService
     ) : BlazorCoreBase
     {
         [Parameter] public int? Id { get; set; }
@@ -24,9 +31,66 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private CongTyModel? _selectedCongTyFilter = null;
         private KhamSucKhoeCongTyModel? _selectedKhamSucKhoeCongTyFilter = null;
 
+        private HubConnection? connection;
+        private string? connectionId = "";
+        private string? importProcessingMessage { get; set; }
+        public bool isImportDone { get; set; }
+        public bool isErrorPopup { get; set; }
+        public bool isImportError { get; set; }
+
+        private bool IsShowExportModal { get; set; } = false;
+        private HoSoKhamSucKhoeExportType exportType { get; set; } = HoSoKhamSucKhoeExportType.CheckListKsk;
+        private List<DanhSachDoanSoKhamSucKhoeModel> selectedSoKhamSucKhoes { get; set; } = new();
+        private bool IsAllRowsSelected =>
+                    MainModels != null && MainModels.Count > 0 && selectedSoKhamSucKhoes.Count == MainModels.Count;
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
+
+            try
+            {
+                connection = new HubConnectionBuilder()
+                .WithUrl(NavManager.ToAbsoluteUri("/progressHub"))
+                .Build();
+
+                connection.On<string>("ExportExaminationProgress", message =>
+                {
+                    isImportError = false;
+                    isImportDone = false;
+                    importProcessingMessage = message;
+                    InvokeAsync(StateHasChanged);
+                });
+
+                connection.On<object>("ExportExaminationCompleted", (payload) =>
+                {
+                    isImportDone = true;
+                    if (payload is System.Text.Json.JsonElement jsonElement && jsonElement.ValueKind == System.Text.Json.JsonValueKind.Object)
+                    {
+                        importProcessingMessage = jsonElement.GetProperty("message").GetString();
+                        var url = jsonElement.GetProperty("relativeUrl").GetString();
+                        if (!string.IsNullOrWhiteSpace(url))
+                        {
+                            NavManager.NavigateTo(url, forceLoad: true);
+                        }
+                    }
+                    InvokeAsync(StateHasChanged);
+                });
+
+                connection.On<string>("ExportExaminationError", message =>
+                {
+                    isImportError = true;
+                    isImportDone = false;
+                    importProcessingMessage = message;
+                    InvokeAsync(StateHasChanged);
+                });
+
+                await connection.StartAsync();
+                connectionId = connection.ConnectionId;
+            }
+            catch
+            {
+                AlertService.ShowAlert("Lỗi khi khởi tạo socket", "danger");
+            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -85,8 +149,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 MainModels = result.Data ?? new List<DanhSachDoanSoKhamSucKhoeModel>();
                 if (result.Meta != null)
                 {
-                    TotalItems = result.Meta.filter_count ?? 0;
-                    TotalPages = result.Meta.page_count ?? 0;
+                    TotalItems = result.Meta.total_count ?? 0;
+                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
 
                     if (Page > TotalPages)
                     {
@@ -157,40 +221,29 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             try
             {
                 var dateStr = e.Value?.ToString();
-                if (string.IsNullOrEmpty(dateStr))
-                {
-                    switch (fieldName)
-                    {
-                        case "_fromDate":
-                            _fromDate = null;
-                            break;
+                var olderData = ReflectionHelper.GetFieldValue(this, fieldName);
 
-                        case "_toDate":
-                            _toDate = null;
-                            break;
+                DateTime? newDate = null;
+                if (!string.IsNullOrEmpty(dateStr))
+                {
+                    var parts = dateStr.Split('/');
+                    if (parts.Length == 3 &&
+                        int.TryParse(parts[0], out int day) &&
+                        int.TryParse(parts[1], out int month) &&
+                        int.TryParse(parts[2], out int year))
+                    {
+                        newDate = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
                     }
+                }
+
+                // Compare old and new value, do nothing if unchanged
+                if ((olderData == null && newDate == null) ||
+                    (olderData is DateTime oldDate && newDate.HasValue && oldDate == newDate.Value))
+                {
                     return;
                 }
 
-                var parts = dateStr.Split('/');
-                if (parts.Length == 3 &&
-                    int.TryParse(parts[0], out int day) &&
-                    int.TryParse(parts[1], out int month) &&
-                    int.TryParse(parts[2], out int year))
-                {
-                    var date = new DateTime(year, month, day);
-
-                    switch (fieldName)
-                    {
-                        case "_fromDate":
-                            _fromDate = date;
-                            break;
-
-                        case "_toDate":
-                            _toDate = date;
-                            break;
-                    }
-                }
+                ReflectionHelper.SetFieldValue(this, fieldName, newDate);
 
                 if (isFilter)
                 {
@@ -379,6 +432,80 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 IsLoading = false;
             }
+        }
+
+        private void ToggleRowSelection(DanhSachDoanSoKhamSucKhoeModel item, bool isSelected)
+        {
+            if (isSelected)
+            {
+                if (!selectedSoKhamSucKhoes.Any(x => x.id == item.id))
+                {
+                    selectedSoKhamSucKhoes.Add(item);
+                }
+            }
+            else
+            {
+                selectedSoKhamSucKhoes.RemoveAll(x => x.id == item.id);
+            }
+        }
+
+        private void ToggleSelectAllRows(ChangeEventArgs e)
+        {
+            var isChecked = e.Value is bool b && b;
+            if (isChecked)
+            {
+                selectedSoKhamSucKhoes = MainModels.ToList();
+            }
+            else
+            {
+                selectedSoKhamSucKhoes.Clear();
+            }
+        }
+
+        private void CloseExportModal()
+        {
+            IsShowExportModal = false;
+        }
+
+        private async Task ExportFileSubmit()
+        {
+            List<int> ids = selectedSoKhamSucKhoes.Where(c => c.id.HasValue).Select(c => c.id ?? 0).Distinct().ToList();
+            if (IsAllRowsSelected)
+            {
+                BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset=0";
+
+                if (_fromDate.HasValue)
+                {
+                    BuilderQuery += $"&fromDate={_fromDate.Value:yyyy-MM-dd}";
+                }
+                if (_toDate.HasValue)
+                {
+                    BuilderQuery += $"&toDate={_toDate.Value:yyyy-MM-dd}";
+                }
+                if (_selectedCongTyFilter != null)
+                {
+                    BuilderQuery += $"&congTy={_selectedCongTyFilter.id}";
+                }
+                if (_selectedKhamSucKhoeCongTyFilter != null)
+                {
+                    BuilderQuery += $"&maDotKham={_selectedKhamSucKhoeCongTyFilter.id}";
+                }
+
+                var result = await MainService.GetAllAsync(BuilderQuery);
+                if (result.IsSuccess)
+                {
+                    ids = (result.Data ?? new List<DanhSachDoanSoKhamSucKhoeModel>()).Where(c => c.id.HasValue).Select(c => c.id ?? 0).Distinct().ToList();
+                }
+            }
+
+            _ = Task.Run(() => ExportKSKDataService.ExportFromExaminationWithProgressAsync(
+                connectionId ?? string.Empty,
+                ids,
+                CurrentSetting,
+                exportType,
+                Configuration["DrCoreApi:BaseUrl"] ?? string.Empty,
+                CancellationToken.None)
+            );
         }
     }
 }

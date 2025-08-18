@@ -4,12 +4,13 @@ using QRCoder;
 using Spire.Doc;
 using Spire.Doc.Documents;
 using Spire.Doc.Fields;
+using static CoreAdminWeb.Services.Imports.ExportKSKDataService;
 
 namespace CoreAdminWeb.Helpers
 {
     public static class DocumentHelper
     {
-        public const string QRCodeReplaceCode = "<<QRCode>>";
+        public const string QRCodeReplaceCode = "<<MaQR>>";
 
         public static void FindAndReplaceString(ref Document document, string oldValue, string newValue)
         {
@@ -43,6 +44,68 @@ namespace CoreAdminWeb.Helpers
                 }
 
                 FindTextBoxesInBody(section.Body, oldValue, newValue);
+            }
+        }
+
+        public static void FillChiDinhKetQuaTable(ref Document doc, IEnumerable<CanLamSangItem> data)
+        {
+            var items = data.ToList();
+
+            var nameSelections = doc.FindAllString("<<TenChiDinh>>", false, true);
+            if (nameSelections.Length == 0)
+            {
+                return;
+            }
+
+            var row = nameSelections[0].GetAsOneRange().OwnerParagraph.Owner as TableRow;
+            if (row == null)
+            {
+                return;
+            }
+
+            var table = row.Owner as Table;
+
+            if (table == null)
+            {
+                return;
+            }
+
+            int insertIndex = table.Rows.IndexOf(row);
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                TableRow targetRow;
+                if (i == 0)
+                {
+                    targetRow = row;
+                }
+                else
+                {
+                    targetRow = row.Clone();
+                    table.Rows.Insert(insertIndex + i, targetRow);
+                }
+
+                foreach (TableCell cell in targetRow.Cells)
+                {
+                    foreach (Paragraph p in cell.Paragraphs)
+                    {
+                        foreach (DocumentObject obj in p.ChildObjects)
+                        {
+                            if (obj is TextRange tr)
+                            {
+                                if (tr.Text.Contains("<<TenChiDinh>>"))
+                                {
+                                    tr.Text = tr.Text.Replace("<<TenChiDinh>>", items[i].TenChiDinh);
+                                }
+
+                                if (tr.Text.Contains("<<kq_canlamsang>>"))
+                                {
+                                    tr.Text = tr.Text.Replace("<<kq_canlamsang>>", items[i].KetQua);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

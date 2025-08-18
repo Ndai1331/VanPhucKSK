@@ -5,6 +5,7 @@ namespace CoreAdminWeb.Model
     public class DanhSachDoanSoKhamSucKhoeModel
     {
         public string? user_id { get; set; }
+        public int? id { get; set; }
         public string? ma_luot_kham { get; set; }
         public string? code { get; set; }
         public string? last_name { get; set; }

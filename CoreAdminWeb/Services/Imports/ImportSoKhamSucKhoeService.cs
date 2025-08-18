@@ -19,12 +19,12 @@ namespace CoreAdminWeb.Services.Imports
 {
     public class ImportSoKhamSucKhoeService
     {
-        private readonly IHubContext<ImportProgressHub> _hubContext;
+        private readonly IHubContext<ProgressHub> _hubContext;
         private readonly IBaseDetailService<SoKhamSucKhoeModel> _soKhamSucKhoeService;
         private readonly IUserService _userService;
         private readonly IBaseService<TinhModel> _tinhService;
         private readonly IBaseService<XaPhuongModel> _xaService;
-        public ImportSoKhamSucKhoeService(IHubContext<ImportProgressHub> hubContext, IServiceScopeFactory serviceScopeFactory)
+        public ImportSoKhamSucKhoeService(IHubContext<ProgressHub> hubContext, IServiceScopeFactory serviceScopeFactory)
         {
             _hubContext = hubContext;
             using (var scope = serviceScopeFactory.CreateScope())

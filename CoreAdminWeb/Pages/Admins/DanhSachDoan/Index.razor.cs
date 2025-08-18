@@ -48,7 +48,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             try
             {
                 connection = new HubConnectionBuilder()
-                .WithUrl(NavManager.ToAbsoluteUri("/importProgressHub"))
+                .WithUrl(NavManager.ToAbsoluteUri("/progressHub"))
                 .Build();
 
                 connection.On<string>("ImportProgress", message =>
