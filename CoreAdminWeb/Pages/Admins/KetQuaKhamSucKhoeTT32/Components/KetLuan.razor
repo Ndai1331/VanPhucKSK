@@ -27,17 +27,17 @@
 </div>
 <div class="mb-2">
     <label class="block text-sm font-normal">Bệnh tật (nếu có):</label>
-    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="3" @bind="@SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)"></textarea>
+    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write")" rows="3" @bind="@SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)"></textarea>
 </div>
 <div class="mb-2">
     <label class="block text-sm font-normal">Đề nghị:</label>
-    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2" @bind="@SelectedKhamSucKhoeKetLuan.de_nghi" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)"></textarea>
+    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write")" rows="2" @bind="@SelectedKhamSucKhoeKetLuan.de_nghi" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)"></textarea>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center mb-2">
     <div>
         <label class="block text-sm font-normal">Ngày kết luận</label>
         <input type="text"
-               class="form-input @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "date-picker")"
+               class="form-input @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "date-picker read-write")"
                placeholder="Chọn ngày"
                value="@(SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd/MM/yyyy"))"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan), item: SelectedKhamSucKhoeKetLuan))"

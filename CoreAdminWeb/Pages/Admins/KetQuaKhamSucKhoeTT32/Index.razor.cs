@@ -13,6 +13,7 @@ using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
+using MudBlazor;
 
 namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 {
@@ -97,6 +98,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private bool openSyncKetQuaCanLamSangModal { get; set; } = false;
         private bool onReadonly => SelectedItem.status == Model.Base.Status.published;
 
+        private bool isShowOnlyMe { get; set; } = false;
         private bool onBS { get; set; } = false;
         private bool onBSHoHap => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ho_hap?.id == CurrentUser.id;
         private bool onBSTuanHoan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tuan_hoan?.id == CurrentUser.id;
@@ -230,7 +232,23 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 OnResetData();
 
-                activeDefTab = "tab1";
+                if (!isShowOnlyMe || isShowOnlyMe && onBS)
+                {
+                    activeDefTab = "tab1";
+                }
+                else if (!isShowOnlyMe || isShowOnlyMe && (onBS || onBSTuanHoan || onBSHoHap || onBSTieuHoa || onBSThanTietNieu || onBSNoiTiet || onBSCoXuongKhop || onBSThanKinh || onBSThanKinh || onBSTamThan || onBSNgoaiKhoa || onBSSanPhuKhoa || onBSMat || onBSTaiMuiHong || onBSRangHamMat))
+                {
+                    activeDefTab = "tab2";
+                }
+                else if (!isShowOnlyMe || isShowOnlyMe && onBSKetLuan)
+                {
+                    activeDefTab = "tab3";
+                }
+                else
+                {
+                    activeDefTab = "";
+                }
+
                 await LoadDetailData(soKhamSKId);
             }
         }
@@ -1125,6 +1143,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private void OnApDungBPPTChanged(string value)
         {
             SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt = value == YesNo.Co.ToString();
+        }
+
+        private void OnShowAll()
+        {
+            isShowOnlyMe = !isShowOnlyMe;
+            StateHasChanged();
         }
 
         private void OnParaChanged(ChangeEventArgs value, int index)

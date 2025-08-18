@@ -37,7 +37,7 @@ builder.Services.AddServerSideBlazor(options =>
 
 builder.Services.AddMudServices();
 builder.Services.AddSingleton<ModeStateService>();
-builder.Services.AddSingleton<ImportSoKhamSucKhoeService>();
+builder.Services.AddSingleton<ExportKSKDataService>();
 
 // Add Blazored.LocalStorage before other services that depend on it
 builder.Services.AddBlazoredLocalStorage();

@@ -47,7 +47,7 @@
                         OnValueChanged="OnValueChanged"
                         _maDieuTriString="@_maDieuTriString"
                         _maBenhNhanString="@_maBenhNhanString"
-                        _tenBenhNhanString="@_tenBenhNhanString"/>
+                        _tenBenhNhanString="@_tenBenhNhanString" />
 
                 <div class="space-y-2 ksk">
                     <div class="overflow-auto">
@@ -98,31 +98,50 @@
                              onReadonly="onReadonly"
                              SelectedItem="SelectedItem"
                              SelectedUser="SelectedUser" />
+
+                <div class="flex justify-end gap-2">
+                    <input type="checkbox" class="form-check-input" id="cbx5_showall"
+                           @onchange="@OnShowAll"
+                           checked="@isShowOnlyMe">
+                    <label class="form-check-label rtl\:mr-3" for="cbx5_showall">
+                        Chỉ xem các dữ liệu được phép cập nhật
+                    </label>
+                </div>
             </div>
             <div class="card space-y-2 p-0 mb-10">
                 <div class="w-full">
                     <ul class="flex flex-wrap text-sm text-center border-b border-black/10 dark:border-darkborder">
-                        <li>
-                            <MudLink Href="javascript:void(0);"
-                                     OnClick="@(() => {OnTabChanged("tab1");})"
-                                     Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab1" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
-                                Tiền sử bệnh
-                            </MudLink>
-                        </li>
-                        <li>
-                            <MudLink Href="javascript:void(0);"
-                                     OnClick="@(() => {OnTabChanged("tab2");})"
-                                     Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab2" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
-                                Khám chung
-                            </MudLink>
-                        </li>
-                        <li>
-                            <MudLink Href="javascript:void(0);"
-                                     OnClick="@(() => {OnTabChanged("tab3");})"
-                                     Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab3" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
-                                Khám CLS/Kết luận
-                            </MudLink>
-                        </li>
+                        @if (!isShowOnlyMe || isShowOnlyMe && onBS)
+                        {
+                            <li>
+                                <MudLink Href="javascript:void(0);"
+                                         OnClick="@(() => {OnTabChanged("tab1");})"
+                                         Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab1" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
+                                    Tiền sử bệnh
+                                </MudLink>
+                            </li>
+                        }
+                       
+                        @if (!isShowOnlyMe || isShowOnlyMe && (onBS || onBSTuanHoan || onBSHoHap || onBSTieuHoa || onBSThanTietNieu || onBSNoiTiet || onBSCoXuongKhop || onBSThanKinh || onBSThanKinh || onBSTamThan || onBSNgoaiKhoa || onBSSanPhuKhoa || onBSMat || onBSTaiMuiHong || onBSRangHamMat))
+                        {
+                            <li>
+                                <MudLink Href="javascript:void(0);"
+                                         OnClick="@(() => {OnTabChanged("tab2");})"
+                                         Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab2" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
+                                    Khám chung
+                                </MudLink>
+                            </li>
+                        }
+                        @if (!isShowOnlyMe || isShowOnlyMe && onBSKetLuan)
+                        {
+                            <li>
+                                <MudLink Href="javascript:void(0);"
+                                         OnClick="@(() => {OnTabChanged("tab3");})"
+                                         Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab3" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
+                                    Khám CLS/Kết luận
+                                </MudLink>
+                            </li>
+                        }
                     </ul>
                     <div class="tab-content mt-3 text-[13px] px-3">
                         <div class="overflow-auto">
@@ -157,19 +176,21 @@
                                 case "tab2":
                                     <div class="text-black dark:text-muted">
                                         <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. KHÁM THỂ LỰC</MudText>
-                                                <KhamTheLuc onReadonly="onReadonly"
-                                                            onBS="onBS"
-                                                            SelectedKhamSucKhoeTheLuc="SelectedKhamSucKhoeTheLuc"
-                                                            LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                            PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                            SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                            </div>
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KHÁM CHUYÊN KHOA:</MudText>
-                                            </div>
-
+                                            @if (!isShowOnlyMe || isShowOnlyMe && onBS)
+                                            {
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. KHÁM THỂ LỰC</MudText>
+                                                    <KhamTheLuc onReadonly="onReadonly"
+                                                                onBS="onBS"
+                                                                SelectedKhamSucKhoeTheLuc="SelectedKhamSucKhoeTheLuc"
+                                                                LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
+                                                </div>
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KHÁM CHUYÊN KHOA:</MudText>
+                                                </div>
+                                            }
                                             <KhamChuyenKhoaNoiKhoa onReadonly="onReadonly"
                                                                    onBSTuanHoan="onBSTuanHoan"
                                                                    onBSHoHap="onBSHoHap"
@@ -179,55 +200,71 @@
                                                                    onBSCoXuongKhop="onBSCoXuongKhop"
                                                                    onBSThanKinh="onBSThanKinh"
                                                                    onBSTamThan="onBSTamThan"
+                                                                   isShowOnlyMe="isShowOnlyMe"
                                                                    SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
                                                                    LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                                    PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                                    SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Ngoại khoa - Da liễu:</MudText>
-                                                <KhamChuyenKhoaNgoaiKhoaDaLieu onReadonly="onReadonly"
-                                                                               onBSNgoaiKhoa="onBSNgoaiKhoa"
-                                                                               SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                               LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                               PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                               SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                            </div>
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Sản phụ khoa:</MudText>
-                                                <KhamChuyenKhoaSanPhuKhoa onReadonly="onReadonly"
-                                                                          onBSSanPhuKhoa="onBSSanPhuKhoa"
-                                                                          SelectedKhamSucKhoeSanPhuKhoa="SelectedKhamSucKhoeSanPhuKhoa"
-                                                                          LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                          PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                          SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                            </div>
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Mắt:</MudText>
-                                                <KhamChuyenKhoaMat onReadonly="onReadonly"
-                                                                   onBSMat="onBSMat"
-                                                                   SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                   PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                   SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                            </div>
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tai - mũi - họng:</MudText>
-                                                <KhamChuyenKhoaTaiMuiHong onReadonly="onReadonly"
-                                                                          onBSTaiMuiHong="onBSTaiMuiHong"
-                                                                          SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                          LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                          PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                          SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                            </div>
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Răng - hàm - mặt:</MudText>
-                                                <KhamChuyenKhoaRangHamMat onReadonly="onReadonly"
-                                                                          onBSRangHamMat="onBSRangHamMat"
-                                                                          SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                          LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                          PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                          SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                            </div>
+                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSNgoaiKhoa)
+                                            {
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Ngoại khoa - Da liễu:</MudText>
+                                                    <KhamChuyenKhoaNgoaiKhoaDaLieu onReadonly="onReadonly"
+                                                                                   onBSNgoaiKhoa="onBSNgoaiKhoa"
+                                                                                   SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                                   PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                                   SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
+                                                </div>
+                                            }
+                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSSanPhuKhoa)
+                                            {
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Sản phụ khoa:</MudText>
+                                                    <KhamChuyenKhoaSanPhuKhoa onReadonly="onReadonly"
+                                                                              onBSSanPhuKhoa="onBSSanPhuKhoa"
+                                                                              SelectedKhamSucKhoeSanPhuKhoa="SelectedKhamSucKhoeSanPhuKhoa"
+                                                                              LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                              PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                              SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
+                                                </div>
+                                            }
+                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSMat)
+                                            {
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Mắt:</MudText>
+                                                    <KhamChuyenKhoaMat onReadonly="onReadonly"
+                                                                       onBSMat="onBSMat"
+                                                                       SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                       LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                       PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                       SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
+                                                </div>
+                                            }
+                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSTaiMuiHong)
+                                            {
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tai - mũi - họng:</MudText>
+                                                    <KhamChuyenKhoaTaiMuiHong onReadonly="onReadonly"
+                                                                              onBSTaiMuiHong="onBSTaiMuiHong"
+                                                                              SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                              LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                              PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                              SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
+                                                </div>
+                                            }
+                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSRangHamMat)
+                                            {
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Răng - hàm - mặt:</MudText>
+                                                    <KhamChuyenKhoaRangHamMat onReadonly="onReadonly"
+                                                                              onBSRangHamMat="onBSRangHamMat"
+                                                                              SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                              LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                              PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                              SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
+                                                </div>
+                                            }
                                         </div>
                                     </div>
                                     break;
@@ -253,7 +290,7 @@
                                                          PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                          SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes"
                                                          SelectedUsers="SelectedUsers"
-                                                         Users="Users"/>
+                                                         Users="Users" />
                                             </div>
                                         </div>
                                     </div>

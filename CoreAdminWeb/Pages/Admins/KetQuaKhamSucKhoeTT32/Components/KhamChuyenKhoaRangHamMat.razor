@@ -4,18 +4,18 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
     <div class="flex items-center gap-2">
         <span style="min-width:120px;">Hàm trên:</span>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSRangHamMat ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
     </div>
     <div class="flex items-center gap-2">
         <span style="min-width:120px;">Hàm dưới:</span>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSRangHamMat ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
     </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-2">
     <div class="flex items-center gap-2">
         <span style="min-width:120px;">Bệnh về RHM:</span>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_rhm" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
-         <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSRangHamMat ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_rhm" readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
+        <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
                  TextSelector="c => c != null ? c.name : String.Empty"
                  FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
                  GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"

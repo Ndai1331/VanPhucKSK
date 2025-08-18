@@ -7,7 +7,7 @@
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</MudText>
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Tính chất kinh nguyệt:</MudText>
@@ -32,7 +32,7 @@
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
             Chu kỳ kinh (Ngày):
         </MudText>
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Đau bụng kinh:</MudText>
@@ -62,7 +62,7 @@
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
             Lượng kinh (Ngày):
         </MudText>
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.luong_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.luong_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Số lần mổ sản phụ khoa:</MudText>
@@ -79,7 +79,7 @@
                 |
                 <div class="flex items-center">
                     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100" Style="width: 80px;">Ghi rõ:</MudText>
-                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
+                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -99,10 +99,10 @@
         </MudText>
 
         <div class="flex items-center gap-2">
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" value="@para1" @onchange="e => OnParaChangedHandler(e, 0)" readonly="@(onReadonly || !onReadonly && !onBS)">
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" value="@para2" @onchange="e => OnParaChangedHandler(e, 1)" readonly="@(onReadonly || !onReadonly && !onBS)">
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" value="@para3" @onchange="e => OnParaChangedHandler(e, 2)" readonly="@(onReadonly || !onReadonly && !onBS)">
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" value="@para4" @onchange="e => OnParaChangedHandler(e, 3)" readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@para1" @onchange="e => OnParaChangedHandler(e, 0)" readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@para2" @onchange="e => OnParaChangedHandler(e, 1)" readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@para3" @onchange="e => OnParaChangedHandler(e, 2)" readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@para4" @onchange="e => OnParaChangedHandler(e, 3)" readonly="@(onReadonly || !onReadonly && !onBS)">
         </div>
     </div>
     <div class="flex flex-col items-start gap-2">
@@ -120,7 +120,7 @@
                 |
                 <div class="flex items-center">
                     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100" Style="width: 80px;">Ghi rõ:</MudText>
-                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
+                    <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" />
                 </div>
             </div>
             <div class="flex items-center gap-2">
