@@ -4,25 +4,25 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end mb-2">
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Trái - Có kính:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSMat ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
     </div>
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Phải - Có kính:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSMat ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
     </div>
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Trái - không kính:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSMat ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
     </div>
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Phải - không kính:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSMat ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
     </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end mb-2">
-    <div class="col-span-1 flex items-center gap-2">
+    <div class="col-span-1 flex items-center gap-2 pl-select">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Bệnh về mắt:</label>
-        <input type="text" class="mr-2 form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_mat" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
+        <input type="text" class="mr-2 form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSMat ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_mat" readonly="@(onReadonly || !onReadonly && !onBSMat)" />
         <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
                  TextSelector="c => c != null ? c.name : String.Empty"
                  FilterFunction="LoadPhanLoaiSucKhoeDataHandler"

@@ -4,25 +4,25 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end mb-2">
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Trái - thường:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
     </div>
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Trái - thầm:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
     </div>
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Phải - thường:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
     </div>
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Phải - thầm:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
     </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end mb-2"> 
     <div class="col-span-1 flex items-center gap-2">
         <span style="min-width:120px;">Bệnh về TMH:</span>
-        <input type="text" class="mr-2 form-input border border-gray-300 rounded-md px-3 py-1 text-sm" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text" class="mr-2 form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
         <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
                  TextSelector="c => c != null ? c.name : String.Empty"
                  FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
