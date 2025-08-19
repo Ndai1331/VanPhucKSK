@@ -49,15 +49,18 @@ namespace CoreAdminWeb.Controllers.Api
                             WHERE CAST(ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
                             AND ma_don_vi = @MaDonVi
                             GROUP BY ksk.id",
-                        Action = (DbDataReader reader) =>
+                        Action = (object? obj) =>
                         {
-                            response.Data.CompanyExamination = new CompanyExaminationModel();
-                            while (reader.Read())
+                            if (obj is DbDataReader reader)
                             {
-                                response.Data.CompanyExamination.ToTalExaminations = reader["SoDotKham"] as int? ?? 0;
-                                response.Data.CompanyExamination.TotalExaminationRecords = reader["SoLuotKham"] as int? ?? 0;
-                                response.Data.CompanyExamination.TotalCost = reader["ChiPhi"] as decimal? ?? 0;
-                                response.Data.CompanyExamination.AbnormalCases = reader["CaBatThuong"] as int? ?? 0;
+                                response.Data.CompanyExamination = new CompanyExaminationModel();
+                                while (reader.Read())
+                                {
+                                    response.Data.CompanyExamination.ToTalExaminations = reader["SoDotKham"] as int? ?? 0;
+                                    response.Data.CompanyExamination.TotalExaminationRecords = reader["SoLuotKham"] as int? ?? 0;
+                                    response.Data.CompanyExamination.TotalCost = reader["ChiPhi"] as decimal? ?? 0;
+                                    response.Data.CompanyExamination.AbnormalCases = reader["CaBatThuong"] as int? ?? 0;
+                                }
                             }
                         }
                     },
@@ -83,14 +86,17 @@ namespace CoreAdminWeb.Controllers.Api
 	                            AND CAST(tmpKsk.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
                                 AND tmpKsk.ma_don_vi = @MaDonVi
                             )",
-                        Action = (DbDataReader reader) =>
+                        Action = (object? obj) =>
                         {
-                            response.Data.CompanyHealthExamination = new CompanyHealthExaminationModel();
-                            while (reader.Read())
+                            if (obj is DbDataReader reader)
                             {
-                                response.Data.CompanyHealthExamination.LastDate = reader.GetDateTime(reader.GetOrdinal("LastDate"));
-                                response.Data.CompanyHealthExamination.TotalExaminationRecords = reader["SoLuotKham"] as int?;
-                                response.Data.CompanyHealthExamination.AbnormalCases = reader["CaBatThuong"] as int?;
+                                response.Data.CompanyHealthExamination = new CompanyHealthExaminationModel();
+                                while (reader.Read())
+                                {
+                                    response.Data.CompanyHealthExamination.LastDate = reader.GetDateTime(reader.GetOrdinal("LastDate"));
+                                    response.Data.CompanyHealthExamination.TotalExaminationRecords = reader["SoLuotKham"] as int?;
+                                    response.Data.CompanyHealthExamination.AbnormalCases = reader["CaBatThuong"] as int?;
+                                }
                             }
                         }
                     },
@@ -109,17 +115,20 @@ namespace CoreAdminWeb.Controllers.Api
                             AND CAST(kskct.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
                             AND kskct.ma_don_vi = @MaDonVi
                             GROUP BY plsk.[name], kskct.ngay_du_kien_kham",
-                        Action = (DbDataReader reader) =>
+                        Action = (object? obj) =>
                         {
-                            response.Data.HealthClassifications = [];
-                            while (reader.Read())
+                            if (obj is DbDataReader reader)
                             {
-                                response.Data.HealthClassifications.Add(new HealthClassificationModel
+                                response.Data.HealthClassifications = [];
+                                while (reader.Read())
                                 {
-                                    Name = reader["Name"] as string ?? string.Empty,
-                                    Count = reader["Count"] as int? ?? 0,
-                                    Date = reader.GetDateTime(reader.GetOrdinal("Date"))
-                                });
+                                    response.Data.HealthClassifications.Add(new HealthClassificationModel
+                                    {
+                                        Name = reader["Name"] as string ?? string.Empty,
+                                        Count = reader["Count"] as int? ?? 0,
+                                        Date = reader.GetDateTime(reader.GetOrdinal("Date"))
+                                    });
+                                }
                             }
                         }
                     },
@@ -137,16 +146,19 @@ namespace CoreAdminWeb.Controllers.Api
                             AND kskct.ma_don_vi = @MaDonVi
                             GROUP BY kskkt.benh_tat_ket_luan
                             ORDER BY COUNT(1) DESC",
-                        Action = (DbDataReader reader) =>
+                        Action = (object? obj) =>
                         {
-                            response.Data.CommonDiseases = [];
-                            while (reader.Read())
+                            if (obj is DbDataReader reader)
                             {
-                                response.Data.CommonDiseases.Add(new CommonDiseaseModel
+                                response.Data.CommonDiseases = [];
+                                while (reader.Read())
                                 {
-                                    Name = reader["BenhTat"] as string ?? string.Empty,
-                                    Count = reader["Count"] as int? ?? 0
-                                });
+                                    response.Data.CommonDiseases.Add(new CommonDiseaseModel
+                                    {
+                                        Name = reader["BenhTat"] as string ?? string.Empty,
+                                        Count = reader["Count"] as int? ?? 0
+                                    });
+                                }
                             }
                         }
                     }
@@ -215,18 +227,21 @@ namespace CoreAdminWeb.Controllers.Api
                             AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             GROUP BY kskct.id, ct.id
                         ",
-                        Action = (DbDataReader reader) =>
+                        Action = (object? obj) =>
                         {
-                            response.Data.Summary = new CompanySummaryReportDashboardSummaryModel();
-                            while (reader.Read())
+                            if (obj is DbDataReader reader)
                             {
-                                response.Data.Summary.Count = reader["Count"] as int? ?? 0;
-                                response.Data.Summary.DoneCount = reader["DoneCount"] as int? ?? 0;
-                                response.Data.Summary.ProcessingCount = reader["ProcessingCount"] as int? ?? 0;
-                                response.Data.Summary.PatientDoneCount = reader["PatientDoneCount"] as int? ?? 0;
-                                response.Data.Summary.PatientProcessingCount = reader["PatientProcessingCount"] as int? ?? 0;
-                                response.Data.Summary.ChiPhiDuKien = reader["ChiPhiDuKien"] as decimal? ?? 0;
-                                response.Data.Summary.ChiPhiThucTe = reader["ChiPhiThucTe"] as decimal? ?? 0;
+                                response.Data.Summary = new CompanySummaryReportDashboardSummaryModel();
+                                while (reader.Read())
+                                {
+                                    response.Data.Summary.Count = reader["Count"] as int? ?? 0;
+                                    response.Data.Summary.DoneCount = reader["DoneCount"] as int? ?? 0;
+                                    response.Data.Summary.ProcessingCount = reader["ProcessingCount"] as int? ?? 0;
+                                    response.Data.Summary.PatientDoneCount = reader["PatientDoneCount"] as int? ?? 0;
+                                    response.Data.Summary.PatientProcessingCount = reader["PatientProcessingCount"] as int? ?? 0;
+                                    response.Data.Summary.ChiPhiDuKien = reader["ChiPhiDuKien"] as decimal? ?? 0;
+                                    response.Data.Summary.ChiPhiThucTe = reader["ChiPhiThucTe"] as decimal? ?? 0;
+                                }
                             }
                         }
                     },
@@ -243,13 +258,16 @@ namespace CoreAdminWeb.Controllers.Api
                             AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             GROUP BY kskct.id, ct.id
                         ",
-                        Action = (DbDataReader reader) =>
+                        Action = (object? obj) =>
                         {
-                            response.Data.Feature = new CompanySummaryReportDashboardSummaryFeatureModel();
-                            while (reader.Read())
+                            if (obj is DbDataReader reader)
                             {
-                                response.Data.Feature.Count = reader["Count"] as int? ?? 0;
-                                response.Data.Feature.PatientCount = reader["PatientCount"] as int? ?? 0;
+                                response.Data.Feature = new CompanySummaryReportDashboardSummaryFeatureModel();
+                                while (reader.Read())
+                                {
+                                    response.Data.Feature.Count = reader["Count"] as int? ?? 0;
+                                    response.Data.Feature.PatientCount = reader["PatientCount"] as int? ?? 0;
+                                }
                             }
                         }
                     },
@@ -270,19 +288,22 @@ namespace CoreAdminWeb.Controllers.Api
                             AND EXISTS(SELECT Id FROM kham_suc_khoe_cong_ty kskct WHERE kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             GROUP BY ct.code, dmdm.[name], ct.[gia_tri_hop_dong]
                         ",
-                        Action = (DbDataReader reader) =>
+                        Action = (object? obj) =>
                         {
-                            response.Data.Revenues = [];
-                            while (reader.Read())
+                            if (obj is DbDataReader reader)
                             {
-                                response.Data.Revenues.Add(new CompanySummaryReportDashboardRevenueModel
+                                response.Data.Revenues = [];
+                                while (reader.Read())
                                 {
-                                    MaHopDong = reader["MaHopDong"] as string ?? "",
-                                    DinhMuc = reader["DinhMuc"] as string ?? "",
-                                    GiaTriHopDong = reader["GiaTriHopDong"] as decimal? ?? 0,
-                                    ChiPhiThucTe = reader["ChiPhiThucTe"] as decimal? ?? 0,
-                                    ChiPhiDuKien = reader["ChiPhiDuKien"] as decimal? ?? 0
-                                });
+                                    response.Data.Revenues.Add(new CompanySummaryReportDashboardRevenueModel
+                                    {
+                                        MaHopDong = reader["MaHopDong"] as string ?? "",
+                                        DinhMuc = reader["DinhMuc"] as string ?? "",
+                                        GiaTriHopDong = reader["GiaTriHopDong"] as decimal? ?? 0,
+                                        ChiPhiThucTe = reader["ChiPhiThucTe"] as decimal? ?? 0,
+                                        ChiPhiDuKien = reader["ChiPhiDuKien"] as decimal? ?? 0
+                                    });
+                                }
                             }
                         }
                     },
@@ -302,17 +323,20 @@ namespace CoreAdminWeb.Controllers.Api
                             AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             GROUP BY comp.[name], sksk.ngay_kham
                         ",
-                        Action = (DbDataReader reader) =>
+                        Action = (object? obj) =>
                         {
-                            response.Data.NoteSummaries = [];
-                            while (reader.Read())
+                            if (obj is DbDataReader reader)
                             {
-                                response.Data.NoteSummaries.Add(new CompanySummaryReportDashboardNoteSummaryModel
+                                response.Data.NoteSummaries = [];
+                                while (reader.Read())
                                 {
-                                    MaDonVi = reader["MaDonVi"] as string ?? string.Empty,
-                                    NgayKham = reader["NgayKham"] as DateTime?,
-                                    Count = reader["Count"] as int? ?? 0
-                                });
+                                    response.Data.NoteSummaries.Add(new CompanySummaryReportDashboardNoteSummaryModel
+                                    {
+                                        MaDonVi = reader["MaDonVi"] as string ?? string.Empty,
+                                        NgayKham = reader["NgayKham"] as DateTime?,
+                                        Count = reader["Count"] as int? ?? 0
+                                    });
+                                }
                             }
                         }
                     }
