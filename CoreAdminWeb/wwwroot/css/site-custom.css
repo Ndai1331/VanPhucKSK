@@ -394,3 +394,13 @@
 .select2-phan-loai .select2-selection--single {
     min-width: 80px !important;
 }
+
+.col-end {
+    grid-column-end: -1;
+}
+
+@media (min-width: 420px) {
+    .sm\:flex-row {
+        flex-direction: row;
+    }
+}

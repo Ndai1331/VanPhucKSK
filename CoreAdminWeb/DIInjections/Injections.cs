@@ -2,6 +2,7 @@ using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.Dashboard.General;
 using CoreAdminWeb.Model.KhamSucKhoes;
+using CoreAdminWeb.Model.Reports;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
@@ -21,6 +22,7 @@ using CoreAdminWeb.Services.KhamSucKhoe;
 using CoreAdminWeb.Services.Menus;
 using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Posts;
+using CoreAdminWeb.Services.Reports;
 using CoreAdminWeb.Services.Settings;
 using CoreAdminWeb.Services.Users;
 
@@ -75,6 +77,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<ICaNhanSoKhamSucKhoeService<HoSoKhamSucKhoeTT32Model>, CaNhanSoKhamSucKhoeService>();
             services.AddScoped<IDashboardService<GeneralDashboardModel>, DashboardService>();
             services.AddScoped<IDashboardService<CompanySummaryReportDashboardModel>, CompanyReportDashboardService>();
+            services.AddScoped<IReportService<ReportBaoCaoTheoDoiDonGiaTheoHopDongModel>, ReportBaoCaoTheoDoiDonGiaTheoHopDongService>();
             services.AddScoped(typeof(IExportExcelService<>), typeof(ExportExcelService<>));
             services.AddScoped(typeof(ImportSoKhamSucKhoeService));
             services.AddScoped(typeof(ExportKSKDataService));
