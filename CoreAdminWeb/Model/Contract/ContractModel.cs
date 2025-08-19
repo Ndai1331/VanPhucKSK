@@ -1,6 +1,7 @@
 using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Model.Base;
+using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.User;
 
 namespace CoreAdminWeb.Model.Contract
@@ -29,6 +30,7 @@ namespace CoreAdminWeb.Model.Contract
         public FileModel? file_hd { get; set; }
         public UserModel? nhan_vien_id { get; set; }
         public List<ContractDinhMucModel>? chi_tiet { get; set; }
+        public List<KhamSucKhoeCongTyModel>? cau_hinh_ho_so_ksk { get; set; }
         public new TrangThaiHopDong status { get; set; } = TrangThaiHopDong.ChuaHieuLuc;
     }
     public class ContractCRUDModel

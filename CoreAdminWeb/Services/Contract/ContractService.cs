@@ -19,7 +19,8 @@ namespace CoreAdminWeb.Services.Contract
             + ",contract_type.id,contract_type.code,contract_type.name"
             + ",nhan_vien_id.id,nhan_vien_id.first_name,nhan_vien_id.last_name"
             + ",file_hd.id,file_hd.filename_disk,file_hd.filename_download"
-            + ",chi_tiet.id,chi_tiet.thanh_tien_tt,chi_tiet.thanh_tien_dm,chi_tiet.chi_phi_thuc_te";
+            + ",chi_tiet.id,chi_tiet.thanh_tien_tt,chi_tiet.thanh_tien_dm,chi_tiet.chi_phi_thuc_te"
+            + ",cau_hinh_ho_so_ksk.id,cau_hinh_ho_so_ksk.ngay_du_kien_kham,cau_hinh_ho_so_ksk.ngay_ket_thuc";
         private readonly IHttpClientService _httpClientService;
         private readonly IOptions<DrCoreApi> _appSettings;
 

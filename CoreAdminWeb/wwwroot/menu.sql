@@ -55,3 +55,6 @@ VALUES(N'published', 18, N'92ACC284-BA78-4361-86A2-E839BB87BEA5', '2025-08-12 ',
 INSERT INTO DRCARE_VANPHUC.dbo.Menu
 (status, sort, user_created, date_created, user_updated, date_updated, parent_id, code, name, icon, url)
 VALUES(N'published', 19, N'92ACC284-BA78-4361-86A2-E839BB87BEA5', '2025-08-12 ', NULL, NULL, 11, N'KSKNV_TT32', N'Kết quả khám sức khỏe - TT32', N'clinical-note', N'/admin/ket-qua-kham-suc-khoe-tt32');
+INSERT INTO DRCARE_VANPHUC.dbo.Menu
+(status, sort, user_created, date_created, user_updated, date_updated, parent_id, code, name, icon, url)
+VALUES(N'published', 20, N'92ACC284-BA78-4361-86A2-E839BB87BEA5', '2025-08-12 ', NULL, NULL, 9, N'QLDK_BCTGTHHD', N'Báo cáo thời gian thực hiện hợp đồng', N'area-chart', N'/admin/bao-cao-thoi-gian-thu-hien-hop-dong');
