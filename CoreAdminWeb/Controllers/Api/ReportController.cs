@@ -39,7 +39,6 @@ namespace CoreAdminWeb.Controllers.Api
                     whereClause += $" AND ct.ngay_hop_dong <= '{toDate:yyyy-MM-dd}'";
                 }
 
-
                 var queries = new DashboardQuery[]
                 {
                     new DashboardQuery
