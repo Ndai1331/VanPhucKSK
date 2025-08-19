@@ -31,12 +31,12 @@ namespace CoreAdminWeb.Controllers.Api
 
                 if (fromDate.HasValue)
                 {
-                    whereClause += $"AND ct.ngay_hop_dong >= {fromDate:yyyy-MM-dd}";
+                    whereClause += $" AND ct.ngay_hop_dong >= '{fromDate:yyyy-MM-dd}'";
                 }
 
                 if (toDate.HasValue)
                 {
-                    whereClause += $"AND ct.ngay_hop_dong <= {toDate:yyyy-MM-dd}";
+                    whereClause += $" AND ct.ngay_hop_dong <= '{toDate:yyyy-MM-dd}'";
                 }
 
 
