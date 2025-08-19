@@ -44,6 +44,7 @@ namespace CoreAdminWeb.Services
                 description = model.description,
                 sort = model.sort,
                 active = model.active,
+                la_dich_vu_ky_thuat = model.la_dich_vu_ky_thuat,
                 status = model.status.ToString()
             };
         }

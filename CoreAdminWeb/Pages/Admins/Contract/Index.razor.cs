@@ -55,6 +55,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         // Debouncing for filter function
         private readonly object _cacheLock = new();
 
+        private int soHopDongDaKy = 0;
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -144,7 +146,12 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
         {
             var query = "&filter[_and][][status][_eq]=published";
-            return await LoadBlazorTypeaheadData(searchText, CongTyService, query);
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                query += $"&filter[_and][0][_or][0][code][_contains]={Uri.EscapeDataString(searchText)}";
+                query += $"&filter[_and][0][_or][1][name][_contains]={Uri.EscapeDataString(searchText)}";
+            }
+            return await LoadBlazorTypeaheadData("", CongTyService, query);
         }
 
 
@@ -323,6 +330,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         {
             _titleAddOrUpdate = item != null ? "Sửa" : "Thêm mới";
             SelectedItem = item != null ? item.DeepClone() : new ContractModel();
+            soHopDongDaKy = 0;
 
             SelectedItemsDetail = new List<ContractDinhMucModel>();
             activeDefTab = "tab1";
@@ -331,6 +339,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             if (SelectedItem.id > 0)
             {
                 await LoadDetailData();
+                soHopDongDaKy = MainModels.Where(x => x.cong_ty?.id == SelectedItem.cong_ty?.id).Count();
             }
 
             if (!SelectedItemsDetail.Any())
@@ -495,6 +504,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private void OnCongTyChanged(CongTyModel? selected)
         {
             SelectedItem.cong_ty = selected;
+            soHopDongDaKy = selected != null ? MainModels.Where(x => x.cong_ty?.id == selected.id).Count() : 0;
         }
 
         private void OnContractTypeChanged(ContractTypeModel? selected)
@@ -520,11 +530,17 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                             SelectedItem.ngay_hop_dong = null;
                             break;
 
-                        case "ngay_hieu_luc":
-                            SelectedItem.ngay_hieu_luc = null;
-                            break;
+                        // case "ngay_hieu_luc":
+                        //     SelectedItem.ngay_hieu_luc = null;
+                        //     break;
                         case "ngay_het_han":
                             SelectedItem.ngay_het_han = null;
+                            break;
+                        case "ngay_nghiem_thu_hd":
+                            SelectedItem.ngay_nghiem_thu_hd = null;
+                            break;
+                        case "ngay_thanh_toan":
+                            SelectedItem.ngay_thanh_toan = null;
                             break;
                     }
                     return;
@@ -544,11 +560,17 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                             SelectedItem.ngay_hop_dong = date;
                             break;
 
-                        case "ngay_hieu_luc":
-                            SelectedItem.ngay_hieu_luc = date;
-                            break;
+                        // case "ngay_hieu_luc":
+                        //     SelectedItem.ngay_hieu_luc = date;
+                        //     break;
                         case "ngay_het_han":
                             SelectedItem.ngay_het_han = date;
+                            break;
+                        case "ngay_nghiem_thu_hd":
+                            SelectedItem.ngay_nghiem_thu_hd = date;
+                            break;
+                        case "ngay_thanh_toan":
+                            SelectedItem.ngay_thanh_toan = date;
                             break;
                     }
                 }
@@ -591,6 +613,13 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 // Recalculate amounts if quantities and prices are set
                 item.thanh_tien_tt = item.so_luong.HasValue ? item.so_luong * item.don_gia_tt : 0;
                 item.thanh_tien_dm = item.so_luong.HasValue ? item.so_luong * item.don_gia_dm : 0;
+
+                if (item.MaDinhMuc.loai_dinh_muc?.la_dich_vu_ky_thuat == true)
+                {
+                    item.chi_phi_thuc_te = item.thanh_tien_dm;
+                } else {
+                    item.chi_phi_thuc_te = 0;
+                }
             }
         }
 

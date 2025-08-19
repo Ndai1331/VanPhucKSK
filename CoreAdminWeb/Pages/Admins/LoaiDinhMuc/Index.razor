@@ -172,6 +172,22 @@
                                     <label>Tên loại định mức</label>
                                     <input type="text" class="form-input" @bind-value="@SelectedItem.name" Label="Nhập tên loại định mức" />
                                 </div>
+
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                    <div class="flex items-center gap-2 my-2">
+                                        <input type="checkbox" class="form-check-input"
+                                            checked="@(SelectedItem.la_dich_vu_ky_thuat)" @bind-value="@SelectedItem.la_dich_vu_ky_thuat">
+                                        <label class="block text-sm font-normal" for="cbx_bat_thuong">
+                                            Dịch vụ kỹ thuật
+                                        </label>
+                                    </div>
+                                </div>
+                                @* <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
+                                    <label>Dịch vụ kỹ thuật</label>
+                                    <input type="checkbox" class="form-checkbox outborder-purple"
+                                           checked="@(SelectedItem.la_dich_vu_ky_thuat)" @bind-value="@SelectedItem.la_dich_vu_ky_thuat" />
+                                </div> *@
+                                
                                 <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
                                     <label>Ghi chú</label>
                                     <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" placeholder="Nhập ghi chú"></textarea>

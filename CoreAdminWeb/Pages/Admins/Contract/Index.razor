@@ -81,11 +81,12 @@
                         <tr>
                             <th>STT</th>
                             <th>Ngày ký</th>
+                            <th>Ngày hết hạn</th>
                             <th>Mã hợp đồng</th>
                             <th>Công ty</th>
                             <th>Loại hợp đồng</th>
-                            <th>Ngày hiệu lực</th>
-                            <th>Ngày hết hạn</th>
+                            <th>Ngày nghiệm thu HĐ</th>
+                            <th>Ngày thanh toán</th>
                             <th>Trạng thái</th>
                             <th class="flex items-center gap-2">Thao tác</th>
                         </tr>
@@ -96,11 +97,12 @@
                             <tr>
                                 <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                 <td>@item.Data.ngay_hop_dong?.ToString("dd/MM/yyyy")</td>
-                                <td>@item.Data.code</td>
-                                <td style="white-space: pre-wrap;">@item.Data.cong_ty?.name</td>
-                                <td>@item.Data.contract_type?.name</td>
-                                <td>@item.Data.ngay_hieu_luc?.ToString("dd/MM/yyyy")</td>
                                 <td>@item.Data.ngay_het_han?.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Data.code</td>
+                                <td style="white-space: pre-wrap; min-width: 250px;">@item.Data.cong_ty?.name</td>
+                                <td>@item.Data.contract_type?.name</td>
+                                <td>@item.Data.ngay_nghiem_thu_hd?.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Data.ngay_thanh_toan?.ToString("dd/MM/yyyy")</td>
                                 <td>@((MarkupString)item.Data.status.GetTrangThai())</td>
                                 <td class="flex items-center gap-2">
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
@@ -189,18 +191,10 @@
                                 {
                                     case "tab1":
                                         <div class="text-black dark:text-muted">
-                                            <div class="grid grid-cols-1 gap-4 md:grid-cols-3 mb-4">
+                                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
                                                 <div class="space-y-2 md:col-span-1">
                                                     <label>Mã hợp đồng:</label>
                                                     <input type="text" class="form-input" @bind-value="@SelectedItem.code" Label="Mã hợp đồng" />
-                                                </div>
-                                                <div class="space-y-2 md:col-span-1">
-                                                    <label>Ngày ký HĐ:</label>
-                                                    <input type="text"
-                                                           class="form-input date-picker"
-                                                           placeholder="Chọn ngày ký"
-                                                           value="@(SelectedItem.ngay_hop_dong?.ToString("dd/MM/yyyy"))"
-                                                           @onchange="@(e => OnDateChanged(e, "ngay_hop_dong"))" required />
                                                 </div>
                                                 <div class="space-y-2 md:col-span-1">
                                                     <label>Loại hợp đồng:</label>
@@ -226,13 +220,25 @@
                                                         </NotFoundTemplate>
                                                     </BlazoredTypeahead>
                                                 </div>
-                                            </div>
-                                            <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
-                                                <div class="space-y-2 md:col-span-2">
-                                                    <label>Tên hợp đồng:</label>
-                                                    <input type="text" class="form-input" @bind-value="@SelectedItem.name" Label="Tên hợp đồng" />
+                                                <div class="space-y-2 md:col-span-1">
+                                                    <label>Ngày ký HĐ:</label>
+                                                    <input type="text"
+                                                           class="form-input date-picker"
+                                                           placeholder="Chọn ngày ký"
+                                                           value="@(SelectedItem.ngay_hop_dong?.ToString("dd/MM/yyyy"))"
+                                                           @onchange="@(e => OnDateChanged(e, "ngay_hop_dong"))" required />
                                                 </div>
-                                                <div class="space-y-2 md:col-span-2">
+                                                <div class="space-y-2 md:col-span-1">
+                                                    <label>Ngày hết hạn:</label>
+                                                    <input type="text"
+                                                           class="form-input date-picker"
+                                                           placeholder="Chọn ngày hết hạn"
+                                                           value="@(SelectedItem.ngay_het_han?.ToString("dd/MM/yyyy"))"
+                                                           @onchange="@(e => OnDateChanged(e, "ngay_het_han"))" required />
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-1 gap-4 md:grid-cols-4 mb-4">
+                                                <div class="space-y-2 md:col-span-3">
                                                     <label>Công ty:</label>
                                                     <BlazoredTypeahead EnableDropDown="true"
                                                                        ShowDropDownOnFocus="true"
@@ -246,10 +252,10 @@
                                                                        placeholder="Chọn công ty"
                                                                        Class="form-select">
                                                         <SelectedTemplate Context="item">
-                                                            @item.name
+                                                            @item.code - @item.name
                                                         </SelectedTemplate>
                                                         <ResultTemplate Context="item">
-                                                            @item.name
+                                                            @item.code - @item.name
                                                         </ResultTemplate>
                                                         <NotFoundTemplate Context="item">
                                                             Không tìm thấy dữ liệu
@@ -257,20 +263,14 @@
                                                     </BlazoredTypeahead>
                                                 </div>
                                                 <div class="space-y-2 md:col-span-1">
-                                                    <label>Ngày hiệu lực:</label>
-                                                    <input type="text"
-                                                           class="form-input date-picker"
-                                                           placeholder="Chọn ngày hiệu lực"
-                                                           value="@(SelectedItem.ngay_hieu_luc?.ToString("dd/MM/yyyy"))"
-                                                           @onchange="@(e => OnDateChanged(e, "ngay_hieu_luc"))" required />
+                                                    <label>Số HĐ đã ký:</label>
+                                                    <input type="text" class="form-input" value="@soHopDongDaKy" Label="Số HĐ đã ký " readonly />
                                                 </div>
-                                                <div class="space-y-2 md:col-span-1">
-                                                    <label>Ngày hết hạn:</label>
-                                                    <input type="text"
-                                                           class="form-input date-picker"
-                                                           placeholder="Chọn ngày hết hạn"
-                                                           value="@(SelectedItem.ngay_het_han?.ToString("dd/MM/yyyy"))"
-                                                           @onchange="@(e => OnDateChanged(e, "ngay_het_han"))" required />
+                                            </div>
+                                            <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <label>Tên hợp đồng:</label>
+                                                    <input type="text" class="form-input" @bind-value="@SelectedItem.name" Label="Tên hợp đồng" />
                                                 </div>
                                                 <div class="space-y-2 md:col-span-1">
                                                     <label>Giá trị hợp đồng (VNĐ):</label>
@@ -333,6 +333,22 @@
                                                 <div class="space-y-2 md:col-span-2">
                                                     <label>Ghi chú</label>
                                                     <textarea rows="2" class="form-input form-textarea" @bind="@SelectedItem.description" placeholder="Nhập ghi chú"></textarea>
+                                                </div>
+                                                <div class="space-y-2 md:col-span-1">
+                                                    <label>Ngày nghiệm thu HĐ:</label>
+                                                    <input type="text"
+                                                           class="form-input date-picker"
+                                                           placeholder="Chọn ngày nghiệm thu HĐ"
+                                                           value="@(SelectedItem.ngay_nghiem_thu_hd?.ToString("dd/MM/yyyy"))"
+                                                           @onchange="@(e => OnDateChanged(e, "ngay_nghiem_thu_hd"))" required />
+                                                </div>
+                                                <div class="space-y-2 md:col-span-1">
+                                                    <label>Ngày thanh toán:</label>
+                                                    <input type="text"
+                                                           class="form-input date-picker"
+                                                           placeholder="Chọn thanh toán"
+                                                           value="@(SelectedItem.ngay_thanh_toan?.ToString("dd/MM/yyyy"))"
+                                                           @onchange="@(e => OnDateChanged(e, "ngay_thanh_toan"))" required />
                                                 </div>
                                                 <div class="space-y-2 md:col-span-1">
                                                     <label>Trạng thái</label>

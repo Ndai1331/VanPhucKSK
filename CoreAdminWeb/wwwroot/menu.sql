@@ -39,7 +39,7 @@ INSERT INTO DRCARE_VANPHUC.dbo.Menu
 VALUES(N'published', 13, N'92ACC284-BA78-4361-86A2-E839BB87BEA5', '2025-08-12 ', NULL, NULL, 9, N'QLDK_Db', N'Dashboard tổng quan', N'analytics', N'/admin/dashboard-tong-quan');
 INSERT INTO DRCARE_VANPHUC.dbo.Menu
 (status, sort, user_created, date_created, user_updated, date_updated, parent_id, code, name, icon, url)
-VALUES(N'published', 14, N'92ACC284-BA78-4361-86A2-E839BB87BEA5', '2025-08-12 ', NULL, NULL, 9, N'QLDK_BCCP', N'Báo cáo chi phí KSK', N'area-chart', N'/admin/bao-cao-chi-phi-ksk');
+VALUES(N'published', 14, N'92ACC284-BA78-4361-86A2-E839BB87BEA5', '2025-08-12 ', NULL, NULL, 9, N'QLDK_BCCP', N'Báo cáo thu chi KSK', N'area-chart', N'/admin/bao-cao-chi-phi-ksk');
 INSERT INTO DRCARE_VANPHUC.dbo.Menu
 (status, sort, user_created, date_created, user_updated, date_updated, parent_id, code, name, icon, url)
 VALUES(N'published', 15, N'92ACC284-BA78-4361-86A2-E839BB87BEA5', '2025-08-12 ', NULL, NULL, 9, N'QLDK_BCTD', N'Báo cáo tổng đoàn', N'area-chart', N'/admin/bao-cao-tong-doan');

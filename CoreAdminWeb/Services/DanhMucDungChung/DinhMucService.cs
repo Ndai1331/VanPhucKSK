@@ -12,7 +12,7 @@ namespace CoreAdminWeb.Services
     public class DinhMucService : IBaseService<DinhMucModel>
     {
         private readonly string _collection = "danh_muc_dinh_muc";
-        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,loai_dinh_muc.name,loai_dinh_muc.code,loai_dinh_muc.id";
+        private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name,loai_dinh_muc.name,loai_dinh_muc.code,loai_dinh_muc.id,loai_dinh_muc.la_dich_vu_ky_thuat";
         private readonly IHttpClientService _httpClientService;
 
         public DinhMucService(IHttpClientService httpClientService)

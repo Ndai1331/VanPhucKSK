@@ -10,8 +10,10 @@ namespace CoreAdminWeb.Model.Contract
         public CongTyModel? cong_ty { get; set; }
         public ContractTypeModel? contract_type { get; set; }
         public DateTime? ngay_hop_dong { get; set; }
-        public DateTime? ngay_hieu_luc { get; set; }
+        // public DateTime? ngay_hieu_luc { get; set; }
         public DateTime? ngay_het_han { get; set; }
+        public DateTime? ngay_nghiem_thu_hd { get; set; }
+        public DateTime? ngay_thanh_toan { get; set; }
         public decimal? gia_tri_hop_dong { get; set; }
         public decimal? gia_tri_quyet_toan { get; set; }
         public decimal? so_tien_tam_ung { get; set; }
@@ -38,8 +40,10 @@ namespace CoreAdminWeb.Model.Contract
         public int? cong_ty { get; set; }
         public int? contract_type { get; set; }
         public DateTime? ngay_hop_dong { get; set; }
-        public DateTime? ngay_hieu_luc { get; set; }
+        // public DateTime? ngay_hieu_luc { get; set; }
         public DateTime? ngay_het_han { get; set; }
+        public DateTime? ngay_nghiem_thu_hd { get; set; }
+        public DateTime? ngay_thanh_toan { get; set; }
         public decimal? gia_tri_hop_dong { get; set; }
         public decimal? gia_tri_quyet_toan { get; set; }
         public decimal? so_tien_tam_ung { get; set; }

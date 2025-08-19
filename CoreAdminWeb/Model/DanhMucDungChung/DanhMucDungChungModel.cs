@@ -27,11 +27,13 @@ namespace CoreAdminWeb.Model
     public class LoaiDinhMucModel : BaseModel<int>
     {
         public new bool? active { get; set; } = true;
+        public bool? la_dich_vu_ky_thuat { get; set; } = false;
     }
     public class LoaiDinhMucCRUDModel : BaseDetailModel
     {
         public new bool? active { get; set; } = true;
         public new string status { get; set; } = Status.published.ToString();
+        public bool? la_dich_vu_ky_thuat { get; set; } = false;
     }
     public class PhanLoaiSucKhoeModel : BaseModel<int>
     {
