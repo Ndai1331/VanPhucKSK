@@ -339,7 +339,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             if (SelectedItem.id > 0)
             {
                 await LoadDetailData();
-                soHopDongDaKy = MainModels.Where(x => x.cong_ty?.id == SelectedItem.cong_ty?.id).Count();
+                await GetNewSoHopDongDaKy();
             }
 
             if (!SelectedItemsDetail.Any())
@@ -501,10 +501,10 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             await LoadData(true);
         }
 
-        private void OnCongTyChanged(CongTyModel? selected)
+        private async Task OnCongTyChanged(CongTyModel? selected)
         {
             SelectedItem.cong_ty = selected;
-            soHopDongDaKy = selected != null ? MainModels.Where(x => x.cong_ty?.id == selected.id).Count() : 0;
+            await GetNewSoHopDongDaKy();
         }
 
         private void OnContractTypeChanged(ContractTypeModel? selected)
@@ -597,6 +597,25 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             }
         }
 
+        private async Task GetNewSoHopDongDaKy()
+        {
+            BuildPaginationQuery(1, int.MaxValue);
+            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
+            BuilderQuery += $"&filter[_and][1][cong_ty][_eq]={SelectedItem.cong_ty?.id}";
+            BuilderQuery += $"&filter[_and][2][status][_neq]={TrangThaiHopDong.ChuaHieuLuc}";
+
+            var result = await MainService.GetAllAsync(BuilderQuery);
+            if (result.IsSuccess)
+            {
+                soHopDongDaKy = result.Data?.Count ?? 0;
+            }
+            else
+            {
+                soHopDongDaKy = 0;
+            }
+        }
+
+
         /// <summary>
         /// Update calculations after DinhMuc change
         /// </summary>
@@ -617,7 +636,9 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 if (item.MaDinhMuc.loai_dinh_muc?.la_dich_vu_ky_thuat == true)
                 {
                     item.chi_phi_thuc_te = item.thanh_tien_dm;
-                } else {
+                }
+                else
+                {
                     item.chi_phi_thuc_te = 0;
                 }
             }
