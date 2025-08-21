@@ -682,6 +682,11 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
             }
+
+            if (item.MaDinhMuc?.loai_dinh_muc?.la_dich_vu_ky_thuat == true)
+            {
+                item.chi_phi_thuc_te = item.thanh_tien_dm;
+            }
         }
 
         private async Task HandleFileSelect(InputFileChangeEventArgs e)
@@ -948,6 +953,11 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             if (item.so_luong.HasValue && item.don_gia_dm.HasValue)
             {
                 item.thanh_tien_dm = item.so_luong * item.don_gia_dm;
+            }
+
+            if (item.MaDinhMuc?.loai_dinh_muc?.la_dich_vu_ky_thuat == true)
+            {
+                item.chi_phi_thuc_te = item.thanh_tien_dm;
             }
         }
 
