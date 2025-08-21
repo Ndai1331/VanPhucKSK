@@ -5,6 +5,16 @@
 @using CoreAdminWeb.Model.KhamSucKhoes
 
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="flex flex-col items-start gap-2 md:col-span-2">
+        <div class="flex items-center gap-2">
+            <input type="checkbox" class="form-check-input" id="cbx_dalapgiadinh"
+                   @bind="@SelectedKhamSucKhoeSanPhuKhoa.da_lap_gia_dinh"
+                   disabled="@(onReadonly || !onReadonly && !onBS)">
+            <label class="form-check-label rtl\:mr-3" for="cbx_dalapgiadinh">
+                Đã lập gia đình
+            </label>
+        </div>
+    </div>
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</MudText>
         <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
@@ -89,7 +99,6 @@
             @if (SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co) {
                 <div class="md:col-span-2">
                     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
-                    @* <label class="block text-sm font-normal">Ghi rõ:</label> *@
                     <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" rows="2" @bind="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)"></textarea>
                 </div>
             }

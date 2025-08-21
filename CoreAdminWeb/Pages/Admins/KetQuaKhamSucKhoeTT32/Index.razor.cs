@@ -1104,6 +1104,13 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     await LoadData(true);
                 }
+
+                if (nameof(SelectedKhamSucKhoeTheLuc.chieu_cao).Equals(fieldName))
+                {
+                    var chieuCao = (SelectedKhamSucKhoeTheLuc.chieu_cao ?? 0) / 100;
+                    var canNang = SelectedKhamSucKhoeTheLuc.can_nang ?? 0;
+                    SelectedKhamSucKhoeTheLuc.bmi = chieuCao > 0 ? Math.Round(canNang / (chieuCao * chieuCao), 2) : 0;
+                }
                 StateHasChanged();
             }
             catch (Exception ex)
