@@ -404,3 +404,7 @@
         flex-direction: row;
     }
 }
+
+.max-w-8xl {
+    max-width: 88rem !important;
+}

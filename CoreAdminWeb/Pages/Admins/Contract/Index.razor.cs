@@ -209,7 +209,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 }
 
                 // Load from API if not in cache or cache expired
-                var result = await LoadBlazorTypeaheadData(searchText ?? string.Empty, DinhMucService);
+                var result = await LoadBlazorTypeaheadData(searchText ?? string.Empty, DinhMucService, $"limit=20&offset=0&meta=filter_count");
                 var resultList = result?.ToList() ?? new List<DinhMucModel>();
 
                 // Update cache

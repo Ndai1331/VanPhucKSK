@@ -157,7 +157,7 @@
 {
     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
         <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="relative w-full max-w-5xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+            <div class="relative w-full max-w-8xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
                 <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
                     <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">@_titleAddOrUpdate</MudText>
                     <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseAddOrUpdateModal">
@@ -415,7 +415,7 @@
                                                 <div class="space-y-2 md:col-span-2"> 
                                                     <div class="relative overflow-x-auto overflow-y-hidden shadow-md sm:rounded-lg">
                                                         <div style="max-height: 365px; overflow-y: auto;">
-                                                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 overflow-y-hidden" style="width:100%">
+                                                            <table id="dinhmuc-table" class="w-full text-xs text-left rtl:text-right text-gray-500 dark:text-gray-400 overflow-y-hidden" style="width:100%">
                                                                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400" style="background-color: whitesmoke !important; z-index: 999999999; position: sticky; top: 0;">
                                                                     <tr>
                                                                         <th>STT</th>
@@ -423,8 +423,8 @@
                                                                         <th>Số lượng</th>
                                                                         <th>Đơn giá TT (VNĐ)</th>
                                                                         <th>Thành tiền TT (VNĐ)</th>
-                                                                        <th>Đơn giá DM (VNĐ)</th>
-                                                                        <th>Thành tiền DM (VNĐ)</th>
+                                                                        <th>Đơn giá ĐM (VNĐ)</th>
+                                                                        <th>Thành tiền ĐM (VNĐ)</th>
                                                                         <th>Chi phí thực tế</th>
                                                                         <th>Ghi chú</th>
                                                                         <th class="flex items-center gap-2">Tác vụ</th>
@@ -443,17 +443,18 @@
                                                                                          Datasource="DinhMucs"
                                                                                          Value="@(Select2Helper.GetCurrentSelectionGeneric<DinhMucModel>(item.Data.MaDinhMuc, item.Index, SelectedDinhMucItems))"
                                                                                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<DinhMucModel>(e, v => item.Data.MaDinhMuc = v, item.Index, SelectedDinhMucItems, () => UpdateThanhTienAfterDinhMucChange(item.Data)))"
-                                                                                         Multiselect="false" />
+                                                                                         Multiselect="false"
+                                                                                         class="select2-dinh-muc" />
                                                                             </td>
                                                                             <td>
-                                                                                <input type="number" class="form-input" step="1"
+                                                                                <input type="number" class="form-input text-xs" step="1"
                                                                                        Label="Số lượng"
                                                                                        @bind-value="@item.Data.so_luong"
                                                                                        @bind-value:event="oninput"
                                                                                        @onchange="(e) => UpdateThanhTien(e, item.Data, nameof(item.Data.so_luong))" />
                                                                             </td>
                                                                             <td>
-                                                                                <input type="text" class="form-input currency-input"
+                                                                                <input type="text" class="form-input text-xs currency-input"
                                                                                        placeholder="0"
                                                                                        Label="Đơn giá TT (VNĐ)"
                                                                                        value="@GetCurrencyDisplayValue(item.Data.don_gia_tt)"
@@ -461,12 +462,12 @@
                                                                                        @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
                                                                             </td>
                                                                             <td>
-                                                                                <input type="text" class="form-input currency-display"
+                                                                                <input type="text" class="form-input text-xs currency-display"
                                                                                        value="@GetCurrencyDisplayValue(item.Data.thanh_tien_tt ?? 0)"
                                                                                        Label="Thành tiền TT (VNĐ)" readonly />
                                                                             </td>
                                                                             <td>
-                                                                                <input type="text" class="form-input currency-input"
+                                                                                <input type="text" class="form-input text-xs currency-input"
                                                                                        placeholder="0"
                                                                                        Label="Đơn giá ĐM (VNĐ)"
                                                                                        value="@GetCurrencyDisplayValue(item.Data.don_gia_dm)"
@@ -474,12 +475,12 @@
                                                                                        @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
                                                                             </td>
                                                                             <td>
-                                                                                <input type="text" class="form-input currency-display"
+                                                                                <input type="text" class="form-input text-xs currency-display"
                                                                                        value="@GetCurrencyDisplayValue(item.Data.thanh_tien_dm ?? 0)"
                                                                                        Label="Thành tiền ĐM (VNĐ)" readonly />
                                                                             </td>
                                                                             <td>
-                                                                                <input type="text" class="form-input currency-input"
+                                                                                <input type="text" class="form-input text-xs currency-input"
                                                                                        placeholder="0"
                                                                                        Label="Chi phí thực tế (VNĐ)"
                                                                                        value="@GetCurrencyDisplayValue(item.Data.chi_phi_thuc_te)"
@@ -487,7 +488,7 @@
                                                                                        @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
                                                                             </td>
                                                                             <td>
-                                                                                <input type="text" class="form-input w-40" @bind-value="@item.Data.description" Label="Ghi chú" />
+                                                                                <input type="text" class="form-input text-xs w-40" @bind-value="@item.Data.description" Label="Ghi chú" />
                                                                             </td>
                                                                             <td>
                                                                                 <div class="flex items-center justify-end gap-2">
@@ -506,18 +507,18 @@
                                                                         <td></td>
                                                                         <td></td>
                                                                         <td>
-                                                                            <input type="text" class="form-input currency-display"
+                                                                            <input type="text" class="form-input text-xs currency-display"
                                                                                    value="@GetCurrencyDisplayValue(SelectedItemsDetail.Where(c => c.deleted == null || c.deleted == false).Sum(c => c.thanh_tien_tt))"
                                                                                    Label="Tổng thành tiền TT (VNĐ)" readonly />
                                                                         </td>
                                                                         <td></td>
                                                                         <td>
-                                                                            <input type="text" class="form-input currency-display"
+                                                                            <input type="text" class="form-input text-xs currency-display"
                                                                                    value="@GetCurrencyDisplayValue(SelectedItemsDetail.Where(c => c.deleted == null || c.deleted == false).Sum(c => c.thanh_tien_dm))"
                                                                                    Label="Tổng thành tiền ĐM (VNĐ)" readonly />
                                                                         </td>
                                                                         <td>
-                                                                            <input type="text" class="form-input currency-display"
+                                                                            <input type="text" class="form-input text-xs currency-display"
                                                                                    value="@GetCurrencyDisplayValue(SelectedItemsDetail.Where(c => c.deleted == null || c.deleted == false).Sum(c => c.chi_phi_thuc_te))"
                                                                                    Label="Tổng chi phí thực tế (VNĐ)" readonly />
                                                                         </td>
@@ -587,17 +588,26 @@
 
 
 <style>
-    .select2-container {
+    .select2-dinh-muc .select2-container {
         z-index: 99999999 !important;
-        min-width: 350px !important;
+        width: 290px !important;
+    }
+
+    .select2-results {
+        font-size: 0.75rem /* 12px */;
+        line-height: 1rem /* 16px */;
     }
 
     .currency-display {
-        min-width: 155px !important;
+        min-width: 120px !important;
     }
 
     .currency-input {
-        min-width: 155px !important;
+        min-width: 120px !important;
+    }
+
+    #dinhmuc-table :is(thead,tbody,tfoot) tr :is(th,td) {
+        padding: .75rem 0.5rem;
     }
 </style>
 
