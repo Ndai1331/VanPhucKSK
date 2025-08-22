@@ -12,422 +12,477 @@
             <div class="line2">Độc lập - Tự do - Hạnh phúc</div>
             <div class="underline"></div>
         </div>
-        <div class="title">SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+        <div class="title mb-2 mt-3">SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
 
-        <div class="two-col">
-            <div class="photo-container">
-                <div class="photo">
-                    Ảnh<br />(4 x 6 cm)<br />(đóng dấu ráp lai hoặc Scan
-                    ảnh)
-                </div>
-            </div>
+        <!-- two columns using a table -->
+        <table class="two-col-table">
+            <tr>
+                <td class="two-col-left">
+                    <div class="photo v-center">
+                        <span>
+                            Ảnh<br />(4 x 6 cm)<br />(đóng dấu ráp lai hoặc
+                            Scan ảnh)
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    <div class="row">
+                        <span class="nowrap">1. Họ và tên (viết chữ in hoa):</span>
+                        <span class="dotted-ruled" style="width: 103mm">@SelectedItem.benh_nhan?.full_name.ToUpper()</span>
+                    </div>
+                    <div class="row">
+                        <span>2. Giới tính:</span>
+                        <span class="gap"></span>
+                        Nam @((MarkupString)(SelectedItem.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+                        <span class="gap"></span>
+                        Nữ @((MarkupString)(SelectedItem.benh_nhan?.gioi_tinh == GioiTinh.Nu ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+                    </div>
+                    <div class="row">
+                        <span class="dot-wrap">
+                            <span class="inline">3. Sinh Ngày</span>
+                            <span class="dotted-ruled" style="width: 10mm">@(SelectedItem.benh_nhan?.ngay_sinh?.Day.ToString("00") ?? "")</span>
+                            <span>tháng</span>
+                            <span class="dotted-ruled" style="width: 10mm">@(SelectedItem.benh_nhan?.ngay_sinh?.Month.ToString("00") ?? "")</span>
+                            <span>năm</span>
+                            <span class="dotted-ruled" style="width: 15mm">@(SelectedItem.benh_nhan?.ngay_sinh?.Year.ToString() ?? "")</span>
+                            <span>(Tuổi:</span>
+                            <span class="dotted-ruled" style="width: 14mm">@(SelectedItem.benh_nhan?.ngay_sinh != null ? (DateTime.Now.Year - SelectedItem.benh_nhan.ngay_sinh.Value.Year).ToString() : "")</span>
+                            <span>)</span>
+                        </span>
+                    </div>
+                    <div class="row">
+                        <span class="nowrap">4. Số CMND/CCCD/Hộ chiếu/định danh CD:</span>
+                        <span class="dotted-ruled" style="width: 80mm">@CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.so_dinh_danh)</span>
+                    </div>
+                    <div class="row">
+                        <span>5. Cấp ngày</span>
+                        <span class="dotted-ruled" style="width: 35mm">@CoreHelpers.FormatDate(SelectedItem.benh_nhan?.ngay_cap)</span>
+                        <span class="ml-2">Tại</span>
+                        <span class="dotted-ruled" style="width: 86.5mm">@CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.noi_cap)</span>
+                    </div>
+                    <div class="row">
+                        <span>6. Chỗ ở hiện tại</span>
+                        <span class="dotted-ruled" style="width: 123.5mm">@CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.dia_chi)</span>
+                    </div>
+                    <div class="row">
+                        <span>Số điện thoại liên hệ:</span>
+                        <span class="dotted-ruled" style="width: 40mm">@CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.so_dien_thoai)</span>
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-            <div>
-                <div class="row">
-                    <span class="nowrap dotted-ruled" style="--start: 180px">1. Họ và tên (viết chữ in hoa): @SelectedItem.benh_nhan?.full_name.ToUpper()</span>
-                </div>
-                <div class="row">
-                    <span>2. Giới tính:</span> Nam <input type="checkbox" checked="@(SelectedItem.benh_nhan?.gioi_tinh == GioiTinh.Nam)" /><span class="gap"></span> Nữ <input type="checkbox" checked="@(SelectedItem.benh_nhan?.gioi_tinh == GioiTinh.Nu)" />
-                </div>
-                <div class="row">
-                    <span class="dotted-ruled"
-                          style="--width: 120px; --start: 80px">3. Sinh Ngày @(SelectedItem.benh_nhan?.ngay_sinh?.Day.ToString("00") ?? "")</span>
-                    <span class="dotted-ruled"
-                          style="--width: 80px; --start: 40px">tháng @(SelectedItem.benh_nhan?.ngay_sinh?.Month.ToString("00") ?? "")</span>
-                    <span class="dotted-ruled"
-                          style="--width: 90px; --start: 30px">năm @(SelectedItem.benh_nhan?.ngay_sinh?.Year.ToString() ?? "")</span>
-                    <span class="dotted-ruled"
-                          style="--width: 80px; --start: 38px">(Tuổi: @(SelectedItem.benh_nhan?.ngay_sinh != null ? (DateTime.Now.Year - SelectedItem.benh_nhan.ngay_sinh.Value.Year).ToString() : "")</span>)
-                </div>
-                <div class="row">
-                    <span class="nowrap dotted-ruled" style="--start: 265px">4. Số CMND/CCCD/Hộ chiếu/định danh CD: @CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.so_dinh_danh)</span>
-                </div>
-                <div class="row">
-                    <span class="dotted-ruled"
-                          style="--width: 300px; --start: 77px">
-                        5. Cấp ngày @CoreHelpers.FormatDate(SelectedItem.benh_nhan?.ngay_cap)
-                    </span>
-                    <span class="dotted-ruled" style="--start: 40px">Tại @CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.noi_cap)</span>
-                </div>
-                <div class="row">
-                    <span class="dotted-ruled" style="--start: 105px">
-                        6. Chỗ ở hiện tại @CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.dia_chi)
-                    </span>
-                </div>
-                <div class="row">
-                    <span class="dotted-ruled" style="--start: 130px">
-                        Số điện thoại liên hệ: @CoreHelpers.GetSafeString(SelectedItem.benh_nhan?.so_dien_thoai)
-                    </span>
-                </div>
-            </div>
+        <div class="row italic mb-2">
+            <span class="bold">* Lưu ý:</span>
+            Trường hợp đối tượng KSK có CCCD gắn chíp hoặc có số định danh
+            công dân đã thực hiện kết nối với cơ sở dữ liệu quốc gia về dân
+            cư, phần HÀNH CHÍNH nêu trên chỉ cần ghi mục (1) Họ và tên, (3)
+            Ngày tháng năm sinh, (4) số định danh công dân
         </div>
-        <div>
-            <div class="note">
-                <span class="important">* Lưu ý:</span> Trường hợp đối tượng
-                KSK có CCCD gắn chíp hoặc có số định danh công dân đã thực
-                hiện kết nối với cơ sở dữ liệu quốc gia về dân cư, phần HÀNH
-                CHÍNH nêu trên chỉ cần ghi mục (1) Họ và tên, (3) Ngày tháng
-                năm sinh, (4) số định danh công dân
-            </div>
 
-            <div class="row">
-                <span class="dotted-ruled" style="--start: 100px">
-                    7. Nghề nghiệp: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeNgheNghiep?.nghe_nghiep)
-                </span>
-            </div>
-            <div class="row">
-                <span class="dotted-ruled" style="--start: 150px">
-                    8. Nơi công tác, học tập: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeNgheNghiep?.noi_cong_tac)
-                </span>
-            </div>
-            <div class="row">
-                <span class="dotted-ruled"
-                      style="--width: 330px; --start: 290px">
-                    9. Ngày bắt đầu vào làm việc tại đơn vị hiện nay: @(SelectedItem.benh_nhan?.ngay_sinh?.Day.ToString("00") ?? "")
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 50px; --start: 5px">
-                    / @(SelectedItem.benh_nhan?.ngay_sinh?.Month.ToString("00") ?? "")
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 100px; --start: 5px">
-                    / @(SelectedItem.benh_nhan?.ngay_sinh?.Year.ToString("00") ?? "")
-                </span>
-            </div>
+        <div class="row">
+            <span>7. Nghề nghiệp:</span><span class="dotted-ruled" style="width: 100mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeNgheNghiep?.nghe_nghiep)</span>
+        </div>
+        <div class="row">
+            <span>8. Nơi công tác, học tập:</span>
+            <span class="dotted-ruled" style="width: 146.5mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeNgheNghiep?.noi_cong_tac)</span>
+        </div>
 
-            <div class="row">
-                10. Nghề, công việc trước đây (liệt kê công việc đã làm
-                trong 10 năm gần đây, tính từ thời điểm gần nhất):
-            </div>
-            <div class="row">
-                <span class="dotted-ruled" style="--start: 13px">a) </span>
-                <span class="dotted-ruled"
-                      style="--width: 90px; --start: 80px">
-                    thời gian làm
-                </span>
-            </div>
-            <div class="row">
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 30px">
-                    việc
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 30px">
-                    năm
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 130px; --start: 85px">
-                    tháng từ ngày
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 50px; --start: 5px">
-                    /
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 5px">
-                    /
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 28px">
-                    đến
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 50px; --start: 5px">
-                    /
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 5px">
-                    /
-                </span>
-            </div>
-            <div class="row">
-                <span class="dotted-ruled" style="--start: 13px">b) </span>
-                <span class="dotted-ruled"
-                      style="--width: 90px; --start: 80px">
-                    thời gian làm
-                </span>
-            </div>
-            <div class="row">
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 30px">
-                    việc
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 30px">
-                    năm
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 130px; --start: 85px">
-                    tháng từ ngày
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 50px; --start: 5px">
-                    /
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 5px">
-                    /
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 28px">
-                    đến
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 50px; --start: 5px">
-                    /
-                </span>
-                <span class="dotted-ruled"
-                      style="--width: 70px; --start: 5px">
-                    /
-                </span>
-            </div>
+        <div class="row">
+            <span>9. Ngày bắt đầu vào làm việc tại đơn vị hiện nay:</span>
+            <span class="dotted-ruled" style="width: 10mm">@(SelectedItem.benh_nhan?.ngay_sinh?.Day.ToString("00") ?? "")</span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 10mm">@(SelectedItem.benh_nhan?.ngay_sinh?.Month.ToString("00") ?? "")</span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 40mm">@(SelectedItem.benh_nhan?.ngay_sinh?.Year.ToString("00") ?? "")</span>
+        </div>
 
-            <div class="row">
-                <span class="dotted-ruled" style="--start: 205px">
-                    11. Tiền sử bệnh, tật của gia đình:
-                </span>
-            </div>
+        <div class="row">
+            10. Nghề, công việc trước đây (liệt kê công việc đã làm trong 10
+            năm gần đây, tính từ thời điểm gần nhất):
+        </div>
 
-            <div class="section">12. Tiền sử bệnh, tật của bản thân</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 36%">Tên bệnh</th>
-                        <th style="width: 16%">Phát hiện năm</th>
-                        <th style="width: 32%">Tên bệnh nghề nghiệp</th>
-                        <th style="width: 16%">Phát hiện năm</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>a) @SelectedKhamSucKhoeTienSu.ten_benh</td>
-                        <td>@SelectedKhamSucKhoeTienSu.nam_phat_hien</td>
-                        <td>a) @SelectedKhamSucKhoeTienSu.benh_nghe_nghiep</td>
-                        <td>@SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep</td>
-                    </tr>
-                    <tr>
-                        <td>b)</td>
-                        <td></td>
-                        <td>b)</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>c)</td>
-                        <td></td>
-                        <td>c)</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>d)</td>
-                        <td></td>
-                        <td>d)</td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="row">
+            <span>a)</span>
+            <span class="dotted-ruled" style="width: 160mm"></span>
+            <span>thời gian làm việc</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>năm</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>tháng từ ngày</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 15mm"></span>
+            <span>đến</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 15mm"></span>
+        </div>
 
-            <table class="equal-col no-border">
+        <div class="row">
+            <span>b)</span>
+            <span class="dotted-ruled" style="width: 160mm"></span>
+            <span>thời gian làm việc</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>năm</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>tháng từ ngày</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 15mm"></span>
+            <span>đến</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 10mm"></span>
+            <span>/</span>
+            <span class="dotted-ruled" style="width: 15mm"></span>
+        </div>
+
+        <div class="row">
+            <span>11. Tiền sử bệnh, tật của gia đình:</span>
+            @if (!string.IsNullOrEmpty(SelectedKhamSucKhoeTienSu.tien_su_gia_dinh))
+            {
+                splitCount = 0;
+                foreach (var splitStr in SelectedKhamSucKhoeTienSu.tien_su_gia_dinh.WrapToWidthMm())
+                {
+                    splitCount++;
+                    <span class="dotted-ruled" style="width: 100%">@splitStr</span>
+                }
+
+                if (splitCount < 4)
+                {
+                    for (int i = 0; i < 4 - splitCount; i++)
+                    {
+                        <span class="dotted-ruled" style="width: 100%"></span>
+                    }
+                }
+            }
+            else
+            {
+                <span class="dotted-ruled" style="width: 100%"></span>
+                <span class="dotted-ruled" style="width: 100%"></span>
+                <span class="dotted-ruled" style="width: 100%"></span>
+                <span class="dotted-ruled" style="width: 100%"></span>
+            }
+        </div>
+
+        <div class="title mt-3">12. Tiền sử bệnh, tật của bản thân</div>
+        <table>
+            <thead>
                 <tr>
-                    <td>
-                        <div class="signature">
-                            <span class="bold">Người lao động xác nhận</span>
-                            <span class="italic">(Ký và ghi rõ họ, tên)</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="
-         display: flex;
-         align-items: flex-end;
-         flex-direction: column;
-        ">
-                            <div class="row">
-                                <span class="dotted-ruled"
-                                      style="--width: 80px">.</span>
-                                <span class="dotted-ruled"
-                                      style="--width: 80px; --start: 40px">, ngày @DateTime.Now.Day</span>
-                                <span class="dotted-ruled"
-                                      style="--width: 80px; --start: 40px">tháng @DateTime.Now.Month</span>
-                                <span class="dotted-ruled"
-                                      style="--width: 100px; --start: 40px">năm @DateTime.Now.Year</span>
-                            </div>
-                            <div class="signature" style="width: 300px">
-                                <span class="bold">
-                                    Người lập sổ KSK định kỳ
-                                </span>
-                                <span class="italic">(Ký và ghi rõ họ, tên)</span>
-                            </div>
-                        </div>
-                    </td>
+                    <th style="width: 36%">Tên bệnh</th>
+                    <th style="width: 16%">Phát hiện năm</th>
+                    <th style="width: 32%">Tên bệnh nghề nghiệp</th>
+                    <th style="width: 16%">Phát hiện năm</th>
                 </tr>
-            </table>
-        </div>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>a) @SelectedKhamSucKhoeTienSu.ten_benh</td>
+                    <td>@SelectedKhamSucKhoeTienSu.nam_phat_hien</td>
+                    <td>a) @SelectedKhamSucKhoeTienSu.benh_nghe_nghiep</td>
+                    <td>@SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep</td>
+                </tr>
+                <tr>
+                    <td>b)</td>
+                    <td></td>
+                    <td>b)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>c)</td>
+                    <td></td>
+                    <td>c)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>d)</td>
+                    <td></td>
+                    <td>d)</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="outer-table no-border mt-3" style="width: 100%">
+            <tr>
+                <td style="width: 50%; text-align: center">
+                    <div class="signature-box">
+                        <span class="bold">Người lao động xác nhận</span>
+                        <br />
+                        <span class="italic mb-5">(Ký và ghi rõ họ, tên)</span>
+                        <br />
+                        <div style="height: 20mm"></div>
+                        <span class="bold">@SelectedItem.benh_nhan?.full_name</span>
+                    </div>
+                </td>
+                <td style="width: 50%">
+                    <div class="signature-box">
+                        <div class="row">
+                            <span class="dotted-ruled" style="width: 20mm"></span>
+                            <span>, ngày</span>
+                            <span class="dotted-ruled" style="width: 7mm">@DateTime.Now.Day</span>
+                            <span>tháng</span>
+                            <span class="dotted-ruled" style="width: 7mm">@DateTime.Now.Month</span>
+                            <span>năm</span>
+                            <span class="dotted-ruled" style="width: 12mm">@DateTime.Now.Year</span>
+                        </div>
+                        <span class="bold">Người lập sổ KSK định kỳ</span>
+                        <br />
+                        <span class="italic">(Ký và ghi rõ họ, tên)</span>
+                        <br />
+                        <div style="height: 20mm"></div>
+                        <span class="bold">@SelectedItem.nguoi_lap</span>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </section>
 
     <section class="page">
         <div class="title">KHÁM SỨC KHỎE ĐỊNH KỲ</div>
-        <div class="title">I. TIỀN SỬ BỆNH, TẬT</div>
-        <div class="line1 center italic">
+        <div class="title mt-1">I. TIỀN SỬ BỆNH, TẬT</div>
+        <div class="center italic mt-1">
             (Bác sỹ khám sức khỏe hỏi và ghi chép)
         </div>
+
         <div class="row">
-            <span class="dotted-ruled">@SelectedKhamSucKhoeTienSu.tien_su_gia_dinh</span>
+            @if (!string.IsNullOrEmpty(SelectedKhamSucKhoeTienSu.tien_su_gia_dinh))
+            {
+                splitCount = 0;
+                foreach (var splitStr in SelectedKhamSucKhoeTienSu.tien_su_gia_dinh.WrapToWidthMm())
+                {
+                    splitCount++;
+                    <span class="dotted-ruled" style="width: 100%">@splitStr</span>
+                }
+
+                if (splitCount < 4)
+                {
+                    for (int i = 0; i < 4 - splitCount; i++)
+                    {
+                        <span class="dotted-ruled" style="width: 100%"></span>
+                    }
+                }
+            }
+            else
+            {
+                <span class="dotted-ruled" style="width: 100%"></span>
+                <span class="dotted-ruled" style="width: 100%"></span>
+                <span class="dotted-ruled" style="width: 100%"></span>
+                <span class="dotted-ruled" style="width: 100%"></span>
+            }
         </div>
 
-        @if (SelectedItem.benh_nhan?.gioi_tinh != null && SelectedItem.benh_nhan?.gioi_tinh == Enums.GioiTinh.Nu && SelectedKhamSucKhoeSanPhuKhoa != null)
-        {
-            <div class="row justify-between">
-                <div class="flex">
-                    <span class="bold">Tiền sử sản phụ khoa</span>
-                    <span class="italic">(Đối với nữ):</span>
-                </div>
-            </div>
-            <div class="row justify-between">
-                <span>- Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</span>
-                <div>
-                    <table>
-                        <tr>
-                            @{
-                                var tuoiBatDauKinhs = SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh?.ToString().ToCharArray();
-                                if (tuoiBatDauKinhs == null || tuoiBatDauKinhs.Length < 2)
-                                {
-                                    tuoiBatDauKinhs = new char[] { ' ', ' ' }; // Default to "00" if not set
+        <div class="row">
+            <div class="mt-2"></div>
+            <span class="bold">
+                Tiền sử sản phụ khoa
+                <span class="italic">(Đối với nữ)</span>:
+            </span>
+        </div>
+
+        <div class="row">
+            <table>
+                <tr>
+                    <td class="v-middle no-border">
+                        <span>
+                            - Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:
+                        </span>
+                    </td>
+                    <td class="v-middle no-border">
+                        <table class="auto mt-0">
+                            <tr>
+                                @{
+                                    var tuoiBatDauKinhs = SelectedKhamSucKhoeSanPhuKhoa?.tuoi_bat_dau_kinh?.ToString().PadLeft(2, '0').ToCharArray();
+                                    if (tuoiBatDauKinhs == null || tuoiBatDauKinhs.Length < 2)
+                                    {
+                                        tuoiBatDauKinhs = new char[] { ' ', ' ' }; // Default to "00" if not set
+                                    }
                                 }
-                            }
-                            @foreach (var c in tuoiBatDauKinhs)
-                            {
-                                <td width="30px" height="25px" class="center">@c</td>
-                            }
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <div class="row align-center">
-                <span>- Tính chất kinh nguyệt: </span>
-                <span>Đều</span>
-                <input type="checkbox" checked="@(@SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh == TinhChatKinh.Deu.ToString())" />
-                <span>Không đều</span>
-                <input type="checkbox" checked="@(@SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh == TinhChatKinh.KhongDeu.ToString())" />
-            </div>
-            <div class="row">
-                <span class="mr-3">- Chu kỳ kinh:</span>
-                <div class="row mr-3">
-                    <table>
-                        <tr>
-                            @{
-                                var chuKyKinhs = @SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh?.ToCharArray();
-                                if (chuKyKinhs == null || chuKyKinhs.Length < 2)
+                                @foreach (var c in tuoiBatDauKinhs)
                                 {
-                                    chuKyKinhs = new char[] { ' ', ' ' }; // Default to "00" if not set
+                                    <td width="30" height="30" class="center v-middle">@c</td>
                                 }
-                            }
-                            @foreach (var c in chuKyKinhs)
-                            {
-                                <td width="30px" height="25px" class="center">@c</td>
-                            }
-                        </tr>
-                    </table>
-                    ngày
-                </div>
-                <span class="ml-5 mr-3">Lượng kinh:</span>
-                <div class="row">
-                    <table>
-                        <tr>
-                            @{
-                                var luongKinhs = @SelectedKhamSucKhoeSanPhuKhoa.luong_kinh?.ToCharArray();
-                                if (luongKinhs == null || luongKinhs.Length < 2)
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="row">
+            <span>
+                - Tính chất kinh nguyệt:
+            </span>
+            <span class="gap"></span>
+            Đều @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.Deu.ToString() ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="gap"></span>
+            Không đều @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.KhongDeu.ToString() ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+        </div>
+
+        <div class="row">
+            <table class="auto">
+                <tr>
+                    <td class="v-middle no-border">
+                        <span>
+                            - Chu kỳ kinh:
+                        </span>
+                    </td>
+                    <td class="v-middle no-border">
+                        <table class="auto mt-0">
+                            <tr>
+                                @{
+                                    var chuKyKinhs = @SelectedKhamSucKhoeSanPhuKhoa?.chu_ky_kinh?.PadLeft(2, ' ').ToCharArray();
+                                    if (chuKyKinhs == null || chuKyKinhs.Length < 2)
+                                    {
+                                        chuKyKinhs = new char[] { ' ', ' ' }; // Default to "00" if not set
+                                    }
+                                }
+                                @foreach (var c in chuKyKinhs)
                                 {
-                                    luongKinhs = new char[] { ' ', ' ' }; // Default to "00" if not set
+                                    <td width="30" height="30" class="center v-middle">@c</td>
                                 }
-                            }
-                            @foreach (var c in luongKinhs)
-                            {
-                                <td width="30px" height="25px" class="center">@c</td>
-                            }
-                        </tr>
-                    </table>
-                    ngày
-                </div>
-            </div>
-            <div class="row align-center">
-                <span>- Đau bụng kinh: </span>
-                <span>Có</span>
-                <input type="checkbox" checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == true)" />
-                <span>Không</span>
-                <input type="checkbox" checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == false)" />
-            </div>
-            <div class="row align-center">
-                <span>- Đã lập gia đình: </span>
-                <span>Có</span>
-                <input type="checkbox" checked="@(SelectedKhamSucKhoeSanPhuKhoa.da_lap_gia_dinh == true)" />
-                <span>Chưa</span>
-                <input type="checkbox" checked="@(SelectedKhamSucKhoeSanPhuKhoa.da_lap_gia_dinh == false)" />
-            </div>
-            <div class="row">
-                <span class="mr-3">- PARA:</span>
-                <div>
-                    <table>
-                        <tr>
-                            @{
-                                var paras = SelectedKhamSucKhoeSanPhuKhoa.para?.Split('|');
-                                if (paras == null || paras.Length < 4)
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="v-middle no-border" width="120px">
+                        <span>
+                            ngày
+                        </span>
+                    </td>
+                    <td class="v-middle no-border">
+                        <span>
+                            Lượng kinh:
+                        </span>
+                    </td>
+                    <td class="v-middle no-border">
+                        <table class="auto mt-0">
+                            <tr>
+                                @{
+                                    var luongKinhs = @SelectedKhamSucKhoeSanPhuKhoa?.luong_kinh?.PadLeft(2, ' ').ToCharArray();
+                                    if (luongKinhs == null || luongKinhs.Length < 2)
+                                    {
+                                        luongKinhs = new char[] { ' ', ' ' }; // Default to "00" if not set
+                                    }
+                                }
+                                @foreach (var c in luongKinhs)
                                 {
-                                    paras = new string[] { "", "", "", "" }; // Default to "00" if not set
+                                    <td width="30" height="30" class="center v-middle">@c</td>
                                 }
-                            }
-                            @foreach (var c in paras)
-                            {
-                                <td width="30px" height="25px" class="center">@c</td>
-                            }
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <div class="row align-center">
-                <span>- Số lần mổ sản, phụ khoa: </span>
-                <span>Có</span>
-                <input type="checkbox" checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa > 0)" />
-                <span class="dotted-ruled ml-3 mr-1"
-                      style="--width: 300px; --start: 43px">Ghi rõ: @SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro</span>
-                <span>Không</span>
-                <input type="checkbox" checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa <= 0)" />
-            </div>
-            <div class="row align-center">
-                <span>- Có đang áp dụng BPTT không?: </span>
-                <span>Có</span>
-                <input type="checkbox" checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)" />
-                <span class="dotted-ruled ml-3 mr-1"
-                      style="--width: 300px; --start: 43px">Ghi rõ: @SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro</span>
-                <span>Không</span>
-                <input type="checkbox" checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)" />
-            </div>
-        }
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="v-middle no-border">
+                        <span>
+                            ngày
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="row">
+            <span>
+                - Đau bụng kinh:
+            </span>
+            <span class="gap"></span>
+            Có @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.dau_bung_kinh == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="gap"></span>
+            Không @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.dau_bung_kinh == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+        </div>
+        <div class="row">
+            <span>
+                - Đã lập gia đình:
+            </span>
+            <span class="gap"></span>
+            Có @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.da_lap_gia_dinh == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="gap"></span>
+            Chưa @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.da_lap_gia_dinh == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+        </div>
+
+        <div class="row">
+            <table class="auto">
+                <tr>
+                    <td class="v-middle no-border">
+                        <span>
+                            - PARA:
+                        </span>
+                    </td>
+                    <td class="v-middle no-border">
+                        <table class="auto mt-0">
+                            <tr>
+                                @{
+                                    var paras = SelectedKhamSucKhoeSanPhuKhoa?.para?.Split('|');
+                                    if (paras == null || paras.Length < 4)
+                                    {
+                                        paras = new string[] { "", "", "", "" }; // Default to "00" if not set
+                                    }
+                                }
+                                @foreach (var c in paras)
+                                {
+                                    <td width="30" height="30" class="center v-middle">@c</td>
+                                }
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="row">
+            <span>
+                - Số lần mổ sản, phụ khoa:
+            </span>
+            <span class="ml-2">Có</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa != null && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa > 0 ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="ml-2">Ghi rõ</span>
+            <span class="dotted-ruled" style="width: 80mm"></span>
+            <span class="ml-2">Không</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa != null && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa <= 0 ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+        </div>
+
+        <div class="row">
+            <span>
+                - Có đang áp dụng BPTT không?
+            </span>
+            <span class="ml-2">Có</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.ap_dung_bptt == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="ml-2">Ghi rõ</span>
+            <span class="dotted-ruled" style="width: 80mm"></span>
+            <span class="ml-2">Không</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.ap_dung_bptt == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+        </div>
+
         <div class="title mt-3">II. KHÁM THỂ LỰC</div>
         <div class="row">
-            <span class="dotted-ruled" style="--width: 120px; --start: 65px">
-                Chiều cao: @SelectedKhamSucKhoeTheLuc.chieu_cao
-            </span>
-            <span class="dotted-ruled" style="--width: 150px; --start: 88px">
-                cm; Cân nặng: @SelectedKhamSucKhoeTheLuc.can_nang
-            </span>
-            <span class="dotted-ruled" style="--width: 150px; --start: 92px">
-                Kg; Chỉ số BMI: @SelectedKhamSucKhoeTheLuc.bmi
-            </span>
+            <span>Chiều cao:</span>
+            <span class="dotted-ruled" style="width: 30mm">@SelectedKhamSucKhoeTheLuc.chieu_cao</span>
+            <span>cm; Cân nặng:</span>
+            <span class="dotted-ruled" style="width: 30mm">@SelectedKhamSucKhoeTheLuc.can_nang</span>
+            <span>Kg; Chỉ số BMI:</span>
+            <span class="dotted-ruled" style="width: 30mm">@SelectedKhamSucKhoeTheLuc.bmi</span>
         </div>
         <div class="row">
-            <span class="dotted-ruled" style="--width: 250px; --start: 37px">
-                Mạch: @SelectedKhamSucKhoeTheLuc.mach
-            </span>
-            <span class="dotted-ruled"
-                  style="--width: 170px; --start: 112px">
-                lần/phút; Huyết áp: @SelectedKhamSucKhoeTheLuc.huyet_ap
-            </span>
-            <span class="dotted-ruled" style="--width: 70px; --start: 7px">/</span>mmHg
+            <span>Mạch:</span>
+            <span class="dotted-ruled" style="width: 30mm">@SelectedKhamSucKhoeTheLuc.mach</span>
+            <span>lần/phút; Huyết áp:</span>
+            @if (!string.IsNullOrEmpty(@SelectedKhamSucKhoeTheLuc.huyet_ap))
+            {
+                <span class="dotted-ruled" style="width: 30mm">@SelectedKhamSucKhoeTheLuc.huyet_ap</span>
+            }
+            else
+            {
+                <span class="dotted-ruled" style="width: 15mm"></span>
+                <span>/</span>
+                <span class="dotted-ruled" style="width: 15mm"></span>
+            }
+            <span>mmHg</span>
         </div>
         <div class="row">
-            <span class="dotted-ruled"
-                  style="--width: 300px; --start: 105px">
-                Phân loại thể lực: @SelectedKhamSucKhoeTheLuc.phan_loai?.name
-            </span>
+            <span>Phân loại thể lực:</span>
+            <span class="dotted-ruled" style="width: 120mm">@SelectedKhamSucKhoeTheLuc.phan_loai?.name</span>
         </div>
 
         <div class="title mt-3">III. KHÁM LÂM SÀNG</div>
@@ -441,266 +496,172 @@
             </colgroup>
             <thead>
                 <tr>
-                    <th class="center" colspan="3">
-                        Nội dung khám<br />
-                        <span class="normal">
+                    <td class="center" colspan="3">
+                        <b>Nội dung khám</b><br />
+                        <span>
                             phải khám đầy đủ các nội dung theo chuyên khoa
                             để khẳng định có/hay không có bệnh, tật theo quy
                             định tại Quyết định…
                         </span>
-                    </th>
+                    </td>
                     <th class="center">
                         Họ tên và chữ ký của Bác sỹ chuyên khoa
                     </th>
                 </tr>
             </thead>
             <tbody class="td-tight">
-                <!-- 1. Nội khoa -->
                 <tr>
-                    <td class="v-venter">
-                        <span class="bold" style="vertical-align: middle">1.</span>
-                    </td>
-                    <td colspan="3">
-                        <span class="bold">Nội khoa</span>
-                    </td>
+                    <td class="v-middle bold">1.</td>
+                    <td colspan="3" class="bold">Nội khoa</td>
                 </tr>
                 <tr>
-                    <td class="v-venter" rowspan="2">
-                        <span>a)</span>
-                    </td>
-                    <td>
-                        <span class="italic">Tuần hoàn</span>
-                    </td>
-                    <td>
-                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan)
-                    </td>
-                    <td rowspan="2" class="center">
+                    <td class="v-middle" rowspan="2">a)</td>
+                    <td class="italic">Tuần hoàn</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan)</td>
+                    <td rowspan="2" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan, SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan, "tuan_hoan", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan)
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <span>Phân loại</span>
-                    </td>
-                    <td>
-                        <span>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan?.name)</span>
-                    </td>
+                    <td>Phân loại</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan?.name)</td>
                 </tr>
                 <tr>
-                    <td class="v-venter" rowspan="2">
-                        <span>b)</span>
-                    </td>
-                    <td>
-                        <span class="italic">Hô hấp</span>
-                    </td>
-                    <td>
-                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap)
-                    </td>
-                    <td rowspan="2" class="center">
+                    <td class="v-middle" rowspan="2">b)</td>
+                    <td class="italic">Hô hấp</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap)</td>
+                    <td rowspan="2" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap, SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap, "ho_hap", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap)
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <span>Phân loại</span>
-                    </td>
-                    <td>
-                        <span>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap?.name)</span>
-                    </td>
+                    <td>Phân loại</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap?.name)</td>
                 </tr>
                 <tr>
-                    <td class="v-venter" rowspan="2">
-                        <span>c)</span>
-                    </td>
-                    <td>
-                        <span class="italic">Tiêu hóa</span>
-                    </td>
-                    <td>
-                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa)
-                    </td>
-                    <td rowspan="2" class="center">
+                    <td class="v-middle" rowspan="2">c)</td>
+                    <td class="italic">Tiêu hóa</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa)</td>
+                    <td rowspan="2" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa, SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa, "tieu_hoa", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa)
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <span>Phân loại</span>
-                    </td>
-                    <td>
-                        <span>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa?.name)</span>
-                    </td>
+                    <td>Phân loại</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa?.name)</td>
                 </tr>
                 <tr>
-                    <td class="v-venter" rowspan="2">
-                        <span>d)</span>
-                    </td>
-                    <td>
-                        <span class="italic">Thận-Tiết niệu</span>
-                    </td>
-                    <td>
-                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu)
-                    </td>
-                    <td rowspan="2" class="center">
+                    <td class="v-middle" rowspan="2">d)</td>
+                    <td class="italic">Thận-Tiết niệu</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu)</td>
+                    <td rowspan="2" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu, SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu, "than_tiet_nieu", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu)
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <span>Phân loại</span>
-                    </td>
-                    <td>
-                        <span>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu?.name)</span>
-                    </td>
+                    <td>Phân loại</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu?.name)</td>
                 </tr>
                 <tr>
-                    <td class="v-venter" rowspan="2">
-                        <span>đ)</span>
-                    </td>
-                    <td>
-                        <span class="italic">Nội tiết</span>
-                    </td>
-                    <td>
-                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet)
-                    </td>
-                    <td rowspan="2" class="center">
+                    <td class="v-middle" rowspan="2">đ)</td>
+                    <td class="italic">Nội tiết</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet)</td>
+                    <td rowspan="2" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet, SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet, "noi_tiet", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet)
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <span>Phân loại</span>
-                    </td>
-                    <td>
-                        <span>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet?.name)</span>
-                    </td>
+                    <td>Phân loại</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet?.name)</td>
                 </tr>
                 <tr>
-                    <td class="v-venter" rowspan="2">
-                        <span>e)</span>
-                    </td>
-                    <td>
-                        <span class="italic">Cơ - xương - khớp</span>
-                    </td>
-                    <td>
-                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop)
-                    </td>
-                    <td rowspan="2" class="center">
+                    <td class="v-middle" rowspan="2">e)</td>
+                    <td class="italic">Cơ - xương - khớp</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop)</td>
+                    <td rowspan="2" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop, SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop, "co_xuong_khop", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop)
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <span>Phân loại</span>
-                    </td>
-                    <td>
-                        <span>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop?.name)</span>
-                    </td>
+                    <td>Phân loại</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop?.name)</td>
                 </tr>
                 <tr>
-                    <td class="v-venter" rowspan="2">
-                        <span>g)</span>
-                    </td>
-                    <td>
-                        <span class="italic">Thần kinh</span>
-                    </td>
-                    <td>
-                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh)
-                    </td>
-                    <td rowspan="2" class="center">
+                    <td class="v-middle" rowspan="2">g)</td>
+                    <td class="italic">Thần kinh</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh)</td>
+                    <td rowspan="2" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh, SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh, "than_kinh", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh)
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <span>Phân loại</span>
-                    </td>
-                    <td>
-                        <span>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh?.name)</span>
-                    </td>
+                    <td>Phân loại</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh?.name)</td>
                 </tr>
                 <tr>
-                    <td class="v-venter" rowspan="2">
-                        <span>h)</span>
-                    </td>
-                    <td>
-                        <span class="italic">Tâm thần</span>
-                    </td>
-                    <td>
-                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than)
-                    </td>
-                    <td rowspan="2" class="center">
+                    <td class="v-middle" rowspan="2">h)</td>
+                    <td class="italic">Tâm thần</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than)</td>
+                    <td rowspan="2" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than, SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than, "tam_than", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_tam_than)
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <span>Phân loại</span>
-                    </td>
-                    <td>
-                        <span>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than?.name)</span>
-                    </td>
+                    <td>Phân loại</td>
+                    <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than?.name)</td>
                 </tr>
+
                 <tr>
-                    <td class="v-venter">
-                        <span class="bold" style="vertical-align: middle">2.</span>
-                    </td>
+                    <td class="v-middle bold">2.</td>
                     <td colspan="2">
                         <div class="row">
                             <span class="bold">Ngoại khoa, Da liễu:</span>
                         </div>
                         <div class="row">
-                            <span class="dotted-ruled" style="--start: 82px">
-                                - Ngoại khoa: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa)
-                            </span>
+                            <span>- Ngoại khoa:</span>
+                            <span class="dotted-ruled" style="width: 115mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa)</span>
                         </div>
                         <div class="row">
-                            <span class="dotted-ruled" style="--start: 60px">
-                                Phân loại: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa?.name)
-                            </span>
+                            <span>Phân loại:</span>
+                            <span class="dotted-ruled" style="width: 120mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa?.name)</span>
                         </div>
                         <div class="row">
-                            <span class="dotted-ruled" style="--start: 82px">
-                                - Da liễu: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu)
-                            </span>
+                            <span>- Da liễu:</span>
+                            <span class="dotted-ruled" style="width: 122mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu)</span>
                         </div>
                         <div class="row">
-                            <span class="dotted-ruled" style="--start: 60px">
-                                Phân loại: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu?.name)
-                            </span>
+                            <span>Phân loại:</span>
+                            <span class="dotted-ruled" style="width: 120mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu?.name)</span>
                         </div>
                     </td>
-                    <td class="center">
+                    <td class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa, SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa, "ngoai_khoa", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa)
                     </td>
                 </tr>
+
                 <tr>
-                    <td class="v-venter">
-                        <span class="bold" style="vertical-align: middle">3.</span>
-                    </td>
+                    <td class="v-middle bold">3.</td>
                     <td colspan="2">
                         <div class="row">
-                            <span>
-                                <b>Sản phụ khoa: </b>Chi tiết nội dung khám
-                                theo danh mục tại phụ lục XXV ban hành kèm
-                                theo Thông tư này.
-                            </span>
+                            <b>Sản phụ khoa:</b> Chi tiết nội dung khám theo
+                            danh mục tại phụ lục XXV ban hành kèm theo Thông
+                            tư này.
                         </div>
                         <div class="row">
-                            <span class="dotted-ruled" style="--start: 60px">
-                                Phân loại: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeSanPhuKhoa?.ket_qua)
-                            </span>
+                            <span>Phân loại:</span>
+                            <span class="dotted-ruled" style="width: 120mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeSanPhuKhoa?.ket_qua)</span>
                         </div>
                     </td>
-                    <td class="center">
+                    <td class="center v-middle">
                         @if (SelectedItem.benh_nhan?.gioi_tinh != null && SelectedItem.benh_nhan?.gioi_tinh == Enums.GioiTinh.Nu && SelectedKhamSucKhoeSanPhuKhoa != null)
                         {
                             @RenderSignatureHandler(SelectedKhamSucKhoeSanPhuKhoa.chu_ky, SelectedKhamSucKhoeSanPhuKhoa.chu_ky, "san_phu_khoa", 100, 50)
@@ -708,39 +669,27 @@
                         }
                     </td>
                 </tr>
+
                 <tr>
-                    <td class="v-venter">
-                        <span class="bold" style="vertical-align: middle">4</span>
-                    </td>
-                    <td colspan="3">
-                        <b>Mắt:</b>
-                    </td>
+                    <td class="v-middle bold">4</td>
+                    <td colspan="3"><b>Mắt:</b></td>
                 </tr>
                 <tr>
                     <td colspan="3">
                         <div class="row">
-                            <span class="dotted-ruled"
-                                  style="--width: 350px; --start: 260px">
-                                <i>Kết quả khám thị lực: </i>Không kính:
-                                Mắt phải: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai)
-                            </span>
-                            <span class="dotted-ruled"
-                                  style="--width: 110px; --start: 22px">
-                                trái: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai)
-                            </span>
+                            <i>Kết quả khám thị lực:</i> Không kính: Mắt phải:
+                            <span class="dotted-ruled" style="width: 25mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai)</span>
+                            trái:
+                            <span class="dotted-ruled" style="width: 25mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai)</span>
                         </div>
                         <div class="row">
-                            <span class="dotted-ruled"
-                                  style="--width: 200px; --start: 110px">
-                                Có kính: Mắt phải: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai)
-                            </span>
-                            <span class="dotted-ruled"
-                                  style="--width: 110px; --start: 22px">
-                                trái: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai)
-                            </span>
+                            Có kính: Mắt phải:
+                            <span class="dotted-ruled" style="width: 25mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai)</span>
+                            trái:
+                            <span class="dotted-ruled" style="width: 25mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai)</span>
                         </div>
                     </td>
-                    <td rowspan="3" class="center">
+                    <td rowspan="3" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat, SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat, "mat", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_mat)
                     </td>
@@ -748,53 +697,45 @@
                 <tr>
                     <td colspan="3">
                         <div class="row">
-                            <span class="dotted-ruled"
-                                  style="--start: 158px">
-                                Các bệnh về mắt (nếu có): @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.benh_mat)
-                            </span>
+                            Các bệnh về mắt (nếu có):
+                            <span class="dotted-ruled" style="width: 105mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.benh_mat)</span>
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="3">
                         <div class="row">
-                            <span class="dotted-ruled" style="--start: 60px">
-                                Phân loại: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_mat?.name)
-                            </span>
+                            Phân loại:
+                            <span class="dotted-ruled" style="width: 131mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_mat?.name)</span>
                         </div>
                     </td>
                 </tr>
+
                 <tr>
-                    <td class="v-venter">
-                        <span class="bold" style="vertical-align: middle">5</span>
-                    </td>
-                    <td colspan="3">
-                        <b>Tai - Mũi - Họng:</b>
-                    </td>
+                    <td class="v-middle bold">5</td>
+                    <td colspan="3"><b>Tai - Mũi - Họng:</b></td>
                 </tr>
                 <tr>
                     <td colspan="3">
-                        <div class="row">
-                            <span class="italic">Kết quả khám thính lực:</span>
+                        <div class="row italic">
+                            Kết quả khám thính lực:
                         </div>
                         <div class="row">
-                            <span class="dotted-ruled"
-                                  style="--width: 200px; --start: 115px">
-                                Tai trái: Nói thường @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai)
-                            </span>
-                            <span class="dotted-ruled"
-                                  style="--width: 150px; --start: 75px">m; Nói thầm @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai)</span>m
+                            Tai trái: Nói thường
+                            <span class="dotted-ruled" style="width: 25mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai)</span>
+                            m; Nói thầm
+                            <span class="dotted-ruled" style="width: 25mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai)</span>
+                            m
                         </div>
                         <div class="row">
-                            <span class="dotted-ruled"
-                                  style="--width: 200px; --start: 115px">
-                                Tai phải: Nói thường @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai)
-                            </span>
-                            <span class="dotted-ruled"
-                                  style="--width: 150px; --start: 75px">m; Nói thầm @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai)</span>m
+                            Tai phải: Nói thường
+                            <span class="dotted-ruled" style="width: 25mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai)</span>
+                            m; Nói thầm
+                            <span class="dotted-ruled" style="width: 25mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai)</span>
+                            m
                         </div>
                     </td>
-                    <td rowspan="3" class="center">
+                    <td rowspan="3" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh, SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh, "tmh", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_tmh)
                     </td>
@@ -802,47 +743,38 @@
                 <tr>
                     <td colspan="3">
                         <div class="row">
+                            Các bệnh về tai mũi họng (nếu có):
+                            <span class="dotted-ruled" style="width: 92mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong)</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div class="row">
+                            Phân loại:
                             <span class="dotted-ruled"
-                                  style="--start: 208px">
-                                Các bệnh về tai mũi họng (nếu có): @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong)
-                            </span>
+                                  style="width: 131mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_tmh?.name)</span>
                         </div>
                     </td>
                 </tr>
+
                 <tr>
-                    <td colspan="3">
-                        <div class="row">
-                            <span class="dotted-ruled" style="--start: 60px">
-                                Phân loại: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_tmh?.name)
-                            </span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="v-venter">
-                        <span class="bold" style="vertical-align: middle">6</span>
-                    </td>
-                    <td colspan="3">
-                        <b>Răng - Hàm - Mặt:</b>
-                    </td>
+                    <td class="v-middle bold">6</td>
+                    <td colspan="3"><b>Răng - Hàm - Mặt:</b></td>
                 </tr>
                 <tr>
                     <td colspan="3">
+                        <div class="row italic">Kết quả khám:</div>
                         <div class="row">
-                            <span class="italic">Kết quả khám: </span>
+                            Hàm trên:
+                            <span class="dotted-ruled" style="width: 131mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren)</span>
                         </div>
                         <div class="row">
-                            <span class="dotted-ruled" style="--start: 60px">
-                                Hàm trên: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren)
-                            </span>
-                        </div>
-                        <div class="row">
-                            <span class="dotted-ruled" style="--start: 65px">
-                                Hàm dưới: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi)
-                            </span>
+                            Hàm dưới:
+                            <span class="dotted-ruled" style="width: 130mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi)</span>
                         </div>
                     </td>
-                    <td rowspan="3" class="center">
+                    <td rowspan="3" class="center v-middle">
                         @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm, SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm, "rhm", 100, 50)
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.bs_rhm)
                     </td>
@@ -850,19 +782,16 @@
                 <tr>
                     <td colspan="3">
                         <div class="row">
-                            <span class="dotted-ruled"
-                                  style="--start: 218px">
-                                Các bệnh về răng hàm mặt (nếu có): @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.benh_rhm)
-                            </span>
+                            Các bệnh về răng hàm mặt (nếu có):
+                            <span class="dotted-ruled" style="width: 90mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.benh_rhm)</span>
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="3">
                         <div class="row">
-                            <span class="dotted-ruled" style="--start: 60px">
-                                Phân loại: @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_rhm?.name)
-                            </span>
+                            Phân loại:
+                            <span class="dotted-ruled" style="width: 131mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa.pl_rhm?.name)</span>
                         </div>
                     </td>
                 </tr>
@@ -870,97 +799,112 @@
         </table>
 
         <div class="title mt-3">IV. KHÁM CẬN LÂM SÀNG</div>
-
         <table>
             <colgroup>
                 <col style="width: 80%" />
                 <col style="width: 20%" />
             </colgroup>
             <tbody>
-                @if (SelectedKhamSucKhoeKetQuaCanLamSangs != null)
-                {
-                    foreach (var item in SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => !string.IsNullOrEmpty(c.ket_qua)).Select((v, i) => new { Data = v, Index = i }))
-                    {
-                        <tr>
-                            <td>
+                <tr>
+                    <td>
+                        @if (SelectedKhamSucKhoeKetQuaCanLamSangs != null)
+                        {
+                            foreach (var item in SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => !string.IsNullOrEmpty(c.ket_qua)))
+                            {
                                 <span>
-                                    * @(item.Data.type?.GetDescriptionFromString<KetQuaCanLamSang>()):
+                                    * @(item.type?.GetDescriptionFromString<KetQuaCanLamSang>()):
                                 </span>
                                 <div class="row">
-                                    <span class="dotted-ruled" style="--start: 65px">
-                                        a) Kết quả: @((MarkupString)(item.Data.ket_qua ?? string.Empty))
+                                    <span>
+                                        a) Kết quả:
                                     </span>
+                                    @foreach (var splitStr in item.ket_qua?.WrapToWidthMm() ?? new List<string>())
+                                    {
+                                        <span class="dotted-ruled" style="width: 100%">@splitStr</span>
+                                    }
                                 </div>
                                 <div class="row">
-                                    <span class="dotted-ruled" style="--start: 72px">
+                                    <span>
                                         b) Đánh giá:
                                     </span>
+                                    <span class="dotted-ruled" style="width: 100%"></span>
                                 </div>
-                            </td>
-                            @if (item.Index == 0)
-                            {
-                                <td colspan="@SelectedKhamSucKhoeKetQuaCanLamSangs.Count" class="center">
-                                    @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan.chu_ky, SelectedKhamSucKhoeKetLuan.chu_ky, "ket_luan", 100, 50)
-                                    @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan.bs_ket_luan?.full_name)
-                                </td>
                             }
-                        </tr>
-                    }
-                }
+                        }
+                    </td>
+                    <td class="center v-middle">
+                        @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan.chu_ky, SelectedKhamSucKhoeKetLuan.chu_ky, "ket_luan", 100, 50)
+                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan.bs_ket_luan?.full_name)
+                    </td>
+                </tr>
             </tbody>
         </table>
 
         <div class="title mt-3">V. KẾT LUẬN</div>
         <div class="row">
-            <span class="dotted-ruled" style="--start: 145px">
-                <b>1. Phân loại sức khỏe:<sup>1</sup> </b> @SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe?.name
-            </span>
+            <b>1. Phân loại sức khỏe<sup>1</sup>:</b>
+            <span class="dotted-ruled" style="width: 148mm">@SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe?.name</span>
         </div>
         <div class="row">
-            <span class="dotted-ruled" style="--start: 160px">
-                <b>2. Các bệnh, tật (nếu có):<sup>2</sup></b> @((MarkupString)(SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan ?? string.Empty))
-            </span>
+            <b>2. Các bệnh, tật (nếu có)<sup>2</sup>:</b>
+            @if (!string.IsNullOrEmpty(SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan))
+            {
+                foreach (var splitStr in SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan.WrapToWidthMm())
+                {
+                    <span class="dotted-ruled" style="width: 100%">@splitStr</span>
+                }
+            }
+            else
+            {
+                <span class="dotted-ruled" style="width: 100%"></span>
+            }
         </div>
-        <table class="equal-col no-border mb-5">
+
+        <table class="outer-table no-border mb-5" style="width: 100%">
             <colgroup>
-                <col style="width: 60%" />
+                <col style="width: 40%" />
                 <col style="width: 40%" />
             </colgroup>
             <tbody>
                 <tr>
                     <td></td>
                     <td>
-                        <div style="display: flex;align-items: flex-end;flex-direction: column;">
+                        <div class="signature-box">
                             <div class="row">
                                 <span class="dotted-ruled"
-                                      style="--width: 80px">.</span>
+                                      style="width: 20mm"></span>
+                                <span>, ngày</span>
                                 <span class="dotted-ruled"
-                                      style="--width: 80px; --start: 40px">, ngày @SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd")</span>
+                                      style="width: 7mm">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd")</span>
+                                <span>tháng</span>
                                 <span class="dotted-ruled"
-                                      style="--width: 80px; --start: 40px">tháng @SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("MM")</span>
+                                      style="width: 7mm">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("MM")</span>
+                                <span>năm</span>
                                 <span class="dotted-ruled"
-                                      style="--width: 100px; --start: 40px">năm @SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("yyyy")</span>
+                                      style="width: 12mm">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("yyyy")</span>
                             </div>
-                            <div class="signature mb-5">
-                                <span class="bold">NGƯỜI KẾT LUẬN</span>
-                                <span class="italic">(Ký, ghi rõ họ tên và đóng dấu)</span>
-                            </div>
-                            <div class="row mb-2">
-                                @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan.bs_ket_luan?.full_name)
-                            </div>
+                            <span class="bold">NGƯỜI KẾT LUẬN</span>
+                            <br />
+                            <span class="italic">(Ký, ghi rõ họ tên và đóng dấu)</span>
+                            <br />
+                            <div style="height: 20mm"></div>
+                            <span class="bold">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan.bs_ket_luan?.full_name)</span>
                         </div>
                     </td>
                 </tr>
             </tbody>
         </table>
+
         <hr class="short-line" />
         <div class="row">
-            <span>
+            <div>
                 <sup>1</sup> Phân loại sức khỏe theo quy định của Bộ Y tế
+            </div>
+            <div>
                 <sup>2</sup> Ghi rõ các bệnh, tật, phương án điều trị, phục
                 hồi chức năng hoặc giới thiệu khám chuyên khoa để khám bệnh,
                 chữa bệnh (nếu có).
-            </span>
+            </div>
         </div>
     </section>
 </div>
@@ -986,7 +930,7 @@
     public List<KhamSucKhoeKetQuaCanLamSangModel> SelectedKhamSucKhoeKetQuaCanLamSangs { get; set; } = new List<KhamSucKhoeKetQuaCanLamSangModel>();
     [Parameter]
     public KhamSucKhoeKetLuanModel SelectedKhamSucKhoeKetLuan { get; set; } = new KhamSucKhoeKetLuanModel();
-
+    private int splitCount { get; set; } = 0;
 
     [Parameter]
     public Func<string?, string?, string?, int, int, MarkupString>? RenderSignature { get; set; }
