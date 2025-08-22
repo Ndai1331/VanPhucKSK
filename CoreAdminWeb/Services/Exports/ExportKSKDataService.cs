@@ -14,7 +14,7 @@ using System.Text;
 using Xceed.Words.NET;
 
 
-namespace CoreAdminWeb.Services.Imports
+namespace CoreAdminWeb.Services.Exports
 {
     public class ExportKSKDataService
     {
@@ -348,7 +348,7 @@ namespace CoreAdminWeb.Services.Imports
             catch (Exception ex)
             {
                 await _hubContext.Clients.Client(connectionId)
-                .SendAsync("ExportExaminationError", $"Lỗi khi import: {ex.Message}", cancellationToken);
+                .SendAsync("ExportExaminationError", $"Lỗi khi xuất tập tin: {ex.Message}", cancellationToken);
             }
         }
         static async Task<List<T>> BatchQueryAsync<T, TValue>(Func<List<TValue>, Task<RequestHttpResponse<List<T>>>> queryFunc, List<TValue> ids, int batchSize = 200)

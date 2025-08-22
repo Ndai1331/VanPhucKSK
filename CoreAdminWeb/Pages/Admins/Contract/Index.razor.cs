@@ -485,6 +485,18 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 return false;
             }
 
+            if (string.IsNullOrEmpty(SelectedItem.nguoi_gioi_thieu))
+            {
+                AlertService.ShowAlert("Người liên hệ là bắt buộc", "danger");
+                return false;
+            }
+            
+            if (string.IsNullOrEmpty(SelectedItem.so_dien_thoai_lien_he))
+            {
+                AlertService.ShowAlert("Số điện thoại liên hệ là bắt buộc", "danger");
+                return false;
+            }
+
             return true;
         }
 
