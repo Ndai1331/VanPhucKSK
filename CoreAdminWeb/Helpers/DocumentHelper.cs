@@ -4,6 +4,7 @@ using QRCoder;
 using Spire.Doc;
 using Spire.Doc.Documents;
 using Spire.Doc.Fields;
+using Xceed.Words.NET;
 using static CoreAdminWeb.Services.Imports.ExportKSKDataService;
 
 namespace CoreAdminWeb.Helpers
