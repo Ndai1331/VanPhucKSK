@@ -510,10 +510,6 @@ window.getMedicalFormHtml = function() {
 				-webkit-print-color-adjust: exact;
 				print-color-adjust: exact;
 			}
-			@page {
-				size: A4;
-				margin: 20mm 15mm 18mm 20mm;
-			}
 			.page {
 				width: 210mm;
 				min-height: 297mm;
@@ -815,6 +811,7 @@ window.getMedicalFormHtml = function() {
             <head>
                 <title>Sổ Khám Sức Khỏe</title>
                 <meta charset="utf-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
                 <style>
                     ${pdfStyles}
                 </style>
