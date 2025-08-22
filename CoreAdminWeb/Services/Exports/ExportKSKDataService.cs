@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using System.IO.Compression;
 using System.Text;
+using Xceed.Document.NET;
 using Xceed.Words.NET;
 
 
@@ -213,88 +214,106 @@ namespace CoreAdminWeb.Services.Exports
                         .SendAsync("ExportExaminationError", $"Không tìm thấy mẫu xuất cho giới tính {item.benh_nhan?.gioi_tinh?.GetDescription()}.", cancellationToken);
                         continue;
                     }
-                
+
                     using (var doc = DocX.Load(new MemoryStream(usingDocTemplate)))
                     {
-                        doc.ReplaceText("<<HoVaTen>>", $"{item.benh_nhan?.full_name}");
-                        doc.ReplaceText("<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}");
+                        doc.ReplaceText(new StringReplaceTextOptions()
+                        {
+                            SearchValue = "<<HoVaTen>>",
+                            NewValue = $"{item.benh_nhan?.full_name}"
+                        });
+                        doc.ReplaceText(new StringReplaceTextOptions()
+                        {
+                            SearchValue = "<<GioiTinh>>",
+                            NewValue = $"{item.benh_nhan?.gioi_tinh?.GetDescription()}"
+                        });
+
                         switch (exportType)
                         {
                             case HoSoKhamSucKhoeExportType.CheckListKsk:
-                                doc.ReplaceText("<<STT_KSK>>", $"{item.sort}");
-                                doc.ReplaceText("<<MaLuotKham>>", $"{item.ma_luot_kham}");
-                                doc.ReplaceText("<<NgaySinh>>", $"{item.benh_nhan?.ngay_sinh:dd/MM/yyyy}");
-                                doc.ReplaceText("<<X>>", $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}");
-                                doc.ReplaceText("<<X >>", $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}");
-                                doc.ReplaceText("<<SoDinhDanh>>", $"{item.benh_nhan?.so_dinh_danh}");
-                                doc.ReplaceText("<<SoDinhDanh >>", $"{item.benh_nhan?.so_dinh_danh}");
-                                doc.ReplaceText("<<SoDienThoai>>", $"{item.benh_nhan?.so_dien_thoai}");
-                                doc.ReplaceText(DocumentHelper.QRCodeReplaceCode, $"{item.ma_luot_kham}");
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<STT_KSK>>", NewValue = $"{item.sort}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<MaLuotKham>>", NewValue = $"{item.ma_luot_kham}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<NgaySinh>>", NewValue = $"{item.benh_nhan?.ngay_sinh:dd/MM/yyyy}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<X>>", NewValue = $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<X >>", NewValue = $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDinhDanh>>", NewValue = $"{item.benh_nhan?.so_dinh_danh}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDinhDanh >>", NewValue = $"{item.benh_nhan?.so_dinh_danh}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDienThoai>>", NewValue = $"{item.benh_nhan?.so_dien_thoai}" });
+
+                                var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
+                                using (var ms = new MemoryStream(qrCode))
+                                {
+                                    var image = doc.AddImage(ms);
+                                    var picture = image.CreatePicture(60, 60);
+                                    doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
+                                }
                                 break;
                             case HoSoKhamSucKhoeExportType.ConsultationSlip:
-                                doc.ReplaceText("<<CongTy>>", $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}");
-                                doc.ReplaceText("<<NamSinh>>", $"{item.benh_nhan?.ngay_sinh:yyyy}");
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<CongTy>>", NewValue = $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<NamSinh>>", NewValue = $"{item.benh_nhan?.ngay_sinh:yyyy}" });
 
                                 var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                doc.ReplaceText("<<ChieuCao>>", $"{theLuc?.chieu_cao}");
-                                doc.ReplaceText("<<CanNang>>", $"{theLuc?.can_nang}");
-                                doc.ReplaceText("<<BMI>>", $"{theLuc?.bmi}");
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<ChieuCao>>", NewValue = $"{theLuc?.chieu_cao}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<CanNang>>", NewValue = $"{theLuc?.can_nang}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<BMI>>", NewValue = $"{theLuc?.bmi}" });
 
                                 var cls = khamSucKhoeChuyenKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                doc.ReplaceText("<<kq_tuanhoan>>", $"{cls?.kq_nk_tuan_hoan}");
-                                doc.ReplaceText("<<kq_hohap>>", $"{cls?.kq_nk_ho_hap}");
-                                doc.ReplaceText("<<kq_tieuhoa>>", $"{cls?.kq_nk_tieu_hoa}");
-                                doc.ReplaceText("<<kq_noitiet>>", $"{cls?.kq_nk_noi_tiet}");
-                                doc.ReplaceText("<<kq_thantietnieu>>", $"{cls?.kq_nk_than_tiet_nieu}");
-                                doc.ReplaceText("<<kq_coxuongkhop>>", $"{cls?.kq_nk_co_xuong_khop}");
-                                doc.ReplaceText("<<kq_thankinh>>", $"{cls?.kq_nk_than_kinh}");
-                                doc.ReplaceText("<<kq_ngoaikhoa>>", $"{cls?.kq_ngoai_khoa}");
-                                doc.ReplaceText("<<kq_taimuihong>>", $"{cls?.benh_tai_mui_hong}");
-                                doc.ReplaceText("<<kq_dalieu>>", $"{cls?.kq_da_lieu}");
-                                doc.ReplaceText("<<kq_mat>>", $"{cls?.benh_mat}");
-                                doc.ReplaceText("<<kq_ranghammat>>", $"{cls?.benh_rhm}");
-                                doc.ReplaceText("<<kq_tamthan>>", $"{cls?.kq_nk_tam_than}");
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_tuanhoan>>", NewValue = $"{cls?.kq_nk_tuan_hoan}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_hohap>>", NewValue = $"{cls?.kq_nk_ho_hap}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_tieuhoa>>", NewValue = $"{cls?.kq_nk_tieu_hoa}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_noitiet>>", NewValue = $"{cls?.kq_nk_noi_tiet}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_thantietnieu>>", NewValue = $"{cls?.kq_nk_than_tiet_nieu}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_thantietnieu>>", NewValue = $"{cls?.kq_nk_than_tiet_nieu}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_coxuongkhop>>", NewValue = $"{cls?.kq_nk_co_xuong_khop}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_coxuongkhop>>", NewValue = $"{cls?.kq_nk_co_xuong_khop}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_thankinh>>", NewValue = $"{cls?.kq_nk_than_kinh}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_ngoaikhoa>>", NewValue = $"{cls?.kq_ngoai_khoa}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_taimuihong>>", NewValue = $"{cls?.benh_tai_mui_hong}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_dalieu>>", NewValue = $"{cls?.kq_da_lieu}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_mat>>", NewValue = $"{cls?.benh_mat}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_ranghammat>>", NewValue = $"{cls?.benh_rhm}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_tamthan>>", NewValue = $"{cls?.kq_nk_tam_than}" });
 
                                 var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                doc.ReplaceText("<<kq_sanphukhoa>>", $"{sanPhuKhoa?.ket_qua}");
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_sanphukhoa>>", NewValue = $"{sanPhuKhoa?.ket_qua}" });
 
                                 var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua)).ToList();
                                 if (kqcls != null && kqcls.Any())
                                 {
                                     var items_kqcls = kqcls.Select(c => new CanLamSangItem(c.type?.GetDescriptionFromString<KetQuaCanLamSang>() ?? string.Empty, c.ket_qua ?? string.Empty)).ToList();
-                                    
+
                                     // Build formatted text for chiDinh with bullet points
                                     StringBuilder chiDinhFormatted = new StringBuilder();
-                                    for (int i = 0; i < items_kqcls.Count(); i++)
+                                    for (int i = 0; i < items_kqcls.Count; i++)
                                     {
                                         chiDinhFormatted.AppendLine($"• {items_kqcls[i].TenChiDinh}");
                                     }
-                                    
+
                                     // Build formatted text for ketQua with bullet points
                                     StringBuilder ketQuaFormatted = new StringBuilder();
-                                    for (int i = 0; i < items_kqcls.Count(); i++)
+                                    for (int i = 0; i < items_kqcls.Count; i++)
                                     {
                                         ketQuaFormatted.AppendLine($"• {items_kqcls[i].KetQua}");
                                     }
-                                    
+
                                     // Replace placeholders with formatted text
-                                    doc.ReplaceText("<<TenChiDinh>>", chiDinhFormatted.ToString());
-                                    doc.ReplaceText("<<kq_canlamsang>>", ketQuaFormatted.ToString());
+                                    doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<TenChiDinh>>", NewValue = chiDinhFormatted.ToString() });
+                                    doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_canlamsang>>", NewValue = ketQuaFormatted.ToString() });
                                 }
                                 else
                                 {
-                                    doc.ReplaceText("<<TenChiDinh>>", "");
-                                    doc.ReplaceText("<<kq_canlamsang>>", "");
+                                    doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<TenChiDinh>>", NewValue = "" });
+                                    doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kq_canlamsang>>", NewValue = "" });
                                 }
 
                                 var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                doc.ReplaceText("<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}");
-                                doc.ReplaceText("<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}");
-                                doc.ReplaceText("<<kl_denghi>>", $"{ketLuan?.de_nghi}");
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kl_phanloai>>", NewValue = $"{ketLuan?.phan_loai_suc_khoe?.name}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kl_ketluan>>", NewValue = $"{ketLuan?.benh_tat_ket_luan}" });
+                                doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<kl_denghi>>", NewValue = $"{ketLuan?.de_nghi}" });
                                 break;
                         }
 
-                        
+
                         string filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.docx".ToNormalChar();
                         var savePath = Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}");
                         if (!Directory.Exists(savePath))
