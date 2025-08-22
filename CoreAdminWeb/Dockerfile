@@ -4,6 +4,7 @@ EXPOSE 80
 
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
+RUN apt-get update && apt-get install -y libskia-sharp
 COPY . .
 RUN dotnet restore "CoreAdminWeb.sln"
 WORKDIR /src/CoreAdminWeb

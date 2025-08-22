@@ -4,7 +4,7 @@
 
 
 <!DOCTYPE html>
-<html lang="en" : dir="ltr" x-data="{ direction: $store.app.direction }" class="group/item" :data-mode="$store.app.mode" :data-sidebar="$store.app.sidebarMode">
+<html lang="en" dir="ltr" x-data="{ direction: $store.app.direction }" class="group/item" :data-mode="$store.app.mode" :data-sidebar="$store.app.sidebarMode">
 
 <head>
     <meta charset="UTF-8">
@@ -52,15 +52,15 @@
     @RenderBody()
 
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+
     <!-- Alpine js -->
     <script src="assets/js/pages/alpine-collaspe.min.js"></script>
     <script src="assets/js/pages/alpine-persist.min.js"></script>
     <script src="assets/js/pages/alpine.min.js" defer></script>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
-   
     <script src="assets/libs/apexcharts/apexcharts.js"></script>
     <script src="assets/js/pages/contact.js"></script>
     <script src="assets/js/pages/clipboard.init.js"></script>
@@ -84,126 +84,126 @@
     <script src="assets/libs/flatpickr/flatpickr.min.js"></script>
     <script src="assets/libs/flatpickr/flatpickr.js"></script>
     <script src="assets/js/chart.js"></script>
-    
+
     <!-- Print Helper for Medical Records -->
     <script src="js/print-helper.js"></script>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
     <script src="_content/KeudellCoding.Blazor.AdvancedBlazorSelect2/Select2JsInterop.js" type="text/javascript" language="javascript"></script>
     <script src="_content/KeudellCoding.Blazor.AdvancedBlazorSelect2/lib/select2/js/select2.full.min.js" type="text/javascript" language="javascript"></script>
-    
+
     <script>
-   
-
-        window.DocumentClickHandler = {
-            callbacks: [],
-            subscribe: function () {
-                document.addEventListener('click', this.handleDocumentClick);
-            },
-            unsubscribe: function () {
-                document.removeEventListener('click', this.handleDocumentClick);
-            },
-            handleDocumentClick: function () {
-                DocumentClickHandler.callbacks.forEach(function (callback) {
-                    callback();
-                });
-            },
-            register: function (callback) {
-                this.callbacks.push(callback);
-            }
-        };
-
-        window.initializeFancybox = () => {
-            Fancybox.bind('[data-fancybox="gallery"]');
-        };
-
-        function initializeFullCalendar() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    right: 'today prev,next', // Order changed: 'today' comes before 'prev,next'
-                }
-            });
-            calendar.render();
-        }
-
-        window.setupClickOutsideListener = (elementId, dotnetHelper) => {
-            document.addEventListener('click', function (event) {
-                var element = document.getElementById(elementId);
-                if (element && !element.contains(event.target)) {
-                    dotnetHelper.invokeMethodAsync('CloseDropdown');
-                }
-            });
-        };
 
 
-        window.initializeDateTimePicker = () => {
-            flatpickr(".datetime-picker", {
-                enableTime: true,
-                dateFormat: "d/m/Y",
-            });
-        };
+         window.DocumentClickHandler = {
+             callbacks: [],
+             subscribe: function () {
+                 document.addEventListener('click', this.handleDocumentClick);
+             },
+             unsubscribe: function () {
+                 document.removeEventListener('click', this.handleDocumentClick);
+             },
+             handleDocumentClick: function () {
+                 DocumentClickHandler.callbacks.forEach(function (callback) {
+                     callback();
+                 });
+             },
+             register: function (callback) {
+                 this.callbacks.push(callback);
+             }
+         };
 
-         window.initializeDatePicker = () => {
-            flatpickr(".date-picker", {
-                enableTime: false,
-                dateFormat: "d/m/Y",
-                allowInput: true,
-                onChange: function(selectedDates, dateStr, instance) {
-                    // Format date as dd/MM/yyyy
-                    const date = selectedDates[0];
-                    const formattedDate = date ? `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}` : '';
-                    
-                    // Update input value and trigger change for Blazor binding
-                    instance.input.value = formattedDate;
-                    instance.input.dispatchEvent(new Event('change', { bubbles: true }));
-                },
-                parseDate: function(datestr, format) {
-                    // Parse date from dd/MM/yyyy format
-                    if (datestr) {
-                        const parts = datestr.split('/');
-                        if (parts.length === 3) {
-                            return new Date(parts[2], parts[1] - 1, parts[0]);
-                        }
-                    }
-                    return null;
-                }
-            });
-        };
+         window.initializeFancybox = () => {
+             Fancybox.bind('[data-fancybox="gallery"]');
+         };
 
-   
-        function toggleFullScreen() {
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            } else {
-                document.documentElement.requestFullscreen();
-            }
-        }
-   
-        window.toggleSidebar = function () {
-            const body = document.querySelector('body');
-            body.classList.toggle('toggle-sidebar');
-        };
-   
-        window.removeToggleSidebarClass = function () {
-            const body = document.querySelector('body');
-            body.classList.remove('toggle-sidebar');
-        };
-    
-        window.changeDirection = function (direction) {
-            document.documentElement.setAttribute('dir', direction);
-        }
-    
-        window.setBodyClass = (className) => {
-            document.body.classList.remove('light', 'dark');
-            document.body.classList.add(className);
-        };
+         function initializeFullCalendar() {
+             var calendarEl = document.getElementById('calendar');
+             var calendar = new FullCalendar.Calendar(calendarEl, {
+                 initialView: 'dayGridMonth',
+                 headerToolbar: {
+                     right: 'today prev,next', // Order changed: 'today' comes before 'prev,next'
+                 }
+             });
+             calendar.render();
+         }
 
-        // PDF Download function
-        @* window.downloadFile = function (dataUrl, fileName) {
+         window.setupClickOutsideListener = (elementId, dotnetHelper) => {
+             document.addEventListener('click', function (event) {
+                 var element = document.getElementById(elementId);
+                 if (element && !element.contains(event.target)) {
+                     dotnetHelper.invokeMethodAsync('CloseDropdown');
+                 }
+             });
+         };
+
+
+         window.initializeDateTimePicker = () => {
+             flatpickr(".datetime-picker", {
+                 enableTime: true,
+                 dateFormat: "d/m/Y",
+             });
+         };
+
+          window.initializeDatePicker = () => {
+             flatpickr(".date-picker", {
+                 enableTime: false,
+                 dateFormat: "d/m/Y",
+                 allowInput: true,
+                 onChange: function(selectedDates, dateStr, instance) {
+                     // Format date as dd/MM/yyyy
+                     const date = selectedDates[0];
+                     const formattedDate = date ? `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}` : '';
+
+                     // Update input value and trigger change for Blazor binding
+                     instance.input.value = formattedDate;
+                     instance.input.dispatchEvent(new Event('change', { bubbles: true }));
+                 },
+                 parseDate: function(datestr, format) {
+                     // Parse date from dd/MM/yyyy format
+                     if (datestr) {
+                         const parts = datestr.split('/');
+                         if (parts.length === 3) {
+                             return new Date(parts[2], parts[1] - 1, parts[0]);
+                         }
+                     }
+                     return null;
+                 }
+             });
+         };
+
+
+         function toggleFullScreen() {
+             if (document.fullscreenElement) {
+                 document.exitFullscreen();
+             } else {
+                 document.documentElement.requestFullscreen();
+             }
+         }
+
+         window.toggleSidebar = function () {
+             const body = document.querySelector('body');
+             body.classList.toggle('toggle-sidebar');
+         };
+
+         window.removeToggleSidebarClass = function () {
+             const body = document.querySelector('body');
+             body.classList.remove('toggle-sidebar');
+         };
+
+         window.changeDirection = function (direction) {
+             document.documentElement.setAttribute('dir', direction);
+         }
+
+         window.setBodyClass = (className) => {
+             document.body.classList.remove('light', 'dark');
+             document.body.classList.add(className);
+         };
+
+         // PDF Download function
+         @* window.downloadFile = function (dataUrl, fileName) {
             const link = document.createElement('a');
             link.href = dataUrl;
             link.download = fileName;
@@ -211,101 +211,101 @@
             link.click();
             document.body.removeChild(link);
         }; *@
-    
-        window.addClickListener = function (dotNetObject) {
-            document.body.addEventListener("click", function () {
-                dotNetObject.invokeMethodAsync("HandleClickEvent");
-            });
-        };
-    
-        window.addClass = (element, className) => {
-            document.querySelector(element).classList.add(className);
-        };
 
-        window.removeClass = (element, className) => {
-            document.querySelector(element).classList.remove(className);
-        };
-    
-        window.toggleDropdown = () => {
-            const dropdown = document.querySelector('.dropdown ul');
-            if (dropdown.style.display === 'block') {
-                dropdown.style.display = 'none';
-            } else {
-                dropdown.style.display = 'block';
-            }
-        };
-        window.consoleLog = (message, data) => {
-            console.log('message: ', message, 'data: ', data);
-        };
-        // Function to handle file download
-        
-        // Function để download file
-        window.downloadFile = function(dataUrl, filename) {
-            try {
-                console.log('downloadFile called with filename:', filename);
-                console.log('Data URL length:', dataUrl.length);
-                
-                // Tạo element anchor để download
-                const link = document.createElement('a');
-                link.href = dataUrl;
-                link.download = filename;
-                link.style.display = 'none';
-                
-                // Thêm vào DOM, click và remove
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                console.log('Download triggered successfully');
-            } catch (error) {
-                console.error('Error in downloadFile:', error);
-                alert('Lỗi khi tải file: ' + error.message);
-            }
-        }; 
+         window.addClickListener = function (dotNetObject) {
+             document.body.addEventListener("click", function () {
+                 dotNetObject.invokeMethodAsync("HandleClickEvent");
+             });
+         };
 
-        window.saveAsFile = (filename, bytesBase64) => {
-            var link = document.createElement('a');
-            link.download = filename;
-            link.href = "data:application/octet-stream;base64," + bytesBase64;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-       
+         window.addClass = (element, className) => {
+             document.querySelector(element).classList.add(className);
+         };
 
-       window.typeaheadFix = {
-            reposition: function (inputId, dropdownId) {
-                const input = document.getElementById(inputId);
-                const dropdown = document.getElementById(dropdownId);
+         window.removeClass = (element, className) => {
+             document.querySelector(element).classList.remove(className);
+         };
 
-                if (!input || !dropdown) return;
+         window.toggleDropdown = () => {
+             const dropdown = document.querySelector('.dropdown ul');
+             if (dropdown.style.display === 'block') {
+                 dropdown.style.display = 'none';
+             } else {
+                 dropdown.style.display = 'block';
+             }
+         };
+         window.consoleLog = (message, data) => {
+             console.log('message: ', message, 'data: ', data);
+         };
+         // Function to handle file download
 
-                // Lấy vị trí của input trong viewport
-                const rect = input.getBoundingClientRect();
+         // Function để download file
+         window.downloadFile = function(dataUrl, filename) {
+             try {
+                 console.log('downloadFile called with filename:', filename);
+                 console.log('Data URL length:', dataUrl.length);
 
-                // Chuyển dropdown thành fixed để thoát khỏi overflow
-                dropdown.style.position = "fixed";
-                dropdown.style.top = rect.bottom + "px";
-                dropdown.style.left = rect.left + "px";
-                dropdown.style.width = rect.width + "px";
-                dropdown.style.zIndex = 99999;
-            }
-        }
+                 // Tạo element anchor để download
+                 const link = document.createElement('a');
+                 link.href = dataUrl;
+                 link.download = filename;
+                 link.style.display = 'none';
+
+                 // Thêm vào DOM, click và remove
+                 document.body.appendChild(link);
+                 link.click();
+                 document.body.removeChild(link);
+
+                 console.log('Download triggered successfully');
+             } catch (error) {
+                 console.error('Error in downloadFile:', error);
+                 alert('Lỗi khi tải file: ' + error.message);
+             }
+         };
+
+         window.saveAsFile = (filename, bytesBase64) => {
+             var link = document.createElement('a');
+             link.download = filename;
+             link.href = "data:application/octet-stream;base64," + bytesBase64;
+             document.body.appendChild(link);
+             link.click();
+             document.body.removeChild(link);
+         }
+
+
+        window.typeaheadFix = {
+             reposition: function (inputId, dropdownId) {
+                 const input = document.getElementById(inputId);
+                 const dropdown = document.getElementById(dropdownId);
+
+                 if (!input || !dropdown) return;
+
+                 // Lấy vị trí của input trong viewport
+                 const rect = input.getBoundingClientRect();
+
+                 // Chuyển dropdown thành fixed để thoát khỏi overflow
+                 dropdown.style.position = "fixed";
+                 dropdown.style.top = rect.bottom + "px";
+                 dropdown.style.left = rect.left + "px";
+                 dropdown.style.width = rect.width + "px";
+                 dropdown.style.zIndex = 99999;
+             }
+         }
 
 
     </script>
     <script src='assets/js/pages/index.global.min.js'></script>
-    <script src="assets/js/main.js"></script> 
+    <script src="assets/js/main.js"></script>
     <script src="assets/js/pages/form-editor.js"></script>
 
     <script src="_framework/blazor.server.js"></script>
-    <script type="module" src="assets/js/admin.bundle.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vi.js"></script>
 
     <script src="_content/Blazored.Typeahead/blazored-typeahead.js"></script>
     <script src="~/js/currency-formatter.js"></script>
-<script>
- 
+    <script type="module" src="assets/js/admin.bundle.js"></script>
+    <script>
+
         // Dynamically set favicon at runtime
         // If a favicon link exists, replace href; otherwise, create one and append to head
         window.setFavicon = function (url) {
@@ -334,6 +334,6 @@
                 });
             }
         };
-    </script>   
+    </script>
 </body>
 </html>
