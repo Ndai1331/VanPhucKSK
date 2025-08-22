@@ -109,7 +109,7 @@
                             bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
                             text-nowrap" OnClick="e => IsShowExportModal = true">
                             <i class="ri-file-pdf-2-line"></i>
-                            Xuất
+                            Xuất file 
                         </MudButton>
                         <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
@@ -232,7 +232,7 @@
 {
     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
         <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseExportModal">
-            <div class="relative w-full max-w-5xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+            <div class="relative w-full max-w-xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
                 <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
                     <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Sổ khám sức khỏe định kỳ</MudText>
                     <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseExportModal">
@@ -243,7 +243,16 @@
                     </MudButton>
                 </div>
                 <div class="p-5">
-                    <div class="flex items-end justify-end gap-2 mb-4">
+                    <div class="flex flex-wrap justify-center gap-3 mb-3" style="flex-direction: column;">
+                        @foreach (var item in EnumHelper.ToList<HoSoKhamSucKhoeExportType>())
+                        {
+                            <label class="inline-flex cursor-pointer">
+                                <input type="radio" name="exporter" @onchange="e => exportType = item.EnumValue" class="form-radio text-purple" checked="@(item.EnumValue == exportType)" />
+                                <MudText Typo="Typo.h5" Class="text-base capitalize text-slate-800 dark:text-slate-100">@item.Description</MudText>
+                            </label>
+                        }
+                    </div>
+                    <div class="flex gap-2 mb-4">
                         @if (isDisabledExport || isExportError)
                         {
                             <div class="flex items-center gap-2">
@@ -262,19 +271,9 @@
                             </div>
                         }
                     </div>
-
-                    <div class="flex flex-wrap justify-center gap-3" style="flex-direction: column;">
-                        @foreach (var item in EnumHelper.ToList<HoSoKhamSucKhoeExportType>())
-                        {
-                            <label class="inline-flex cursor-pointer">
-                                <input type="radio" name="exporter" @onchange="e => exportType = item.EnumValue" class="form-radio text-purple" checked="@(item.EnumValue == exportType)" />
-                                <MudText Typo="Typo.h5" Class="text-base capitalize text-slate-800 dark:text-slate-100">@item.Description</MudText>
-                            </label>
-                        }
-                    </div>
                 </div>
                 <div class="p-5 flex items-center justify-end gap-2 py-4">
-                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="ExportFileSubmit" Disabled="@(isDisabledExport)">Tải PDF</MudButton>
+                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="ExportFileSubmit" Disabled="@(isDisabledExport)">Tải file</MudButton>
                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-muted hover:text-black dark:hover:text-white" OnClick="CloseExportModal">Đóng</MudButton>
                 </div>
             </div>

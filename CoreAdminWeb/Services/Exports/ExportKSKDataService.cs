@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using System.IO.Compression;
 using System.Text;
+using Xceed.Words.NET;
+
 
 namespace CoreAdminWeb.Services.Exports
 {
@@ -69,7 +71,7 @@ namespace CoreAdminWeb.Services.Exports
                     return;
                 }
 
-                if (exportType == HoSoKhamSucKhoeExportType.CónultationSlip)
+                if (exportType == HoSoKhamSucKhoeExportType.ConsultationSlip)
                 {
                     var chuyenKhoaTask = BatchQueryAsync(
                         ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
@@ -106,21 +108,21 @@ namespace CoreAdminWeb.Services.Exports
 
                 var exportTemplateNu = exportType switch
                 {
-                    HoSoKhamSucKhoeExportType.CónultationSlip => setting.thcn_nu,
+                    HoSoKhamSucKhoeExportType.ConsultationSlip => setting.thcn_nu,
                     HoSoKhamSucKhoeExportType.CheckListKsk => setting.phieu_ksk_nu,
-                    _ => throw new NotSupportedException("Unsupported export type")
+                    _ => throw new NotSupportedException("Chưa hỗ trợ xuất template này")
                 };
 
                 var exportTemplateNam = exportType switch
                 {
-                    HoSoKhamSucKhoeExportType.CónultationSlip => setting.thcn_nam,
+                    HoSoKhamSucKhoeExportType.ConsultationSlip => setting.thcn_nam,
                     HoSoKhamSucKhoeExportType.CheckListKsk => setting.phieu_ksk_nam,
-                    _ => throw new NotSupportedException("Unsupported export type")
+                    _ => throw new NotSupportedException("Chưa hỗ trợ xuất template này")
                 };
 
                 if (
                     (
-                        exportType == HoSoKhamSucKhoeExportType.CónultationSlip
+                        exportType == HoSoKhamSucKhoeExportType.ConsultationSlip
                         || exportType == HoSoKhamSucKhoeExportType.CheckListKsk
                     )
                     && (
@@ -211,81 +213,97 @@ namespace CoreAdminWeb.Services.Exports
                         .SendAsync("ExportExaminationError", $"Không tìm thấy mẫu xuất cho giới tính {item.benh_nhan?.gioi_tinh?.GetDescription()}.", cancellationToken);
                         continue;
                     }
-                    using (var inStream = new MemoryStream(usingDocTemplate, writable: false))
+                
+                    using (var doc = DocX.Load(new MemoryStream(usingDocTemplate)))
                     {
-                        var spDoc = new Spire.Doc.Document();
-                        spDoc.LoadFromStream(inStream, Spire.Doc.FileFormat.Docx);
-
-                        DocumentHelper.FindAndReplaceString(ref spDoc, "<<HoVaTen>>", $"{item.benh_nhan?.full_name}");
-                        DocumentHelper.FindAndReplaceString(ref spDoc, "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}");
+                        doc.ReplaceText("<<HoVaTen>>", $"{item.benh_nhan?.full_name}");
+                        doc.ReplaceText("<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}");
                         switch (exportType)
                         {
                             case HoSoKhamSucKhoeExportType.CheckListKsk:
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<STT_KSK>>", $"{item.sort}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<MaLuotKham>>", $"{item.ma_luot_kham}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<NgaySinh>>", $"{item.benh_nhan?.ngay_sinh:dd/MM/yyyy}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<X>>", $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<X >>", $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<SoDinhDanh>>", $"{item.benh_nhan?.so_dinh_danh}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<SoDinhDanh >>", $"{item.benh_nhan?.so_dinh_danh}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<SoDienThoai>>", $"{item.benh_nhan?.so_dien_thoai}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, DocumentHelper.QRCodeReplaceCode, $"{item.ma_luot_kham}");
+                                doc.ReplaceText("<<STT_KSK>>", $"{item.sort}");
+                                doc.ReplaceText("<<MaLuotKham>>", $"{item.ma_luot_kham}");
+                                doc.ReplaceText("<<NgaySinh>>", $"{item.benh_nhan?.ngay_sinh:dd/MM/yyyy}");
+                                doc.ReplaceText("<<X>>", $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}");
+                                doc.ReplaceText("<<X >>", $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}");
+                                doc.ReplaceText("<<SoDinhDanh>>", $"{item.benh_nhan?.so_dinh_danh}");
+                                doc.ReplaceText("<<SoDinhDanh >>", $"{item.benh_nhan?.so_dinh_danh}");
+                                doc.ReplaceText("<<SoDienThoai>>", $"{item.benh_nhan?.so_dien_thoai}");
+                                doc.ReplaceText(DocumentHelper.QRCodeReplaceCode, $"{item.ma_luot_kham}");
                                 break;
-                            case HoSoKhamSucKhoeExportType.CónultationSlip:
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<CongTy>>", $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<NamSinh>>", $"{item.benh_nhan?.ngay_sinh:yyyy}");
+                            case HoSoKhamSucKhoeExportType.ConsultationSlip:
+                                doc.ReplaceText("<<CongTy>>", $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}");
+                                doc.ReplaceText("<<NamSinh>>", $"{item.benh_nhan?.ngay_sinh:yyyy}");
 
                                 var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<ChieuCao>>", $"{theLuc?.chieu_cao}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<CanNang>>", $"{theLuc?.can_nang}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<BMI>>", $"{theLuc?.bmi}");
+                                doc.ReplaceText("<<ChieuCao>>", $"{theLuc?.chieu_cao}");
+                                doc.ReplaceText("<<CanNang>>", $"{theLuc?.can_nang}");
+                                doc.ReplaceText("<<BMI>>", $"{theLuc?.bmi}");
 
                                 var cls = khamSucKhoeChuyenKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_tuanhoan>>", $"{cls?.kq_nk_tuan_hoan}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_hohap>>", $"{cls?.kq_nk_ho_hap}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_tieuhoa>>", $"{cls?.kq_nk_tieu_hoa}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_noitiet>>", $"{cls?.kq_nk_noi_tiet}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_thantietnieu>>", $"{cls?.kq_nk_than_tiet_nieu}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_coxuongkhop>>", $"{cls?.kq_nk_co_xuong_khop}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_thankinh>>", $"{cls?.kq_nk_than_kinh}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_ngoaikhoa>>", $"{cls?.kq_ngoai_khoa}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_taimuihong>>", $"{cls?.benh_tai_mui_hong}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_dalieu>>", $"{cls?.kq_da_lieu}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_mat>>", $"{cls?.benh_mat}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_ranghammat>>", $"{cls?.benh_rhm}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_tamthan>>", $"{cls?.kq_nk_tam_than}");
+                                doc.ReplaceText("<<kq_tuanhoan>>", $"{cls?.kq_nk_tuan_hoan}");
+                                doc.ReplaceText("<<kq_hohap>>", $"{cls?.kq_nk_ho_hap}");
+                                doc.ReplaceText("<<kq_tieuhoa>>", $"{cls?.kq_nk_tieu_hoa}");
+                                doc.ReplaceText("<<kq_noitiet>>", $"{cls?.kq_nk_noi_tiet}");
+                                doc.ReplaceText("<<kq_thantietnieu>>", $"{cls?.kq_nk_than_tiet_nieu}");
+                                doc.ReplaceText("<<kq_coxuongkhop>>", $"{cls?.kq_nk_co_xuong_khop}");
+                                doc.ReplaceText("<<kq_thankinh>>", $"{cls?.kq_nk_than_kinh}");
+                                doc.ReplaceText("<<kq_ngoaikhoa>>", $"{cls?.kq_ngoai_khoa}");
+                                doc.ReplaceText("<<kq_taimuihong>>", $"{cls?.benh_tai_mui_hong}");
+                                doc.ReplaceText("<<kq_dalieu>>", $"{cls?.kq_da_lieu}");
+                                doc.ReplaceText("<<kq_mat>>", $"{cls?.benh_mat}");
+                                doc.ReplaceText("<<kq_ranghammat>>", $"{cls?.benh_rhm}");
+                                doc.ReplaceText("<<kq_tamthan>>", $"{cls?.kq_nk_tam_than}");
 
                                 var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_sanphukhoa>>", $"{sanPhuKhoa?.ket_qua}");
+                                doc.ReplaceText("<<kq_sanphukhoa>>", $"{sanPhuKhoa?.ket_qua}");
 
                                 var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua)).ToList();
                                 if (kqcls != null && kqcls.Any())
                                 {
-                                    var ds = kqcls.Select(c => new CanLamSangItem(c.type?.GetDescriptionFromString<KetQuaCanLamSang>() ?? string.Empty, c.ket_qua ?? string.Empty));
-                                    DocumentHelper.FillChiDinhKetQuaTable(ref spDoc, ds);
+                                    var items_kqcls = kqcls.Select(c => new CanLamSangItem(c.type?.GetDescriptionFromString<KetQuaCanLamSang>() ?? string.Empty, c.ket_qua ?? string.Empty)).ToList();
+                                    
+                                    // Build formatted text for chiDinh with bullet points
+                                    StringBuilder chiDinhFormatted = new StringBuilder();
+                                    for (int i = 0; i < items_kqcls.Count(); i++)
+                                    {
+                                        chiDinhFormatted.AppendLine($"• {items_kqcls[i].TenChiDinh}");
+                                    }
+                                    
+                                    // Build formatted text for ketQua with bullet points
+                                    StringBuilder ketQuaFormatted = new StringBuilder();
+                                    for (int i = 0; i < items_kqcls.Count(); i++)
+                                    {
+                                        ketQuaFormatted.AppendLine($"• {items_kqcls[i].KetQua}");
+                                    }
+                                    
+                                    // Replace placeholders with formatted text
+                                    doc.ReplaceText("<<TenChiDinh>>", chiDinhFormatted.ToString());
+                                    doc.ReplaceText("<<kq_canlamsang>>", ketQuaFormatted.ToString());
                                 }
                                 else
                                 {
-                                    DocumentHelper.FindAndReplaceString(ref spDoc, "<<TenChiDinh>>", "");
-                                    DocumentHelper.FindAndReplaceString(ref spDoc, "<<kq_canlamsang>>", "");
+                                    doc.ReplaceText("<<TenChiDinh>>", "");
+                                    doc.ReplaceText("<<kq_canlamsang>>", "");
                                 }
 
                                 var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}");
-                                DocumentHelper.FindAndReplaceString(ref spDoc, "<<kl_denghi>>", $"{ketLuan?.de_nghi}");
+                                doc.ReplaceText("<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}");
+                                doc.ReplaceText("<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}");
+                                doc.ReplaceText("<<kl_denghi>>", $"{ketLuan?.de_nghi}");
                                 break;
                         }
 
-                        string filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf".ToNormalChar();
+                        string filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.docx".ToNormalChar();
                         var savePath = Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}");
                         if (!Directory.Exists(savePath))
                         {
                             Directory.CreateDirectory(savePath);
                         }
-                        spDoc.SaveToFile(Path.Combine(savePath, filename), Spire.Doc.FileFormat.PDF);
+                        doc.SaveAs(Path.Combine(savePath, filename));
                         fileNames.Add(filename);
                     }
+
                 }
 
                 if (fileNames.Count == 0)

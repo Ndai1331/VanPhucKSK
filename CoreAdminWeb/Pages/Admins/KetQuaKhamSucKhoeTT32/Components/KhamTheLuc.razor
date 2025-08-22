@@ -4,27 +4,27 @@
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 items-end">
     <div>
         <label class="block text-sm mb-1" for="chieu-cao">Chiều cao (cm):</label>
-        <input id="chieu-cao" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeTheLuc.chieu_cao" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="chieu-cao" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.chieu_cao" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.chieu_cao)))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div>
         <label class="block text-sm mb-1" for="can-nang">Cân nặng (kg):</label>
-        <input id="can-nang" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeTheLuc.can_nang" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="can-nang" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.can_nang" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.can_nang)))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div>
         <label class="block text-sm mb-1" for="bmi">BMI:</label>
-        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeTheLuc.bmi" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.bmi" readonly />
     </div>
     <div>
         <label class="block text-sm mb-1" for="abi">ABI:</label>
-        <input id="abi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeTheLuc.mach" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="abi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.mach" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.mach)))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div>
         <label class="block text-sm mb-1" for="huyet-ap">Huyết áp (mmHg):</label>
-        <input id="huyet-ap" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeTheLuc.huyet_ap" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="huyet-ap" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.huyet_ap" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.huyet_ap)))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div>
         <label class="block text-sm mb-1" for="nhip-tho">Nhịp thở (lần/phút):</label>
-        <input id="nhip-tho" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeTheLuc.nhip_tho" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="nhip-tho" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.nhip_tho" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.nhip_tho)))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 items-end">
@@ -55,6 +55,8 @@
     public List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
     [Parameter]
     public Func<IEnumerable<PhanLoaiSucKhoeModel>, string?, CancellationToken, Task<List<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+    [Parameter]
+    public Func<ChangeEventArgs, string, bool, bool, object, Task>? OnValueChanged { get; set; }
 
     private async Task<List<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(IEnumerable<PhanLoaiSucKhoeModel> allItems, string filter, CancellationToken token)
     {
@@ -63,5 +65,13 @@
             return await LoadPhanLoaiSucKhoeData.Invoke(allItems, filter, token);
         }
         return new List<PhanLoaiSucKhoeModel>();
+    }
+    
+    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true, object item = default!)
+    {
+        if (OnValueChanged != null)
+        {
+            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate, item);
+        }
     }
 }

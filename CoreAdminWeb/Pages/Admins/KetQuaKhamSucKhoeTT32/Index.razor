@@ -185,7 +185,8 @@
                                                                 SelectedKhamSucKhoeTheLuc="SelectedKhamSucKhoeTheLuc"
                                                                 LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                                 PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
+                                                                SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes"
+                                                                OnValueChanged="OnValueChanged" />
                                                 </div>
                                                 <div class="space-y-2 md:col-span-2">
                                                     <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KHÁM CHUYÊN KHOA:</MudText>
@@ -439,3 +440,32 @@
                       _logoPath="@LogoImage"
                       _profileImageUrl="@_profileImageUrl" />
 </div>
+<script>
+    // Tự động mở khi phần chọn nhận focus (tab/chuột)
+    document.addEventListener('focusin', function (e) {
+      // Bắt đúng selection của Select2 single
+      if (e.target.classList.contains('select2-selection')
+          && e.target.classList.contains('select2-selection--single')) {
+
+        // Tìm select ẩn (siblings của .select2-container)
+        const container = e.target.closest('.select2-container');
+        if (!container) return;
+
+        // Với outerHTML bạn gửi: <select> nằm TRƯỚC <span.select2-container>
+        // nên .previousElementSibling của container chính là <select> ẩn
+        const hiddenSelect = container.previousElementSibling;
+        if (hiddenSelect && hiddenSelect.classList.contains('select2-hidden-accessible') && !hiddenSelect.disabled) {
+          // Mở dropdown
+          $(hiddenSelect).select2('open');
+        }
+      }
+    });
+
+    // Chặn vòng lặp focus khi dropdown đóng (trick của Select2 4.x)
+    $(document).on('select2:closing', 'select.select2, select.select2-hidden-accessible', function (e) {
+      const sel = $(e.target).data('select2').$selection;
+      if (sel && sel.length) {
+        sel.one('focus focusin', function (ev) { ev.stopPropagation(); });
+      }
+    });
+</script>

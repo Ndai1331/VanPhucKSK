@@ -11,7 +11,7 @@ namespace CoreAdminWeb.Enums
         [Description("Sổ KSK - TT32")]
         HealthCheckupBook,
         [Description("Phiếu tư vấn")]
-        CónultationSlip,
+        ConsultationSlip,
         [Description("Hồ sơ KSK")]
         MedicalExamination
     }
