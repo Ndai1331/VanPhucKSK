@@ -244,15 +244,15 @@
                 </div>
                 <div class="p-5">
                     <div class="flex items-end justify-end gap-2 mb-4">
-                        @if (!isImportDone)
+                        @if (isDisabledExport || isExportError)
                         {
                             <div class="flex items-center gap-2">
-                                <MudText Typo="Typo.h5" Class="text-base capitalize text-slate-800 dark:text-slate-100">@importProcessingMessage</MudText>
-                                @if (!isImportError)
+                                <MudText Typo="Typo.h5" Class="text-base capitalize text-slate-800 dark:text-slate-100">@exportProcessingMessage</MudText>
+                                @if (!isExportError)
                                 {
                                     <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-purple-700 border-solid"></div>
                                 }
-                                @if (isImportError)
+                                @if (isExportError)
                                 {
                                     <svg class="w-5 h-5 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
@@ -274,7 +274,7 @@
                     </div>
                 </div>
                 <div class="p-5 flex items-center justify-end gap-2 py-4">
-                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="ExportFileSubmit" Disabled="@(!isImportDone)">Tải PDF</MudButton>
+                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="ExportFileSubmit" Disabled="@(isDisabledExport)">Tải PDF</MudButton>
                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-muted hover:text-black dark:hover:text-white" OnClick="CloseExportModal">Đóng</MudButton>
                 </div>
             </div>

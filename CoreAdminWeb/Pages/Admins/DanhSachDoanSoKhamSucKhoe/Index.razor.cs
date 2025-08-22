@@ -33,10 +33,11 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
         private HubConnection? connection;
         private string? connectionId = "";
-        private string? importProcessingMessage { get; set; }
-        public bool isImportDone { get; set; }
-        public bool isErrorPopup { get; set; }
-        public bool isImportError { get; set; }
+        private string? exportProcessingMessage { get; set; }
+        public bool isExportDone { get; set; } = false;
+        public bool isErrorPopup { get; set; } = false;
+        public bool isExportError { get; set; } = false;
+        public bool isDisabledExport { get; set; } = false;
 
         private bool IsShowExportModal { get; set; } = false;
         private HoSoKhamSucKhoeExportType exportType { get; set; } = HoSoKhamSucKhoeExportType.CheckListKsk;
@@ -55,18 +56,20 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
                 connection.On<string>("ExportExaminationProgress", message =>
                 {
-                    isImportError = false;
-                    isImportDone = false;
-                    importProcessingMessage = message;
+                    isDisabledExport = true;
+                    isExportError = false;
+                    isExportDone = false;
+                    exportProcessingMessage = message;
                     InvokeAsync(StateHasChanged);
                 });
 
                 connection.On<object>("ExportExaminationCompleted", (payload) =>
                 {
-                    isImportDone = true;
+                    isDisabledExport = false;
+                    isExportDone = true;
                     if (payload is System.Text.Json.JsonElement jsonElement && jsonElement.ValueKind == System.Text.Json.JsonValueKind.Object)
                     {
-                        importProcessingMessage = jsonElement.GetProperty("message").GetString();
+                        exportProcessingMessage = jsonElement.GetProperty("message").GetString();
                         var url = jsonElement.GetProperty("relativeUrl").GetString();
                         if (!string.IsNullOrWhiteSpace(url))
                         {
@@ -78,9 +81,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
                 connection.On<string>("ExportExaminationError", message =>
                 {
-                    isImportError = true;
-                    isImportDone = false;
-                    importProcessingMessage = message;
+                    isDisabledExport = false;
+                    isExportError = true;
+                    isExportDone = false;
+                    exportProcessingMessage = message;
                     InvokeAsync(StateHasChanged);
                 });
 
