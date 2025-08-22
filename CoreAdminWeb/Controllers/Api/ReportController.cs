@@ -55,7 +55,7 @@ namespace CoreAdminWeb.Controllers.Api
                             FROM kham_suc_khoe_dinh_muc_thuc_te dmtt
                             INNER JOIN [contract] ct ON ct.id = dmtt.[contract]
                             INNER JOIN contract_type ctt ON ctt.Id = ct.contract_type
-                            INNER JOIN danh_muc_dinh_muc dm ON dm.id = dmtt.ma_dinh_muc"
+                            INNER JOIN danh_muc_dinh_muc dm ON dm.id = dmtt.MaDinhMuc"
                             + whereClause
                             + " GROUP BY dm.id,dm.code,dm.[name],dm.DonGia,dmtt.don_gia_tt,dmtt.thanh_tien_tt"
                             + " ORDER BY dm.[name], dmtt.don_gia_tt OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY",
