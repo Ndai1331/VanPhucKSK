@@ -121,7 +121,7 @@
                                 </MudLink>
                             </li>
                         }
-                       
+
                         @if (!isShowOnlyMe || isShowOnlyMe && (onBS || onBSTuanHoan || onBSHoHap || onBSTieuHoa || onBSThanTietNieu || onBSNoiTiet || onBSCoXuongKhop || onBSThanKinh || onBSThanKinh || onBSTamThan || onBSNgoaiKhoa || onBSSanPhuKhoa || onBSMat || onBSTaiMuiHong || onBSRangHamMat))
                         {
                             <li>
@@ -209,7 +209,7 @@
                                                                        PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                                        SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
                                             }
-                                            
+
                                             @if (!isShowOnlyMe || isShowOnlyMe && onBSNgoaiKhoa)
                                             {
                                                 <div class="space-y-2 md:col-span-2">
@@ -312,25 +312,25 @@
 
                             <div class="flex items-center justify-end gap-2 py-4">
                                 @if (
-                                    !onReadonly
-                                    && (
-                                        onBSHoHap
-                                        || onBSTuanHoan
-                                        || onBSTieuHoa
-                                        || onBSThanTietNieu
-                                        || onBSNoiTiet
-                                        || onBSCoXuongKhop
-                                        || onBSThanKinh
-                                        || onBSTamThan
-                                        || onBSNgoaiKhoa
-                                        || onBSMat
-                                        || onBSTaiMuiHong
-                                        || onBSRangHamMat
-                                        || onBSSanPhuKhoa
-                                        || onBSKetLuan
-                                        || onBS
-                                    )
-                                )
+                                                                !onReadonly
+                                                                && (
+                                                                onBSHoHap
+                                                                || onBSTuanHoan
+                                                                || onBSTieuHoa
+                                                                || onBSThanTietNieu
+                                                                || onBSNoiTiet
+                                                                || onBSCoXuongKhop
+                                                                || onBSThanKinh
+                                                                || onBSTamThan
+                                                                || onBSNgoaiKhoa
+                                                                || onBSMat
+                                                                || onBSTaiMuiHong
+                                                                || onBSRangHamMat
+                                                                || onBSSanPhuKhoa
+                                                                || onBSKetLuan
+                                                                || onBS
+                                                                )
+                                                                )
                                 {
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
                                                OnClick="OnValidSubmit">

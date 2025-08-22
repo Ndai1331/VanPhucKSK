@@ -36,7 +36,7 @@ namespace CoreAdminWeb.Services
                 for (int row = 0; row < data.Count; row++)
                 {
                     var item = data[row];
-                    if (item != null)
+                    if (!EqualityComparer<T>.Default.Equals(item, default(T)))
                     {
                         for (int col = 0; col < fields.Count; col++)
                         {
@@ -91,12 +91,18 @@ namespace CoreAdminWeb.Services
                                 {
                                     var enumType = GetEnumTypeByName(enumTypeName);
                                     if (enumType != null)
+                                    {
                                         cell.Value = value.GetEnumDescription(enumType);
+                                    }
                                     else
+                                    {
                                         cell.Value = value.ToString();
+                                    }
                                 }
                                 else
+                                {
                                     cell.Value = value.GetEnumDescription();
+                                }
                             }
                             else
                             {
@@ -122,6 +128,7 @@ namespace CoreAdminWeb.Services
 
                 // Style table cells
                 if (data.Count > 0)
+                {
                     using (var range = worksheet.Cells[2, 1, data.Count + 1, fields.Count])
                     {
                         range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
@@ -130,6 +137,7 @@ namespace CoreAdminWeb.Services
                         range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                         range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                     }
+                }
 
                 worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
@@ -137,19 +145,27 @@ namespace CoreAdminWeb.Services
             }
         }
 
-        private object? GetNestedPropertyValue(object? obj, string propertyPath)
+        private static object? GetNestedPropertyValue(object? obj, string propertyPath)
         {
             foreach (var part in propertyPath.Split('.'))
             {
-                if (obj == null) return null;
+                if (obj == null)
+                {
+                    return null;
+                }
+
                 var type = obj.GetType();
                 var prop = type.GetProperty(part, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                if (prop == null) return null;
+                if (prop == null)
+                {
+                    return null;
+                }
+
                 obj = prop.GetValue(obj, null);
             }
             return obj;
         }
-        private Type? GetEnumTypeByName(string enumTypeName)
+        private static Type? GetEnumTypeByName(string enumTypeName)
         {
             // Search all loaded assemblies for the enum type by name
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -157,7 +173,9 @@ namespace CoreAdminWeb.Services
                 var type = assembly.GetTypes()
                     .FirstOrDefault(t => t.IsEnum && t.Name.Equals(enumTypeName, StringComparison.InvariantCultureIgnoreCase));
                 if (type != null)
+                {
                     return type;
+                }
             }
             return null;
         }

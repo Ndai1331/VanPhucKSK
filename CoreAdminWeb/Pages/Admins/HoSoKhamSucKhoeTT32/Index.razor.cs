@@ -315,6 +315,11 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 
                 await Task.WhenAll(tasks);
 
+                if (SelectedItem != null && string.IsNullOrEmpty(SelectedItem.nguoi_lap))
+                {
+                    SelectedItem.nguoi_lap = SelectedKhamSucKhoeCongTy.nguoi_lap_so?.full_name;
+                }
+
                 if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
                 {
                     SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
