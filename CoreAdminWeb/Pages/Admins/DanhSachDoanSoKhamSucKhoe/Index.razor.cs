@@ -5,8 +5,8 @@ using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Exports;
 using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
-using CoreAdminWeb.Services.Imports;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -42,8 +42,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private bool IsShowExportModal { get; set; } = false;
         private HoSoKhamSucKhoeExportType exportType { get; set; } = HoSoKhamSucKhoeExportType.CheckListKsk;
         private List<DanhSachDoanSoKhamSucKhoeModel> selectedSoKhamSucKhoes { get; set; } = new();
-        private bool IsAllRowsSelected =>
-                    MainModels != null && MainModels.Count > 0 && selectedSoKhamSucKhoes.Count == MainModels.Count;
+        private bool isSelectAllChecked { get; set; } = false; // Track Select All state separately
+        private bool IsAllRowsSelected => isSelectAllChecked;
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -166,6 +166,9 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 MainModels = new List<DanhSachDoanSoKhamSucKhoeModel>();
             }
+            
+            ResetSelectionState();
+            
             IsLoading = false;
         }
 
@@ -451,6 +454,21 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 selectedSoKhamSucKhoes.RemoveAll(x => x.id == item.id);
             }
+            
+            UpdateSelectAllState();
+        }
+        
+        private void UpdateSelectAllState()
+        {
+            isSelectAllChecked = MainModels != null && MainModels.Count > 0 && 
+                                selectedSoKhamSucKhoes.Count == MainModels.Count &&
+                                MainModels.All(item => selectedSoKhamSucKhoes.Any(selected => selected.id == item.id));
+        }
+        
+        private void ResetSelectionState()
+        {
+            selectedSoKhamSucKhoes.Clear();
+            isSelectAllChecked = false;
         }
 
         private void ToggleSelectAllRows(ChangeEventArgs e)
@@ -459,10 +477,12 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             if (isChecked)
             {
                 selectedSoKhamSucKhoes = MainModels.ToList();
+                isSelectAllChecked = true;
             }
             else
             {
                 selectedSoKhamSucKhoes.Clear();
+                isSelectAllChecked = false;
             }
         }
 
@@ -474,7 +494,12 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private async Task ExportFileSubmit()
         {
             List<int> ids = selectedSoKhamSucKhoes.Where(c => c.id.HasValue).Select(c => c.id ?? 0).Distinct().ToList();
-            if (IsAllRowsSelected)
+            
+            bool isAllRowsActuallySelected = MainModels != null && MainModels.Count > 0 && 
+                                           selectedSoKhamSucKhoes.Count == MainModels.Count &&
+                                           MainModels.All(item => selectedSoKhamSucKhoes.Any(selected => selected.id == item.id));
+            
+            if (isAllRowsActuallySelected)
             {
                 BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset=0";
 

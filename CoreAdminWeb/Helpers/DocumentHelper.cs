@@ -5,7 +5,7 @@ using Spire.Doc;
 using Spire.Doc.Documents;
 using Spire.Doc.Fields;
 using Xceed.Words.NET;
-using static CoreAdminWeb.Services.Imports.ExportKSKDataService;
+using static CoreAdminWeb.Services.Exports.ExportKSKDataService;
 
 namespace CoreAdminWeb.Helpers
 {
