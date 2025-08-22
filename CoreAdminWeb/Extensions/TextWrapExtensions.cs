@@ -27,7 +27,7 @@ namespace CoreAdminWeb.Extensions
         {
             var result = new List<string>();
 
-            if (text == null)
+            if (string.IsNullOrEmpty(text))
             {
                 result.Add(string.Empty);
                 return result;
