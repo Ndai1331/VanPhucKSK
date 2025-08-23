@@ -91,9 +91,9 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 await connection.StartAsync();
                 connectionId = connection.ConnectionId;
             }
-            catch (Exception ex)
+            catch
             {
-                AlertService.ShowAlert($"Lỗi khi khởi tạo socket: {ex.Message}", "danger");
+                Console.WriteLine("Lỗi khi khởi tạo socket");
             }
         }
 
@@ -292,7 +292,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 IsLoading = true;
 
-                // BuildPaginationQuery(1, int.MaxValue);
                 BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset={0}";
 
                 if (_fromDate.HasValue)

@@ -83,7 +83,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             }
             catch
             {
-                AlertService.ShowAlert("Lỗi khi khởi tạo socket", "danger");
+                Console.WriteLine("Lỗi khi khởi tạo socket");
             }
         }
 
