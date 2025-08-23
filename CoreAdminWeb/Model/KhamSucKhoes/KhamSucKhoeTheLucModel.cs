@@ -11,6 +11,7 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public decimal? nhip_tho { get; set; }
         public int? mach { get; set; }
         public string? huyet_ap { get; set; }
+        public decimal? abi { get; set; }
         public PhanLoaiSucKhoeModel? phan_loai { get; set; }
 
         public SoKhamSucKhoeModel? luot_kham { get; set; }
@@ -25,6 +26,7 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public decimal? nhip_tho { get; set; }
         public int? mach { get; set; }
         public string? huyet_ap { get; set; }
+        public decimal? abi { get; set; }
 
         public int? phan_loai { get; set; }
 

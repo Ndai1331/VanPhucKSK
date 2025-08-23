@@ -54,7 +54,6 @@
                         <table id="example" class="display" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th></th>
                                     <th>STT</th>
                                     <th>Mã bệnh nhân</th>
                                     <th>Mã điều trị</th>
@@ -70,7 +69,6 @@
                                 @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
                                 {
                                     <tr class="@(item.Data.id == SelectedItem.id ? "active-row" : "")" @onclick="@(async () => await OnRowClick(item.Data.id))">
-                                        <td style="text-align: center; white-space: nowrap;"><input type="checkbox" checked="@(item.Data.id == SelectedItem.id)" @onchange="@(async e => await OnCheckBoxChanged(e, item.Data.id))" /></td>
                                         <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
                                         <td>@item.Data.ma_benh_nhan</td>
                                         <td>@item.Data.ma_luot_kham</td>
