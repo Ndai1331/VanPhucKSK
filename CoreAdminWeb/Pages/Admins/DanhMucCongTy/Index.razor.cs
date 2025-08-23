@@ -95,11 +95,13 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
         private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
         {
             var published = Status.published.ToString();
-            string query = "&filter[_and][][status][_eq]=" + published;
+            string query = "&filter[_and][1][status][_eq]=" + published;
 
             if (SelectedItem.id > 0)
             {
-                query += $"&filter[_and][][id][_ne]={SelectedItem.id}";
+               // query += $"&filter[_and][][id][_ne]={SelectedItem.id}";
+                query += $"&filter[_and][2][id][_nin]={SelectedItem.id}";
+
             }
             return await LoadBlazorTypeaheadData(searchText, MainService, query);
         }
