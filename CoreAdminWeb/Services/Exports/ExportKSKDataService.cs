@@ -13,7 +13,6 @@ using System.IO.Compression;
 using System.Text;
 using Xceed.Document.NET;
 using Xceed.Words.NET;
-using CoreAdminWeb.Helpers;
 
 namespace CoreAdminWeb.Services.Exports
 {
@@ -194,6 +193,11 @@ namespace CoreAdminWeb.Services.Exports
                 {
                     Directory.CreateDirectory(baseFolder);
                 }
+                var qrFolderPath = Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}_QR");
+                if (!Directory.Exists(qrFolderPath))
+                {
+                    Directory.CreateDirectory(qrFolderPath);
+                }
                 foreach (var item in soKhamSucKhoes)
                 {
                     startIndex++;
@@ -241,7 +245,7 @@ namespace CoreAdminWeb.Services.Exports
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDienThoai>>", NewValue = $"{item.benh_nhan?.so_dien_thoai}" });
 
                                 var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
-                                var filePath = Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}_QR", $"{item.ma_luot_kham}.png");
+                                var filePath = Path.Combine(qrFolderPath, $"{item.ma_luot_kham}.png");
                                 await File.WriteAllBytesAsync(filePath, qrCode);
 
                                 var image = doc.AddImage(filePath);
