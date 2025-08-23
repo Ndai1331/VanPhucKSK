@@ -12,7 +12,6 @@ using System.IO.Compression;
 using System.Text;
 using Xceed.Document.NET;
 using Xceed.Words.NET;
-using CoreAdminWeb.Helpers;
 
 namespace CoreAdminWeb.Services.Exports
 {
@@ -193,6 +192,11 @@ namespace CoreAdminWeb.Services.Exports
                 {
                     Directory.CreateDirectory(baseFolder);
                 }
+                var qrFolderPath = Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}_QR");
+                if (!Directory.Exists(qrFolderPath))
+                {
+                    Directory.CreateDirectory(qrFolderPath);
+                }
                 foreach (var item in soKhamSucKhoes)
                 {
                     startIndex++;
@@ -238,31 +242,20 @@ namespace CoreAdminWeb.Services.Exports
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDinhDanh>>", NewValue = $"{item.benh_nhan?.so_dinh_danh}" });
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDinhDanh >>", NewValue = $"{item.benh_nhan?.so_dinh_danh}" });
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDienThoai>>", NewValue = $"{item.benh_nhan?.so_dien_thoai}" });
+                                var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
+                                var filePath = Path.Combine(qrFolderPath, $"{item.ma_luot_kham}.png");
+                                await File.WriteAllBytesAsync(filePath, qrCode);
 
-                                try
-                                {
-                                    var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
-                                    using (var ms = new MemoryStream(qrCode))
-                                    {
-                                        var image = doc.AddImage(ms, "image/png");
-                                        var picture = image.CreatePicture(60, 60);
-                                        doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
-                                    }
-                                }
-                                catch (Exception qrEx)
-                                {
-                                    // Log detailed error information including line number and library details
-                                    var errorDetails = $"[QR Generation Error] Line: {qrEx.StackTrace?.Split('\n').FirstOrDefault(x => x.Contains("ExportKSKDataService.cs"))?.Trim() ?? "Unknown"}, " +
-                                                     $"Method: {qrEx.TargetSite?.Name ?? "Unknown"}, " +
-                                                     $"Library: {qrEx.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
-                                                     $"Error: {qrEx.Message}, " +
-                                                     $"Inner Exception: {qrEx.InnerException?.Message ?? "None"}";
-                                    
-                                    Console.WriteLine(errorDetails);
-                                    
-                                    // Fallback: Replace QR placeholder with text
-                                    doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<QR>>", NewValue = $"QR: {item.ma_luot_kham}" });
-                                }
+                                var image = doc.AddImage(filePath);
+                                var picture = image.CreatePicture(); // Không truyền size, giữ mặc định
+                                doc.ReplaceTextWithObject(new ObjectReplaceTextOptions { SearchValue = "<<QR>>", NewObject = picture });
+
+                                //using (var ms = new MemoryStream(qrCode))
+                                //{
+                                //    var image = doc.AddImage(ms, "image/png");
+                                //    var picture = image.CreatePicture(60, 60);
+                                //    doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
+                                //}
                                 break;
                             case HoSoKhamSucKhoeExportType.ConsultationSlip:
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<CongTy>>", NewValue = $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}" });
