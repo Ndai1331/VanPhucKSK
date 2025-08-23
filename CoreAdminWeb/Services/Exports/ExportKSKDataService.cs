@@ -12,7 +12,7 @@ using System.IO.Compression;
 using System.Text;
 using Xceed.Document.NET;
 using Xceed.Words.NET;
-
+using CoreAdminWeb.Helpers;
 
 namespace CoreAdminWeb.Services.Exports
 {
@@ -239,13 +239,23 @@ namespace CoreAdminWeb.Services.Exports
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDinhDanh >>", NewValue = $"{item.benh_nhan?.so_dinh_danh}" });
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDienThoai>>", NewValue = $"{item.benh_nhan?.so_dien_thoai}" });
 
-                                //var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
-                                //using (var ms = new MemoryStream(qrCode))
-                                //{
-                                //    var image = doc.AddImage(ms);
-                                //    var picture = image.CreatePicture(60, 60);
-                                //    doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
-                                //}
+                                try
+                                {
+                                    // Use simple PNG image generation to avoid SkiaSharp dependency issues on Linux
+                                    var qrCode = QRHelper.GenerateQRCodeImage($"{item.ma_luot_kham}");
+                                    using (var ms = new MemoryStream(qrCode))
+                                    {
+                                        var image = doc.AddImage(ms);
+                                        var picture = image.CreatePicture(60, 60);
+                                        doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
+                                    }
+                                }
+                                catch (Exception qrEx)
+                                {
+                                    // Fallback: replace QR placeholder with text if image generation fails
+                                    // This prevents SkiaSharp.SKData initialization errors on Linux
+                                    doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<QR>>", NewValue = $"QR: {item.ma_luot_kham}" });
+                                }
                                 break;
                             case HoSoKhamSucKhoeExportType.ConsultationSlip:
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<CongTy>>", NewValue = $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}" });
