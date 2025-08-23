@@ -439,10 +439,10 @@
             <span>
                 - Số lần mổ sản, phụ khoa:
             </span>
-            <span class="ml-2">Có</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa != null && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa > 0 ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="ml-2">Có</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa != null && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Co ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
             <span class="ml-2">Ghi rõ</span>
             <span class="dotted-ruled" style="width: 80mm">@SelectedKhamSucKhoeSanPhuKhoa?.mo_san_phu_khoa_ghi_ro</span>
-            <span class="ml-2">Không</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa != null && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa <= 0 ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="ml-2">Không</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa != null && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Khong ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
         </div>
 
         <div class="row">
