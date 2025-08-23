@@ -12,7 +12,7 @@ using System.IO.Compression;
 using System.Text;
 using Xceed.Document.NET;
 using Xceed.Words.NET;
-
+using CoreAdminWeb.Helpers;
 
 namespace CoreAdminWeb.Services.Exports
 {
@@ -238,7 +238,7 @@ namespace CoreAdminWeb.Services.Exports
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDinhDanh>>", NewValue = $"{item.benh_nhan?.so_dinh_danh}" });
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDinhDanh >>", NewValue = $"{item.benh_nhan?.so_dinh_danh}" });
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDienThoai>>", NewValue = $"{item.benh_nhan?.so_dien_thoai}" });
-
+                            
                                 using (var httpTest = new HttpClient())
                                 {
                                     var qrCode = await httpTest.GetByteArrayAsync("https://qrcode-gen.com/images/qrcode-default.png");
@@ -249,6 +249,7 @@ namespace CoreAdminWeb.Services.Exports
                                         doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
                                     }
                                 }
+                            
                                 //var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
                                 //using (var ms = new MemoryStream(qrCode))
                                 //{
