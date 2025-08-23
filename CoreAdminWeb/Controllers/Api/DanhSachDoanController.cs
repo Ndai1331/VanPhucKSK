@@ -100,7 +100,9 @@ public class DanhSachDoanController : ControllerBase
                         ELSE NULL
                     END,
                     ' | ' )
-                    FROM ket_qua_can_lam_san kqcls WHERE kqcls.id IN (SELECT cls.kq_cls FROM kham_suc_khoe_ket_qua_can_lam_sang cls WHERE cls.luot_kham = sksk.id)
+                    FROM ket_qua_can_lam_san kqcls
+                    LEFT JOIN kham_suc_khoe_ket_qua_can_lam_sang cls ON kqcls.id = cls.kq_cls
+                    WHERE cls.luot_kham = sksk.id
                 ) AS can_lam_sang_results
                 from SoKhamSucKhoe sksk 
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
