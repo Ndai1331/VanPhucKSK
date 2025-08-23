@@ -13,7 +13,7 @@ using System.IO.Compression;
 using System.Text;
 using Xceed.Document.NET;
 using Xceed.Words.NET;
-
+using CoreAdminWeb.Helpers;
 
 namespace CoreAdminWeb.Services.Exports
 {
