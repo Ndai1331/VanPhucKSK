@@ -150,6 +150,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
             {
+                selectedSoKhamSucKhoes = new List<DanhSachDoanSoKhamSucKhoeModel>();
                 MainModels = result.Data ?? new List<DanhSachDoanSoKhamSucKhoeModel>();
                 if (result.Meta != null)
                 {
@@ -166,9 +167,9 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 MainModels = new List<DanhSachDoanSoKhamSucKhoeModel>();
             }
-            
+
             ResetSelectionState();
-            
+
             IsLoading = false;
         }
 
@@ -454,17 +455,17 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 selectedSoKhamSucKhoes.RemoveAll(x => x.id == item.id);
             }
-            
+
             UpdateSelectAllState();
         }
-        
+
         private void UpdateSelectAllState()
         {
-            isSelectAllChecked = MainModels != null && MainModels.Count > 0 && 
+            isSelectAllChecked = MainModels != null && MainModels.Count > 0 &&
                                 selectedSoKhamSucKhoes.Count == MainModels.Count &&
                                 MainModels.All(item => selectedSoKhamSucKhoes.Any(selected => selected.id == item.id));
         }
-        
+
         private void ResetSelectionState()
         {
             selectedSoKhamSucKhoes.Clear();
@@ -491,14 +492,24 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             IsShowExportModal = false;
         }
 
+        private void OnShowExport()
+        {
+            if (selectedSoKhamSucKhoes == null || !selectedSoKhamSucKhoes.Any())
+            {
+                AlertService.ShowAlert("Không có sổ khám sức khỏe nào được chọn", "warning");
+                return;
+            }
+
+            IsShowExportModal = true;
+        }
         private async Task ExportFileSubmit()
         {
             List<int> ids = selectedSoKhamSucKhoes.Where(c => c.id.HasValue).Select(c => c.id ?? 0).Distinct().ToList();
-            
-            bool isAllRowsActuallySelected = MainModels != null && MainModels.Count > 0 && 
+
+            bool isAllRowsActuallySelected = MainModels != null && MainModels.Count > 0 &&
                                            selectedSoKhamSucKhoes.Count == MainModels.Count &&
                                            MainModels.All(item => selectedSoKhamSucKhoes.Any(selected => selected.id == item.id));
-            
+
             if (isAllRowsActuallySelected)
             {
                 BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset=0";
