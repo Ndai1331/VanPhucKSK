@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     libuuid1 \
     && rm -rf /var/lib/apt/lists/*
 
-    
+
 WORKDIR /app
 EXPOSE 80
 
@@ -25,7 +25,7 @@ RUN dotnet build "CoreAdminWeb.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "CoreAdminWeb.csproj" -c Release -o /app/publish
 
-FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "CoreAdminWeb.dll"] 
