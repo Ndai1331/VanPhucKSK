@@ -548,6 +548,16 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 SelectedKhamSucKhoeSanPhuKhoa.ma_luot_kham = SelectedItem.ma_luot_kham;
                 SelectedKhamSucKhoeSanPhuKhoa.luot_kham = SelectedItem;
 
+                if (SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt != true)
+                {
+                    SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro = string.Empty;
+                }
+
+                if ((SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa ?? 0) <= 0)
+                {
+                    SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro = string.Empty;
+                }
+
                 if (onBSHoHap)
                 {
                     SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = CurrentUser?.full_name;

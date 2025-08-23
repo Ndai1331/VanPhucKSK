@@ -94,13 +94,13 @@ public class DanhSachDoanController : ControllerBase
                 spk.ket_qua, ck.benh_mat, ck.benh_tai_mui_hong, ck.benh_rhm, ck.kq_da_lieu,
                 kl.benh_tat_ket_luan, kl.de_nghi, plsk.name as phan_loai_suc_khoe,
                 -- Gộp tất cả kết quả cận lâm sàng thành một cột, phân cách bằng dấu |
-               (SELECT STRING_AGG(CASE 
+                (SELECT STRING_AGG(CASE 
                         WHEN kqcls.ten_can_lam_san IS NOT NULL AND kqcls.ket_luan_can_lam_sang IS NOT NULL 
                         THEN CONCAT(kqcls.ten_can_lam_san, ': ', kqcls.ket_luan_can_lam_sang) 
                         ELSE NULL
                     END,
                     ' | ' )
-                    FROM ket_qua_can_lam_san kqcls WHERE kqcls.id = cls.kq_cls                    
+                    FROM ket_qua_can_lam_san kqcls WHERE kqcls.id IN (SELECT cls.kq_cls FROM kham_suc_khoe_ket_qua_can_lam_sang cls WHERE cls.luot_kham = sksk.id)
                 ) AS can_lam_sang_results
                 from SoKhamSucKhoe sksk 
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
@@ -112,7 +112,6 @@ public class DanhSachDoanController : ControllerBase
                 Left join kham_suc_khoe_san_phu_khoa spk on spk.ma_luot_kham = sksk.ma_luot_kham
                 Left join kham_suc_khoe_ket_luan kl on kl.ma_luot_kham = sksk.ma_luot_kham
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
-                Left join kham_suc_khoe_ket_qua_can_lam_sang cls    on cls.luot_kham = sksk.id
                 " + where + @"
                 ORDER BY sksk.id
                 OFFSET @offset ROWS 

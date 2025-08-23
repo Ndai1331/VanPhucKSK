@@ -411,7 +411,8 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
 
         private async Task<IEnumerable<KhamSucKhoeCongTyModel>> LoadKhamSucKhoeCongTyData(string searchText)
         {
-            return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService);
+            string query = $"filter[_and][][ngay_du_kien_kham][_gte]={_startDateFilter:yyyy-MM-dd}&filter[_and][][ngay_du_kien_kham][_lte]={_endDateFilter:yyyy-MM-dd}";
+            return await LoadBlazorTypeaheadData(searchText, KhamSucKhoeCongTyService, query);
         }
     }
 }

@@ -227,11 +227,11 @@
                         <div class="row">
                             <span class="dotted-ruled" style="width: 20mm"></span>
                             <span>, ngày</span>
-                            <span class="dotted-ruled" style="width: 7mm">@DateTime.Now.Day</span>
+                            <span class="dotted-ruled" style="width: 9mm">@DateTime.Now.Day</span>
                             <span>tháng</span>
-                            <span class="dotted-ruled" style="width: 7mm">@DateTime.Now.Month</span>
+                            <span class="dotted-ruled" style="width: 9mm">@DateTime.Now.Month</span>
                             <span>năm</span>
-                            <span class="dotted-ruled" style="width: 12mm">@DateTime.Now.Year</span>
+                            <span class="dotted-ruled" style="width: 14mm">@DateTime.Now.Year</span>
                         </div>
                         <span class="bold">Người lập sổ KSK định kỳ</span>
                         <br />
@@ -441,7 +441,7 @@
             </span>
             <span class="ml-2">Có</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa != null && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa > 0 ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
             <span class="ml-2">Ghi rõ</span>
-            <span class="dotted-ruled" style="width: 80mm"></span>
+            <span class="dotted-ruled" style="width: 80mm">@SelectedKhamSucKhoeSanPhuKhoa?.mo_san_phu_khoa_ghi_ro</span>
             <span class="ml-2">Không</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa != null && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa <= 0 ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
         </div>
 
@@ -451,7 +451,7 @@
             </span>
             <span class="ml-2">Có</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.ap_dung_bptt == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
             <span class="ml-2">Ghi rõ</span>
-            <span class="dotted-ruled" style="width: 80mm"></span>
+            <span class="dotted-ruled" style="width: 80mm">@SelectedKhamSucKhoeSanPhuKhoa?.bptt_ghi_ro</span>
             <span class="ml-2">Không</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.ap_dung_bptt == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
         </div>
 
@@ -875,13 +875,13 @@
                                       style="width: 20mm"></span>
                                 <span>, ngày</span>
                                 <span class="dotted-ruled"
-                                      style="width: 7mm">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd")</span>
+                                      style="width: 9mm">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd")</span>
                                 <span>tháng</span>
                                 <span class="dotted-ruled"
-                                      style="width: 7mm">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("MM")</span>
+                                      style="width: 9mm">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("MM")</span>
                                 <span>năm</span>
                                 <span class="dotted-ruled"
-                                      style="width: 12mm">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("yyyy")</span>
+                                      style="width: 14mm">@SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("yyyy")</span>
                             </div>
                             <span class="bold">NGƯỜI KẾT LUẬN</span>
                             <br />
