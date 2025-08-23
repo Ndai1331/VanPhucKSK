@@ -83,7 +83,7 @@
                     @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Co)"
                     checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)"
                     disabled="@(onReadonly || !onReadonly && !onBS)">
-                <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
+                <label class="form-check-label rtl\:mr-3" for="cbx3_@YesNo.Co.ToString()">
                     @YesNo.Co.GetDescription()
                 </label>
             </div>
@@ -92,7 +92,7 @@
                     @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Khong)"
                     checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Khong)"
                     disabled="@(onReadonly || !onReadonly && !onBS)">
-                <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
+                <label class="form-check-label rtl\:mr-3" for="cbx4_@YesNo.Khong.ToString()">
                     @YesNo.Khong.GetDescription()
                 </label>
             </div>

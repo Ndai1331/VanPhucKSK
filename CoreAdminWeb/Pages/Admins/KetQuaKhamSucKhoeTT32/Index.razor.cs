@@ -232,6 +232,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 OnResetData();
 
+                onBS = CurrentUser?.role?.ToLower() == CurrentSetting.doctor_role_id?.ToLower().ToString();
+
                 if (!isShowOnlyMe || isShowOnlyMe && onBS)
                 {
                     activeDefTab = "tab1";
@@ -249,16 +251,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     activeDefTab = "";
                 }
 
-                await LoadDetailData(soKhamSKId);
-            }
-        }
-
-        private async Task OnCheckBoxChanged(ChangeEventArgs args, int soKhamSKId)
-        {
-            OnResetData();
-
-            if (args.Value != null && !bool.TryParse(args.Value.ToString(), out bool boolVal) && boolVal)
-            {
                 await LoadDetailData(soKhamSKId);
             }
         }
@@ -558,68 +550,207 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro = string.Empty;
                 }
 
+                PhanLoaiSucKhoeModel? plDefault = default;
+                if (CurrentSetting.phan_loai_sk_mac_dinh.HasValue && CurrentSetting.phan_loai_sk_mac_dinh > 0)
+                {
+                    var plResult = await PhanLoaiSucKhoaService.GetByIdAsync($"{CurrentSetting.phan_loai_sk_mac_dinh}");
+                    plDefault = plResult.Data;
+                }
+
+                if (onBS)
+                {
+                    SelectedKhamSucKhoeTheLuc.phan_loai ??= plDefault;
+                }
+
                 if (onBSHoHap)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSTuanHoan)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSTieuHoa)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSThanTietNieu)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSNoiTiet)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSCoXuongKhop)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSThanKinh)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSTamThan)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_tam_than = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSNgoaiKhoa)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
+                    SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSMat)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_mat ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_mat?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.benh_mat = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_mat = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSTaiMuiHong)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_tmh ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_tmh = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSRangHamMat)
                 {
+                    SelectedKhamSucKhoeChuyenKhoa.pl_rhm ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_rhm?.Trim()))
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.benh_rhm = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeChuyenKhoa.bs_rhm = CurrentUser?.full_name;
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm = CurrentUser?.chu_ky_bac_si;
                 }
                 if (onBSSanPhuKhoa)
                 {
+                    if (SelectedUser.gioi_tinh == GioiTinh.Nu)
+                    {
+                        SelectedKhamSucKhoeSanPhuKhoa.phan_loai ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeSanPhuKhoa.ket_qua?.Trim()))
+                        {
+                            SelectedKhamSucKhoeSanPhuKhoa.ket_qua = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
+                    }
+
                     SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = CurrentUser?.full_name;
                     SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
                 }
@@ -728,6 +859,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 if (onBSKetLuan)
                 {
+                    SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe ??= plDefault;
+                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan?.Trim()))
+                    {
+                        SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan = CurrentSetting.ket_qua_ksk_mac_dinh;
+                    }
+
                     SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = CurrentUser?.full_name;
                     SelectedKhamSucKhoeKetLuan.chu_ky = CurrentUser?.chu_ky_bac_si;
                     SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
@@ -1094,24 +1231,25 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
                     var value = e.Value.ToString();
                     ReflectionHelper.SetFieldValue(this, item, fieldName, value);
-                    return;
-                }
-
-                var dateStr = e.Value?.ToString();
-                if (string.IsNullOrEmpty(dateStr))
-                {
-                    ReflectionHelper.SetFieldValue(this, item, fieldName, null);
                 }
                 else
                 {
-                    var parts = dateStr.Split('/');
-                    if (parts.Length == 3 &&
-                        int.TryParse(parts[0], out int day) &&
-                        int.TryParse(parts[1], out int month) &&
-                        int.TryParse(parts[2], out int year))
+                    var dateStr = e.Value?.ToString();
+                    if (string.IsNullOrEmpty(dateStr))
                     {
-                        var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
-                        ReflectionHelper.SetFieldValue(this, item, fieldName, date);
+                        ReflectionHelper.SetFieldValue(this, item, fieldName, null);
+                    }
+                    else
+                    {
+                        var parts = dateStr.Split('/');
+                        if (parts.Length == 3 &&
+                            int.TryParse(parts[0], out int day) &&
+                            int.TryParse(parts[1], out int month) &&
+                            int.TryParse(parts[2], out int year))
+                        {
+                            var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
+                            ReflectionHelper.SetFieldValue(this, item, fieldName, date);
+                        }
                     }
                 }
 

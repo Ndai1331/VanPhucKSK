@@ -101,7 +101,8 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 nhip_tho = model.nhip_tho,
                 mach = model.mach,
                 ma_luot_kham = model.ma_luot_kham,
-                phan_loai = model.phan_loai?.id
+                phan_loai = model.phan_loai?.id,
+                abi = model.abi,
             };
         }
 

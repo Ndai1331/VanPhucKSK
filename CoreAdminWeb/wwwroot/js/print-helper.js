@@ -716,6 +716,9 @@ window.getMedicalFormHtml = function() {
 			th {
 				page-break-inside: avoid;
 			}
+			.fixed-width {
+				 width: 150px;
+			}
         `;
         const htmlContent = `
             <!DOCTYPE html>
