@@ -1,10 +1,6 @@
 ﻿using ZXing;
-using ZXing.Rendering;
-using ZXing.ImageSharp; // Renderer cho ImageSharp
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Formats.Png;
-using System.IO;
 using ZXing.ImageSharp.Rendering;
 
 namespace CoreAdminWeb.Helpers
