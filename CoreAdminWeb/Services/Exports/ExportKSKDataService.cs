@@ -239,6 +239,16 @@ namespace CoreAdminWeb.Services.Exports
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDinhDanh >>", NewValue = $"{item.benh_nhan?.so_dinh_danh}" });
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDienThoai>>", NewValue = $"{item.benh_nhan?.so_dien_thoai}" });
 
+                                using (var httpTest = new HttpClient())
+                                {
+                                    var qrCode = await httpTest.GetByteArrayAsync("https://qrcode-gen.com/images/qrcode-default.png");
+                                    using (var ms = new MemoryStream(qrCode))
+                                    {
+                                        var image = doc.AddImage(ms);
+                                        var picture = image.CreatePicture(60, 60);
+                                        doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
+                                    }
+                                }
                                 //var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
                                 //using (var ms = new MemoryStream(qrCode))
                                 //{
