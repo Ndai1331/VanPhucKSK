@@ -150,12 +150,12 @@ app.UseRouting();
 // Add CORS middleware
 app.UseCors("ExposeResponseHeaders");
 
+app.MapHub<ProgressHub>("/progressHub");
 app.MapBlazorHub();
 app.MapRazorPages();
 // Add Controllers mapping
 app.MapControllers();
 app.MapFallbackToPage("/_Host");
-app.MapHub<ProgressHub>("/progressHub");
 
 app.MapGet("/downloads/{ticketId}", (
     string ticketId,
