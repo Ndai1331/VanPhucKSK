@@ -623,12 +623,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = CurrentUser?.full_name;
                     SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
                 }
-                if (onBSKetLuan)
-                {
-                    SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeKetLuan.chu_ky = CurrentUser?.chu_ky_bac_si;
-                    SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
-                }
 
                 SelectedKhamSucKhoeKetQuaCanLamSangs = SelectedKhamSucKhoeKetQuaCanLamSangs.Select(c =>
                         {
@@ -732,6 +726,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
                 }
 
+                if (onBSKetLuan)
+                {
+                    SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeKetLuan.chu_ky = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
+                }
                 if (SelectedKhamSucKhoeKetLuan.id > 0)
                 {
                     var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
@@ -1120,7 +1120,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     await LoadData(true);
                 }
 
-                if (nameof(SelectedKhamSucKhoeTheLuc.chieu_cao).Equals(fieldName))
+                if (nameof(SelectedKhamSucKhoeTheLuc.chieu_cao).Equals(fieldName) || nameof(SelectedKhamSucKhoeTheLuc.can_nang).Equals(fieldName))
                 {
                     var chieuCao = (SelectedKhamSucKhoeTheLuc.chieu_cao ?? 0) / 100;
                     var canNang = SelectedKhamSucKhoeTheLuc.can_nang ?? 0;
@@ -1131,6 +1131,22 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             catch (Exception ex)
             {
                 AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
+            }
+        }
+
+        private void OnKhamCLSChanged(ChangeEventArgs e, KetQuaCanLamSang? type)
+        {
+            if (type == null)
+            {
+                return;
+            }
+
+            var value = e.Value?.ToString();
+            var kqCLS = SelectedKhamSucKhoeKetQuaCanLamSangs.FirstOrDefault(c => c.type == type.ToString());
+            if (kqCLS != null)
+            {
+                kqCLS.ket_qua = value;
+                kqCLS.kq_cls = null;
             }
         }
 

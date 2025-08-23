@@ -7,7 +7,7 @@
     {
         <div>
             <label class="block text-sm font-normal">@(kqcls.type?.GetDescriptionFromString<KetQuaCanLamSang>()):</label>
-            <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2" rows="2" @bind="@kqcls.ket_qua" readonly></textarea>
+            <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write")" rows="2" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)" @onchange="e => OnKhamCLSChangedHandler(e, kqcls.type?.ToEnum<KetQuaCanLamSang>())">@kqcls.ket_qua</textarea>
         </div>
     }
 </div>
@@ -31,9 +31,16 @@
     public bool onBSKetLuan { get; set; } = false;
     [Parameter]
     public Action? OnLoadKetQuaCanLamSang { get; set; }
+    [Parameter]
+    public Action<ChangeEventArgs, KetQuaCanLamSang?>? OnKhamCLSChanged { get; set; }
 
     private void OnLoadKetQuaCanLamSangHandler()
     {
         OnLoadKetQuaCanLamSang?.Invoke();
+    }
+
+    private void OnKhamCLSChangedHandler(ChangeEventArgs e, KetQuaCanLamSang? type)
+    {
+        OnKhamCLSChanged?.Invoke(e, type);
     }
 }
