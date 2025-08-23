@@ -296,6 +296,7 @@ namespace CoreAdminWeb.Services.Exports
                                         { "<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}" },
                                         { "<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}" },
                                         { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" }
+                                        
                                     });
                                     if (kqcls != null && kqcls.Any())
                                     {
