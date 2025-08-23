@@ -11,7 +11,7 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? chu_ky_kinh { get; set; }
         public string? luong_kinh { get; set; }
         public bool? dau_bung_kinh { get; set; }
-        public bool? da_lap_gia_dinh { get; set; }
+        public bool? da_lap_gia_dinh { get; set; } = false;
         public string? para { get; set; }
         public int? so_lan_mo_san_phu_khoa { get; set; }
         public string? mo_san_phu_khoa_ghi_ro { get; set; }
