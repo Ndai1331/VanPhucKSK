@@ -251,7 +251,16 @@ namespace CoreAdminWeb.Services.Exports
                                 }
                                 catch (Exception qrEx)
                                 {
-                                    Console.WriteLine(qrEx.Message);
+                                    // Log detailed error information including line number and library details
+                                    var errorDetails = $"[QR Generation Error] Line: {qrEx.StackTrace?.Split('\n').FirstOrDefault(x => x.Contains("ExportKSKDataService.cs"))?.Trim() ?? "Unknown"}, " +
+                                                     $"Method: {qrEx.TargetSite?.Name ?? "Unknown"}, " +
+                                                     $"Library: {qrEx.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
+                                                     $"Error: {qrEx.Message}, " +
+                                                     $"Inner Exception: {qrEx.InnerException?.Message ?? "None"}";
+                                    
+                                    Console.WriteLine(errorDetails);
+                                    
+                                    // Fallback: Replace QR placeholder with text
                                     doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<QR>>", NewValue = $"QR: {item.ma_luot_kham}" });
                                 }
                                 break;
