@@ -222,12 +222,12 @@
                                     <input type="text" class="form-input" @bind-value="@SelectedItem.description" Label="Ghi chú" />
                                 </div>
 
-                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <div class="hidden space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <label>Sắp xếp</label>
                                     <input type="number" class="form-input" @bind-value="@SelectedItem.sort" Label="Sắp xếp" min="0" max="100" />
                                 </div>
 
-                                <div class="space-y-2 xs:col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
+                                <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
                                     <label>Trạng thái</label>
                                     <select class="form-select" @bind-value="@SelectedItem.status" @bind-value:event="onchange">
                                         @foreach (var item in StatusList)
