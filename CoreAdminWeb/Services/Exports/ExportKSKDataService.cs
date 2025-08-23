@@ -239,12 +239,20 @@ namespace CoreAdminWeb.Services.Exports
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDinhDanh >>", NewValue = $"{item.benh_nhan?.so_dinh_danh}" });
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDienThoai>>", NewValue = $"{item.benh_nhan?.so_dien_thoai}" });
 
-                                var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
-                                using (var ms = new MemoryStream(qrCode))
+                                try
                                 {
-                                   var image = doc.AddImage(ms,"image/png");
-                                   var picture = image.CreatePicture(60, 60);
-                                   doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
+                                    var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
+                                    using (var ms = new MemoryStream(qrCode))
+                                    {
+                                        var image = doc.AddImage(ms, "image/png");
+                                        var picture = image.CreatePicture(60, 60);
+                                        doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
+                                    }
+                                }
+                                catch (Exception qrEx)
+                                {
+                                    Console.WriteLine(qrEx.Message);
+                                    doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<QR>>", NewValue = $"QR: {item.ma_luot_kham}" });
                                 }
                                 break;
                             case HoSoKhamSucKhoeExportType.ConsultationSlip:
