@@ -242,7 +242,7 @@ namespace CoreAdminWeb.Services.Exports
                                 var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
                                 using (var ms = new MemoryStream(qrCode))
                                 {
-                                   var image = doc.AddImage(ms);
+                                   var image = doc.AddImage(ms,"image/png");
                                    var picture = image.CreatePicture(60, 60);
                                    doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
                                 }
