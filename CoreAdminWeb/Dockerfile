@@ -1,5 +1,5 @@
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-# Install only essential packages for QRCoder
+
 RUN apt-get update && apt-get install -y \
     libfontconfig1 \
     libfreetype6 \
