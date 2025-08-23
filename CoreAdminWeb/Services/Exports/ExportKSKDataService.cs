@@ -193,11 +193,6 @@ namespace CoreAdminWeb.Services.Exports
                 {
                     Directory.CreateDirectory(baseFolder);
                 }
-                var qrFolderPath = Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}_QR");
-                if (!Directory.Exists(qrFolderPath))
-                {
-                    Directory.CreateDirectory(qrFolderPath);
-                }
                 foreach (var item in soKhamSucKhoes)
                 {
                     startIndex++;
@@ -245,19 +240,7 @@ namespace CoreAdminWeb.Services.Exports
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<SoDienThoai>>", NewValue = $"{item.benh_nhan?.so_dien_thoai}" });
 
                                 var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
-                                var filePath = Path.Combine(qrFolderPath, $"{item.ma_luot_kham}.png");
-                                await File.WriteAllBytesAsync(filePath, qrCode);
-
-                                var image = doc.AddImage(filePath);
-                                var picture = image.CreatePicture(); // Không truyền size, giữ mặc định
-                                doc.ReplaceTextWithObject(new ObjectReplaceTextOptions { SearchValue = "<<QR>>", NewObject = picture });
-
-                                //using (var ms = new MemoryStream(qrCode))
-                                //{
-                                //    var image = doc.AddImage(ms, "image/png");
-                                //    var picture = image.CreatePicture(60, 60);
-                                //    doc.ReplaceTextWithObject(new ObjectReplaceTextOptions() { SearchValue = "<<QR>>", NewObject = picture });
-                                //}
+                                DocxImageReplacer.ReplacePlaceholderWithImage(doc, "<<QR>>", qrCode, 60, 60);
                                 break;
                             case HoSoKhamSucKhoeExportType.ConsultationSlip:
                                 doc.ReplaceText(new StringReplaceTextOptions() { SearchValue = "<<CongTy>>", NewValue = $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}" });
@@ -355,7 +338,6 @@ namespace CoreAdminWeb.Services.Exports
                 {
                     GC.WaitForPendingFinalizers();
                     Directory.Delete(Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}"), true);
-                    Directory.Delete(Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}_QR"), true);
                 }
 
                 var ticketId = Guid.NewGuid().ToString("N");
