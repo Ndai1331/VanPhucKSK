@@ -91,9 +91,9 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 await connection.StartAsync();
                 connectionId = connection.ConnectionId;
             }
-            catch
+            catch (Exception ex)
             {
-                AlertService.ShowAlert("Lỗi khi khởi tạo socket", "danger");
+                AlertService.ShowAlert($"Lỗi khi khởi tạo socket: {ex.Message}", "danger");
             }
         }
 
