@@ -4,16 +4,7 @@ WORKDIR /app
 EXPOSE 80
 
 # Cài thư viện Linux cần thiết (an toàn cho SkiaSharp nếu còn)
-RUN apt-get update && apt-get install -y \
-    libfontconfig1 \
-    libfreetype6 \
-    libpng16-16 \
-    libjpeg-turbo8 \
-    libc6 \
-    libglib2.0-0 \
-    libharfbuzz0b \
-    libpango-1.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libfontconfig1 libfreetype6 && rm -rf /var/lib/apt/lists/*
 
 # Build stage
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:9.0 AS build
