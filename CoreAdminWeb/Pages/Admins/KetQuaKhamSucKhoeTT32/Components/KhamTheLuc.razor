@@ -4,23 +4,23 @@
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 items-end">
     <div>
         <label class="block text-sm mb-1" for="chieu-cao">Chiều cao (cm):</label>
-        <input id="chieu-cao" type="number" step="1" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.chieu_cao?.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.chieu_cao), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="chieu-cao" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.chieu_cao?.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.chieu_cao), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div>
         <label class="block text-sm mb-1" for="can-nang">Cân nặng (kg):</label>
-        <input id="can-nang" type="number" step="0.01" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.can_nang?.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.can_nang), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="can-nang" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.can_nang?.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.can_nang), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div>
         <label class="block text-sm mb-1" for="bmi">BMI:</label>
-        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.bmi?.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)" readonly />
+        <input id="bmi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.bmi?.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)" readonly />
     </div>
     <div>
         <label class="block text-sm mb-1" for="abi">ABI:</label>
-        <input id="abi" type="number" step="0.01" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.abi?.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.abi), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="abi" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.abi?.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.abi), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div>
         <label class="block text-sm mb-1" for="mach">Mạch (nhịp/phút):</label>
-        <input id="mach" type="number" step="1" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.mach?.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.mach), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="mach" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.mach?.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.mach), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div>
         <label class="block text-sm mb-1" for="huyet-ap">Huyết áp (mmHg):</label>
@@ -28,7 +28,7 @@
     </div>
     <div>
         <label class="block text-sm mb-1" for="nhip-tho">Nhịp thở (lần/phút):</label>
-        <input id="nhip-tho" type="number" step="1" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.nhip_tho?.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.nhip_tho), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input id="nhip-tho" type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@SelectedKhamSucKhoeTheLuc.nhip_tho?.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)" @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.nhip_tho), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div>
         <label class="block text-sm mb-1" for="phan-loai-the-luc">Phân loại thể lực:</label>

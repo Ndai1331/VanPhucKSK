@@ -326,7 +326,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 }
 
                 SelectedItem.benh_nhan = SelectedUser;
-                string query = $"filter[_and][][ma_luot_kham][_eq]={SelectedItem.ma_luot_kham}";
+                string query = $"filter[_and][][luot_kham][_eq]={SelectedItem.id}";
 
                 var tasks = new[]
                 {
@@ -337,7 +337,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, $"filter[_and][][id][_eq]={SelectedItem.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),
-                    BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, $"filter[_and][][luot_kham][ma_luot_kham][_eq]={SelectedItem.ma_luot_kham}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KhamSucKhoeKetQuaCanLamSangModel>()),
+                    BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, $"filter[_and][][luot_kham][_eq]={SelectedItem.id}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KhamSucKhoeKetQuaCanLamSangModel>()),
                 };
 
                 await Task.WhenAll(tasks);
@@ -1209,7 +1209,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 }
                 finally
                 {
-                    StateHasChanged();
+                    await InvokeAsync(StateHasChanged);
                 }
             }
             else
@@ -1264,11 +1264,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     var canNang = SelectedKhamSucKhoeTheLuc.can_nang ?? 0;
                     SelectedKhamSucKhoeTheLuc.bmi = chieuCao > 0 ? Math.Round(canNang / (chieuCao * chieuCao), 2) : 0;
                 }
-                StateHasChanged();
+                await InvokeAsync(StateHasChanged);
             }
             catch (Exception ex)
             {
-                AlertService.ShowAlert($"Lỗi khi xử lý ngày: {ex.Message}", "danger");
+                Console.WriteLine(ex.Message);
+                AlertService.ShowAlert($"Lỗi khi xử lý dữ liệu nhập", "danger");
             }
         }
 
@@ -1322,10 +1323,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt = value == YesNo.Co.ToString();
         }
 
-        private void OnShowAll()
+        private async Task OnShowAll()
         {
             isShowOnlyMe = !isShowOnlyMe;
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
 
         private void OnParaChanged(ChangeEventArgs value, int index)

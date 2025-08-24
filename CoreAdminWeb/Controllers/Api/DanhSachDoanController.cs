@@ -119,11 +119,11 @@ public class DanhSachDoanController : ControllerBase
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
                 Left join contract hd on hd.id = ct.ma_hop_dong_ksk
                 Left join custom_users u on u.id = sksk.benh_nhan 
-                Left join kham_suc_khoe_tien_su ts on ts.ma_luot_kham = sksk.ma_luot_kham
-                Left join kham_suc_khoe_the_luc tl on tl.ma_luot_kham = sksk.ma_luot_kham
-                Left join kham_suc_khoe_kham_chuyen_khoa ck on ck.ma_luot_kham = sksk.ma_luot_kham
-                Left join kham_suc_khoe_san_phu_khoa spk on spk.ma_luot_kham = sksk.ma_luot_kham
-                Left join kham_suc_khoe_ket_luan kl on kl.ma_luot_kham = sksk.ma_luot_kham
+                Left join kham_suc_khoe_tien_su ts on ts.luot_kham = sksk.id
+                Left join kham_suc_khoe_the_luc tl on tl.luot_kham = sksk.id
+                Left join kham_suc_khoe_kham_chuyen_khoa ck on ck.luot_kham = sksk.id
+                Left join kham_suc_khoe_san_phu_khoa spk on spk.luot_kham = sksk.id
+                Left join kham_suc_khoe_ket_luan kl on kl.luot_kham = sksk.id
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
                 " + where + @"
                 ORDER BY sksk.id

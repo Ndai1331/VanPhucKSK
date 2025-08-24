@@ -1,0 +1,263 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: #111;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+@page {
+    size: A4;
+    margin: 0;
+}
+
+.page {
+    width: 190mm; /* A4 width (210) - default margins (10 each side) */
+    min-height: 277mm; /* A4 height (297) - default margins (10 top/bottom) */
+    margin: 15mm auto;
+    page-break-after: always;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-5 {
+    margin-bottom: 2rem;
+}
+
+.mt-0 {
+    margin-top: 0rem;
+}
+
+.mt-1 {
+    margin-top: 0.25rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
+}
+
+.right {
+    text-align: right;
+}
+
+.center {
+    text-align: center;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.normal {
+    font-style: normal;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.v-middle {
+    vertical-align: middle;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+    .header .line1 {
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .header .line2 {
+        font-weight: bold;
+    }
+
+    .header .underline {
+        width: 120px;
+        height: 1px;
+        background: #111;
+        margin: 2px auto 0;
+    }
+
+.title {
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.two-col-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border: none;
+}
+
+    .two-col-table td {
+        vertical-align: top;
+        border: none;
+    }
+
+.two-col-left {
+    width: 35mm;
+}
+
+.photo {
+    border: 1px solid #111;
+    width: 30mm;
+    height: 40mm;
+    margin: 0 auto;
+    text-align: center;
+    padding: 3px;
+    display: table;
+}
+
+    .photo span {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+.row {
+    display: block;
+    margin: 3px 0;
+    margin-bottom: 0.25rem;
+}
+
+.inline {
+    display: inline-block;
+}
+
+.cb {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 1px solid #111;
+    vertical-align: middle;
+    margin: 0 3px;
+}
+
+    .cb.checked::after,
+    .cb[checked]::after {
+        content: "✓"; /* dấu tick */
+        font-size: 20px;
+        line-height: 12px;
+        text-align: center;
+        display: block;
+        color: #000;
+        font-weight: bold;
+    }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+}
+
+    table.auto {
+        width: auto;
+        display: inline-table;
+    }
+
+th,
+td {
+    border: 1px solid #222;
+    padding: 4px 6px;
+    vertical-align: top;
+}
+
+th {
+    text-align: center;
+    font-weight: bold;
+}
+
+.td-tight td {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.outer-table.no-border td,
+.outer-table.no-border th,
+.no-border {
+    border: none;
+}
+
+.signature-box {
+    text-align: center;
+}
+
+.signature-right {
+    text-align: right;
+}
+
+.dotted-ruled {
+    display: inline-block;
+    border-bottom: 1px dotted currentColor;
+    line-height: 1em;
+    height: 1em;
+    vertical-align: baseline;
+    min-width: 5px;
+    width: auto;
+    padding-left: 0.5rem;
+}
+
+    .dotted-ruled::after {
+        content: "\200b";
+    }
+
+.dot-wrap {
+    display: inline-block;
+}
+
+    .dot-wrap .dotted-ruled {
+        width: 100%;
+    }
+
+.dotted-ruled sup {
+    position: relative;
+    top: -0.4em;
+    font-size: 0.75em;
+    line-height: 1;
+}
+
+.gap {
+    min-width: 4mm;
+    display: inline-block;
+}
+
+.short-line {
+    width: 150px;
+    border: none;
+    border-top: 1px solid #000;
+    margin: 4px 0;
+}
+
+tr,
+td,
+th {
+    page-break-inside: avoid;
+}

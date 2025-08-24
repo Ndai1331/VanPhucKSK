@@ -11,11 +11,11 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? chu_ky_kinh { get; set; }
         public string? luong_kinh { get; set; }
         public bool? dau_bung_kinh { get; set; }
-        public bool? da_lap_gia_dinh { get; set; } = false;
+        public bool? da_lap_gia_dinh { get; set; }
         public string? para { get; set; }
         public int? so_lan_mo_san_phu_khoa { get; set; }
         public string? mo_san_phu_khoa_ghi_ro { get; set; }
-        public bool? ap_dung_bptt { get; set; } = false;
+        public bool? ap_dung_bptt { get; set; }
         public string? bptt_ghi_ro { get; set; }
         public string? ket_qua { get; set; }
         public PhanLoaiSucKhoeModel? phan_loai { get; set; }
@@ -32,12 +32,12 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? tinh_chat_kinh { get; set; }
         public string? chu_ky_kinh { get; set; }
         public string? luong_kinh { get; set; }
-        public bool? dau_bung_kinh { get; set; } = false;
-        public bool? da_lap_gia_dinh { get; set; } = false;
+        public bool? dau_bung_kinh { get; set; }
+        public bool? da_lap_gia_dinh { get; set; }
         public string? para { get; set; }
         public int? so_lan_mo_san_phu_khoa { get; set; }
         public string? mo_san_phu_khoa_ghi_ro { get; set; }
-        public bool? ap_dung_bptt { get; set; } = false;
+        public bool? ap_dung_bptt { get; set; }
         public string? bptt_ghi_ro { get; set; }
         public string? ket_qua { get; set; }
         public int? phan_loai { get; set; }

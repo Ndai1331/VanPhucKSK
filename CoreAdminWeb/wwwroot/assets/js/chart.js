@@ -5,13 +5,114 @@
     }
 }
 
+function formatCurrency(val) {
+    if (val === null || val === '' || isNaN(val)) return val;
+    let num = Number(val);
+
+    const sign = num < 0 ? "-" : "";
+    const absNum = Math.abs(num);
+
+    if (absNum >= 1e15) {
+        return sign + (absNum / 1e15)
+            .toFixed(absNum % 1e15 === 0 ? 0 : 3)
+            .replace(/\.?0+$/, '') + 'Q'; // Quadrillion
+    }
+    if (absNum >= 1e12) {
+        return sign + (absNum / 1e12)
+            .toFixed(absNum % 1e12 === 0 ? 0 : 3)
+            .replace(/\.?0+$/, '') + 'T'; // Trillion
+    }
+    if (absNum >= 1e9) {
+        return sign + (absNum / 1e9)
+            .toFixed(absNum % 1e9 === 0 ? 0 : 3)
+            .replace(/\.?0+$/, '') + 'B'; // Billion
+    }
+    if (absNum >= 1e6) {
+        return sign + (absNum / 1e6)
+            .toFixed(absNum % 1e6 === 0 ? 0 : 3)
+            .replace(/\.?0+$/, '') + 'M'; // Million
+    }
+    if (absNum >= 1e3) {
+        return sign + (absNum / 1e3)
+            .toFixed(absNum % 1e3 === 0 ? 0 : 3)
+            .replace(/\.?0+$/, '') + 'K'; // Thousand
+    }
+    return sign + absNum.toString();
+}
+
+function contrastTextColor(bg) {
+    const rgb = toRGB(bg);
+    if (!rgb) return '#000';
+
+    const toLinear = (c) => {
+        c /= 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    const R = toLinear(rgb.r), G = toLinear(rgb.g), B = toLinear(rgb.b);
+    const L = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+
+    const contrastWhite = (1.05) / (L + 0.05);
+    const contrastBlack = (L + 0.05) / 0.05;
+
+    return contrastWhite >= contrastBlack ? '#FFFFFF' : '#000000';
+}
+
+function toRGB(color) {
+    if (!color) return null;
+    const c = color.trim();
+
+    let m = c.match(/^#([0-9a-f]{3})$/i);
+    if (m) {
+        const [r, g, b] = m[1].split('').map(x => parseInt(x + x, 16));
+        return { r, g, b };
+    }
+    m = c.match(/^#([0-9a-f]{6})$/i);
+    if (m) {
+        const r = parseInt(m[1].slice(0, 2), 16);
+        const g = parseInt(m[1].slice(2, 4), 16);
+        const b = parseInt(m[1].slice(4, 6), 16);
+        return { r, g, b };
+    }
+    m = c.match(/^rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+    if (m) return { r: +m[1], g: +m[2], b: +m[3] };
+
+    return null;
+}
+
+function normalizeColorsOptions(colorsParam) {
+    const isArray = Array.isArray(colorsParam);
+    const isRangesObj = colorsParam && typeof colorsParam === 'object' && Array.isArray(colorsParam.ranges);
+    const isRangesArray = Array.isArray(colorsParam) && colorsParam.length && typeof colorsParam[0] === 'object' && 'from' in colorsParam[0] && 'to' in colorsParam[0];
+
+    let rootColors = undefined; 
+    let barColorRanges = undefined;
+    let dataLabelColors = ['#000'];
+
+    if (isArray && !isRangesArray) {
+        rootColors = colorsParam;
+        dataLabelColors = colorsParam.map(contrastTextColor);
+    } else if (isRangesObj || isRangesArray) {
+        const ranges = isRangesObj ? colorsParam.ranges : colorsParam;
+        barColorRanges = ranges.map(r => ({
+            from: typeof r.from === 'number' ? r.from : -1e308,
+            to: typeof r.to === 'number' ? r.to : 1e308,
+            color: r.color || '#999'
+        }));
+        dataLabelColors = ['#000'];
+    }
+
+    return { rootColors, barColorRanges, dataLabelColors };
+}
+
 function initSimpleBarChart(selector, series, labels, colors, horizontal = true, isShowlegend = false, isDistribute = false) {
     console.log('Init chart ' + selector);
     clearChart(selector);
+    const { barColorRanges, dataLabelColors } = normalizeColorsOptions(colors);
+    console.log(barColorRanges, dataLabelColors);
     let chartOptions = {
         series: series,
         chart: {
-            height: 300,
+            height: 350,
             type: "bar",
             zoom: {
                 enabled: false,
@@ -22,39 +123,24 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true,
         },
         dataLabels: {
             enabled: true,
-            offsetX: -6,
+            offsetX: 0,
             style: {
                 fontSize: '12px',
-                colors: ['#fff']
+                colors: dataLabelColors
             },
-            formatter: (val) => {
-                if (!isNaN(val) && val !== '' && val !== null) {
-                    return Number(val).toLocaleString('en-EN');
-                }
-                return val;
-            }
+            formatter: (val) => formatCurrency(val)
         },
-        colors: colors,
+        ...(Array.isArray(colors) ? { colors } : {}),
         xaxis: {
             categories: labels,
             labels: {
-                formatter: (val) => {
-                    if (!isNaN(val) && val !== '' && val !== null) {
-                        return Number(val).toLocaleString('en-US');
-                    }
-                    return val;
-                }
+                formatter: (val) => formatCurrency(val)
             }
         },
         yaxis: {
             labels: {
                 show: true,
-                formatter: (val) => {
-                    if (!isNaN(val) && val !== '' && val !== null) {
-                        return Number(val).toLocaleString('en-US');
-                    }
-                    return val;
-                }
+                formatter: (val) => formatCurrency(val)
             },
             opposite: false,
             reversed: false,
@@ -69,6 +155,9 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true,
                 dataLabels: {
                     position: 'top',
                 },
+                ...(barColorRanges
+                    ? { colors: { ranges: barColorRanges } }
+                    : {})
             }
         },
         fill: {
@@ -76,20 +165,10 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true,
         },
         tooltip: {
             y: {
-                formatter: (val) => {
-                    if (!isNaN(val) && val !== '' && val !== null) {
-                        return Number(val).toLocaleString('en-US');
-                    }
-                    return val;
-                }
+                formatter: (val) => formatCurrency(val)
             },
             x: {
-                formatter: (val) => {
-                    if (!isNaN(val) && val !== '' && val !== null) {
-                        return Number(val).toLocaleString('en-US');
-                    }
-                    return val;
-                }
+                formatter: (val) => formatCurrency(val)
             }
         }
     };
@@ -120,6 +199,9 @@ function initSimpleBarChart(selector, series, labels, colors, horizontal = true,
 function initLineChart(selector, series, labels, colors) {
     console.log('Init chart ' + selector);
     clearChart(selector);
+
+    const dataLabelColors = colors?.map(contrastTextColor) ?? ['#000'];
+
     let chartOptions = {
         series: series,
         chart: {
@@ -135,6 +217,11 @@ function initLineChart(selector, series, labels, colors) {
         colors: colors,
         dataLabels: {
             enabled: false,
+            style: {
+                fontSize: '12px',
+                colors: dataLabelColors
+            },
+            formatter: (val) => formatCurrency(val)
         },
         stroke: {
             curve: 'smooth'
@@ -148,23 +235,13 @@ function initLineChart(selector, series, labels, colors) {
         xaxis: {
             categories: labels,
             labels: {
-                formatter: (val) => {
-                    if (!isNaN(val) && val !== '' && val !== null) {
-                        return Number(val).toLocaleString('en-US');
-                    }
-                    return val;
-                }
+                formatter: (val) => formatCurrency(val)
             }
         },
         yaxis: {
             labels: {
                 show: true,
-                formatter: (val) => {
-                    if (!isNaN(val) && val !== '' && val !== null) {
-                        return Number(val).toLocaleString('en-US');
-                    }
-                    return val;
-                }
+                formatter: (val) => formatCurrency(val)
             },
             opposite: false,
             reversed: false,
@@ -176,12 +253,7 @@ function initLineChart(selector, series, labels, colors) {
         },
         tooltip: {
             y: {
-                formatter: (val) => {
-                    if (!isNaN(val) && val !== '' && val !== null) {
-                        return Number(val).toLocaleString('en-US');
-                    }
-                    return val;
-                }
+                formatter: (val) => formatCurrency(val)
             }
         }
     };
@@ -196,11 +268,14 @@ function initLineChart(selector, series, labels, colors) {
 function initAreaChart(selector, series, labels, colors) {
     console.log('Init chart ' + selector);
     clearChart(selector);
+
+    const dataLabelColors = colors?.map(contrastTextColor) ?? ['#000'];
+
     let chartOptions = {
         series: series,
         chart: {
             type: "area",
-            height: 300,
+            height: 350,
             zoom: {
                 enabled: false,
             },
@@ -211,6 +286,11 @@ function initAreaChart(selector, series, labels, colors) {
         colors: colors,
         dataLabels: {
             enabled: false,
+            style: {
+                fontSize: '12px',
+                colors: dataLabelColors
+            },
+            formatter: (val) => formatCurrency(val)
         },
         stroke: {
             width: 2,
@@ -246,13 +326,41 @@ function initAreaChart(selector, series, labels, colors) {
 function initPieChart(selector, series, labels, colors) {
     console.log('Init chart ' + selector);
     clearChart(selector);
+
+    const dataLabelColors = colors?.map(contrastTextColor) ?? ['#000'];
+
+    console.log(dataLabelColors)
+
     let chartOptions = {
         series: series,
         chart: {
-            height: 300,
+            height: 350,
             type: 'pie',
         },
-        labels: labels
+        labels: labels,
+        stroke: {
+            width: 0
+        },
+        dataLabels: {
+            //formatter: function (val, opts) {
+            //    const value = opts.w.config.series[opts.seriesIndex];
+            //    return formatCurrency(value);
+            //},
+            style: {
+                colors: dataLabelColors,
+            }
+        },
+        legend: {
+            position: 'top'
+        },
+        tooltip: {
+            enabled: true,
+            y: {
+                formatter: function (val) {
+                    return formatCurrency(val);
+                }
+            }
+        }
     };
     let chart = new ApexCharts(
         document.querySelector(selector),

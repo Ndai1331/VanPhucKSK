@@ -66,14 +66,6 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
                 return;
             }
 
-            if (_fromDate.HasValue)
-            {
-                BuilderQuery += $"&fromDate={_fromDate.Value:yyyy-MM-dd}";
-            }
-            if (_toDate.HasValue)
-            {
-                BuilderQuery += $"&toDate={_toDate.Value:yyyy-MM-dd}";
-            }
             BuilderQuery += $"&contract={_selectedContractFilter.id}";
 
             var result = await MainService.GeDataAsync(BuilderQuery);
@@ -126,6 +118,14 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
             if (_selectedCongTyFilter != null)
             {
                 query += $"&filter[_and][][cong_ty][_eq]={_selectedCongTyFilter.id}";
+            }
+            if (_fromDate != null)
+            {
+                query += $"&filter[_and][][ngay_hop_dong][_gte]={_fromDate:yyyy-MM-dd}";
+            }
+            if (_toDate != null)
+            {
+                query += $"&filter[_and][][ngay_hop_dong][_lte]={_toDate:yyyy-MM-dd}";
             }
             return await LoadBlazorTypeaheadData(searchText, ContractService, query);
         }
