@@ -1,4 +1,5 @@
-﻿using CoreAdminWeb.Commons.Validations;
+﻿using CoreAdminWeb.Commons;
+using CoreAdminWeb.Commons.Validations;
 using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Hubs;
@@ -270,6 +271,7 @@ namespace CoreAdminWeb.Services.Imports
                             tinh = tinhMap.TryGetValue(item.MaTinh ?? "", out var tinhId) ? tinhId : null,
                             xa = xaMap.TryGetValue($"{item.MaXa}|{item.MaTinh}", out var xaId) ? xaId : null,
                             role = settings.patient_role_id ?? string.Empty,
+                            password = GlobalConstant.PwdDefault
                         });
                     }
 
@@ -282,6 +284,20 @@ namespace CoreAdminWeb.Services.Imports
                     }
 
                     rowIndex++;
+                }
+
+                await _hubContext.Clients.Client(connectionId)
+                    .SendAsync("ImportProgress", $"Đang kiểm tra mã lượt khám tồn tại...", cancellationToken);
+
+                var existingRecordsOthers = await BatchQueryAsync(ids => _soKhamSucKhoeService.GetAllAsync(
+                    $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_neq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
+                ), maLuotKhams);
+
+                if (existingRecordsOthers.Any())
+                {
+                    await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ImportError", $"Mã lượt khám đã tồn tại trên hệ thống: {string.Join("; ", existingRecordsOthers.Select(c => $"'{c.ma_luot_kham}'"))}", true);
+                    return;
                 }
 
                 await _hubContext.Clients.Client(connectionId)
@@ -319,17 +335,6 @@ namespace CoreAdminWeb.Services.Imports
                 var existingRecords = await BatchQueryAsync(ids => _soKhamSucKhoeService.GetAllAsync(
                     $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_eq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
                 ), maLuotKhams);
-
-                var existingRecordsOthers = await BatchQueryAsync(ids => _soKhamSucKhoeService.GetAllAsync(
-                    $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_neq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
-                ), maLuotKhams);
-
-                if (existingRecordsOthers.Any())
-                {
-                    await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Mã lượt khám đã tồn tại trên hệ thống: {string.Join("; ", existingRecordsOthers.Select(c => $"'{c.ma_luot_kham}'"))}", true);
-                    return;
-                }
 
                 var existingRecordKeys = new HashSet<string>(
                     existingRecords

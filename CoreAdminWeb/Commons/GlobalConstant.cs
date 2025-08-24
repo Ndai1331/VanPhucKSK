@@ -13,5 +13,7 @@
             "#66FF99", "#FF6666", "#66FF66", "#6666FF", "#FF66FF", "#66FFFF",
             "#FFFF66"
         };
+
+        public static string PwdDefault { get; set; } = "Abc@123";
     }
 }
