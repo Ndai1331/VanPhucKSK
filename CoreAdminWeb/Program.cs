@@ -79,7 +79,7 @@ builder.Services.AddHttpClient("LocalApi", client =>
 
 // Load base URL
 GlobalConstant.BaseUrl = builder.Configuration["DrCoreApi:BaseUrl"] ?? "https://core.hpte.vn/";
-
+GlobalConstant.PwdDefault = builder.Configuration["DefaultSetting:PwdDefault"] ?? "Abc@123";
 
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
