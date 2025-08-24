@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="vi">
+	<head>
+		<meta charset="utf-8" />
+		<title>Sổ khám sức khỏe định kỳ (DinkToPdf-friendly)</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				height: 100%;
+			}
+			body {
+				margin: 0;
+				font-family: Arial, Helvetica, sans-serif;
+				font-size: 10pt;
+				color: #111;
+				-webkit-print-color-adjust: exact;
+				print-color-adjust: exact;
+			}
+			@page {
+				size: A4;
+				margin: 0;
+			}
+			.page {
+				width: 190mm; /* A4 width (210) - default margins (10 each side) */
+				min-height: 267mm; /* A4 height (297) - default margins (10 top/bottom) */
+				margin: 15mm auto;
+				page-break-after: always;
+			}
+			.mb-2 {
+				margin-bottom: 0.5rem;
+			}
+			.mb-5 {
+				margin-bottom: 2rem;
+			}
+			.mt-0 {
+				margin-top: 0rem;
+			}
+			.mt-1 {
+				margin-top: 0.25rem;
+			}
+			.mt-2 {
+				margin-top: 0.5rem;
+			}
+			.mt-3 {
+				margin-top: 1rem;
+			}
+			.ml-2 {
+				margin-left: 0.5rem;
+			}
+			.right {
+				text-align: right;
+			}
+			.center {
+				text-align: center;
+			}
+			.bold {
+				font-weight: bold;
+			}
+			.italic {
+				font-style: italic;
+			}
+			.nowrap {
+				white-space: nowrap;
+			}
+			.v-middle {
+				vertical-align: middle;
+			}
+
+			.header {
+				text-align: center;
+				margin-bottom: 6px;
+			}
+			.header .line1 {
+				font-weight: bold;
+				text-transform: uppercase;
+			}
+			.header .line2 {
+				font-weight: bold;
+			}
+			.header .underline {
+				width: 120px;
+				height: 1px;
+				background: #111;
+				margin: 2px auto 0;
+			}
+			.title {
+				text-align: center;
+				font-weight: bold;
+				text-transform: uppercase;
+			}
+
+			.two-col-table {
+				width: 100%;
+				border-collapse: collapse;
+				table-layout: fixed;
+				border: none;
+			}
+			.two-col-table td {
+				vertical-align: top;
+				border: none;
+			}
+			.two-col-left {
+				width: 35mm;
+			}
+			.photo {
+				border: 1px solid #111;
+				width: 30mm;
+				height: 40mm;
+				margin: 0 auto;
+				text-align: center;
+				padding: 3px;
+				display: table;
+			}
+			.photo span {
+				display: table-cell;
+				vertical-align: middle;
+			}
+
+			.row {
+				display: block;
+				margin: 3px 0;
+				margin-bottom: 0.25rem;
+			}
+			.inline {
+				display: inline-block;
+			}
+
+			.cb {
+				display: inline-block;
+				width: 13px;
+				height: 13px;
+				border: 1px solid #111;
+				vertical-align: middle;
+				margin: 0 3px;
+			}
+
+			.cb.checked::after,
+			.cb[checked]::after {
+				content: "\00D7"; /* dấu tick */
+				font-size: 20px;
+				line-height: 13px;
+				text-align: center;
+				display: block;
+				color: #000;
+				font-weight: bold;
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 6px;
+			}
+			table.auto {
+				width: auto;
+				display: inline-table;
+			}
+			th,
+			td {
+				border: 1px solid #222;
+				padding: 4px 6px;
+				vertical-align: top;
+			}
+			th {
+				text-align: center;
+				font-weight: bold;
+			}
+			.td-tight td {
+				padding-top: 2px;
+				padding-bottom: 2px;
+			}
+			.outer-table.no-border td,
+			.outer-table.no-border th,
+			.no-border {
+				border: none;
+			}
+
+			.signature-box {
+				text-align: center;
+			}
+
+			.dotted-ruled {
+				display: inline-block;
+				border-bottom: 1px dotted currentColor;
+				line-height: 1em;
+				height: 1em;
+				vertical-align: baseline;
+				min-width: 5px;
+				width: auto;
+				padding-left: 0.35rem;
+			}
+			.dotted-ruled::after {
+				content: "\200b";
+			}
+			.dot-wrap {
+				display: inline-block;
+			}
+			.dot-wrap .dotted-ruled {
+				width: 100%;
+			}
+
+			.dotted-ruled sup {
+				position: relative;
+				top: -0.4em;
+				font-size: 0.75em;
+				line-height: 1;
+			}
+
+			.gap {
+				min-width: 4mm;
+				display: inline-block;
+			}
+
+			.short-line {
+				width: 150px;
+				border: none;
+				border-top: 1px solid #000;
+				margin: 4px 0;
+			}
+
+			tr,
+			td,
+			th {
+				page-break-inside: avoid;
+			}
+			.fixed-width {
+				width: 150px;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="page">
+    <div class="header">
+        <div class="line1">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+        <div class="line2">Độc lập - Tự do - Hạnh phúc</div>
+        <div class="underline"></div>
+    </div>
+    <div class="title mb-2 mt-3">SỔ KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+
+    <!-- two columns using a table -->
+    <table class="two-col-table">
+        <tr>
+            <td class="two-col-left">
+                <div class="photo v-center">
+                    <span>
+                        Ảnh<br />(4 x 6 cm)<br />(đóng dấu ráp lai hoặc
+                        Scan ảnh)
+                    </span>
+                </div>
+            </td>
+            <td>
+                <div class="row">
+                    <span class="nowrap">1. Họ và tên (viết chữ in hoa):</span>
+                    <span class="dotted-ruled" style="width: 103mm">{{TenBenhNhan}}</span>
+                </div>
+                <div class="row">
+                    <span>2. Giới tính:</span>
+                    <span class="gap"></span>
+                    Nam {{GioiTinh_Nam}}
+                    <span class="gap"></span>
+                    Nữ {{GioiTinh_Nu}}
+                </div>
+                <div class="row">
+                    <span class="dot-wrap">
+                        <span class="inline">3. Sinh Ngày</span>
+                        <span class="dotted-ruled" style="width: 10mm">{{NgaySinh_Day}}</span>
+                        <span>tháng</span>
+                        <span class="dotted-ruled" style="width: 10mm">{{NgaySinh_Month}}</span>
+                        <span>năm</span>
+                        <span class="dotted-ruled" style="width: 15mm">{{NgaySinh_Year}}</span>
+                        <span>(Tuổi:</span>
+                        <span class="dotted-ruled" style="width: 14mm">{{Tuoi}}</span>
+                        <span>)</span>
+                    </span>
+                </div>
+                <div class="row">
+                    <span class="nowrap">4. Số CMND/CCCD/Hộ chiếu/định danh CD:</span>
+                    <span class="dotted-ruled" style="width: 80mm">{{SoDinhDanh}}</span>
+                </div>
+                <div class="row">
+                    <span>5. Cấp ngày</span>
+                    <span class="dotted-ruled" style="width: 35mm">{{NgayCap}}</span>
+                    <span class="ml-2">Tại</span>
+                    <span class="dotted-ruled" style="width: 86.5mm">{{NoiCap}}</span>
+                </div>
+                <div class="row">
+                    <span>6. Chỗ ở hiện tại</span>
+                    <span class="dotted-ruled" style="width: 123.5mm">{{DiaChi}}</span>
+                </div>
+                <div class="row">
+                    <span>Số điện thoại liên hệ:</span>
+                    <span class="dotted-ruled" style="width: 40mm">{{SoDienThoai}}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="row italic mb-2">
+        <span class="bold">* Lưu ý:</span>
+        Trường hợp đối tượng KSK có CCCD gắn chíp hoặc có số định danh
+        công dân đã thực hiện kết nối với cơ sở dữ liệu quốc gia về dân
+        cư, phần HÀNH CHÍNH nêu trên chỉ cần ghi mục (1) Họ và tên, (3)
+        Ngày tháng năm sinh, (4) số định danh công dân
+    </div>
+
+    <div class="row">
+        <span>7. Nghề nghiệp:</span><span class="dotted-ruled" style="width: 100mm">{{NgheNghiep}}</span>
+    </div>
+    <div class="row">
+        <span>8. Nơi công tác, học tập:</span>
+        <span class="dotted-ruled" style="width: 146.5mm">{{NoiCongTac}}</span>
+    </div>
+
+    <div class="row">
+        <span>9. Ngày bắt đầu vào làm việc tại đơn vị hiện nay:</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 40mm"></span>
+    </div>
+
+    <div class="row">
+        10. Nghề, công việc trước đây (liệt kê công việc đã làm trong 10
+        năm gần đây, tính từ thời điểm gần nhất):
+    </div>
+
+    <div class="row">
+        <span>a)</span>
+        <span class="dotted-ruled" style="width: 160mm"></span>
+        <span>thời gian làm việc</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>năm</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>tháng từ ngày</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 15mm"></span>
+        <span>đến</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 15mm"></span>
+    </div>
+
+    <div class="row">
+        <span>b)</span>
+        <span class="dotted-ruled" style="width: 160mm"></span>
+        <span>thời gian làm việc</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>năm</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>tháng từ ngày</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 15mm"></span>
+        <span>đến</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 10mm"></span>
+        <span>/</span>
+        <span class="dotted-ruled" style="width: 15mm"></span>
+    </div>
+
+    <div class="row">
+        <span>11. Tiền sử bệnh, tật của gia đình:</span>
+        {{TienSuBenhTatGiaDinh}}
+    </div>
+
+    <div class="title mt-3">12. Tiền sử bệnh, tật của bản thân</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 36%">Tên bệnh</th>
+                <th style="width: 16%">Phát hiện năm</th>
+                <th style="width: 32%">Tên bệnh nghề nghiệp</th>
+                <th style="width: 16%">Phát hiện năm</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>a) {{TenBenh}}</td>
+                <td>{{NamPhatHien}}</td>
+                <td>a) {{BenhNgheNghiep}}</td>
+                <td>{{NamPhatHienBenhNgheNghiep}}</td>
+            </tr>
+            <tr>
+                <td>b)</td>
+                <td></td>
+                <td>b)</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>c)</td>
+                <td></td>
+                <td>c)</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>d)</td>
+                <td></td>
+                <td>d)</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="outer-table no-border mt-3" style="width: 100%">
+        <tr>
+            <td style="width: 50%; text-align: center">
+                <div class="signature-box">
+                    <span class="bold">Người lao động xác nhận</span>
+                    <br />
+                    <span class="italic mb-5">(Ký và ghi rõ họ, tên)</span>
+                    <br />
+                    <div style="height: 20mm"></div>
+                    <span class="bold">{{TenBenhNhan}}</span>
+                </div>
+            </td>
+            <td style="width: 50%">
+                <div class="signature-box">
+                    <div class="row">
+                        <span class="dotted-ruled" style="width: 20mm"></span>
+                        <span>, ngày</span>
+                        <span class="dotted-ruled" style="width: 9mm">{{ThoiGianLapSo_Ngay}}</span>
+                        <span>tháng</span>
+                        <span class="dotted-ruled" style="width: 9mm">{{ThoiGianLapSo_Thang}}</span>
+                        <span>năm</span>
+                        <span class="dotted-ruled" style="width: 14mm">{{ThoiGianLapSo_Nam}}</span>
+                    </div>
+                    <span class="bold">Người lập sổ KSK định kỳ</span>
+                    <br />
+                    <span class="italic">(Ký và ghi rõ họ, tên)</span>
+                    <br />
+                    <div style="height: 20mm"></div>
+                    <span class="bold">{{NguoiLapSo}}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+</section>
+
+<section class="page">
+    <div class="title">KHÁM SỨC KHỎE ĐỊNH KỲ</div>
+    <div class="title mt-1">I. TIỀN SỬ BỆNH, TẬT</div>
+    <div class="center italic mt-1">
+        (Bác sỹ khám sức khỏe hỏi và ghi chép)
+    </div>
+
+    <div class="row">
+        {{TienSuBenhTatGiaDinh}}
+    </div>
+
+    <div class="row">
+        <div class="mt-2"></div>
+        <span class="bold">
+            Tiền sử sản phụ khoa
+            <span class="italic">(Đối với nữ)</span>:
+        </span>
+    </div>
+
+    <div class="row">
+        <table>
+            <tr>
+                <td class="v-middle no-border">
+                    <span>
+                        - Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:
+                    </span>
+                </td>
+                <td class="v-middle no-border">
+                    <table class="auto mt-0">
+                        <tr>
+                            {{NamBatDauKinhNguyet}}
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="row">
+        <span>
+            - Tính chất kinh nguyệt:
+        </span>
+        <span class="gap"></span>
+        Đều {{KinhNguyet_Deu}}
+        <span class="gap"></span>
+        Không đều {{KinhNguyet_KhongDeu}}
+    </div>
+
+    <div class="row">
+        <table class="auto">
+            <tr>
+                <td class="v-middle no-border">
+                    <span>
+                        - Chu kỳ kinh:
+                    </span>
+                </td>
+                <td class="v-middle no-border">
+                    <table class="auto mt-0">
+                        <tr>
+                            {{ChuKyKinh}}
+                        </tr>
+                    </table>
+                </td>
+                <td class="v-middle no-border" width="120px">
+                    <span>
+                        ngày
+                    </span>
+                </td>
+                <td class="v-middle no-border">
+                    <span>
+                        Lượng kinh:
+                    </span>
+                </td>
+                <td class="v-middle no-border">
+                    <table class="auto mt-0">
+                        <tr>
+                            {{LuongKinh}}
+                        </tr>
+                    </table>
+                </td>
+                <td class="v-middle no-border">
+                    <span>
+                        ngày
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="row">
+        <span>
+            - Đau bụng kinh:
+        </span>
+        <span class="gap"></span>
+        Có {{DauBungKinh_Co}}
+        <span class="gap"></span>
+        Không {{DauBungKinh_Khong}}
+    </div>
+    <div class="row">
+        <span>
+            - Đã lập gia đình:
+        </span>
+        <span class="gap"></span>
+        Có {{DaLapGiaDinh_Co}}
+        <span class="gap"></span>
+        Chưa {{DaLapGiaDinh_Chua}}
+    </div>
+
+    <div class="row">
+        <table class="auto">
+            <tr>
+                <td class="v-middle no-border">
+                    <span>
+                        - PARA:
+                    </span>
+                </td>
+                <td class="v-middle no-border">
+                    <table class="auto mt-0">
+                        <tr>
+                            {{PARA}}
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="row">
+        <span>
+            - Số lần mổ sản, phụ khoa:
+        </span>
+        <span class="ml-2">Có</span> {{MoSanPhuKhoa_Co}}
+        <span class="ml-2">Ghi rõ</span>
+        <span class="dotted-ruled" style="width: 80mm">{{MoSanPhuKhoa_GhiRo}}</span>
+        <span class="ml-2">Không</span> {{MoSanPhuKhoa_Khong}}
+    </div>
+
+    <div class="row">
+        <span>
+            - Có đang áp dụng BPTT không?
+        </span>
+        <span class="ml-2">Có</span> {{ApDungBienPhapPhongTranh_Co}}
+        <span class="ml-2">Ghi rõ</span>
+        <span class="dotted-ruled" style="width: 80mm">{{ApDungBienPhapPhongTranh_GhiRo}}</span>
+        <span class="ml-2">Không</span> {{ApDungBienPhapPhongTranh_Khong}}
+    </div>
+
+    <div class="title mt-3">II. KHÁM THỂ LỰC</div>
+    <div class="row">
+        <span>Chiều cao:</span>
+        <span class="dotted-ruled" style="width: 30mm">{{ChieuCao}}</span>
+        <span>cm; Cân nặng:</span>
+        <span class="dotted-ruled" style="width: 30mm">{{CanNang}}</span>
+        <span>Kg; Chỉ số BMI:</span>
+        <span class="dotted-ruled" style="width: 30mm">{{BMI}}</span>
+    </div>
+    <div class="row">
+        <span>Mạch:</span>
+        <span class="dotted-ruled" style="width: 30mm">{{Mach}}</span>
+        <span>lần/phút; Huyết áp:</span>
+        {{HuyetAp}}
+        <span>mmHg</span>
+    </div>
+    <div class="row">
+        <span>Phân loại thể lực:</span>
+        <span class="dotted-ruled" style="width: 120mm">{{PhanLoaiTheLuc}}</span>
+    </div>
+
+    <div class="title mt-3">III. KHÁM LÂM SÀNG</div>
+
+    <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
+        <tr style="height:0; visibility:hidden;">
+            <td style="width:8mm; border:0 !important; padding:0 !important; margin:0;font-size:0; line-height:0; height:0; background:transparent;">&nbsp;</td>
+            <td style="width:22mm; border:0 !important; padding:0 !important; margin:0;font-size:0; line-height:0; height:0; background:transparent;">&nbsp;</td>
+            <td style="width:120mm; border:0 !important; padding:0 !important; margin:0;font-size:0; line-height:0; height:0; background:transparent;">&nbsp;</td>
+            <td style="width:30mm; border:0 !important; padding:0 !important; margin:0;font-size:0; line-height:0; height:0; background:transparent;">&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="center" colspan="3">
+                <b>Nội dung khám</b><br />
+                <span>
+                    phải khám đầy đủ các nội dung theo chuyên khoa
+                    để khẳng định có/hay không có bệnh, tật theo quy
+                    định tại Quyết định…
+                </span>
+            </td>
+            <td class="center">
+                <b>Họ tên và chữ ký của Bác sỹ chuyên khoa</b>
+            </td>
+        </tr>
+        <tr>
+            <td class="v-middle bold">1.</td>
+            <td colspan="3" class="bold">Nội khoa</td>
+        </tr>
+        <tr>
+            <td class="v-middle" rowspan="2">a)</td>
+            <td class="italic ">Tuần hoàn</td>
+            <td>{{KetQuaCLS_TuanHoan}}</td>
+            <td rowspan="2" class="center v-middle">
+                {{KetQuaCLS_TuanHoan_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td class="">Phân loại</td>
+            <td>{{KetQuaCLS_TuanHoan_PhanLoai}}</td>
+        </tr>
+        <tr>
+            <td class="v-middle" rowspan="2">b)</td>
+            <td class="italic ">Hô hấp</td>
+            <td>{{KetQuaCLS_HoHap}}</td>
+            <td rowspan="2" class="center v-middle">
+                {{KetQuaCLS_HoHap_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td class="">Phân loại</td>
+            <td>{{KetQuaCLS_HoHap_PhanLoai}}</td>
+        </tr>
+        <tr>
+            <td class="v-middle" rowspan="2">c)</td>
+            <td class="italic ">Tiêu hóa</td>
+            <td>{{KetQuaCLS_TieuHoa}}</td>
+            <td rowspan="2" class="center v-middle">
+                {{KetQuaCLS_TieuHoa_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td class="">Phân loại</td>
+            <td>{{KetQuaCLS_TieuHoa_PhanLoai}}</td>
+        </tr>
+        <tr>
+            <td class="v-middle" rowspan="2">d)</td>
+            <td class="italic ">Thận-Tiết niệu</td>
+            <td>{{KetQuaCLS_ThanTietNieu}}</td>
+            <td rowspan="2" class="center v-middle">
+                {{KetQuaCLS_ThanTietNieu_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td class="">Phân loại</td>
+            <td>{{KetQuaCLS_ThanTietNieu_PhanLoai}}</td>
+        </tr>
+        <tr>
+            <td class="v-middle" rowspan="2">đ)</td>
+            <td class="italic ">Nội tiết</td>
+            <td>{{KetQuaCLS_NoiTiet}}</td>
+            <td rowspan="2" class="center v-middle">
+                {{KetQuaCLS_NoiTiet_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td class="">Phân loại</td>
+            <td>{{KetQuaCLS_NoiTiet_PhanLoai}}</td>
+        </tr>
+        <tr>
+            <td class="v-middle" rowspan="2">e)</td>
+            <td class="italic ">Cơ - xương - khớp</td>
+            <td>{{KetQuaCLS_CoXuongKhops}}</td>
+            <td rowspan="2" class="center v-middle">
+                {{KetQuaCLS_CoXuongKhops_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td class="">Phân loại</td>
+            <td>{{KetQuaCLS_CoXuongKhops_PhanLoai}}</td>
+        </tr>
+        <tr>
+            <td class="v-middle" rowspan="2">g)</td>
+            <td class="italic ">Thần kinh</td>
+            <td>{{KetQuaCLS_ThanKinh}}</td>
+            <td rowspan="2" class="center v-middle">
+                {{KetQuaCLS_ThanKinh_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td class="">Phân loại</td>
+            <td>{{KetQuaCLS_ThanKinh_PhanLoai}}</td>
+        </tr>
+        <tr>
+            <td class="v-middle" rowspan="2">h)</td>
+            <td class="italic ">Tâm thần</td>
+            <td>{{KetQuaCLS_TamThan}}</td>
+            <td rowspan="2" class="center v-middle">
+                {{KetQuaCLS_TamThan_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td class="">Phân loại</td>
+            <td>{{KetQuaCLS_TamThan_PhanLoai}}</td>
+        </tr>
+
+        <tr>
+            <td class="v-middle bold">2.</td>
+            <td colspan="2">
+                <div class="row">
+                    <span class="bold">Ngoại khoa, Da liễu:</span>
+                </div>
+                <div class="row">
+                    <span>- Ngoại khoa:</span>
+                    <span class="dotted-ruled" style="width: 115mm">{{KetQuaCLS_NgoaiKhoa}}</span>
+                </div>
+                <div class="row">
+                    <span>Phân loại:</span>
+                    <span class="dotted-ruled" style="width: 120mm">{{KetQuaCLS_NgoaiKhoa_PhanLoai}}</span>
+                </div>
+                <div class="row">
+                    <span>- Da liễu:</span>
+                    <span class="dotted-ruled" style="width: 122mm">{{KetQuaCLS_DaLieu}}</span>
+                </div>
+                <div class="row">
+                    <span>Phân loại:</span>
+                    <span class="dotted-ruled" style="width: 120mm">{{KetQuaCLS_DaLieu_PhanLoai}}</span>
+                </div>
+            </td>
+            <td class="center v-middle">
+                {{KetQuaCLS_NgoaiKhoa_ChuKy}}
+            </td>
+        </tr>
+
+        <tr>
+            <td class="v-middle bold">3.</td>
+            <td colspan="2">
+                <div class="row">
+                    <b>Sản phụ khoa:</b> Chi tiết nội dung khám theo
+                    danh mục tại phụ lục XXV ban hành kèm theo Thông
+                    tư này.
+                </div>
+                <div class="row">
+                    <span>Phân loại:</span>
+                    <span class="dotted-ruled" style="width: 120mm">{{KetQuaCLS_SanPhuKhoa_PhanLoai}}</span>
+                </div>
+            </td>
+            <td class="center v-middle">
+                {{KetQuaCLS_SanPhuKhoa_ChuKy}}
+            </td>
+        </tr>
+
+        <tr>
+            <td class="v-middle bold">4</td>
+            <td colspan="3"><b>Mắt:</b></td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="row">
+                    <i>Kết quả khám thị lực:</i> Không kính: Mắt phải:
+                    <span class="dotted-ruled" style="width: 35mm">{{KetQuaCLS_Mat_KhongKinh_Phai}}</span>
+                    trái:
+                    <span class="dotted-ruled" style="width: 35mm">{{KetQuaCLS_Mat_KhongKinh_Trai}}</span>
+                </div>
+                <div class="row">
+                    Có kính: Mắt phải:
+                    <span class="dotted-ruled" style="width: 35mm">{{KetQuaCLS_Mat_CoKinh_Phai}}</span>
+                    trái:
+                    <span class="dotted-ruled" style="width: 35mm">{{KetQuaCLS_Mat_CoKinh_Trai}}</span>
+                </div>
+            </td>
+            <td rowspan="3" class="center v-middle">
+                {{KetQuaCLS_Mat_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="row">
+                    Các bệnh về mắt (nếu có):
+                    <span class="dotted-ruled" style="width: 105mm">{{KetQuaCLS_Mat_Benh}}</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="row">
+                    Phân loại:
+                    <span class="dotted-ruled" style="width: 131mm">{{KetQuaCLS_Mat_PhanLoai}}</span>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="v-middle bold">5</td>
+            <td colspan="3"><b>Tai - Mũi - Họng:</b></td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="row italic">
+                    Kết quả khám thính lực:
+                </div>
+                <div class="row">
+                    Tai trái: Nói thường
+                    <span class="dotted-ruled" style="width: 35mm">{{KetQuaCLS_TaiMuiHong_TaiTrai_NoiThuong}}</span>
+                    m; Nói thầm
+                    <span class="dotted-ruled" style="width: 35mm">{{KetQuaCLS_TaiMuiHong_TaiTrai_NoiTham}}</span>
+                    m
+                </div>
+                <div class="row">
+                    Tai phải: Nói thường
+                    <span class="dotted-ruled" style="width: 35mm">{{KetQuaCLS_TaiMuiHong_TaiPhai_NoiThuong}}</span>
+                    m; Nói thầm
+                    <span class="dotted-ruled" style="width: 35mm">{{KetQuaCLS_TaiMuiHong_TaiPhai_NoiTham}}</span>
+                    m
+                </div>
+            </td>
+            <td rowspan="3" class="center v-middle">
+                {{KetQuaCLS_TaiMuiHong_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="row">
+                    Các bệnh về tai mũi họng (nếu có):
+                    <span class="dotted-ruled" style="width: 92mm">{{KetQuaCLS_TaiMuiHong_Benh}}</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="row">
+                    Phân loại:
+                    <span class="dotted-ruled"
+                          style="width: 131mm">{{KetQuaCLS_TaiMuiHong_PhanLoai}}</span>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="v-middle bold">6</td>
+            <td colspan="3"><b>Răng - Hàm - Mặt:</b></td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="row italic">Kết quả khám:</div>
+                <div class="row">
+                    Hàm trên:
+                    <span class="dotted-ruled" style="width: 131mm">{{KetQuaCLS_RangHamMat_HamTren}}</span>
+                </div>
+                <div class="row">
+                    Hàm dưới:
+                    <span class="dotted-ruled" style="width: 130mm">{{KetQuaCLS_RangHamMat_HamDuoi}}</span>
+                </div>
+            </td>
+            <td rowspan="3" class="center v-middle">
+                {{KetQuaCLS_RangHamMat_ChuKy}}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="row">
+                    Các bệnh về răng hàm mặt (nếu có):
+                    <span class="dotted-ruled" style="width: 90mm">{{KetQuaCLS_RangHamMat_Benh}}</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="row">
+                    Phân loại:
+                    <span class="dotted-ruled" style="width: 131mm">{{KetQuaCLS_RangHamMat_PhanLoai}}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+</section>
+
+<section class="page">
+    <div class="title">IV. KHÁM CẬN LÂM SÀNG</div>
+    <table>
+        <colgroup>
+            <col style="width: 80%" />
+            <col style="width: 20%" />
+        </colgroup>
+        <tbody>
+            <tr>
+                <td>
+                    {{KetQuaCLS_CLS}}
+                </td>
+                <td class="center v-middle">
+                    {{KetQuaCLS_CLS_ChuKy}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="title mt-3">V. KẾT LUẬN</div>
+    <div class="row">
+        <b>1. Phân loại sức khỏe<sup>1</sup>:</b>
+        <span class="dotted-ruled" style="width: 148mm">{{KetQuaCLS_CLS_PhanLoaiSucKhoe}}</span>
+    </div>
+    <div class="row">
+        <b>2. Các bệnh, tật (nếu có)<sup>2</sup>:</b>
+        {{KetLuan}}
+    </div>
+
+    <table class="outer-table no-border mb-5" style="width: 100%">
+        <colgroup>
+            <col style="width: 40%" />
+            <col style="width: 40%" />
+        </colgroup>
+        <tbody>
+            <tr>
+                <td></td>
+                <td>
+                    <div class="signature-box">
+                        <div class="row">
+                            <span class="dotted-ruled"
+                                  style="width: 20mm"></span>
+                            <span>, ngày</span>
+                            <span class="dotted-ruled"
+                                  style="width: 9mm">{{NgayKetLuan_Ngay}}</span>
+                            <span>tháng</span>
+                            <span class="dotted-ruled"
+                                  style="width: 9mm">{{NgayKetLuan_Thang}}</span>
+                            <span>năm</span>
+                            <span class="dotted-ruled"
+                                  style="width: 14mm">{{NgayKetLuan_Nam}}</span>
+                        </div>
+                        <span class="bold">NGƯỜI KẾT LUẬN</span>
+                        <br />
+                        <span class="italic">(Ký, ghi rõ họ tên và đóng dấu)</span>
+                        <br />
+                        <div style="height: 20mm"></div>
+                        <span class="bold">{{NguoiKetLuan}}</span>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr class="short-line" />
+    <div class="row">
+        <div>
+            <sup>1</sup> Phân loại sức khỏe theo quy định của Bộ Y tế
+        </div>
+        <div>
+            <sup>2</sup> Ghi rõ các bệnh, tật, phương án điều trị, phục
+            hồi chức năng hoặc giới thiệu khám chuyên khoa để khám bệnh,
+            chữa bệnh (nếu có).
+        </div>
+    </div>
+</section>
+	</body>
+</html>

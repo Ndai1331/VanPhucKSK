@@ -62,7 +62,11 @@ namespace CoreAdminWeb.Services.PDFService
 
                 // Configure font provider for Vietnamese support
                 var fontProvider = new DefaultFontProvider(true, true, true);
-                fontProvider.AddFont("wwwroot/assets/fonts/times.ttf");
+                var fontPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "assets", "fonts", "times.ttf");
+                if (File.Exists(fontPath))
+                {
+                    fontProvider.AddFont(fontPath);
+                }
 
                 // Add system fonts for better Vietnamese support
                 try
