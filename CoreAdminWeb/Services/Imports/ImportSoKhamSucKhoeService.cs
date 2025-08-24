@@ -320,6 +320,17 @@ namespace CoreAdminWeb.Services.Imports
                     $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_eq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
                 ), maLuotKhams);
 
+                var existingRecordsOthers = await BatchQueryAsync(ids => _soKhamSucKhoeService.GetAllAsync(
+                    $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_neq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
+                ), maLuotKhams);
+
+                if (existingRecordsOthers.Any())
+                {
+                    await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ImportError", $"Mã lượt khám đã tồn tại trên hệ thống: {string.Join("; ", existingRecordsOthers.Select(c => $"'{c.ma_luot_kham}'"))}", true);
+                    return;
+                }
+
                 var existingRecordKeys = new HashSet<string>(
                     existingRecords
                         .Where(r => !string.IsNullOrEmpty(r.ma_luot_kham))
