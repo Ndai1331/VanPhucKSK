@@ -37,13 +37,13 @@
                                    class="form-input date-picker w-1/2"
                                    placeholder="Từ ngày"
                                    value="@(_fromDate?.ToString("dd/MM/yyyy"))"
-                                   @onchange="@(e => OnDateChanged(e, nameof(_fromDate), true))" />
+                                   @onchange="@(e => OnValueChanged(e, nameof(_fromDate), true))" />
                             <span class="mx-2 flex items-center text-gray-500">-</span>
                             <input type="text"
                                    class="form-input date-picker w-1/2"
                                    placeholder="Đến ngày"
                                    value="@(_toDate?.ToString("dd/MM/yyyy"))"
-                                   @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
+                                   @onchange="@(e => OnValueChanged(e, nameof(_toDate), true))" />
                         </div>
                     </div>
                     <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
@@ -226,7 +226,7 @@
         min-width: 200px;
         white-space: pre-wrap;
     }
-    
+
     .wrap-long-content {
         min-width: 600px;
         white-space: pre-wrap;
@@ -238,22 +238,22 @@
         border: 1px solid #e5e7eb;
     }
 
-    .frozen-columns-table th,
-    .frozen-columns-table td {
-        border: 1px solid #e5e7eb;
-        border-top: none;
-        border-left: none;
-        padding: 8px 12px;
-    }
+        .frozen-columns-table th,
+        .frozen-columns-table td {
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-left: none;
+            padding: 8px 12px;
+        }
 
-    .frozen-columns-table th:first-child,
-    .frozen-columns-table td:first-child {
-        border-left: 1px solid #e5e7eb;
-    }
+            .frozen-columns-table th:first-child,
+            .frozen-columns-table td:first-child {
+                border-left: 1px solid #e5e7eb;
+            }
 
-    .frozen-columns-table thead tr:first-child th {
-        border-top: 1px solid #e5e7eb;
-    }
+        .frozen-columns-table thead tr:first-child th {
+            border-top: 1px solid #e5e7eb;
+        }
 
     .frozen-col {
         position: sticky;
@@ -282,11 +282,35 @@
         background-color: var(--tw-border-darkborder);
     }
 
-    .frozen-col-1 { left: 0; min-width: 60px; z-index: 15; }
-    .frozen-col-2 { left: 60px; min-width: 200px; z-index: 14; }
-    .frozen-col-3 { left: 260px; min-width: 200px; z-index: 13; }
-    .frozen-col-4 { left: 460px; min-width: 100px; z-index: 12; }
-    .frozen-col-5 { left: 560px; min-width: 80px; z-index: 11; }
+    .frozen-col-1 {
+        left: 0;
+        min-width: 60px;
+        z-index: 15;
+    }
+
+    .frozen-col-2 {
+        left: 60px;
+        min-width: 200px;
+        z-index: 14;
+    }
+
+    .frozen-col-3 {
+        left: 260px;
+        min-width: 200px;
+        z-index: 13;
+    }
+
+    .frozen-col-4 {
+        left: 460px;
+        min-width: 100px;
+        z-index: 12;
+    }
+
+    .frozen-col-5 {
+        left: 560px;
+        min-width: 80px;
+        z-index: 11;
+    }
 
     .frozen-columns-table thead .frozen-col {
         background-color: #f9fafb;

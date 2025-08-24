@@ -146,7 +146,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
 
                 ReflectionHelper.SetFieldValue(this, fieldName, newDate);
 
-                if (isFilter)
+                if (isFilter && !IsLoading)
                 {
                     await LoadData(true);
                 }

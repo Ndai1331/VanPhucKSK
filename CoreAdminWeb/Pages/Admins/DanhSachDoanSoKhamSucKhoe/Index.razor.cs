@@ -30,6 +30,9 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private DateTime? _toDate = null;
         private CongTyModel? _selectedCongTyFilter = null;
         private KhamSucKhoeCongTyModel? _selectedKhamSucKhoeCongTyFilter = null;
+        private string? _searchMaDieuTriString = null;
+        private int? _searchFromNumber = null;
+        private int? _searchToNumber = null;
 
         private HubConnection? connection;
         private string? connectionId = "";
@@ -146,6 +149,18 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 BuilderQuery += $"&maDotKham={_selectedKhamSucKhoeCongTyFilter.id}";
             }
+            if (!string.IsNullOrEmpty(_searchMaDieuTriString))
+            {
+                BuilderQuery += $"&maDieuTri={_searchMaDieuTriString}";
+            }
+            if (_searchFromNumber.HasValue)
+            {
+                BuilderQuery += $"&fromNumber={_searchFromNumber}";
+            }
+            if (_searchToNumber.HasValue)
+            {
+                BuilderQuery += $"&toNumber={_searchToNumber}";
+            }
 
             var result = await MainService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
@@ -224,36 +239,44 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             await LoadData(true);
         }
 
-        private async Task OnDateChanged(ChangeEventArgs e, string fieldName, bool isFilter = false)
+        private async Task OnValueChanged(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true)
         {
             try
             {
-                var dateStr = e.Value?.ToString();
-                var olderData = ReflectionHelper.GetFieldValue(this, fieldName);
-
-                DateTime? newDate = null;
-                if (!string.IsNullOrEmpty(dateStr))
+                if (!isDate)
                 {
-                    var parts = dateStr.Split('/');
-                    if (parts.Length == 3 &&
-                        int.TryParse(parts[0], out int day) &&
-                        int.TryParse(parts[1], out int month) &&
-                        int.TryParse(parts[2], out int year))
+                    if (e.Value == null || string.IsNullOrEmpty(e.Value.ToString()))
                     {
-                        newDate = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
+                        ReflectionHelper.SetFieldValue(this, fieldName, null);
+                    }
+                    else
+                    {
+                        var value = e.Value.ToString();
+                        ReflectionHelper.SetFieldValue(this, fieldName, value);
+                    }
+                }
+                else
+                {
+                    var dateStr = e.Value?.ToString();
+                    if (string.IsNullOrEmpty(dateStr))
+                    {
+                        ReflectionHelper.SetFieldValue(this, fieldName, null);
+                    }
+                    else
+                    {
+                        var parts = dateStr.Split('/');
+                        if (parts.Length == 3 &&
+                            int.TryParse(parts[0], out int day) &&
+                            int.TryParse(parts[1], out int month) &&
+                            int.TryParse(parts[2], out int year))
+                        {
+                            var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
+                            ReflectionHelper.SetFieldValue(this, fieldName, date);
+                        }
                     }
                 }
 
-                // Compare old and new value, do nothing if unchanged
-                if ((olderData == null && newDate == null) ||
-                    (olderData is DateTime oldDate && newDate.HasValue && oldDate == newDate.Value))
-                {
-                    return;
-                }
-
-                ReflectionHelper.SetFieldValue(this, fieldName, newDate);
-
-                if (isFilter)
+                if (isFilter && !IsLoading)
                 {
                     await LoadData(true);
                 }

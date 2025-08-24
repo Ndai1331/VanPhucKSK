@@ -42,70 +42,18 @@ namespace CoreAdminWeb.Services.Exports
             }
         }
 
-
-        public async Task ExportFromExaminationWithProgressAsync(string connectionId,
-                                                                 List<int> soKSKIds,
-                                                                 SettingModel setting,
-                                                                 HoSoKhamSucKhoeExportType exportType,
-                                                                 string baseUrl,
-                                                                 CancellationToken cancellationToken)
+        public async Task ExportFromExaminationWithProgressAsync(
+            string connectionId,
+            List<int> soKSKIds,
+            SettingModel setting,
+            HoSoKhamSucKhoeExportType exportType,
+            string baseUrl,
+            CancellationToken cancellationToken)
         {
             try
             {
                 await _hubContext.Clients.Client(connectionId)
-                .SendAsync("ExportExaminationProgress", $"Đang chuẩn bị dữ liệu...", cancellationToken);
-
-                List<KhamSucKhoeChuyenKhoaModel>? khamSucKhoeChuyenKhoas = default;
-                List<KhamSucKhoeSanPhuKhoaModel>? khamSucKhoeSanPhuKhoas = default;
-                List<KhamSucKhoeKetLuanModel>? khamSucKhoeKetLuans = default;
-                List<KhamSucKhoeTheLucModel>? khamSucKhoeTheLucs = default;
-                List<KhamSucKhoeKetQuaCanLamSangModel>? khamSucKhoeKetQuaCanLamSangs = default;
-                List<SoKhamSucKhoeModel> soKhamSucKhoes = await BatchQueryAsync(
-                    ids => _soKhamSucKhoeService.GetAllAsync($"filter[_and][][id][_in]={string.Join(",", ids)}"),
-                    soKSKIds
-                );
-
-                if (soKhamSucKhoes == null || !soKhamSucKhoes.Any())
-                {
-                    await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ExportExaminationError", "Không có dữ liệu khám sức khỏe để xuất.", cancellationToken);
-                    return;
-                }
-
-                if (exportType == HoSoKhamSucKhoeExportType.ConsultationSlip)
-                {
-                    var chuyenKhoaTask = BatchQueryAsync(
-                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
-                        soKSKIds
-                    );
-                    var sanPhuKhoaTask = BatchQueryAsync(
-                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
-                        soKSKIds
-                    );
-                    var ketLuanTask = BatchQueryAsync(
-                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
-                        soKSKIds
-                    );
-                    var theLucTask = BatchQueryAsync(
-                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
-                        soKSKIds
-                    );
-                    var kqCLSTask = BatchQueryAsync(
-                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
-                        soKSKIds
-                    );
-
-                    await Task.WhenAll(chuyenKhoaTask, sanPhuKhoaTask, ketLuanTask, theLucTask, kqCLSTask);
-
-                    khamSucKhoeChuyenKhoas = chuyenKhoaTask.Result;
-                    khamSucKhoeSanPhuKhoas = sanPhuKhoaTask.Result;
-                    khamSucKhoeKetLuans = ketLuanTask.Result;
-                    khamSucKhoeTheLucs = theLucTask.Result;
-                    khamSucKhoeKetQuaCanLamSangs = kqCLSTask.Result;
-                }
-
-                await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ExportExaminationProgress", "Đang kiểm tra mẫu xuất dữ liệu...", cancellationToken);
+                    .SendAsync("ExportExaminationProgress", $"Đang chuẩn bị dữ liệu...", cancellationToken);
 
                 var exportTemplateNu = exportType switch
                 {
@@ -120,6 +68,9 @@ namespace CoreAdminWeb.Services.Exports
                     HoSoKhamSucKhoeExportType.CheckListKsk => setting.phieu_ksk_nam,
                     _ => throw new NotSupportedException("Chưa hỗ trợ xuất template này")
                 };
+
+                await _hubContext.Clients.Client(connectionId)
+                    .SendAsync("ExportExaminationProgress", "Đang kiểm tra mẫu xuất dữ liệu...", cancellationToken);
 
                 if (
                     (
@@ -185,50 +136,114 @@ namespace CoreAdminWeb.Services.Exports
                     return;
                 }
 
-                int startIndex = 0;
-                int totalRecords = soKhamSucKhoes.Count;
-                List<string> fileNames = new List<string>();
+                // Tối ưu batch size khi truy vấn và ghi dữ liệu
+                int batchSize = soKSKIds.Count switch
+                {
+                    >= 10000 => 1000,
+                    >= 5000 => 500,
+                    _ => 200
+                };
+
+                List<KhamSucKhoeChuyenKhoaModel>? khamSucKhoeChuyenKhoas = null;
+                List<KhamSucKhoeSanPhuKhoaModel>? khamSucKhoeSanPhuKhoas = null;
+                List<KhamSucKhoeKetLuanModel>? khamSucKhoeKetLuans = null;
+                List<KhamSucKhoeTheLucModel>? khamSucKhoeTheLucs = null;
+                List<KhamSucKhoeKetQuaCanLamSangModel>? khamSucKhoeKetQuaCanLamSangs = null;
+
+                // Lấy dữ liệu chính theo batch lớn
+                List<SoKhamSucKhoeModel> soKhamSucKhoes = await BatchQueryAsync(
+                    ids => _soKhamSucKhoeService.GetAllAsync($"filter[_and][][id][_in]={string.Join(",", ids)}"),
+                    soKSKIds, batchSize
+                );
+
+                if (soKhamSucKhoes == null || soKhamSucKhoes.Count == 0)
+                {
+                    await _hubContext.Clients.Client(connectionId)
+                        .SendAsync("ExportExaminationError", "Không có dữ liệu khám sức khỏe để xuất.", cancellationToken);
+                    return;
+                }
+
+                // Lấy dữ liệu liên quan song song (nếu cần)
+                if (exportType == HoSoKhamSucKhoeExportType.ConsultationSlip)
+                {
+                    var chuyenKhoaTask = BatchQueryAsync(
+                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        soKSKIds, batchSize
+                    );
+                    var sanPhuKhoaTask = BatchQueryAsync(
+                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        soKSKIds, batchSize
+                    );
+                    var ketLuanTask = BatchQueryAsync(
+                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        soKSKIds, batchSize
+                    );
+                    var theLucTask = BatchQueryAsync(
+                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        soKSKIds, batchSize
+                    );
+                    var kqCLSTask = BatchQueryAsync(
+                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        soKSKIds, batchSize
+                    );
+
+                    await Task.WhenAll(chuyenKhoaTask, sanPhuKhoaTask, ketLuanTask, theLucTask, kqCLSTask);
+
+                    khamSucKhoeChuyenKhoas = chuyenKhoaTask.Result;
+                    khamSucKhoeSanPhuKhoas = sanPhuKhoaTask.Result;
+                    khamSucKhoeKetLuans = ketLuanTask.Result;
+                    khamSucKhoeTheLucs = theLucTask.Result;
+                    khamSucKhoeKetQuaCanLamSangs = kqCLSTask.Result;
+                }
+
+                // Chuẩn bị thư mục lưu file
                 var dateNow = DateTime.Now;
                 var baseFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "exports", "kham_suc_khoe");
-                if (!Directory.Exists(baseFolder))
+                var savePath = Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}");
+                if (!Directory.Exists(savePath))
                 {
-                    Directory.CreateDirectory(baseFolder);
+                    Directory.CreateDirectory(savePath);
                 }
-                foreach (var item in soKhamSucKhoes)
+
+                int totalRecords = soKhamSucKhoes.Count;
+                int processed = 0;
+                List<string> fileNames = new List<string>(totalRecords);
+
+                // Duyệt theo batch để giảm memory pressure
+                foreach (var batch in soKhamSucKhoes.Chunk(batchSize))
                 {
-                    startIndex++;
-                    await _hubContext.Clients.Client(connectionId)
-                        .SendAsync("ExportExaminationProgress", $"Đang thực hiện xuất dữ liệu {startIndex} trên tổng số {totalRecords}", cancellationToken);
-
-                    if (cancellationToken.IsCancellationRequested)
+                    var batchList = batch.ToList();
+                    var tasks = batchList.Select(async item =>
                     {
-                        await _hubContext.Clients.Client(connectionId)
-                        .SendAsync("ExportExaminationError", "Xuất dữ liệu đã bị hủy.", cancellationToken);
-                        return;
-                    }
-
-                    var usingDocTemplate = item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? docTemplate1Bytes : docTemplate2Bytes;
-                    if (usingDocTemplate == null)
-                    {
-                        await _hubContext.Clients.Client(connectionId)
-                        .SendAsync("ExportExaminationError", $"Không tìm thấy mẫu xuất cho giới tính {item.benh_nhan?.gioi_tinh?.GetDescription()}.", cancellationToken);
-                        continue;
-                    }
-
-                    // Create a temporary file for editing
-                    var tempTemplatePath = Path.Combine(Path.GetTempPath(), $"{item.ma_luot_kham}_temp.docx");
-                    File.WriteAllBytes(tempTemplatePath, usingDocTemplate);
-
-                    // Process document in a separate scope to ensure proper disposal
-                    using (var doc = WordprocessingDocument.Open(tempTemplatePath, true))
-                    {
-                        switch (exportType)
+                        processed++;
+                        if (cancellationToken.IsCancellationRequested)
                         {
-                            case HoSoKhamSucKhoeExportType.CheckListKsk:
-                                try
-                                {
-                                    var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
-                                    doc.ReplaceText(new Dictionary<string, string>
+                            await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ExportExaminationError", "Xuất dữ liệu đã bị hủy.", cancellationToken);
+                            return;
+                        }
+
+                        var usingDocTemplate = item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? docTemplate1Bytes : docTemplate2Bytes;
+                        if (usingDocTemplate == null)
+                        {
+                            await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ExportExaminationError", $"Không tìm thấy mẫu xuất cho giới tính {item.benh_nhan?.gioi_tinh?.GetDescription()}.", cancellationToken);
+                            return;
+                        }
+
+                        var tempTemplatePath = Path.Combine(Path.GetTempPath(), $"{item.ma_luot_kham}_temp.docx");
+                        await File.WriteAllBytesAsync(tempTemplatePath, usingDocTemplate, cancellationToken);
+
+                        // Xử lý file Word (có thể tối ưu hơn nếu dùng thư viện hỗ trợ stream)
+                        using (var doc = WordprocessingDocument.Open(tempTemplatePath, true))
+                        {
+                            switch (exportType)
+                            {
+                                case HoSoKhamSucKhoeExportType.CheckListKsk:
+                                    try
+                                    {
+                                        var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
+                                        doc.ReplaceText(new Dictionary<string, string>
                                         {
                                             { "<<HoVaTen>>", $"{item.benh_nhan?.full_name}" },
                                             { "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}" },
@@ -239,35 +254,35 @@ namespace CoreAdminWeb.Services.Exports
                                             { "<<SoDinhDanh>>", $"{item.benh_nhan?.so_dinh_danh}" },
                                             { "<<SoDienThoai>>", $"{item.benh_nhan?.so_dien_thoai}" }
                                         });
-                                    doc.ReplaceImage("<<QR>>", qrCode, 500000, 500000);
+                                        doc.ReplaceImage("<<QR>>", qrCode, 500000, 500000);
 
-                                }
-                                catch (Exception ex)
-                                {
-                                    var errorDetails = $"[CheckListKsk Processing Error] Item: {item.ma_luot_kham}, " +
-                                                     $"Line: {ex.StackTrace?.Split('\n').FirstOrDefault(x => x.Contains("ExportKSKDataService.cs"))?.Trim() ?? "Unknown"}, " +
-                                                     $"Method: {ex.TargetSite?.Name ?? "Unknown"}, " +
-                                                     $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
-                                                     $"Error: {ex.Message}, " +
-                                                     $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        var errorDetails = $"[CheckListKsk Processing Error] Item: {item.ma_luot_kham}, " +
+                                                         $"Line: {ex.StackTrace?.Split('\n').FirstOrDefault(x => x.Contains("ExportKSKDataService.cs"))?.Trim() ?? "Unknown"}, " +
+                                                         $"Method: {ex.TargetSite?.Name ?? "Unknown"}, " +
+                                                         $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
+                                                         $"Error: {ex.Message}, " +
+                                                         $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
 
-                                    Console.WriteLine(errorDetails);
-                                    await _hubContext.Clients.Client(connectionId)
-                                        .SendAsync("ExportExaminationError", $"Lỗi xử lý CheckListKsk: {ex.Message}", cancellationToken);
-                                    continue;
-                                }
-                                break;
-                            case HoSoKhamSucKhoeExportType.ConsultationSlip:
-                                try
-                                {
-                                    var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                    var cls = khamSucKhoeChuyenKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                    var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                    var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua)).ToList();
-                                    var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
+                                        Console.WriteLine(errorDetails);
+                                        await _hubContext.Clients.Client(connectionId)
+                                            .SendAsync("ExportExaminationError", $"Lỗi xử lý CheckListKsk: {ex.Message}", cancellationToken);
+                                        return;
+                                    }
+                                    break;
+                                case HoSoKhamSucKhoeExportType.ConsultationSlip:
+                                    try
+                                    {
+                                        var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
+                                        var cls = khamSucKhoeChuyenKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
+                                        var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
+                                        var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua)).ToList();
+                                        var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
 
 
-                                    doc.ReplaceText(new Dictionary<string, string>
+                                        doc.ReplaceText(new Dictionary<string, string>
                                     {
                                         { "<<HoVaTen>>", $"{item.benh_nhan?.full_name}" },
                                         { "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}" },
@@ -295,159 +310,101 @@ namespace CoreAdminWeb.Services.Exports
                                         { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" }
 
                                     });
-                                    if (kqcls != null && kqcls.Any())
-                                    {
-                                        var items_kqcls = kqcls.Select(c => new CanLamSangItem(c.type?.GetDescriptionFromString<KetQuaCanLamSang>() ?? string.Empty, c.ket_qua ?? string.Empty)).ToList();
-
-                                        // Build formatted text for chiDinh with bullet points
-                                        StringBuilder chiDinhFormatted = new StringBuilder();
-                                        for (int i = 0; i < items_kqcls.Count; i++)
+                                        if (kqcls != null && kqcls.Any())
                                         {
-                                            chiDinhFormatted.AppendLine($"• {items_kqcls[i].TenChiDinh}");
-                                        }
+                                            var items_kqcls = kqcls.Select(c => new CanLamSangItem(c.type?.GetDescriptionFromString<KetQuaCanLamSang>() ?? string.Empty, c.ket_qua ?? string.Empty)).ToList();
 
-                                        // Build formatted text for ketQua with bullet points
-                                        StringBuilder ketQuaFormatted = new StringBuilder();
-                                        for (int i = 0; i < items_kqcls.Count; i++)
-                                        {
-                                            ketQuaFormatted.AppendLine($"• {items_kqcls[i].KetQua}");
-                                        }
+                                            // Build formatted text for chiDinh with bullet points
+                                            StringBuilder chiDinhFormatted = new StringBuilder();
+                                            for (int i = 0; i < items_kqcls.Count; i++)
+                                            {
+                                                chiDinhFormatted.AppendLine($"• {items_kqcls[i].TenChiDinh}");
+                                            }
 
-                                        // Replace placeholders with formatted text
-                                        doc.ReplaceText(new Dictionary<string, string>
+                                            // Build formatted text for ketQua with bullet points
+                                            StringBuilder ketQuaFormatted = new StringBuilder();
+                                            for (int i = 0; i < items_kqcls.Count; i++)
+                                            {
+                                                ketQuaFormatted.AppendLine($"• {items_kqcls[i].KetQua}");
+                                            }
+
+                                            // Replace placeholders with formatted text
+                                            doc.ReplaceText(new Dictionary<string, string>
                                         {
                                             { "<<TenChiDinh>>", chiDinhFormatted.ToString() },
                                             { "<<kq_canlamsang>>", ketQuaFormatted.ToString() }
                                         });
-                                    }
-                                    else
-                                    {
-                                        doc.ReplaceText(new Dictionary<string, string>
+                                        }
+                                        else
+                                        {
+                                            doc.ReplaceText(new Dictionary<string, string>
                                         {
                                             { "<<TenChiDinh>>", "" },
                                             { "<<kq_canlamsang>>", "" }
                                         });
+                                        }
                                     }
-                                }
-                                catch (Exception ex)
-                                {
-                                    var errorDetails = $"[ConsultationSlip Processing Error] Item: {item.ma_luot_kham}, " +
-                                                     $"Line: {ex.StackTrace?.Split('\n').FirstOrDefault(x => x.Contains("ExportKSKDataService.cs"))?.Trim() ?? "Unknown"}, " +
-                                                     $"Method: {ex.TargetSite?.Name ?? "Unknown"}, " +
-                                                     $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
-                                                     $"Error: {ex.Message}, " +
-                                                     $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
+                                    catch (Exception ex)
+                                    {
+                                        var errorDetails = $"[ConsultationSlip Processing Error] Item: {item.ma_luot_kham}, " +
+                                                         $"Line: {ex.StackTrace?.Split('\n').FirstOrDefault(x => x.Contains("ExportKSKDataService.cs"))?.Trim() ?? "Unknown"}, " +
+                                                         $"Method: {ex.TargetSite?.Name ?? "Unknown"}, " +
+                                                         $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
+                                                         $"Error: {ex.Message}, " +
+                                                         $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
 
-                                    Console.WriteLine(errorDetails);
-                                    await _hubContext.Clients.Client(connectionId)
-                                        .SendAsync("ExportExaminationError", $"Lỗi xử lý ConsultationSlip: {ex.Message}", cancellationToken);
-                                    continue;
-                                }
+                                        Console.WriteLine(errorDetails);
+                                        await _hubContext.Clients.Client(connectionId)
+                                            .SendAsync("ExportExaminationError", $"Lỗi xử lý ConsultationSlip: {ex.Message}", cancellationToken);
+                                        return;
+                                    }
 
-                                break;
+                                    break;
+                            }
                         }
-                    } // End of document processing scope - Document is now closed and file is unlocked
 
-                    // Now process the file outside of the using block
-                    string filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.docx".ToNormalChar();
-                    var savePath = Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}");
-                    if (!Directory.Exists(savePath))
-                    {
-                        Directory.CreateDirectory(savePath);
-                    }
-
-                    try
-                    {
-                        // Wait a moment to ensure file system releases the lock completely
-                        await Task.Delay(200, cancellationToken);
-
-                        // Save document to specific file path
+                        string filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.docx".ToNormalChar();
                         var fullFilePath = Path.Combine(savePath, filename);
-
-                        // Now copy the modified temporary file to the final location
-                        // The file should be unlocked after the using block ends
                         File.Copy(tempTemplatePath, fullFilePath, true);
-
-                        // Clean up temporary file
                         if (File.Exists(tempTemplatePath))
                         {
                             File.Delete(tempTemplatePath);
                         }
 
-                        // Verify file was created and has content
-                        if (File.Exists(fullFilePath))
-                        {
-                            var fileInfo = new FileInfo(fullFilePath);
-                            Console.WriteLine($"[Success] Document saved: {fullFilePath}, Size: {fileInfo.Length} bytes");
-
-                            if (fileInfo.Length == 0)
-                            {
-                                Console.WriteLine($"[Warning] File {fullFilePath} is empty!");
-                            }
-                            else if (fileInfo.Length < 1000) // Word files should be at least a few KB
-                            {
-                                Console.WriteLine($"[Warning] File {fullFilePath} seems too small ({fileInfo.Length} bytes) - might be corrupted");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine($"[Error] File {fullFilePath} was not created!");
-                        }
-
                         fileNames.Add(filename);
-                    }
-                    catch (Exception ex)
-                    {
-                        var errorDetails = $"[Document Save Error] Item: {item.ma_luot_kham}, Filename: {filename}, " +
-                                         $"Line: {ex.StackTrace?.Split('\n').FirstOrDefault(x => x.Contains("ExportKSKDataService.cs"))?.Trim() ?? "Unknown"}, " +
-                                         $"Method: {ex.TargetSite?.Name ?? "Unknown"}, " +
-                                         $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
-                                         $"Error: {ex.Message}, " +
-                                         $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
 
-                        Console.WriteLine(errorDetails);
-                        await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ExportExaminationError", $"Lỗi lưu file: {ex.Message}", cancellationToken);
-                        continue;
-                    }
-                } // End of foreach loop
+                        // Chỉ gửi progress mỗi 100 bản ghi
+                        if (processed % 100 == 0 || processed == totalRecords)
+                        {
+                            await _hubContext.Clients.Client(connectionId)
+                                .SendAsync("ExportExaminationProgress", $"Đang xuất dữ liệu {processed}/{totalRecords}", cancellationToken);
+                        }
+                    });
+
+                    // Chạy song song trong batch nhỏ (giới hạn số lượng để tránh quá tải IO)
+                    await Task.WhenAll(tasks);
+                }
 
                 if (fileNames.Count == 0)
                 {
                     await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ExportExaminationError", "Không có dữ liệu để xuất.", cancellationToken);
+                        .SendAsync("ExportExaminationError", "Không có dữ liệu để xuất.", cancellationToken);
                     return;
                 }
 
                 await _hubContext.Clients.Client(connectionId)
                     .SendAsync("ExportExaminationProgress", $"Đang chuẩn bị tập tin nén...", cancellationToken);
 
+                await Task.Delay(200, cancellationToken);
+
                 string zipFileName = $"{exportType.GetDescription()}_{DateTime.Now:yyyyMMdd_HHmmss}".ToNormalChar();
                 string zipPath = Path.Combine(baseFolder, $"{zipFileName}.zip");
+                ZipFile.CreateFromDirectory(savePath, zipPath, CompressionLevel.Fastest, true);
 
-                try
-                {
-                    ZipFile.CreateFromDirectory(Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}"), zipPath, CompressionLevel.Fastest, true);
-                }
-                catch (Exception ex)
-                {
-                    var errorDetails = $"[Zip Creation Error] " +
-                                     $"Line: {ex.StackTrace?.Split('\n').FirstOrDefault(x => x.Contains("ExportKSKDataService.cs"))?.Trim() ?? "Unknown"}, " +
-                                     $"Method: {ex.TargetSite?.Name ?? "Unknown"}, " +
-                                     $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
-                                     $"Error: {ex.Message}, " +
-                                     $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
-
-                    Console.WriteLine(errorDetails);
-                    await _hubContext.Clients.Client(connectionId)
-                        .SendAsync("ExportExaminationError", $"Lỗi tạo file nén: {ex.Message}", cancellationToken);
-                    return;
-                }
-
-                if (Directory.Exists(Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}")))
+                if (Directory.Exists(savePath))
                 {
                     GC.WaitForPendingFinalizers();
-                    Directory.Delete(Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}"), true);
+                    Directory.Delete(savePath, true);
                 }
 
                 var ticketId = Guid.NewGuid().ToString("N");
@@ -472,9 +429,10 @@ namespace CoreAdminWeb.Services.Exports
             catch (Exception ex)
             {
                 await _hubContext.Clients.Client(connectionId)
-                .SendAsync("ExportExaminationError", $"Lỗi khi xuất tập tin: {ex.Message}", cancellationToken);
+                    .SendAsync("ExportExaminationError", $"Lỗi khi xuất tập tin: {ex.Message}", cancellationToken);
             }
         }
+
         static async Task<List<T>> BatchQueryAsync<T, TValue>(Func<List<TValue>, Task<RequestHttpResponse<List<T>>>> queryFunc, List<TValue> ids, int batchSize = 200)
         {
             var results = new List<T>();

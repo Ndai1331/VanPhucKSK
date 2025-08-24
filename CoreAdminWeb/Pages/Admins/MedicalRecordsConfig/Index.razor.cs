@@ -292,7 +292,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                     }
                 }
 
-                if (isFilter)
+                if (isFilter && !IsLoading)
                 {
                     await LoadData(true);
                 }

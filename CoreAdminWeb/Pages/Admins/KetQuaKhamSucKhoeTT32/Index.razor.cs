@@ -1226,11 +1226,13 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     if (e.Value == null || string.IsNullOrEmpty(e.Value.ToString()))
                     {
-                        ReflectionHelper.SetFieldValue(this, item, fieldName, null);
-                        return;
+                        ReflectionHelper.SetFieldValue(this, fieldName, null);
                     }
-                    var value = e.Value.ToString();
-                    ReflectionHelper.SetFieldValue(this, item, fieldName, value);
+                    else
+                    {
+                        var value = e.Value.ToString();
+                        ReflectionHelper.SetFieldValue(this, fieldName, value);
+                    }
                 }
                 else
                 {
@@ -1253,7 +1255,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
                 }
 
-                if (isFilter)
+                if (isFilter && !IsLoading)
                 {
                     await LoadData(true);
                 }
