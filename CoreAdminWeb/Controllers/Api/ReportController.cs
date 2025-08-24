@@ -83,14 +83,15 @@ namespace CoreAdminWeb.Controllers.Api
                     new DashboardQuery
                     {
                         Sql = @"
-                            SELECT
-	                            COUNT(1)
-                            FROM kham_suc_khoe_dinh_muc_thuc_te dmtt
-                            INNER JOIN [contract] ct ON ct.id = dmtt.[contract]
-                            INNER JOIN contract_type ctt ON ctt.Id = ct.contract_type
-                            INNER JOIN danh_muc_dinh_muc dm ON dm.id = dmtt.ma_dinh_muc"
+                            SELECT COUNT(1) FROM (
+                                SELECT
+	                                dm.id
+                                FROM kham_suc_khoe_dinh_muc_thuc_te dmtt
+                                INNER JOIN [contract] ct ON ct.id = dmtt.[contract]
+                                INNER JOIN contract_type ctt ON ctt.Id = ct.contract_type
+                                INNER JOIN danh_muc_dinh_muc dm ON dm.id = dmtt.MaDinhMuc"
                             + whereClause
-                            + " GROUP BY dm.id,dm.code,dm.[name],dm.DonGia,dmtt.don_gia_tt,dmtt.thanh_tien_tt",
+                            + " GROUP BY dm.id,dm.code,dm.[name],dm.DonGia,dmtt.don_gia_tt,dmtt.thanh_tien_tt) t",
                         Action = (object? obj) =>
                         {
                             response.Meta = new Meta(){

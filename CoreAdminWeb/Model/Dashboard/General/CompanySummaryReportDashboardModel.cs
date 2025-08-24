@@ -40,6 +40,7 @@
     public class CompanySummaryReportDashboardRevenueModel
     {
         public string MaHopDong { get; set; } = string.Empty;
+        public string NhomDinhMuc { get; set; } = string.Empty;
         public string DinhMuc { get; set; } = string.Empty;
         public decimal GiaTriHopDong { get; set; }
         public decimal ChiPhiThucTe { get; set; }

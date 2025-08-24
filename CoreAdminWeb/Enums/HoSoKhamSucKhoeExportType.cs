@@ -6,8 +6,6 @@ namespace CoreAdminWeb.Enums
     {
         [Description("Checklist KSK")]
         CheckListKsk = 1,
-        [Description("Báo cáo tổng")]
-        SummaryReport,
         [Description("Sổ KSK - TT32")]
         HealthCheckupBook,
         [Description("Phiếu tư vấn")]

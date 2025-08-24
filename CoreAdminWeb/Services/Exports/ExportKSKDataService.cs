@@ -1,20 +1,18 @@
 ﻿using CoreAdminWeb.Commons.Utils;
 using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
+using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Hubs;
 using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Services.BaseServices;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using System.IO.Compression;
 using System.Text;
-
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
-using DocumentFormat.OpenXml;
-using CoreAdminWeb.Helpers;
 
 
 namespace CoreAdminWeb.Services.Exports
@@ -220,7 +218,7 @@ namespace CoreAdminWeb.Services.Exports
                     // Create a temporary file for editing
                     var tempTemplatePath = Path.Combine(Path.GetTempPath(), $"{item.ma_luot_kham}_temp.docx");
                     File.WriteAllBytes(tempTemplatePath, usingDocTemplate);
-                    
+
                     // Process document in a separate scope to ensure proper disposal
                     using (var doc = WordprocessingDocument.Open(tempTemplatePath, true))
                     {
@@ -241,8 +239,8 @@ namespace CoreAdminWeb.Services.Exports
                                             { "<<SoDinhDanh>>", $"{item.benh_nhan?.so_dinh_danh}" },
                                             { "<<SoDienThoai>>", $"{item.benh_nhan?.so_dien_thoai}" }
                                         });
-                                        doc.ReplaceImage("<<QR>>", qrCode, 1200000, 1200000);
-                                       
+                                    doc.ReplaceImage("<<QR>>", qrCode, 500000, 500000);
+
                                 }
                                 catch (Exception ex)
                                 {
@@ -252,7 +250,7 @@ namespace CoreAdminWeb.Services.Exports
                                                      $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
                                                      $"Error: {ex.Message}, " +
                                                      $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
-                                    
+
                                     Console.WriteLine(errorDetails);
                                     await _hubContext.Clients.Client(connectionId)
                                         .SendAsync("ExportExaminationError", $"Lỗi xử lý CheckListKsk: {ex.Message}", cancellationToken);
@@ -267,7 +265,7 @@ namespace CoreAdminWeb.Services.Exports
                                     var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
                                     var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua)).ToList();
                                     var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                    
+
 
                                     doc.ReplaceText(new Dictionary<string, string>
                                     {
@@ -283,7 +281,6 @@ namespace CoreAdminWeb.Services.Exports
                                         { "<<kq_tieuhoa>>", $"{cls?.kq_nk_tieu_hoa}" },
                                         { "<<kq_noitiet>>", $"{cls?.kq_nk_noi_tiet}" },
                                         { "<<kq_thantietnieu>>", $"{cls?.kq_nk_than_tiet_nieu}" },
-                                        { "<<kq_thantietnieu>>", $"{cls?.kq_nk_than_tiet_nieu}" },
                                         { "<<kq_coxuongkhop>>", $"{cls?.kq_nk_co_xuong_khop}" },
                                         { "<<kq_thankinh>>", $"{cls?.kq_nk_than_kinh}" },
                                         { "<<kq_ngoaikhoa>>", $"{cls?.kq_ngoai_khoa}" },
@@ -296,7 +293,7 @@ namespace CoreAdminWeb.Services.Exports
                                         { "<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}" },
                                         { "<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}" },
                                         { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" }
-                                        
+
                                     });
                                     if (kqcls != null && kqcls.Any())
                                     {
@@ -332,7 +329,7 @@ namespace CoreAdminWeb.Services.Exports
                                         });
                                     }
                                 }
-                                    catch (Exception ex)
+                                catch (Exception ex)
                                 {
                                     var errorDetails = $"[ConsultationSlip Processing Error] Item: {item.ma_luot_kham}, " +
                                                      $"Line: {ex.StackTrace?.Split('\n').FirstOrDefault(x => x.Contains("ExportKSKDataService.cs"))?.Trim() ?? "Unknown"}, " +
@@ -340,7 +337,7 @@ namespace CoreAdminWeb.Services.Exports
                                                      $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
                                                      $"Error: {ex.Message}, " +
                                                      $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
-                                    
+
                                     Console.WriteLine(errorDetails);
                                     await _hubContext.Clients.Client(connectionId)
                                         .SendAsync("ExportExaminationError", $"Lỗi xử lý ConsultationSlip: {ex.Message}", cancellationToken);
@@ -350,7 +347,7 @@ namespace CoreAdminWeb.Services.Exports
                                 break;
                         }
                     } // End of document processing scope - Document is now closed and file is unlocked
-                    
+
                     // Now process the file outside of the using block
                     string filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.docx".ToNormalChar();
                     var savePath = Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}");
@@ -358,31 +355,31 @@ namespace CoreAdminWeb.Services.Exports
                     {
                         Directory.CreateDirectory(savePath);
                     }
-                    
+
                     try
                     {
                         // Wait a moment to ensure file system releases the lock completely
                         await Task.Delay(200, cancellationToken);
-                        
+
                         // Save document to specific file path
                         var fullFilePath = Path.Combine(savePath, filename);
-                        
+
                         // Now copy the modified temporary file to the final location
                         // The file should be unlocked after the using block ends
                         File.Copy(tempTemplatePath, fullFilePath, true);
-                        
+
                         // Clean up temporary file
                         if (File.Exists(tempTemplatePath))
                         {
                             File.Delete(tempTemplatePath);
                         }
-                        
+
                         // Verify file was created and has content
                         if (File.Exists(fullFilePath))
                         {
                             var fileInfo = new FileInfo(fullFilePath);
                             Console.WriteLine($"[Success] Document saved: {fullFilePath}, Size: {fileInfo.Length} bytes");
-                            
+
                             if (fileInfo.Length == 0)
                             {
                                 Console.WriteLine($"[Warning] File {fullFilePath} is empty!");
@@ -396,7 +393,7 @@ namespace CoreAdminWeb.Services.Exports
                         {
                             Console.WriteLine($"[Error] File {fullFilePath} was not created!");
                         }
-                        
+
                         fileNames.Add(filename);
                     }
                     catch (Exception ex)
@@ -407,7 +404,7 @@ namespace CoreAdminWeb.Services.Exports
                                          $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
                                          $"Error: {ex.Message}, " +
                                          $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
-                        
+
                         Console.WriteLine(errorDetails);
                         await _hubContext.Clients.Client(connectionId)
                             .SendAsync("ExportExaminationError", $"Lỗi lưu file: {ex.Message}", cancellationToken);
@@ -427,7 +424,7 @@ namespace CoreAdminWeb.Services.Exports
 
                 string zipFileName = $"{exportType.GetDescription()}_{DateTime.Now:yyyyMMdd_HHmmss}".ToNormalChar();
                 string zipPath = Path.Combine(baseFolder, $"{zipFileName}.zip");
-                
+
                 try
                 {
                     ZipFile.CreateFromDirectory(Path.Combine(baseFolder, $"{exportType}_{dateNow:yyyyMMddHHmmssfff}"), zipPath, CompressionLevel.Fastest, true);
@@ -440,7 +437,7 @@ namespace CoreAdminWeb.Services.Exports
                                      $"Library: {ex.TargetSite?.DeclaringType?.Assembly.GetName().Name ?? "Unknown"}, " +
                                      $"Error: {ex.Message}, " +
                                      $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
-                    
+
                     Console.WriteLine(errorDetails);
                     await _hubContext.Clients.Client(connectionId)
                         .SendAsync("ExportExaminationError", $"Lỗi tạo file nén: {ex.Message}", cancellationToken);

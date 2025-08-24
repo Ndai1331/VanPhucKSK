@@ -218,7 +218,7 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
                 phanBoChiPhiTheoNhomDinhMucLabels = new List<string>();
 
                 var nhomChiPhis = MainModel.Revenues
-                    .GroupBy(c => c.DinhMuc)
+                    .GroupBy(c => c.NhomDinhMuc)
                     .Select(g => new
                     {
                         NhomChiPhi = g.Key,
@@ -277,7 +277,23 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
 
                 theoDoiLoiNhuanHopDongSeries.Add(seriData);
 
-                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#theoDoiLoiNhuanHopDongChart", theoDoiLoiNhuanHopDongSeries, theoDoiLoiNhuanHopDongLabels, GlobalConstant.PefaultChartColors.Take(theoDoiLoiNhuanHopDongLabels.Count), false, true);
+                dynamic rangeColors = new
+                {
+                    ranges = new List<dynamic>()
+                    {
+                        new {
+                            from = float.MinValue,
+                            to= 0,
+                            color= "#ed0e3b"
+                        },
+                        new {
+                            from= 0.00001,
+                            to= float.MaxValue,
+                            color= "#2fc457"
+                        }
+                    }
+                };
+                await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#theoDoiLoiNhuanHopDongChart", theoDoiLoiNhuanHopDongSeries, theoDoiLoiNhuanHopDongLabels, (object)rangeColors, false, true);
             }
             catch (Exception ex)
             {

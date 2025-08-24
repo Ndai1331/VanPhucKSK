@@ -1,5 +1,6 @@
 @page "/subclinical-result-detail-page/{ma_luot_kham}"
 @using System.Linq
+@using CoreAdminWeb.Enums
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Model
@@ -209,7 +210,7 @@
                                 @{
                                     var itemIndex = 0;
                                 }
-                                @foreach (var item in KhamSucKhoeCanLamSanModels)
+                                @foreach (var item in KhamSucKhoeCanLamSanModels.Where(c => !string.IsNullOrWhiteSpace(c.ket_qua)))
                                 {
                                     var currentIndex = itemIndex++;
                                     <div class="dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800 overflow-hidden shadow-sm">
@@ -218,10 +219,10 @@
                                                 x-on:click="activeAccordion = activeAccordion === @currentIndex ? null : @currentIndex">
                                             <div class="flex-1">
                                                 <h4 class="font-bold text-green-600 dark:text-green-300 mb-1">
-                                                    <i class="ri-list-check-3 me-2 text-green-600 me-2"></i> @item.name
+                                                    <i class="ri-list-check-3 me-2 text-green-600 me-2"></i> @(item.kq_cls?.name ?? item.type?.GetDescriptionFromString<KetQuaCanLamSang>())
                                                 </h4>
                                                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                                                    Mã CKS: @item.kq_cls?.ma_can_lam_sang | Ngày kết luận: @item.kq_cls?.date_created.ToString("dd/MM/yyyy")
+                                                    Mã CKS: @(item.kq_cls?.ma_can_lam_sang ?? item.type) | Ngày kết luận: @item.kq_cls?.date_created.ToString("dd/MM/yyyy")
                                                 </p>
                                             </div>
                                             <div class="flex items-center space-x-2  bg-green-600 text-white dark:text-green-400 font-medium px-2 py-1 rounded-md">
@@ -620,7 +621,6 @@
     private async Task LoadKhamSucKhoeKetQuaCanLamSangDataAsync()
     {
         string query = $"filter[_and][][luot_kham][ma_luot_kham][_eq]={ma_luot_kham}";
-        query += $"&filter[_and][][kq_cls][_nnull]=true";
         query += $"&filter[_and][][deleted][_eq]=false";
         query += $"&sort=kq_cls";
         var result = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query, true);

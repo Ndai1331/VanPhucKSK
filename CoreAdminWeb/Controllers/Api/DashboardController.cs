@@ -344,6 +344,7 @@ namespace CoreAdminWeb.Controllers.Api
                         Sql = @"
                             SELECT
 	                            ct.code [MaHopDong],
+                                ldm.[name] [NhomDinhMuc],
 	                            dmdm.[name] [DinhMuc],
 	                            CAST(COALESCE(ct.[gia_tri_hop_dong], 0.0) AS decimal) [GiaTriHopDong],
 	                            CAST(COALESCE(SUM(kskdm.chi_phi_thuc_te), 0.0) AS decimal) [ChiPhiThucTe],
@@ -351,10 +352,11 @@ namespace CoreAdminWeb.Controllers.Api
                             FROM kham_suc_khoe_dinh_muc_thuc_te kskdm
                             INNER JOIN [contract] ct ON ct.id = kskdm.[contract]
                             INNER JOIN danh_muc_dinh_muc dmdm ON dmdm.id = kskdm.MaDinhMuc
+                            LEFT JOIN loai_dinh_muc ldm ON ldm.id = dmdm.loai_dinh_muc
                             WHERE (kskdm.deleted IS NULL OR kskdm.deleted = 0) AND (ct.deleted IS NULL OR ct.deleted = 0)
                             AND CAST(ct.ngay_hieu_luc AS DATE) BETWEEN @FromDate AND @ToDate
                             AND EXISTS(SELECT Id FROM kham_suc_khoe_cong_ty kskct WHERE kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
-                            GROUP BY ct.code, dmdm.[name], ct.[gia_tri_hop_dong]
+                            GROUP BY ct.code, dmdm.[name], ct.[gia_tri_hop_dong], ldm.[name]
                         ",
                         Action = async (object? obj) =>
                         {
@@ -366,6 +368,7 @@ namespace CoreAdminWeb.Controllers.Api
                                     response.Data.Revenues.Add(new CompanySummaryReportDashboardRevenueModel
                                     {
                                         MaHopDong = reader["MaHopDong"] as string ?? "",
+                                        NhomDinhMuc = reader["NhomDinhMuc"] as string ?? "Không xác định",
                                         DinhMuc = reader["DinhMuc"] as string ?? "",
                                         GiaTriHopDong = reader["GiaTriHopDong"] as decimal? ?? 0,
                                         ChiPhiThucTe = reader["ChiPhiThucTe"] as decimal? ?? 0,
