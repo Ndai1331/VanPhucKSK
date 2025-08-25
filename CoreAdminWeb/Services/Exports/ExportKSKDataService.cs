@@ -28,6 +28,8 @@ namespace CoreAdminWeb.Services.Exports
         private readonly IBaseDetailService<KhamSucKhoeKetLuanModel> _khamSucKhoeKetLuanService;
         private readonly IBaseDetailService<KhamSucKhoeTheLucModel> _khamSucKhoeTheLucService;
         private readonly IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> _khamSucKhoeKetQuaCanLamSangService;
+        private readonly IBaseDetailService<KhamSucKhoeNgheNghiepModel> _khamSucKhoeNgheNghiepService;
+        private readonly IBaseDetailService<KhamSucKhoeTienSuModel> _khamSucKhoeTienSuService;
         private readonly IPdfService _pdfService;
         public ExportKSKDataService(IHubContext<ProgressHub> hubContext, IServiceScopeFactory serviceScopeFactory, IMemoryCache memoryCache)
         {
@@ -41,6 +43,8 @@ namespace CoreAdminWeb.Services.Exports
                 _khamSucKhoeSanPhuKhoaService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeSanPhuKhoaModel>>();
                 _khamSucKhoeTheLucService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeTheLucModel>>();
                 _khamSucKhoeKetQuaCanLamSangService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel>>();
+                _khamSucKhoeNgheNghiepService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeNgheNghiepModel>>();
+                _khamSucKhoeTienSuService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeTienSuModel>>();
                 _pdfService = scope.ServiceProvider.GetRequiredService<IPdfService>();
             }
         }
@@ -179,6 +183,8 @@ namespace CoreAdminWeb.Services.Exports
                 List<KhamSucKhoeKetLuanModel>? khamSucKhoeKetLuans = null;
                 List<KhamSucKhoeTheLucModel>? khamSucKhoeTheLucs = null;
                 List<KhamSucKhoeKetQuaCanLamSangModel>? khamSucKhoeKetQuaCanLamSangs = null;
+                List<KhamSucKhoeNgheNghiepModel>? khamSucKhoeNgheNghieps = null;
+                List<KhamSucKhoeTienSuModel>? khamSucKhoeTienSus = null;
 
                 // Lấy dữ liệu chính theo batch lớn
                 List<SoKhamSucKhoeModel> soKhamSucKhoes = await BatchQueryAsync(
@@ -194,36 +200,46 @@ namespace CoreAdminWeb.Services.Exports
                 }
 
                 // Lấy dữ liệu liên quan song song (nếu cần)
-                if (exportType == HoSoKhamSucKhoeExportType.ConsultationSlip)
+                if (exportType == HoSoKhamSucKhoeExportType.ConsultationSlip || exportType == HoSoKhamSucKhoeExportType.HealthCheckupBook)
                 {
                     var chuyenKhoaTask = BatchQueryAsync(
-                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                     var sanPhuKhoaTask = BatchQueryAsync(
-                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                     var ketLuanTask = BatchQueryAsync(
-                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                     var theLucTask = BatchQueryAsync(
-                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                     var kqCLSTask = BatchQueryAsync(
-                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        soKSKIds, batchSize
+                    );
+                    var ngheNghiepTask = BatchQueryAsync(
+                        ids => _khamSucKhoeNgheNghiepService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        soKSKIds, batchSize
+                    );
+                    var tienSuTask = BatchQueryAsync(
+                        ids => _khamSucKhoeTienSuService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
 
-                    await Task.WhenAll(chuyenKhoaTask, sanPhuKhoaTask, ketLuanTask, theLucTask, kqCLSTask);
+                    await Task.WhenAll(chuyenKhoaTask, sanPhuKhoaTask, ketLuanTask, theLucTask, kqCLSTask, ngheNghiepTask, tienSuTask);
 
                     khamSucKhoeChuyenKhoas = chuyenKhoaTask.Result;
                     khamSucKhoeSanPhuKhoas = sanPhuKhoaTask.Result;
                     khamSucKhoeKetLuans = ketLuanTask.Result;
                     khamSucKhoeTheLucs = theLucTask.Result;
                     khamSucKhoeKetQuaCanLamSangs = kqCLSTask.Result;
+                    khamSucKhoeNgheNghieps = ngheNghiepTask.Result;
+                    khamSucKhoeTienSus = tienSuTask.Result;
                 }
 
                 // Chuẩn bị thư mục lưu file
@@ -281,14 +297,14 @@ namespace CoreAdminWeb.Services.Exports
                                                 var qrCode = QRHelper.GenerateQRCode($"{item.ma_luot_kham}");
                                                 doc.ReplaceText(new Dictionary<string, string>
                                                 {
-                                            { "<<HoVaTen>>", $"{item.benh_nhan?.full_name}" },
-                                            { "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}" },
-                                            { "<<STT_KSK>>", $"{item.sort}" },
-                                            { "<<MaLuotKham>>", $"{item.ma_luot_kham}" },
-                                            { "<<NgaySinh>>", $"{item.benh_nhan?.ngay_sinh:dd/MM/yyyy}" },
-                                            { "<<X>>", $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}" },
-                                            { "<<SoDinhDanh>>", $"{item.benh_nhan?.so_dinh_danh}" },
-                                            { "<<SoDienThoai>>", $"{item.benh_nhan?.so_dien_thoai}" }
+                                                    { "<<HoVaTen>>", $"{item.benh_nhan?.full_name}" },
+                                                    { "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}" },
+                                                    { "<<STT_KSK>>", $"{item.sort}" },
+                                                    { "<<MaLuotKham>>", $"{item.ma_luot_kham}" },
+                                                    { "<<NgaySinh>>", $"{item.benh_nhan?.ngay_sinh:dd/MM/yyyy}" },
+                                                    { "<<X>>", $"{DateTimeUtil.CalculateAge(item.benh_nhan?.ngay_sinh?.Date)}" },
+                                                    { "<<SoDinhDanh>>", $"{item.benh_nhan?.so_dinh_danh}" },
+                                                    { "<<SoDienThoai>>", $"{item.benh_nhan?.so_dien_thoai}" }
                                                 });
                                                 doc.ReplaceImage("<<QR>>", qrCode, 500000, 500000);
 
@@ -311,41 +327,40 @@ namespace CoreAdminWeb.Services.Exports
                                         case HoSoKhamSucKhoeExportType.ConsultationSlip:
                                             try
                                             {
-                                                var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                                var cls = khamSucKhoeChuyenKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                                var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-                                                var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua)).ToList();
-                                                var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
-
+                                                var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+                                                var cls = khamSucKhoeChuyenKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+                                                var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+                                                var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.id == item.id && !string.IsNullOrEmpty(x.ket_qua)).ToList();
+                                                var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.luot_kham?.id == item.id);
 
                                                 doc.ReplaceText(new Dictionary<string, string>
-                                            {
-                                        { "<<HoVaTen>>", $"{item.benh_nhan?.full_name}" },
-                                        { "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}" },
-                                        { "<<CongTy>>", $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}" },
-                                        { "<<NamSinh>>", $"{item.benh_nhan?.ngay_sinh:yyyy}" },
-                                        { "<<ChieuCao>>", $"{theLuc?.chieu_cao}" },
-                                        { "<<CanNang>>", $"{theLuc?.can_nang}" },
-                                        { "<<BMI>>", $"{theLuc?.bmi}" },
-                                        { "<<kq_tuanhoan>>", $"{cls?.kq_nk_tuan_hoan}" },
-                                        { "<<kq_hohap>>", $"{cls?.kq_nk_ho_hap}" },
-                                        { "<<kq_tieuhoa>>", $"{cls?.kq_nk_tieu_hoa}" },
-                                        { "<<kq_noitiet>>", $"{cls?.kq_nk_noi_tiet}" },
-                                        { "<<kq_thantietnieu>>", $"{cls?.kq_nk_than_tiet_nieu}" },
-                                        { "<<kq_coxuongkhop>>", $"{cls?.kq_nk_co_xuong_khop}" },
-                                        { "<<kq_thankinh>>", $"{cls?.kq_nk_than_kinh}" },
-                                        { "<<kq_ngoaikhoa>>", $"{cls?.kq_ngoai_khoa}" },
-                                        { "<<kq_taimuihong>>", $"{cls?.benh_tai_mui_hong}" },
-                                        { "<<kq_dalieu>>", $"{cls?.kq_da_lieu}" },
-                                        { "<<kq_mat>>", $"{cls?.benh_mat}" },
-                                        { "<<kq_ranghammat>>", $"{cls?.benh_rhm}" },
-                                        { "<<kq_tamthan>>", $"{cls?.kq_nk_tam_than}" },
-                                        { "<<kq_sanphukhoa>>", $"{sanPhuKhoa?.ket_qua}" },
-                                        { "<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}" },
-                                        { "<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}" },
-                                        { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" }
+                                                {
+                                                    { "<<HoVaTen>>", $"{item.benh_nhan?.full_name}" },
+                                                    { "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}" },
+                                                    { "<<CongTy>>", $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}" },
+                                                    { "<<NamSinh>>", $"{item.benh_nhan?.ngay_sinh:yyyy}" },
+                                                    { "<<ChieuCao>>", $"{theLuc?.chieu_cao}" },
+                                                    { "<<CanNang>>", $"{theLuc?.can_nang}" },
+                                                    { "<<BMI>>", $"{theLuc?.bmi}" },
+                                                    { "<<kq_tuanhoan>>", $"{cls?.kq_nk_tuan_hoan}" },
+                                                    { "<<kq_hohap>>", $"{cls?.kq_nk_ho_hap}" },
+                                                    { "<<kq_tieuhoa>>", $"{cls?.kq_nk_tieu_hoa}" },
+                                                    { "<<kq_noitiet>>", $"{cls?.kq_nk_noi_tiet}" },
+                                                    { "<<kq_thantietnieu>>", $"{cls?.kq_nk_than_tiet_nieu}" },
+                                                    { "<<kq_coxuongkhop>>", $"{cls?.kq_nk_co_xuong_khop}" },
+                                                    { "<<kq_thankinh>>", $"{cls?.kq_nk_than_kinh}" },
+                                                    { "<<kq_ngoaikhoa>>", $"{cls?.kq_ngoai_khoa}" },
+                                                    { "<<kq_taimuihong>>", $"{cls?.benh_tai_mui_hong}" },
+                                                    { "<<kq_dalieu>>", $"{cls?.kq_da_lieu}" },
+                                                    { "<<kq_mat>>", $"{cls?.benh_mat}" },
+                                                    { "<<kq_ranghammat>>", $"{cls?.benh_rhm}" },
+                                                    { "<<kq_tamthan>>", $"{cls?.kq_nk_tam_than}" },
+                                                    { "<<kq_sanphukhoa>>", $"{sanPhuKhoa?.ket_qua}" },
+                                                    { "<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}" },
+                                                    { "<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}" },
+                                                    { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" }
+                                                });
 
-                                            });
                                                 if (kqcls != null && kqcls.Any())
                                                 {
                                                     var items_kqcls = kqcls.Select(c => new CanLamSangItem(c.type?.GetDescriptionFromString<KetQuaCanLamSang>() ?? string.Empty, c.ket_qua ?? string.Empty)).ToList();
@@ -366,18 +381,18 @@ namespace CoreAdminWeb.Services.Exports
 
                                                     // Replace placeholders with formatted text
                                                     doc.ReplaceText(new Dictionary<string, string>
-                                                {
-                                            { "<<TenChiDinh>>", chiDinhFormatted.ToString() },
-                                            { "<<kq_canlamsang>>", ketQuaFormatted.ToString() }
-                                                });
+                                                    {
+                                                        { "<<TenChiDinh>>", chiDinhFormatted.ToString() },
+                                                        { "<<kq_canlamsang>>", ketQuaFormatted.ToString() }
+                                                    });
                                                 }
                                                 else
                                                 {
                                                     doc.ReplaceText(new Dictionary<string, string>
-                                                {
-                                            { "<<TenChiDinh>>", "" },
-                                            { "<<kq_canlamsang>>", "" }
-                                                });
+                                                    {
+                                                        { "<<TenChiDinh>>", "" },
+                                                        { "<<kq_canlamsang>>", "" }
+                                                    });
                                                 }
                                             }
                                             catch (Exception ex)
@@ -432,110 +447,118 @@ namespace CoreAdminWeb.Services.Exports
                                     .SendAsync("ExportExaminationProgress", $"Đang xuất dữ liệu {processed}/{totalRecords}", cancellationToken);
                             }
 
+                            var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+                            var cls = khamSucKhoeChuyenKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+                            var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+                            var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.id == item.id && !string.IsNullOrEmpty(x.ket_qua)).ToList();
+                            var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+                            var ngheNghiep = khamSucKhoeNgheNghieps?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+                            var tienSu = khamSucKhoeTienSus?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+
                             var tempTempalte = templateContent
-                                .Replace("{{TenBenhNhan}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{GioiTinh_Nam}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{GioiTinh_Nu}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NgaySinh_Day}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NgaySinh_Month}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NgaySinh_Year}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{Tuoi}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{SoDinhDanh}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NgayCap}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NoiCap}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{DiaChi}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{SoDienThoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NgheNghiep}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NoiCongTac}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{TienSuBenhTatGiaDinh}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{TenBenh}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NamPhatHien}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{BenhNgheNghiep}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NamPhatHienBenhNgheNghiep}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{ThoiGianLapSo_Ngay}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{ThoiGianLapSo_Thang}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{ThoiGianLapSo_Nam}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NguoiLapSo}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NamBatDauKinhNguyet}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KinhNguyet_Deu}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KinhNguyet_KhongDeu}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{ChuKyKinh}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{LuongKinh}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{DauBungKinh_Co}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{DauBungKinh_Khong}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{DaLapGiaDinh_Co}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{DaLapGiaDinh_Chua}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{PARA}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{MoSanPhuKhoa_Co}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{MoSanPhuKhoa_GhiRo}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{MoSanPhuKhoa_Khong}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{ApDungBienPhapPhongTranh_Co}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{ApDungBienPhapPhongTranh_GhiRo}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{ApDungBienPhapPhongTranh_Khong}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{ChieuCao}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{CanNang}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{BMI}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{Mach}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{HuyetAp}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{PhanLoaiTheLuc}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TuanHoan}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TuanHoan_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TuanHoan_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_HoHap}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_HoHap_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_HoHap_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TieuHoa}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TieuHoa_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TieuHoa_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_ThanTietNieu}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_ThanTietNieu_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_ThanTietNieu_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_NoiTiet}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_NoiTiet_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_NoiTiet_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_CoXuongKhops}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_CoXuongKhops_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_CoXuongKhops_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_ThanKinh}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_ThanKinh_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_ThanKinh_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TamThan}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TamThan_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TamThan_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_NgoaiKhoa}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_NgoaiKhoa_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_DaLieu}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_DaLieu_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_NgoaiKhoa_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_SanPhuKhoa_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_SanPhuKhoa_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_Mat_KhongKinh_Phai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_Mat_KhongKinh_Trai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_Mat_CoKinh_Phai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_Mat_CoKinh_Trai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_Mat_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_Mat_Benh}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_Mat_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TaiMuiHong_TaiTrai_NoiThuong}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TaiMuiHong_TaiTrai_NoiTham}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TaiMuiHong_TaiPhai_NoiThuong}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TaiMuiHong_TaiPhai_NoiTham}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TaiMuiHong_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TaiMuiHong_Benh}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_TaiMuiHong_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_RangHamMat_HamTren}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_RangHamMat_HamDuoi}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_RangHamMat_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_RangHamMat_Benh}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_RangHamMat_PhanLoai}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_CLS}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_CLS_ChuKy}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetQuaCLS_CLS_PhanLoaiSucKhoe}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{KetLuan}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NgayKetLuan_Ngay}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NgayKetLuan_Thang}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NgayKetLuan_Nam}}", $"{item.benh_nhan?.full_name.ToUpper()}")
-                                .Replace("{{NguoiKetLuan}}", $"{item.benh_nhan?.full_name.ToUpper()}");
+                            .Replace("{{TenBenhNhan}}", $"{item.benh_nhan?.full_name.ToUpper()}")
+                            .Replace("{{GioiTinh_Nam}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nam))
+                            .Replace("{{GioiTinh_Nu}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu))
+                            .Replace("{{NgaySinh_Day}}", $"{item.benh_nhan?.ngay_sinh:dd}")
+                            .Replace("{{NgaySinh_Month}}", $"{item.benh_nhan?.ngay_sinh:MM}")
+                            .Replace("{{NgaySinh_Year}}", $"{item.benh_nhan?.ngay_sinh:yyyy}")
+                            .Replace("{{Tuoi}}", $"{(item.benh_nhan?.ngay_sinh != null ? (DateTime.Now.Year - item.benh_nhan.ngay_sinh.Value.Year).ToString() : "")}")
+                            .Replace("{{SoDinhDanh}}", $"{item.benh_nhan?.so_dinh_danh}")
+                            .Replace("{{NgayCap}}", $"{item.benh_nhan?.ngay_cap}")
+                            .Replace("{{NoiCap}}", $"{item.benh_nhan?.noi_cap}")
+                            .Replace("{{DiaChi}}", $"{item.benh_nhan?.dia_chi}")
+                            .Replace("{{SoDienThoai}}", $"{item.benh_nhan?.so_dien_thoai}")
+                            .Replace("{{NgheNghiep}}", $"{ngheNghiep?.nghe_nghiep}")
+                            .Replace("{{NoiCongTac}}", $"{ngheNghiep?.noi_cong_tac}")
+                            .Replace("{{TienSuBenhTatGiaDinh}}", MultilineSpanHtmlBuilder(tienSu?.tien_su_gia_dinh ?? string.Empty, 4))
+                            .Replace("{{TenBenh}}", $"{tienSu?.ten_benh}")
+                            .Replace("{{NamPhatHien}}", $"{tienSu?.nam_phat_hien}")
+                            .Replace("{{BenhNgheNghiep}}", $"{tienSu?.benh_nghe_nghiep}")
+                            .Replace("{{NamPhatHienBenhNgheNghiep}}", $"{tienSu?.nam_phat_hien_benh_nghe_nghiep}")
+                            .Replace("{{ThoiGianLapSo_Ngay}}", $"{item.ngay_lap_so ?? DateTime.Now:dd}")
+                            .Replace("{{ThoiGianLapSo_Thang}}", $"{item.ngay_lap_so ?? DateTime.Now:MM}")
+                            .Replace("{{ThoiGianLapSo_Nam}}", $"{item.ngay_lap_so ?? DateTime.Now:yyyy}")
+                            .Replace("{{NguoiLapSo}}", $"{item.nguoi_lap}")
+                            .Replace("{{NamBatDauKinhNguyet}}", TableTdHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.tuoi_bat_dau_kinh?.ToString() : ""))
+                            .Replace("{{KinhNguyet_Deu}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.Deu.ToString()))
+                            .Replace("{{KinhNguyet_KhongDeu}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.KhongDeu.ToString()))
+                            .Replace("{{ChuKyKinh}}", TableTdHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.chu_ky : ""))
+                            .Replace("{{LuongKinh}}", TableTdHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.luong_kinh : ""))
+                            .Replace("{{DauBungKinh_Co}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.dau_bung_kinh == true))
+                            .Replace("{{DauBungKinh_Khong}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.dau_bung_kinh == false))
+                            .Replace("{{DaLapGiaDinh_Co}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.da_lap_gia_dinh == true))
+                            .Replace("{{DaLapGiaDinh_Chua}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.da_lap_gia_dinh == false))
+                            .Replace("{{PARA}}", TableTdHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.para : "", 4))
+                            .Replace("{{MoSanPhuKhoa_Co}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Co))
+                            .Replace("{{MoSanPhuKhoa_GhiRo}}", $"{(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.mo_san_phu_khoa_ghi_ro : "")}")
+                            .Replace("{{MoSanPhuKhoa_Khong}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Khong))
+                            .Replace("{{ApDungBienPhapPhongTranh_Co}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.ap_dung_bptt == true))
+                            .Replace("{{ApDungBienPhapPhongTranh_GhiRo}}", $"{(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.bptt_ghi_ro : "")}")
+                            .Replace("{{ApDungBienPhapPhongTranh_Khong}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.ap_dung_bptt == false))
+                            .Replace("{{ChieuCao}}", $"{theLuc?.chieu_cao}")
+                            .Replace("{{CanNang}}", $"{theLuc?.can_nang}")
+                            .Replace("{{BMI}}", $"{theLuc?.bmi}")
+                            .Replace("{{Mach}}", $"{theLuc?.mach}")
+                            .Replace("{{HuyetAp}}", !string.IsNullOrEmpty(theLuc?.huyet_ap) ? $"<span class=\"dotted-ruled\" style=\"width: 30mm\">{theLuc?.huyet_ap}</span>" : "<span class=\"dotted-ruled\" style=\"width: 15mm\"></span><span>/</span><span class=\"dotted-ruled\" style=\"width: 15mm\"></span>")
+                            .Replace("{{PhanLoaiTheLuc}}", $"{theLuc?.phan_loai}")
+                            .Replace("{{KetQuaCLS_TuanHoan}}", $"{cls?.kq_nk_tuan_hoan}")
+                            .Replace("{{KetQuaCLS_TuanHoan_ChuKy}}", RenderSignature(cls?.chu_ky_tuan_hoan ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_tuan_hoan) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_tuan_hoan}")
+                            .Replace("{{KetQuaCLS_TuanHoan_PhanLoai}}", $"{cls?.pl_nk_tuan_hoan?.name}")
+                            .Replace("{{KetQuaCLS_HoHap}}", $"{cls?.kq_nk_ho_hap}")
+                            .Replace("{{KetQuaCLS_HoHap_ChuKy}}", RenderSignature(cls?.chu_ky_ho_hap ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_ho_hap) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_ho_hap}")
+                            .Replace("{{KetQuaCLS_HoHap_PhanLoai}}", $"{cls?.pl_nk_ho_hap?.name}")
+                            .Replace("{{KetQuaCLS_TieuHoa}}", $"{cls?.kq_nk_tieu_hoa}")
+                            .Replace("{{KetQuaCLS_TieuHoa_ChuKy}}", RenderSignature(cls?.chu_ky_tieu_hoa ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_tieu_hoa) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_tieu_hoa}")
+                            .Replace("{{KetQuaCLS_TieuHoa_PhanLoai}}", $"{cls?.pl_nk_tieu_hoa?.name}")
+                            .Replace("{{KetQuaCLS_ThanTietNieu}}", $"{cls?.kq_nk_than_tiet_nieu}")
+                            .Replace("{{KetQuaCLS_ThanTietNieu_ChuKy}}", RenderSignature(cls?.chu_ky_than_tiet_nieu ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_than_tiet_nieu) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_than_tiet_nieu}")
+                            .Replace("{{KetQuaCLS_ThanTietNieu_PhanLoai}}", $"{cls?.pl_nk_than_tiet_nieu?.name}")
+                            .Replace("{{KetQuaCLS_NoiTiet}}", $"{cls?.kq_nk_noi_tiet}")
+                            .Replace("{{KetQuaCLS_NoiTiet_ChuKy}}", RenderSignature(cls?.chu_ky_noi_tiet ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_noi_tiet) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_noi_tiet}")
+                            .Replace("{{KetQuaCLS_NoiTiet_PhanLoai}}", $"{cls?.pl_nk_noi_tiet?.name}")
+                            .Replace("{{KetQuaCLS_CoXuongKhops}}", $"{cls?.kq_nk_co_xuong_khop}")
+                            .Replace("{{KetQuaCLS_CoXuongKhops_ChuKy}}", RenderSignature(cls?.chu_ky_co_xuong_khop ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_co_xuong_khop) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_co_xuong_khop}")
+                            .Replace("{{KetQuaCLS_CoXuongKhops_PhanLoai}}", $"{cls?.pl_nk_co_xuong_khop?.name}")
+                            .Replace("{{KetQuaCLS_ThanKinh}}", $"{cls?.kq_nk_than_kinh}")
+                            .Replace("{{KetQuaCLS_ThanKinh_ChuKy}}", RenderSignature(cls?.chu_ky_than_kinh ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_than_kinh) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_than_kinh}")
+                            .Replace("{{KetQuaCLS_ThanKinh_PhanLoai}}", $"{cls?.pl_nk_than_kinh?.name}")
+                            .Replace("{{KetQuaCLS_TamThan}}", $"{cls?.kq_nk_tam_than}")
+                            .Replace("{{KetQuaCLS_TamThan_ChuKy}}", RenderSignature(cls?.chu_ky_tam_than ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_tam_than) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_tam_than}")
+                            .Replace("{{KetQuaCLS_TamThan_PhanLoai}}", $"{cls?.pl_nk_tam_than?.name}")
+                            .Replace("{{KetQuaCLS_NgoaiKhoa}}", $"{cls?.kq_ngoai_khoa}")
+                            .Replace("{{KetQuaCLS_NgoaiKhoa_PhanLoai}}", $"{cls?.pl_ngoai_khoa?.name}")
+                            .Replace("{{KetQuaCLS_DaLieu}}", $"{cls?.kq_da_lieu}")
+                            .Replace("{{KetQuaCLS_DaLieu_PhanLoai}}", $"{cls?.pl_da_lieu?.name}")
+                            .Replace("{{KetQuaCLS_NgoaiKhoa_ChuKy}}", RenderSignature(cls?.chu_ky_ngoai_khoa ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_ngoai_khoa) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_ngoai_khoa}")
+                            .Replace("{{KetQuaCLS_SanPhuKhoa_PhanLoai}}", $"{sanPhuKhoa?.phan_loai}")
+                            .Replace("{{KetQuaCLS_SanPhuKhoa_ChuKy}}", RenderSignature(sanPhuKhoa?.chu_ky ?? string.Empty, !string.IsNullOrEmpty(sanPhuKhoa?.nguoi_ket_luan) ? "sign" : "", 100, 50) + $"<br/>{sanPhuKhoa?.nguoi_ket_luan}")
+                            .Replace("{{KetQuaCLS_Mat_KhongKinh_Phai}}", $"{cls?.thi_luc_khong_kinh_phai}")
+                            .Replace("{{KetQuaCLS_Mat_KhongKinh_Trai}}", $"{cls?.thi_luc_khong_kinh_trai}")
+                            .Replace("{{KetQuaCLS_Mat_CoKinh_Phai}}", $"{cls?.thi_luc_co_kinh_phai}")
+                            .Replace("{{KetQuaCLS_Mat_CoKinh_Trai}}", $"{cls?.thi_luc_co_kinh_trai}")
+                            .Replace("{{KetQuaCLS_Mat_ChuKy}}", RenderSignature(cls?.chu_ky_mat ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_mat) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_mat}")
+                            .Replace("{{KetQuaCLS_Mat_Benh}}", $"{cls?.benh_mat}")
+                            .Replace("{{KetQuaCLS_Mat_PhanLoai}}", $"{cls?.pl_mat?.name}")
+                            .Replace("{{KetQuaCLS_TaiMuiHong_TaiTrai_NoiThuong}}", $"{cls?.tmh_nt_trai}")
+                            .Replace("{{KetQuaCLS_TaiMuiHong_TaiTrai_NoiTham}}", $"{cls?.tmh_ntham_trai}")
+                            .Replace("{{KetQuaCLS_TaiMuiHong_TaiPhai_NoiThuong}}", $"{cls?.tmh_nt_phai}")
+                            .Replace("{{KetQuaCLS_TaiMuiHong_TaiPhai_NoiTham}}", $"{cls?.tmh_ntham_phai}")
+                            .Replace("{{KetQuaCLS_TaiMuiHong_ChuKy}}", RenderSignature(cls?.chu_ky_tmh ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_tmh) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_tmh}")
+                            .Replace("{{KetQuaCLS_TaiMuiHong_Benh}}", $"{cls?.benh_tai_mui_hong}")
+                            .Replace("{{KetQuaCLS_TaiMuiHong_PhanLoai}}", $"{cls?.pl_tmh?.name}")
+                            .Replace("{{KetQuaCLS_RangHamMat_HamTren}}", $"{cls?.kq_rhm_ham_tren}")
+                            .Replace("{{KetQuaCLS_RangHamMat_HamDuoi}}", $"{cls?.kq_rhm_ham_duoi}")
+                            .Replace("{{KetQuaCLS_RangHamMat_ChuKy}}", RenderSignature(cls?.chu_ky_rhm ?? string.Empty, !string.IsNullOrEmpty(cls?.bs_rhm) ? "sign" : "", 100, 50) + $"<br/>{cls?.bs_rhm}")
+                            .Replace("{{KetQuaCLS_RangHamMat_Benh}}", $"{cls?.benh_rhm}")
+                            .Replace("{{KetQuaCLS_RangHamMat_PhanLoai}}", $"{cls?.pl_rhm?.name}")
+                            .Replace("{{KetQuaCLS_CLS}}", RenderKQCLS(kqcls?.Where(c => !string.IsNullOrEmpty(c.ket_qua)).ToList()))
+                            .Replace("{{KetQuaCLS_CLS_ChuKy}}", RenderSignature(ketLuan?.chu_ky ?? string.Empty, cls?.bs_ket_luan != null ? "sign" : "", 100, 50) + $"<br/>{ketLuan?.bs_ket_luan?.full_name}")
+                            .Replace("{{KetQuaCLS_CLS_PhanLoaiSucKhoe}}", $"{ketLuan?.phan_loai_suc_khoe?.name}")
+                            .Replace("{{KetLuan}}", MultilineSpanHtmlBuilder(ketLuan?.benh_tat_ket_luan ?? string.Empty))
+                            .Replace("{{NgayKetLuan_Ngay}}", $"{ketLuan?.ngay_ket_luan:dd}")
+                            .Replace("{{NgayKetLuan_Thang}}", $"{ketLuan?.ngay_ket_luan:MM}")
+                            .Replace("{{NgayKetLuan_Nam}}", $"{ketLuan?.ngay_ket_luan:yyyy}")
+                            .Replace("{{NguoiKetLuan}}", $"{ketLuan?.bs_ket_luan?.full_name}");
 
                             filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf".ToNormalChar();
                             var pdfBytes = _pdfService.GeneratePdfFromHtml(tempTempalte, new PdfSettings
@@ -646,5 +669,82 @@ namespace CoreAdminWeb.Services.Exports
         }
 
         public record CanLamSangItem(string TenChiDinh, string KetQua);
+
+        private static string CheckBoxHtmlBuilder(bool value)
+        {
+            if (value)
+            {
+                return "<span class=\"cb\" checked aria-hidden=\"true\"></span>";
+            }
+            else
+            {
+                return "<span class=\"cb\" aria-hidden=\"true\"></span>";
+            }
+        }
+
+        private static string MultilineSpanHtmlBuilder(string value, int count = 1)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            int splitCount = 0;
+            foreach (var splitStr in value.WrapToWidthMm())
+            {
+                splitCount++;
+                stringBuilder.Append($"<span class=\"dotted-ruled\" style=\"width: 100%\">{splitStr}</span>");
+            }
+
+            if (splitCount < count)
+            {
+                for (int i = 0; i < 4 - splitCount; i++)
+                {
+                    stringBuilder.Append($"<span class=\"dotted-ruled\" style=\"width: 100%\"></span>");
+                }
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        private static string TableTdHtmlBuilder(string? value, int count = 2)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            var charArray = value?.PadLeft(2, '0').ToCharArray();
+            if (charArray == null || charArray.Length < count)
+            {
+                charArray = new char[count];
+            }
+
+            foreach (var c in charArray)
+            {
+                stringBuilder.Append($"<td width=\"30\" height=\"30\" class=\"center v-middle\">{c}</td>");
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        private static string RenderSignature(string signatureData, string? fallbackText = "", int maxWidth = 120, int maxHeight = 60)
+        {
+            return signatureData.GetOptimizedSignatureDisplayHtml(fallbackText, maxWidth, maxHeight);
+        }
+
+        private static string RenderKQCLS(List<KhamSucKhoeKetQuaCanLamSangModel>? cls)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (cls == null || !cls.Any())
+            {
+                sb.Append($"<span>* * Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</span>");
+                sb.Append($"<div class=\"row\"><span>a) Kết quả:</span><span class=\"dotted-ruled\" style=\"width: 100%\"></span>");
+                sb.Append($"</div><div class=\"row\"><span>b) Đánh giá:</span><span class=\"dotted-ruled\" style=\"width: 100%\"></span></div>");
+                return sb.ToString();
+            }
+
+            foreach (var item in cls)
+            {
+                sb.Append($"<span>* {item.type?.GetDescriptionFromString<KetQuaCanLamSang>()}:</span>");
+                sb.Append($"<div class=\"row\"><span>a) Kết quả:</span>");
+                sb.Append(MultilineSpanHtmlBuilder(item.ket_qua ?? string.Empty));
+                sb.Append($"</div><div class=\"row\"><span>b) Đánh giá:</span><span class=\"dotted-ruled\" style=\"width: 100%\"></span></div>");
+            }
+            return sb.ToString();
+        }
     }
 }
