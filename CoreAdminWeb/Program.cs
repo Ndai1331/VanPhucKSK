@@ -5,7 +5,6 @@ using CoreAdminWeb.Http;
 using CoreAdminWeb.Hubs;
 using CoreAdminWeb.Model.Configuration;
 using CoreAdminWeb.Models;
-using CoreAdminWeb.Services.Exports;
 using CoreAdminWeb.StateService;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
@@ -39,7 +38,6 @@ builder.Services.AddServerSideBlazor(options =>
 
 builder.Services.AddMudServices();
 builder.Services.AddSingleton<ModeStateService>();
-builder.Services.AddSingleton<ExportKSKDataService>();
 
 // Add Blazored.LocalStorage before other services that depend on it
 builder.Services.AddBlazoredLocalStorage();

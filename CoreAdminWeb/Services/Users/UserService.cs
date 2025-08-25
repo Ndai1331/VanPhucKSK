@@ -487,6 +487,7 @@ namespace CoreAdminWeb.Services.Users
                     c.tinh,
                     c.xa,
                     c.role,
+                    c.password,
                     status = string.IsNullOrEmpty(c.status) ? "active" : c.status
                 }).ToList();
                 var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<List<UserModel>>>($"users", createModel);

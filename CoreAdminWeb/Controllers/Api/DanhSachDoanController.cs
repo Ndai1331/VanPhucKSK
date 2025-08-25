@@ -25,7 +25,15 @@ public class DanhSachDoanController : ControllerBase
     }
 
     [HttpGet("medical-data")]
-    public async Task<IActionResult> GetMedicalData([FromQuery] string? maDotKham, [FromQuery] string? congTy, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, [FromQuery] int offset = 0, [FromQuery] int limit = 10)
+    public async Task<IActionResult> GetMedicalData([FromQuery] string? maDotKham,
+                                                    [FromQuery] string? congTy,
+                                                    [FromQuery] DateTime? fromDate,
+                                                    [FromQuery] DateTime? toDate,
+                                                    [FromQuery] string? maDieuTri,
+                                                    [FromQuery] int? fromNumber,
+                                                    [FromQuery] int? toNumber,
+                                                    [FromQuery] int offset = 0,
+                                                    [FromQuery] int limit = 10)
     {
 
         var response = new RequestHttpResponse<List<MedicalExaminationDto>>();
@@ -77,6 +85,43 @@ public class DanhSachDoanController : ControllerBase
                 where += "sksk.ngay_kham <= '" + toDate.Value.ToString("yyyy-MM-dd") + "'";
             }
 
+            if (!string.IsNullOrEmpty(maDieuTri))
+            {
+                if (string.IsNullOrEmpty(where))
+                {
+                    where += " WHERE ";
+                }
+                else
+                {
+                    where += " AND ";
+                }
+                where += "sksk.ma_luot_kham = '" + maDieuTri + "'";
+            }
+            if (fromNumber.HasValue)
+            {
+                if (string.IsNullOrEmpty(where))
+                {
+                    where += " WHERE ";
+                }
+                else
+                {
+                    where += " AND ";
+                }
+                where += "sksk.sort >= " + fromNumber;
+            }
+            if (toNumber.HasValue)
+            {
+                if (string.IsNullOrEmpty(where))
+                {
+                    where += " WHERE ";
+                }
+                else
+                {
+                    where += " AND ";
+                }
+                where += "sksk.sort <= " + toNumber;
+            }
+
             // Query đếm tổng số bản ghi
             var countSql = @"
                 SELECT COUNT(DISTINCT sksk.id) as TotalCount
@@ -86,7 +131,7 @@ public class DanhSachDoanController : ControllerBase
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
-                select sksk.id, sksk.ma_luot_kham, ct.code, u.id as user_id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
+                select sksk.id, sksk.sort, sksk.ma_luot_kham, ct.code, u.id as user_id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
                 ts.ten_benh, ts.tien_su_gia_dinh,
                 tl.chieu_cao, tl.can_nang, tl.bmi, tl.mach, tl.huyet_ap,
                 ck.kq_nk_tuan_hoan, ck.kq_nk_ho_hap, ck.kq_nk_tieu_hoa, ck.kq_nk_than_tiet_nieu, ck.kq_nk_noi_tiet,
@@ -126,7 +171,7 @@ public class DanhSachDoanController : ControllerBase
                 Left join kham_suc_khoe_ket_luan kl on kl.luot_kham = sksk.id
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
                 " + where + @"
-                ORDER BY sksk.id
+                ORDER BY ct.id, sksk.sort
                 OFFSET @offset ROWS 
                 FETCH NEXT @limit ROWS ONLY";
 
@@ -190,6 +235,7 @@ public class DanhSachDoanController : ControllerBase
                         var item = new MedicalExaminationDto
                         {
                             id = reader["id"] as int?,
+                            sort = reader["sort"] as int?,
                             ma_luot_kham = reader["ma_luot_kham"]?.ToString(),
                             code = reader["code"]?.ToString(),
                             user_id = reader["user_id"]?.ToString(),
