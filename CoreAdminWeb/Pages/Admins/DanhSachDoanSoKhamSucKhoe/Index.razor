@@ -192,8 +192,8 @@
                     <tbody>
                         @foreach (var item in MainModels)
                         {
-                            <tr class="frozen-col frozen-col-cb">
-                                <td>
+                            <tr>
+                                <td class="frozen-col frozen-col-cb">
                                     <input type="checkbox"
                                            @onclick:stopPropagation
                                            checked="@selectedSoKhamSucKhoes.Any(x => x.id == item.id)"
@@ -373,6 +373,7 @@
         left: 0;
         min-width: 60px;
         z-index: 15;
+        text-align: center;
     }
 
     .frozen-col-1 {
