@@ -39,13 +39,13 @@
                                    class="form-input date-picker w-1/2"
                                    placeholder="Từ ngày"
                                    value="@(_fromDate?.ToString("dd/MM/yyyy"))"
-                                   @onchange="@(e => OnDateChanged(e, nameof(_fromDate), true))" />
+                                   @onchange="@(e => OnValueChanged(e, nameof(_fromDate), true))" />
                             <span class="mx-2 flex items-center text-gray-500">-</span>
                             <input type="text"
                                    class="form-input date-picker w-1/2"
                                    placeholder="Đến ngày"
                                    value="@(_toDate?.ToString("dd/MM/yyyy"))"
-                                   @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
+                                   @onchange="@(e => OnValueChanged(e, nameof(_toDate), true))" />
                         </div>
                     </div>
                     <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
@@ -96,8 +96,36 @@
                             </NotFoundTemplate>
                         </BlazoredTypeahead>
                     </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thư tự khám</MudText>
+                        <div class="flex items-center gap-2 sm:gap-4">
+                            <input type="text"
+                                   class="form-input w-1/2"
+                                   placeholder="Từ số"
+                                   value="@_searchFromNumber"
+                                   @onchange="@(e => OnValueChanged(e, nameof(_searchFromNumber), true, false))" />
+                            <span class="mx-2 flex items-center text-gray-500">-</span>
+                            <input type="text"
+                                   class="form-input w-1/2"
+                                   placeholder="Đến số"
+                                   value="@_searchToNumber"
+                                   @onchange="@(e => OnValueChanged(e, nameof(_searchToNumber), true, false))" />
+                        </div>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudForm class="flex-1">
+                            <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Mã điều trị</MudText>
+                            <input type="text" id="search"
+                                   class="border-black/10 dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30 focus:border-black/30 placeholder:text-black/50 border text-black text-sm rounded block w-full ltr:pl-3 rtl:pr-3 ltr:pr-7 rtl:pl-7 h-10 bg-[#f9fbfd] focus:ring-0 focus:outline-0"
+                                   placeholder="Mã điều trị..."
+                                   required=""
+                                   @bind-value="@_searchMaDieuTriString"
+                                   @bind-value:event="oninput"
+                                   @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadData)">
+                        </MudForm>
+                    </div>
 
-                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-4 xl:col-span-4 gap-2">
+                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-1 gap-2 col-end">
                         @* <div> *@
                         <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-success border-success text-white hover:bg-success/[0.85]
@@ -109,7 +137,7 @@
                             bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
                             text-nowrap" OnClick="OnShowExport">
                             <i class="ri-file-pdf-2-line"></i>
-                            Xuất file 
+                            Xuất file
                         </MudButton>
                         <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
                             bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
@@ -126,7 +154,7 @@
                 <table id="example" class="display frozen-columns-table" style="width:100%">
                     <thead>
                         <tr>
-                            <th>
+                            <th class="frozen-col frozen-col-cb">
                                 <input type="checkbox" @onchange="ToggleSelectAllRows" checked="@IsAllRowsSelected" />
                             </th>
                             <th class="frozen-col frozen-col-1">STT</th>
@@ -162,45 +190,45 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                        @foreach (var item in MainModels)
                         {
                             <tr>
-                                <td>
+                                <td class="frozen-col frozen-col-cb">
                                     <input type="checkbox"
                                            @onclick:stopPropagation
-                                           checked="@selectedSoKhamSucKhoes.Any(x => x.id == item.Data.id)"
-                                           @onchange="e => ToggleRowSelection(item.Data, e.Value is bool b && b)" />
+                                           checked="@selectedSoKhamSucKhoes.Any(x => x.id == item.id)"
+                                           @onchange="e => ToggleRowSelection(item, e.Value is bool b && b)" />
                                 </td>
-                                <td class="frozen-col frozen-col-1">@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                                <td class="frozen-col frozen-col-2">@item.Data.ma_luot_kham</td>
-                                <td class="frozen-col frozen-col-3">@item.Data.last_name @item.Data.first_name</td>
-                                <td class="frozen-col frozen-col-4">@item.Data.ngay_sinh?.ToString("dd/MM/yyyy")</td>
-                                <td class="frozen-col frozen-col-5">@item.Data.gioi_tinh?.GetDescription()</td>
-                                <td class="wrap-short-content">@item.Data.tien_su_gia_dinh</td>
-                                <td class="wrap-short-content">@item.Data.ten_benh</td>
-                                <td>@item.Data.chieu_cao</td>
-                                <td>@item.Data.can_nang</td>
-                                <td>@item.Data.bmi</td>
-                                <td>@item.Data.mach</td>
-                                <td>@item.Data.huyet_ap</td>
-                                <td>@item.Data.kq_nk_tuan_hoan</td>
-                                <td>@item.Data.kq_nk_ho_hap</td>
-                                <td>@item.Data.kq_nk_tieu_hoa</td>
-                                <td>@item.Data.kq_nk_than_tiet_nieu</td>
-                                <td>@item.Data.kq_nk_noi_tiet</td>
-                                <td>@item.Data.kq_nk_co_xuong_khop</td>
-                                <td>@item.Data.kq_nk_than_kinh</td>
-                                <td>@item.Data.kq_nk_tam_than</td>
-                                <td>@item.Data.kq_ngoai_khoa</td>
-                                <td>@item.Data.ket_qua_san_phu_khoa</td>
-                                <td>@item.Data.benh_mat</td>
-                                <td>@item.Data.benh_tai_mui_hong</td>
-                                <td>@item.Data.benh_rhm</td>
-                                <td>@item.Data.kq_da_lieu</td>
+                                <td class="frozen-col frozen-col-1">@item.sort</td>
+                                <td class="frozen-col frozen-col-2">@item.ma_luot_kham</td>
+                                <td class="frozen-col frozen-col-3">@item.last_name @item.first_name</td>
+                                <td class="frozen-col frozen-col-4">@item.ngay_sinh?.ToString("dd/MM/yyyy")</td>
+                                <td class="frozen-col frozen-col-5">@item.gioi_tinh?.GetDescription()</td>
+                                <td class="wrap-short-content">@item.tien_su_gia_dinh</td>
+                                <td class="wrap-short-content">@item.ten_benh</td>
+                                <td>@item.chieu_cao</td>
+                                <td>@item.can_nang</td>
+                                <td>@item.bmi</td>
+                                <td>@item.mach</td>
+                                <td>@item.huyet_ap</td>
+                                <td>@item.kq_nk_tuan_hoan</td>
+                                <td>@item.kq_nk_ho_hap</td>
+                                <td>@item.kq_nk_tieu_hoa</td>
+                                <td>@item.kq_nk_than_tiet_nieu</td>
+                                <td>@item.kq_nk_noi_tiet</td>
+                                <td>@item.kq_nk_co_xuong_khop</td>
+                                <td>@item.kq_nk_than_kinh</td>
+                                <td>@item.kq_nk_tam_than</td>
+                                <td>@item.kq_ngoai_khoa</td>
+                                <td>@item.ket_qua_san_phu_khoa</td>
+                                <td>@item.benh_mat</td>
+                                <td>@item.benh_tai_mui_hong</td>
+                                <td>@item.benh_rhm</td>
+                                <td>@item.kq_da_lieu</td>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(item.Data.can_lam_sang_results))
+                                    @if (!string.IsNullOrEmpty(item.can_lam_sang_results))
                                     {
-                                        var results = item.Data.can_lam_sang_results.Split('|');
+                                        var results = item.can_lam_sang_results.Split('|');
                                         if (results.Length > 1)
                                         {
                                             @foreach (var result in results.Where(c => !string.IsNullOrEmpty(c.Trim())))
@@ -210,13 +238,13 @@
                                         }
                                         else
                                         {
-                                            <div>@item.Data.can_lam_sang_results</div>
+                                            <div>@item.can_lam_sang_results</div>
                                         }
                                     }
                                 </td>
-                                <td>@item.Data.phan_loai_suc_khoe</td>
-                                <td class="wrap-long-content">@item.Data.benh_tat_ket_luan?.Trim()</td>
-                                <td class="wrap-long-content">@item.Data.de_nghi?.Trim()</td>
+                                <td>@item.phan_loai_suc_khoe</td>
+                                <td class="wrap-long-content">@item.benh_tat_ket_luan?.Trim()</td>
+                                <td class="wrap-long-content">@item.de_nghi?.Trim()</td>
                             </tr>
                         }
                     </tbody>
@@ -297,22 +325,22 @@
         border: 1px solid #e5e7eb;
     }
 
-    .frozen-columns-table th,
-    .frozen-columns-table td {
-        border: 1px solid #e5e7eb;
-        border-top: none;
-        border-left: none;
-        padding: 8px 12px;
-    }
+        .frozen-columns-table th,
+        .frozen-columns-table td {
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-left: none;
+            padding: 8px 12px;
+        }
 
-    .frozen-columns-table th:first-child,
-    .frozen-columns-table td:first-child {
-        border-left: 1px solid #e5e7eb;
-    }
+            .frozen-columns-table th:first-child,
+            .frozen-columns-table td:first-child {
+                border-left: 1px solid #e5e7eb;
+            }
 
-    .frozen-columns-table thead tr:first-child th {
-        border-top: 1px solid #e5e7eb;
-    }
+        .frozen-columns-table thead tr:first-child th {
+            border-top: 1px solid #e5e7eb;
+        }
 
     .frozen-col {
         position: sticky;
@@ -341,11 +369,42 @@
         background-color: var(--tw-border-darkborder);
     }
 
-    .frozen-col-1 { left: 0; min-width: 60px; z-index: 15; }
-    .frozen-col-2 { left: 60px; min-width: 200px; z-index: 14; }
-    .frozen-col-3 { left: 260px; min-width: 200px; z-index: 13; }
-    .frozen-col-4 { left: 460px; min-width: 100px; z-index: 12; }
-    .frozen-col-5 { left: 560px; min-width: 80px; z-index: 11; }
+    .frozen-col-cb {
+        left: 0;
+        min-width: 60px;
+        z-index: 15;
+        text-align: center;
+    }
+
+    .frozen-col-1 {
+        left: 60px;
+        min-width: 60px;
+        z-index: 15;
+    }
+
+    .frozen-col-2 {
+        left: 120px;
+        min-width: 200px;
+        z-index: 14;
+    }
+
+    .frozen-col-3 {
+        left: 320px;
+        min-width: 200px;
+        z-index: 13;
+    }
+
+    .frozen-col-4 {
+        left: 520px;
+        min-width: 100px;
+        z-index: 12;
+    }
+
+    .frozen-col-5 {
+        left: 620px;
+        min-width: 80px;
+        z-index: 11;
+    }
 
     .frozen-columns-table thead .frozen-col {
         background-color: #f9fafb;

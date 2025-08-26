@@ -51,17 +51,21 @@ namespace CoreAdminWeb.Services.Imports
                 List<ImportDoanKhamModel> result;
                 StringBuilder errorBuilder = new StringBuilder();
                 int percent = 0;
+                int rowCount, colCount;
+
+                // Đọc dữ liệu Excel một lần, tránh tạo object không cần thiết
                 using (var ms = new MemoryStream(fileBytes))
                 using (var package = new ExcelPackage(ms))
                 {
                     var worksheet = package.Workbook.Worksheets[0];
-                    var rowCount = worksheet.Dimension.Rows;
-                    var colCount = worksheet.Dimension.Columns;
+                    rowCount = worksheet.Dimension.Rows;
+                    colCount = worksheet.Dimension.Columns;
 
-                    result = new List<ImportDoanKhamModel>();
+                    result = new List<ImportDoanKhamModel>(rowCount - 2);
+
+                    // Đọc dữ liệu theo batch để giảm memory pressure
                     for (int row = 3; row <= rowCount; row++)
                     {
-                        // Bỏ qua dòng trống (tất cả các cột đều rỗng)
                         bool isEmptyRow = true;
                         for (int col = 1; col <= colCount; col++)
                         {
@@ -93,14 +97,6 @@ namespace CoreAdminWeb.Services.Imports
                             Email = colCount > 12 ? worksheet.Cells[row, 13].Text : null,
                         };
 
-                        int nextPercent = (int)Math.Round((double)(row - 2) * 100 / (rowCount - 2));
-                        if (row == rowCount || percent != nextPercent)
-                        {
-                            percent = nextPercent;
-                            await _hubContext.Clients.Client(connectionId)
-                                .SendAsync("ImportProgress", $"Đang đọc dữ liệu import {percent}%", cancellationToken);
-                        }
-
                         var validate = ValidateImportData(model);
                         if (string.IsNullOrWhiteSpace(model.Email?.Trim()))
                         {
@@ -120,9 +116,15 @@ namespace CoreAdminWeb.Services.Imports
                         {
                             errorBuilder.Append($"\nDòng {row}: Các trường {validate} bị rỗng hoặc không đúng định dạng");
                         }
-
                         result.Add(model);
 
+                        int nextPercent = (int)Math.Round((double)(row - 2) * 100 / (rowCount - 2));
+                        if (nextPercent != percent)
+                        {
+                            percent = nextPercent;
+                            await _hubContext.Clients.Client(connectionId)
+                                .SendAsync("ImportProgress", $"Đang đọc dữ liệu import {percent}%", cancellationToken);
+                        }
                     }
                 }
 
@@ -137,68 +139,82 @@ namespace CoreAdminWeb.Services.Imports
                 {
                     await _hubContext.Clients.Client(connectionId)
                             .SendAsync("ImportError", $"Dữ liệu import không hợp lệ:{errorBuilder}", true);
-
                     return;
                 }
 
-                var emailDuplicates = result
-                    .GroupBy(c => c.Email)
-                    .Where(c => c.Count() > 1)
-                    .Select(c => new { Email = c.Key, Count = c.Count() })
-                    .ToList();
+                // Kiểm tra trùng lặp sử dụng HashSet để tăng tốc
+                var emailSet = new HashSet<string>();
+                var maBenhNhanSet = new HashSet<string>();
+                var maLuotKhamSet = new HashSet<string>();
+                var emailDuplicates = new List<string>();
+                var maBenhNhanDuplicates = new List<string>();
+                var maLuotKhamDuplicates = new List<string>();
 
-                var maBenhNhanDuplicates = result
-                    .GroupBy(c => c.MaBenhNhan)
-                    .Where(c => c.Count() > 1)
-                    .Select(c => new { MaBenhNhan = c.Key, Count = c.Count() })
-                    .ToList();
+                foreach (var item in result)
+                {
+                    if (!string.IsNullOrWhiteSpace(item.Email) && !emailSet.Add(item.Email))
+                    {
+                        emailDuplicates.Add(item.Email);
+                    }
 
-                var maLuotKhamDuplicates = result
-                    .GroupBy(c => c.MaLuotKham)
-                    .Where(c => c.Count() > 1)
-                    .Select(c => new { MaLuotKham = c.Key, Count = c.Count() })
-                    .ToList();
+                    if (!string.IsNullOrWhiteSpace(item.MaBenhNhan) && !maBenhNhanSet.Add(item.MaBenhNhan))
+                    {
+                        maBenhNhanDuplicates.Add(item.MaBenhNhan);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(item.MaLuotKham) && !maLuotKhamSet.Add(item.MaLuotKham))
+                    {
+                        maLuotKhamDuplicates.Add(item.MaLuotKham);
+                    }
+                }
+
                 if (emailDuplicates.Any())
                 {
                     await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Email bị trùng lặp: {string.Join("; ", emailDuplicates.Select(c => $"'{c.Email}'"))}", true);
-
+                            .SendAsync("ImportError", $"Email bị trùng lặp: {string.Join("; ", emailDuplicates.Distinct())}", true);
                     return;
                 }
                 if (maBenhNhanDuplicates.Any())
                 {
                     await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Mã bệnh nhân bị trùng lặp: {string.Join("; ", maBenhNhanDuplicates.Select(c => $"'{c.MaBenhNhan}'"))}", true);
-
+                            .SendAsync("ImportError", $"Mã bệnh nhân bị trùng lặp: {string.Join("; ", maBenhNhanDuplicates.Distinct())}", true);
                     return;
                 }
                 if (maLuotKhamDuplicates.Any())
                 {
                     await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Mã lượt khám bị trùng lặp: {string.Join("; ", maLuotKhamDuplicates.Select(c => $"'{c.MaLuotKham}'"))}", true);
-
+                            .SendAsync("ImportError", $"Mã lượt khám bị trùng lặp: {string.Join("; ", maLuotKhamDuplicates.Distinct())}", true);
                     return;
                 }
 
+                // Tối ưu batch size khi truy vấn và ghi dữ liệu
+                int batchSize = result.Count switch
+                {
+                    >= 10000 => 1000,
+                    >= 5000 => 500,
+                    _ => 200
+                };
+
                 var maBenhNhans = result.Select(c => c.MaBenhNhan).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
-                var maTinhs = result.Select(c => c.MaTinh).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
-                var maXas = result.Select(c => c.MaXa).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
+                var maTinhs = result.Select(c => c.MaTinh ?? string.Empty).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
+                var maXas = result.Select(c => c.MaXa ?? string.Empty).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
                 var maLuotKhams = result.Select(c => c.MaLuotKham).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
 
                 await _hubContext.Clients.Client(connectionId)
                     .SendAsync("ImportProgress", "Kiểm tra dữ liệu bênh nhân đã có...", cancellationToken);
 
+                // Chạy các truy vấn batch song song
                 var userTask = BatchQueryAsync(
                     ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_benh_nhan][_in]={string.Join(",", ids)}"),
-                    maBenhNhans
+                    maBenhNhans, batchSize
                 );
                 var tinhTask = BatchQueryAsync(
                     ids => _tinhService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}"),
-                    maTinhs.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!).ToList()
+                    maTinhs, batchSize
                 );
                 var xaTask = BatchQueryAsync(
                     ids => _xaService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}"),
-                    maXas.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!).ToList()
+                    maXas, batchSize
                 );
 
                 await Task.WhenAll(userTask, tinhTask, xaTask);
@@ -276,22 +292,24 @@ namespace CoreAdminWeb.Services.Imports
                     }
 
                     int nextPercent = (int)Math.Round((double)(rowIndex - 1) * 100 / (totalRow - 1));
-                    if (rowIndex == totalRow || percent != nextPercent)
+                    if (percent != nextPercent)
                     {
                         percent = nextPercent;
                         await _hubContext.Clients.Client(connectionId)
                             .SendAsync("ImportProgress", $"Đang xử lý thông tin bệnh nhân {percent}%", cancellationToken);
                     }
-
                     rowIndex++;
                 }
 
                 await _hubContext.Clients.Client(connectionId)
                     .SendAsync("ImportProgress", $"Đang kiểm tra mã lượt khám tồn tại...", cancellationToken);
 
-                var existingRecordsOthers = await BatchQueryAsync(ids => _soKhamSucKhoeService.GetAllAsync(
-                    $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_neq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
-                ), maLuotKhams);
+                var existingRecordsOthers = await BatchQueryAsync(
+                    ids => _soKhamSucKhoeService.GetAllAsync(
+                        $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_neq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
+                    ),
+                    maLuotKhams, batchSize
+                );
 
                 if (existingRecordsOthers.Any())
                 {
@@ -307,34 +325,37 @@ namespace CoreAdminWeb.Services.Imports
                 {
                     var existingByEmail = await BatchQueryAsync(
                         ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][email][_in]={string.Join(",", ids)}"),
-                        newUsers.Select(c => c.email).Distinct().ToList()
+                        newUsers.Select(c => c.email).Distinct().ToList(), batchSize
                     );
 
                     if (existingByEmail != null && existingByEmail.Any())
                     {
                         await _hubContext.Clients.Client(connectionId)
                             .SendAsync("ImportError", $"Email đã tồn tại trên hệ thống: {string.Join("; ", existingByEmail.Select(c => $"'{c.email}'"))}", true);
-
                         return;
                     }
                 }
 
-                await BatchExecuteAsync(updatingUsers, _userService.UpdateAsync);
-                await BatchExecuteAsync(newUsers, _userService.CreateAsync);
+                // Batch update/create users
+                await BatchExecuteAsync(updatingUsers, _userService.UpdateAsync, batchSize);
+                await BatchExecuteAsync(newUsers, _userService.CreateAsync, batchSize);
 
                 if (newUsers.Any())
                 {
                     existingUsers = await BatchQueryAsync(
                         ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_benh_nhan][_in]={string.Join(",", ids)}"),
-                        maBenhNhans
+                        maBenhNhans, batchSize
                     );
                 }
 
                 var allUsers = existingUsers.DistinctBy(c => c.ma_benh_nhan).ToDictionary(c => c.ma_benh_nhan, c => c);
 
-                var existingRecords = await BatchQueryAsync(ids => _soKhamSucKhoeService.GetAllAsync(
-                    $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_eq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
-                ), maLuotKhams);
+                var existingRecords = await BatchQueryAsync(
+                    ids => _soKhamSucKhoeService.GetAllAsync(
+                        $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_eq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
+                    ),
+                    maLuotKhams, batchSize
+                );
 
                 var existingRecordKeys = new HashSet<string>(
                     existingRecords
@@ -361,7 +382,7 @@ namespace CoreAdminWeb.Services.Imports
                         chu_ky_nls = SelectedItem.nguoi_lap_so?.chu_ky_bac_si
                     }).ToList();
 
-                await BatchExecuteAsync(medicalRecordsToCreate, _soKhamSucKhoeService.CreateAsync);
+                await BatchExecuteAsync(medicalRecordsToCreate, _soKhamSucKhoeService.CreateAsync, batchSize);
 
                 await _hubContext.Clients.Client(connectionId)
                 .SendAsync("ImportCompleted", "Import Excel hoàn tất!");
@@ -372,6 +393,7 @@ namespace CoreAdminWeb.Services.Imports
                 .SendAsync("ImportError", $"Lỗi khi import: {ex.Message}", false);
             }
         }
+
         static async Task<List<T>> BatchQueryAsync<T>(Func<List<string>, Task<RequestHttpResponse<List<T>>>> queryFunc, List<string> ids, int batchSize = 200)
         {
             var results = new List<T>();
