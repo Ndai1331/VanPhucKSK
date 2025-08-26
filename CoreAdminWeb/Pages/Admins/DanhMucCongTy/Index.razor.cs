@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
 {
-    public partial class Index(IBaseService<CongTyModel> MainService) : BlazorCoreBase
+    public partial class Index(IBaseService<CongTyModel> MainService, IBaseService<CongTyModel> CongTyService) : BlazorCoreBase
     {
         private List<CongTyModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
@@ -18,6 +18,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
         private string _searchString = "";
         private string _searchStatusString = "";
         private string _titleAddOrUpdate = "Thêm mới";
+        public List<CongTyModel> CongTys { get; set; } = new List<CongTyModel>();
+        public Dictionary<int, List<CongTyModel>> SelectedCongTyItems { get; set; } = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -92,18 +94,19 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
             await LoadData();
         }
 
-        private async Task<IEnumerable<CongTyModel>> LoadCongTyData(string searchText)
+        private async Task<List<CongTyModel>> filterCongTyFunction(IEnumerable<CongTyModel> allItems, string filter, CancellationToken token)
         {
             var published = Status.published.ToString();
             string query = "&filter[_and][1][status][_eq]=" + published;
 
             if (SelectedItem.id > 0)
             {
-               // query += $"&filter[_and][][id][_ne]={SelectedItem.id}";
                 query += $"&filter[_and][2][id][_nin]={SelectedItem.id}";
 
             }
-            return await LoadBlazorTypeaheadData(searchText, MainService, query);
+            CongTys = await LoadDataInTable(allItems, filter, token, CongTyService, $"limit=20&offset=0&meta=filter_count{query}");
+            StateHasChanged();
+            return CongTys;
         }
 
         private void OpenDeleteModal(CongTyModel item)

@@ -194,27 +194,14 @@
                                 </div>
                                 <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
                                     <label>Thuộc công ty</label>
-                                    <BlazoredTypeahead EnableDropDown="true"
-                                                       ShowDropDownOnFocus="true"
-                                                       MinimumLength="0"
-                                                       TItem="CongTyModel"
-                                                       TValue="CongTyModel"
-                                                       SearchMethod="LoadCongTyData"
-                                                       Value="SelectedParentItem"
-                                                       ValueExpression="@(() => SelectedParentItem)"
-                                                       ValueChanged="@OnCongTyChanged"
-                                                       placeholder="Chọn công ty"
-                                                       Class="form-select">
-                                        <SelectedTemplate Context="item">
-                                            @item.name
-                                        </SelectedTemplate>
-                                        <ResultTemplate Context="item">
-                                            @item.name
-                                        </ResultTemplate>
-                                        <NotFoundTemplate Context="item">
-                                            Không tìm thấy dữ liệu
-                                        </NotFoundTemplate>
-                                    </BlazoredTypeahead>
+                                    <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
+                                        TextSelector="@(c => $"{c?.name}")"
+                                        FilterFunction="filterCongTyFunction"
+                                        GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<CongTyModel, int>(items, id, c => c.id) ?? new CongTyModel()"
+                                        Datasource="CongTys"
+                                        Value="@(Select2Helper.GetCurrentSelectionGeneric<CongTyModel>(SelectedParentItem, 0, SelectedCongTyItems))"
+                                        OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<CongTyModel>(e, v => OnCongTyChanged(v), 0, SelectedCongTyItems))"
+                                        Multiselect="false" />
                                 </div>
 
                                 <div class="space-y-2 xs:col-span-2 sm:col-span-2 md:col-span-2 xl:col-span-2">
