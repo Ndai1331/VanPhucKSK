@@ -1,6 +1,7 @@
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using System.Text;
 using A = DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
@@ -9,328 +10,478 @@ namespace CoreAdminWeb.Helpers
 {
     public static class DocxHelper
     {
-
-
-        public static void ReplaceImage(this WordprocessingDocument doc, string placeholder, byte[] imageBytes,
-                                    int widthEmu = 990000, int heightEmu = 792000)
+        public static void ReplaceText(this WordprocessingDocument doc, Dictionary<string, string> map)
         {
-            var mainPart = doc.MainDocumentPart;
-            if (mainPart == null)
-            {
-                throw new Exception("Invalid document: no MainDocumentPart");
-            }
+            var mp = doc.MainDocumentPart ?? throw new InvalidOperationException("Invalid document: no MainDocumentPart");
+            var scopes = EnumerateSearchScopes(doc);
 
-            // Add image part
-            var imagePart = mainPart.AddImagePart(ImagePartType.Png);
-            using (var stream = new MemoryStream(imageBytes))
-            {
-                imagePart.FeedData(stream);
-            }
-            string relId = mainPart.GetIdOfPart(imagePart);
+            // khóa dài trước ngắn
+            var keys = map.Keys.OrderByDescending(k => k.Length).ToArray();
 
-            // Duyệt tất cả Paragraph (cả trong table cell)
-            foreach (var para in mainPart.Document.Descendants<Paragraph>())
+            foreach (var root in scopes)
             {
-                string paraText = string.Concat(para.Descendants<Text>().Select(t => t.Text));
-
-                if (paraText.Contains(placeholder))
+                foreach (var p in root.Descendants<Paragraph>())
                 {
-                    // Xoá toàn bộ Run chứa placeholder
-                    foreach (var run in para.Descendants<Run>().ToList())
+                    foreach (var key in keys)
                     {
-                        run.Remove();
-                    }
-
-                    // Tạo Run chứa ảnh
-                    var drawing = new Drawing(
-                        new DW.Inline(
-                            new DW.Extent() { Cx = widthEmu, Cy = heightEmu },
-                            new DW.EffectExtent()
-                            {
-                                LeftEdge = 0L,
-                                TopEdge = 0L,
-                                RightEdge = 0L,
-                                BottomEdge = 0L
-                            },
-                            new DW.DocProperties() { Id = (UInt32Value)1U, Name = "Picture" },
-                            new DW.NonVisualGraphicFrameDrawingProperties(
-                                new A.GraphicFrameLocks() { NoChangeAspect = true }),
-                            new A.Graphic(
-                                new A.GraphicData(
-                                    new PIC.Picture(
-                                        new PIC.NonVisualPictureProperties(
-                                            new PIC.NonVisualDrawingProperties()
-                                            {
-                                                Id = (UInt32Value)0U,
-                                                Name = "Inserted Image"
-                                            },
-                                            new PIC.NonVisualPictureDrawingProperties()),
-                                        new PIC.BlipFill(
-                                            new A.Blip() { Embed = relId },
-                                            new A.Stretch(new A.FillRectangle())),
-                                        new PIC.ShapeProperties(
-                                            new A.Transform2D(
-                                                new A.Offset() { X = 0L, Y = 0L },
-                                                new A.Extents() { Cx = widthEmu, Cy = heightEmu }),
-                                            new A.PresetGeometry(new A.AdjustValueList())
-                                            { Preset = A.ShapeTypeValues.Rectangle }))
-                                )
-                                { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" })
-                        )
+                        // lặp nhiều lần trên cùng paragraph
+                        while (true)
                         {
-                            DistanceFromTop = 0U,
-                            DistanceFromBottom = 0U,
-                            DistanceFromLeft = 0U,
-                            DistanceFromRight = 0U
-                        });
+                            if (!TryBuildLinearAndMap(p, out var runs, out var linear, out var segs))
+                            {
+                                break;
+                            }
 
-                    para.AppendChild(new Run(drawing));
+                            int idx = IndexOfOrdinal(linear, key);
+                            if (idx < 0)
+                            {
+                                break;
+                            }
+
+                            int idxEnd = idx + key.Length;
+
+                            var affected = segs.Where(s => !(s.End <= idx || s.Start >= idxEnd))
+                                               .OrderBy(s => s.Start).ToList();
+                            if (affected.Count == 0)
+                            {
+                                break;
+                            }
+
+                            var first = affected[0];
+                            var last = affected[affected.Count - 1];
+
+                            int firstHeadLen = Math.Max(0, idx - first.Start);
+                            int lastTailLen = Math.Max(0, last.End - idxEnd);
+
+                            string firstHead = SafeSub(first.Text, 0, firstHeadLen);
+                            string lastTail = SafeSub(last.Text, last.Text.Length - lastTailLen, lastTailLen);
+
+                            bool sameTextEl = ReferenceEquals(first.TextEl, last.TextEl);
+
+                            // Clear toàn bộ text trong dải
+                            foreach (var s in affected)
+                            {
+                                s.TextEl.Text = string.Empty;
+                            }
+
+                            // Ghi lại prefix vào Text đầu
+                            if (firstHead.Length > 0)
+                            {
+                                first.TextEl.Text = firstHead;
+                                first.TextEl.Space = SpaceProcessingModeValues.Preserve;
+                            }
+
+                            // Chuẩn bị replacement run (style run CUỐI)
+                            var innerRPr = PickInnerStyleRPr(runs, affected, idx, idxEnd);
+                            int lastRunIdx = affected[affected.Count - 1].RunIndex;
+                            var lastRunRPr = runs[lastRunIdx].RunProperties?.CloneNode(true) as RunProperties;
+
+                            var anchorRun = runs[first.RunIndex];
+                            var replaceRun = new Run();
+                            if (innerRPr != null)
+                            {
+                                replaceRun.RunProperties = innerRPr;
+                            }
+                            else if (lastRunRPr != null)
+                            {
+                                replaceRun.RunProperties = (RunProperties)lastRunRPr.CloneNode(true);
+                            }
+
+                            string repl = (map[key] ?? string.Empty).Replace('\u00A0', ' ');
+                            AppendTextWithPreservedWhitespace(replaceRun, repl);
+
+                            if (sameTextEl)
+                            {
+                                // Case placeholder + suffix nằm chung 1 Text/Run
+                                // → chèn replacement sau anchorRun, rồi chèn thêm 1 suffixRun sau replacement
+                                anchorRun.Parent!.InsertAfter(replaceRun, anchorRun);
+
+                                if (lastTail.Length > 0)
+                                {
+                                    var suffixRun = new Run();
+                                    if (innerRPr != null)
+                                    {
+                                        suffixRun.RunProperties = (RunProperties)innerRPr.CloneNode(true);
+                                    }
+                                    else if (lastRunRPr != null)
+                                    {
+                                        suffixRun.RunProperties = (RunProperties)lastRunRPr.CloneNode(true);
+                                    }
+
+                                    AppendTextWithPreservedWhitespace(suffixRun, lastTail);
+                                    replaceRun.Parent!.InsertAfter(suffixRun, replaceRun);
+                                }
+                            }
+                            else
+                            {
+                                // Case thường: suffix nằm ở run/text khác → mình ghi suffix vào Text cuối,
+                                // chèn replacement ngay sau anchorRun là đúng thứ tự
+                                if (lastTail.Length > 0)
+                                {
+                                    last.TextEl.Text = lastTail;
+                                    last.TextEl.Space = SpaceProcessingModeValues.Preserve;
+                                }
+
+                                anchorRun.Parent!.InsertAfter(replaceRun, anchorRun);
+                            }
+
+                            // Loop để tìm occurrence tiếp theo
+                        }
+                    }
                 }
             }
 
-            mainPart.Document.Save();
+            mp.Document.Save();
         }
-        public static void ReplaceText(this WordprocessingDocument doc, Dictionary<string, string> replacements)
+
+        public static void ReplaceImage(this WordprocessingDocument doc, string placeholder, byte[] imageBytes,
+                                        int widthEmu = 990000, int heightEmu = 792000)
         {
-            var mainPart = doc.MainDocumentPart;
-            if (mainPart == null)
+            if (string.IsNullOrEmpty(placeholder))
+            {
+                throw new ArgumentException("placeholder is null/empty", nameof(placeholder));
+            }
+
+            var mp = doc.MainDocumentPart ?? throw new InvalidOperationException("Invalid document: no MainDocumentPart");
+
+            var imgPart = mp.AddImagePart(ImagePartType.Png);
+            using (var ms = new MemoryStream(imageBytes))
+            {
+                imgPart.FeedData(ms);
+            }
+
+            string relId = mp.GetIdOfPart(imgPart);
+
+            var scopes = EnumerateSearchScopes(doc);
+
+            foreach (var root in scopes)
+            {
+                foreach (var p in root.Descendants<Paragraph>())
+                {
+                    while (true)
+                    {
+                        if (!TryBuildLinearAndMap(p, out var runs, out var linear, out var segs))
+                        {
+                            break;
+                        }
+
+                        int idx = IndexOfOrdinal(linear, placeholder);
+                        if (idx < 0)
+                        {
+                            break;
+                        }
+
+                        int idxEnd = idx + placeholder.Length;
+
+                        var affected = segs.Where(s => !(s.End <= idx || s.Start >= idxEnd))
+                                           .OrderBy(s => s.Start).ToList();
+                        if (affected.Count == 0)
+                        {
+                            break;
+                        }
+
+                        var first = affected[0];
+                        var last = affected[affected.Count - 1];
+
+                        int firstHeadLen = Math.Max(0, idx - first.Start);
+                        int lastTailLen = Math.Max(0, last.End - idxEnd);
+
+                        string firstHead = SafeSub(first.Text, 0, firstHeadLen);
+                        string lastTail = SafeSub(last.Text, last.Text.Length - lastTailLen, lastTailLen);
+
+                        bool sameTextEl = ReferenceEquals(first.TextEl, last.TextEl);
+
+                        // Clear texts in affected
+                        foreach (var s in affected)
+                        {
+                            s.TextEl.Text = string.Empty;
+                        }
+
+                        // Put back prefix
+                        if (firstHead.Length > 0)
+                        {
+                            first.TextEl.Text = firstHead;
+                            first.TextEl.Space = SpaceProcessingModeValues.Preserve;
+                        }
+
+                        var anchorRun = runs[first.RunIndex];
+
+                        // Image run theo style run CUỐI
+                        var innerRPr = PickInnerStyleRPr(runs, affected, idx, idxEnd);
+                        int lastRunIdx = affected[affected.Count - 1].RunIndex;
+                        var lastRunRPr = runs[lastRunIdx].RunProperties?.CloneNode(true) as RunProperties;
+
+                        var imageRun = new Run();
+                        if (innerRPr != null)
+                        {
+                            imageRun.RunProperties = innerRPr;
+                        }
+                        else if (lastRunRPr != null)
+                        {
+                            imageRun.RunProperties = (RunProperties)lastRunRPr.CloneNode(true);
+                        }
+
+                        imageRun.AppendChild(BuildInlineImage(relId, widthEmu, heightEmu));
+
+                        if (sameTextEl)
+                        {
+                            // Chèn image rồi suffix ngay sau image để bảo toàn thứ tự
+                            anchorRun.Parent!.InsertAfter(imageRun, anchorRun);
+
+                            if (lastTail.Length > 0)
+                            {
+                                var suffixRun = new Run();
+                                if (innerRPr != null)
+                                {
+                                    suffixRun.RunProperties = (RunProperties)innerRPr.CloneNode(true);
+                                }
+                                else if (lastRunRPr != null)
+                                {
+                                    suffixRun.RunProperties = (RunProperties)lastRunRPr.CloneNode(true);
+                                }
+
+                                AppendTextWithPreservedWhitespace(suffixRun, lastTail);
+                                imageRun.Parent!.InsertAfter(suffixRun, imageRun);
+                            }
+                        }
+                        else
+                        {
+                            // Suffix ở run sau → giữ nguyên tại chỗ
+                            if (lastTail.Length > 0)
+                            {
+                                last.TextEl.Text = lastTail;
+                                last.TextEl.Space = SpaceProcessingModeValues.Preserve;
+                            }
+
+                            anchorRun.Parent!.InsertAfter(imageRun, anchorRun);
+                        }
+
+                        // Find next occurrence
+                    }
+                }
+            }
+
+            mp.Document.Save();
+        }
+
+        // ===== Utilities =====
+
+        // Xây "view" tuyến tính của Paragraph + map ngược về Text element
+        private sealed class TextSeg
+        {
+            public int RunIndex { get; init; }
+            public Text TextEl { get; init; } = default!;
+            public string Text { get; init; } = "";
+            public int Start { get; init; } // inclusive (trong linear)
+            public int End { get; init; } // exclusive
+        }
+
+        private static bool TryBuildLinearAndMap(Paragraph p, out List<Run> runs, out string linear, out List<TextSeg> segs)
+        {
+            runs = p.Elements<Run>().ToList();
+            segs = new List<TextSeg>();
+            var sb = new StringBuilder();
+            int cursor = 0;
+
+            if (runs.Count == 0)
+            {
+                linear = "";
+                return false;
+            }
+
+            foreach (var (r, ri) in runs.Select((r, i) => (r, i)))
+            {
+                foreach (var child in r.ChildElements)
+                {
+                    switch (child)
+                    {
+                        case Text t:
+                            string s = (t.Text ?? string.Empty).Replace('\u00A0', ' ');
+                            if (s.Length > 0)
+                            {
+                                int start = cursor;
+                                int end = cursor + s.Length;
+                                segs.Add(new TextSeg { RunIndex = ri, TextEl = t, Text = s, Start = start, End = end });
+                                sb.Append(s);
+                                cursor = end;
+                            }
+                            break;
+
+                        case Break:
+                            sb.Append('\n'); cursor += 1;
+                            break;
+
+                        case TabChar:
+                            sb.Append('\t'); cursor += 1;
+                            break;
+
+                        default:
+                            // các phần tử khác (drawing/fieldchar/…) không tham gia text view
+                            break;
+                    }
+                }
+            }
+
+            linear = sb.ToString();
+            return linear.Length > 0;
+        }
+
+        private static string SafeSub(string s, int start, int len)
+        {
+            if (start < 0)
+            {
+                start = 0;
+            }
+
+            if (len < 0)
+            {
+                len = 0;
+            }
+
+            if (start > s.Length)
+            {
+                return string.Empty;
+            }
+
+            if (start + len > s.Length)
+            {
+                len = s.Length - start;
+            }
+
+            return s.Substring(start, len);
+        }
+
+        private static int IndexOfOrdinal(string haystack, string needle)
+            => haystack.IndexOf(needle, StringComparison.Ordinal);
+
+        private static void AppendTextWithPreservedWhitespace(Run run, string content)
+        {
+            if (string.IsNullOrEmpty(content))
             {
                 return;
             }
 
-            foreach (var para in mainPart.Document.Descendants<Paragraph>())
+            var parts = content.Split('\n');
+            for (int i = 0; i < parts.Length; i++)
             {
-                var runs = para.Elements<Run>().ToList();
-                if (runs.Count == 0)
+                run.AppendChild(new Text(parts[i]) { Space = SpaceProcessingModeValues.Preserve });
+                if (i < parts.Length - 1)
                 {
-                    continue;
-                }
-
-                
-                foreach (var run in runs)
-                {
-                    var texts = run.Elements<Text>().ToList();
-                    foreach (var text in texts)
-                    {
-                        var originalText = text.Text ?? "";
-                        var replacedText = originalText;
-                        
-                        // Replace từng placeholder trong text này
-                        foreach (var kv in replacements)
-                        {
-                            if (replacedText.Contains(kv.Key))
-                            {
-                                // Giữ nguyên khoảng trắng xung quanh placeholder
-                                replacedText = replacedText.Replace(kv.Key, kv.Value ?? "");
-                            }
-                        }
-                        
-                        // Chỉ update text nếu có thay đổi
-                        if (originalText != replacedText)
-                        {
-                            text.Text = replacedText;
-                        }
-                    }
+                    run.AppendChild(new Break());
                 }
             }
-            mainPart.Document.Save();
         }
-        public static void ReplaceTextV2(this WordprocessingDocument doc, Dictionary<string, string> replacements)
+
+        private static Drawing BuildInlineImage(string relId, int widthEmu, int heightEmu)
         {
-            var mainPart = doc.MainDocumentPart;
-            if (mainPart == null) return;
-
-            // Duyệt tất cả Text elements trong Body (bao gồm trong bảng và ngoài bảng)
-            foreach (var text in mainPart.Document.Body.Descendants<Text>())
-            {
-                if (text.Text == null) continue;
-
-                string updatedText = text.Text;
-
-                // Replace từng placeholder nếu có
-                foreach (var kv in replacements)
+            return new Drawing(
+                new DW.Inline(
+                    new DW.Extent() { Cx = widthEmu, Cy = heightEmu },
+                    new DW.EffectExtent() { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
+                    new DW.DocProperties() { Id = (UInt32Value)1U, Name = "Picture" },
+                    new DW.NonVisualGraphicFrameDrawingProperties(new A.GraphicFrameLocks() { NoChangeAspect = true }),
+                    new A.Graphic(
+                        new A.GraphicData(
+                            new PIC.Picture(
+                                new PIC.NonVisualPictureProperties(
+                                    new PIC.NonVisualDrawingProperties() { Id = (UInt32Value)0U, Name = "Inserted Image" },
+                                    new PIC.NonVisualPictureDrawingProperties()
+                                ),
+                                new PIC.BlipFill(new A.Blip() { Embed = relId }, new A.Stretch(new A.FillRectangle())),
+                                new PIC.ShapeProperties(
+                                    new A.Transform2D(new A.Offset() { X = 0L, Y = 0L }, new A.Extents() { Cx = widthEmu, Cy = heightEmu }),
+                                    new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Rectangle }
+                                )
+                            )
+                        )
+                        { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" }
+                    )
+                )
                 {
-                    if (updatedText.Contains(kv.Key))
-                    {
-                        updatedText = updatedText.Replace(kv.Key, kv.Value ?? "");
-                    }
+                    DistanceFromTop = 0U,
+                    DistanceFromBottom = 0U,
+                    DistanceFromLeft = 0U,
+                    DistanceFromRight = 0U
                 }
-
-                // Chỉ cập nhật text nếu có thay đổi
-                if (updatedText != text.Text)
-                {
-                    text.Text = updatedText;
-                }
-            }
-
-            mainPart.Document.Save();
+            );
         }
 
-        public static void ReplaceParagraph(this WordprocessingDocument doc, string placeholder, Paragraph newParagraph)
+        // Bao quát mọi “story” để replace
+        private static IEnumerable<OpenXmlElement> EnumerateSearchScopes(WordprocessingDocument doc)
         {
-            var mainPart = doc.MainDocumentPart;
-            if (mainPart == null) return;
+            var main = doc.MainDocumentPart ?? throw new InvalidOperationException("Invalid document: no MainDocumentPart");
 
-            // Duyệt toàn bộ Text trong document (kể cả trong bảng)
-            var texts = mainPart.Document.Body.Descendants<Text>().ToList();
-
-            foreach (var text in texts)
+            if (main.Document?.Body != null)
             {
-                if (text.Text != null && text.Text.Contains(placeholder))
-                {
-                    var runWithPlaceholder = text.Parent as Run;
-                    var oldPara = text.Ancestors<Paragraph>().FirstOrDefault();
-                    if (oldPara == null) continue;
-
-                    // Clone pPr từ paragraph cũ
-                    var oldPPr = oldPara.ParagraphProperties?.CloneNode(true) as ParagraphProperties;
-
-                    // Clone rPr từ run chứa placeholder (ưu tiên dùng style này)
-                    var srcRPr = runWithPlaceholder?.RunProperties?.CloneNode(true) as RunProperties;
-
-                    // Tạo bản clone của paragraph mới để chỉnh style
-                    var insertPara = (Paragraph)newParagraph.CloneNode(true);
-
-                    // Áp pPr cũ nếu paragraph mới chưa có
-                    if (oldPPr != null)
-                    {
-                        if (insertPara.ParagraphProperties == null)
-                            insertPara.ParagraphProperties = (ParagraphProperties)oldPPr.CloneNode(true);
-                        // nếu newParagraph đã có pPr thì giữ nguyên (không ghi đè)
-                    }
-
-                    // Áp rPr nguồn cho các run thiếu RunProperties
-                    if (srcRPr != null)
-                    {
-                        foreach (var r in insertPara.Descendants<Run>())
-                        {
-                            if (r.RunProperties == null)
-                                r.RunProperties = (RunProperties)srcRPr.CloneNode(true);
-
-                            // Đảm bảo preserve space nếu có text thủ công
-                            var t = r.GetFirstChild<Text>();
-                            if (t != null) t.Space = SpaceProcessingModeValues.Preserve;
-                        }
-                    }
-                    else
-                    {
-                        // fallback: nếu không có run nguồn, vẫn preserve space cho text
-                        foreach (var r in insertPara.Descendants<Run>())
-                        {
-                            var t = r.GetFirstChild<Text>();
-                            if (t != null) t.Space = SpaceProcessingModeValues.Preserve;
-                        }
-                    }
-
-                    // Chèn và xoá theo đúng logic cũ
-                    oldPara.Parent.InsertAfter(insertPara, oldPara);
-                    oldPara.Remove();
-                }
+                yield return main.Document.Body;
             }
 
-            mainPart.Document.Save();
+            foreach (var hp in main.HeaderParts.Where(hp => hp.Header != null))
+            {
+                yield return hp.Header;
+            }
+
+            foreach (var fp in main.FooterParts.Where(fp => fp.Footer != null))
+            {
+                yield return fp.Footer;
+            }
+
+            if (main.FootnotesPart?.Footnotes != null)
+            {
+                yield return main.FootnotesPart.Footnotes;
+            }
+
+            if (main.EndnotesPart?.Endnotes != null)
+            {
+                yield return main.EndnotesPart.Endnotes;
+            }
+
+            if (main.WordprocessingCommentsPart?.Comments != null)
+            {
+                yield return main.WordprocessingCommentsPart.Comments;
+            }
         }
 
-        public static void ReplaceSmart(this WordprocessingDocument doc, Dictionary<string, string> replacements)
+        /// <summary>
+        /// Chọn RunProperties theo phần văn bản NẰM BÊN TRONG [idx, idxEnd)
+        /// Prefer: run có overlap lớn nhất. Fallback: null.
+        /// </summary>
+        /// <param name="runs"></param>
+        /// <param name="affected"></param>
+        /// <param name="idx"></param>
+        /// <param name="idxEnd"></param>
+        /// <returns></returns>
+        private static RunProperties? PickInnerStyleRPr(
+            List<Run> runs,
+            List<TextSeg> affected,
+            int idx, int idxEnd)
         {
-            var mainPart = doc.MainDocumentPart;
-            if (mainPart == null) return;
+            int bestRunIdx = -1;
+            int bestOverlap = -1;
 
-            // --- Ưu tiên replace theo Paragraph ---
-            foreach (var kv in replacements)
+            foreach (var seg in affected)
             {
-                var placeholder = kv.Key;
-                var newText = kv.Value ?? "";
+                // Overlap giữa [seg.Start, seg.End) và [idx, idxEnd)
+                int start = Math.Max(seg.Start, idx);
+                int end = Math.Min(seg.End, idxEnd);
+                int overlap = Math.Max(0, end - start);
 
-                var texts = mainPart.Document.Body.Descendants<Text>()
-                                .Where(t => t.Text != null && t.Text.Contains(placeholder))
-                                .ToList();
-
-                foreach (var text in texts)
+                if (overlap > bestOverlap)
                 {
-                    var runWithPlaceholder = text.Parent as Run;
-                    var oldPara = text.Ancestors<Paragraph>().FirstOrDefault();
-                    if (oldPara == null) continue;
-
-                    // Clone style của paragraph cũ
-                    var oldPPr = oldPara.ParagraphProperties?.CloneNode(true) as ParagraphProperties;
-                    var srcRPr = runWithPlaceholder?.RunProperties?.CloneNode(true) as RunProperties;
-
-                    // Tạo paragraph mới
-                    var newPara = new Paragraph();
-                    if (oldPPr != null)
-                        newPara.ParagraphProperties = (ParagraphProperties)oldPPr.CloneNode(true);
-
-                    // Xử lý xuống dòng nếu có \n
-                    var lines = newText.Split('\n');
-                    foreach (var line in lines)
-                    {
-                        var run = new Run();
-                        if (srcRPr != null)
-                            run.RunProperties = (RunProperties)srcRPr.CloneNode(true);
-
-                        run.Append(new Text(line) { Space = SpaceProcessingModeValues.Preserve });
-                        newPara.Append(run);
-                        newPara.Append(new Run(new Break()));
-                    }
-
-                    // Chèn paragraph mới thay paragraph cũ
-                    oldPara.Parent.InsertAfter(newPara, oldPara);
-                    oldPara.Remove();
+                    bestOverlap = overlap;
+                    bestRunIdx = seg.RunIndex;
                 }
             }
 
-            // --- Nếu chưa replace được thì fallback về ReplaceTextV2 ---
-            var cells = mainPart.Document.Body.Descendants<TableCell>().ToList();
-
-            foreach (var cell in cells)
+            if (bestRunIdx >= 0)
             {
-                var texts = cell.Descendants<Text>().ToList();
-                if (texts.Count == 0) continue;
-
-                string fullText = string.Join("", texts.Select(t => t.Text));
-                bool hasReplace = false;
-
-                foreach (var kv in replacements)
+                var rpr = runs[bestRunIdx].RunProperties;
+                if (rpr != null)
                 {
-                    if (fullText.Contains(kv.Key))
-                    {
-                        fullText = fullText.Replace(kv.Key, kv.Value ?? "");
-                        hasReplace = true;
-                    }
-                }
-
-                if (hasReplace)
-                {
-                    var firstPara = cell.Descendants<Paragraph>().FirstOrDefault();
-                    var paraProps = firstPara?.ParagraphProperties?.CloneNode(true) as ParagraphProperties;
-                    var firstRun = cell.Descendants<Run>().FirstOrDefault();
-                    var runProps = firstRun?.RunProperties?.CloneNode(true) as RunProperties;
-
-                    foreach (var t in texts) t.Remove();
-
-                    var para = new Paragraph();
-                    if (paraProps != null)
-                        para.ParagraphProperties = (ParagraphProperties)paraProps.CloneNode(true);
-
-                    var lines = fullText.Split('\n');
-                    foreach (var line in lines)
-                    {
-                        var run = new Run();
-                        if (runProps != null)
-                            run.RunProperties = (RunProperties)runProps.CloneNode(true);
-
-                        run.Append(new Text(line) { Space = SpaceProcessingModeValues.Preserve });
-                        para.Append(run);
-                        para.Append(new Run(new Break()));
-                    }
-
-                    cell.Append(para);
+                    return (RunProperties)rpr.CloneNode(true);
                 }
             }
-
-            mainPart.Document.Save();
+            return null;
         }
-
     }
 }
