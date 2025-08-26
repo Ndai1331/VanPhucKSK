@@ -10,6 +10,7 @@ using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.PDFService;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using System.IO.Compression;
@@ -333,7 +334,7 @@ namespace CoreAdminWeb.Services.Exports
                                                 var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.id == item.id && !string.IsNullOrEmpty(x.ket_qua)).ToList();
                                                 var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.luot_kham?.id == item.id);
 
-                                                doc.ReplaceText(new Dictionary<string, string>
+                                                doc.ReplaceTextV2(new Dictionary<string, string>
                                                 {
                                                     { "<<HoVaTen>>", $"{item.benh_nhan?.full_name}" },
                                                     { "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}" },
@@ -355,40 +356,43 @@ namespace CoreAdminWeb.Services.Exports
                                                     { "<<kq_mat>>", $"{cls?.benh_mat}" },
                                                     { "<<kq_ranghammat>>", $"{cls?.benh_rhm}" },
                                                     { "<<kq_tamthan>>", $"{cls?.kq_nk_tam_than}" },
-                                                    { "<<kq_sanphukhoa>>", $"{sanPhuKhoa?.ket_qua}" },
                                                     { "<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}" },
                                                     { "<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}" },
                                                     { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" }
                                                 });
 
+                                                doc.ReplaceSmart(new Dictionary<string, string>
+                                                {
+                                                    { "<<kq_sanphukhoa>>",$"{sanPhuKhoa?.ket_qua}" }
+                                                });
+
                                                 if (kqcls != null && kqcls.Any())
                                                 {
                                                     var items_kqcls = kqcls.Select(c => new CanLamSangItem(c.type?.GetDescriptionFromString<KetQuaCanLamSang>() ?? string.Empty, c.ket_qua ?? string.Empty)).ToList();
-
-                                                    // Build formatted text for chiDinh with bullet points
                                                     StringBuilder chiDinhFormatted = new StringBuilder();
                                                     for (int i = 0; i < items_kqcls.Count; i++)
                                                     {
-                                                        chiDinhFormatted.AppendLine($"• {items_kqcls[i].TenChiDinh}");
+                                                        var text = $"{i + 1} - {items_kqcls[i].TenChiDinh}:\n";
+                                                        chiDinhFormatted.AppendLine(text);
                                                     }
-
-                                                    // Build formatted text for ketQua with bullet points
                                                     StringBuilder ketQuaFormatted = new StringBuilder();
+                                                    Paragraph para2 = new Paragraph();
                                                     for (int i = 0; i < items_kqcls.Count; i++)
                                                     {
-                                                        ketQuaFormatted.AppendLine($"• {items_kqcls[i].KetQua}");
+                                                        var text = $"Kết quả {items_kqcls[i].TenChiDinh} :{items_kqcls[i].KetQua}\n";
+                                                        ketQuaFormatted.AppendLine(text);
                                                     }
 
-                                                    // Replace placeholders with formatted text
-                                                    doc.ReplaceText(new Dictionary<string, string>
+                                                    doc.ReplaceSmart(new Dictionary<string, string>
                                                     {
-                                                        { "<<TenChiDinh>>", chiDinhFormatted.ToString() },
-                                                        { "<<kq_canlamsang>>", ketQuaFormatted.ToString() }
+                                                        { "<<TenChiDinh>>",$"{chiDinhFormatted.ToString()}" },
+                                                        { "<<kq_canlamsang>>",$"{ketQuaFormatted.ToString()}" }
                                                     });
+                                                    // doc.ReplaceParagraph("<<kq_canlamsang>>", para2);
                                                 }
                                                 else
                                                 {
-                                                    doc.ReplaceText(new Dictionary<string, string>
+                                                    doc.ReplaceTextV2(new Dictionary<string, string>
                                                     {
                                                         { "<<TenChiDinh>>", "" },
                                                         { "<<kq_canlamsang>>", "" }

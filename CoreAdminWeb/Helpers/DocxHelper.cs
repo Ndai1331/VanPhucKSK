@@ -90,7 +90,6 @@ namespace CoreAdminWeb.Helpers
 
             mainPart.Document.Save();
         }
-
         public static void ReplaceText(this WordprocessingDocument doc, Dictionary<string, string> replacements)
         {
             var mainPart = doc.MainDocumentPart;
@@ -107,53 +106,231 @@ namespace CoreAdminWeb.Helpers
                     continue;
                 }
 
-                // Ghép toàn bộ text của paragraph
-                var allText = string.Concat(runs.SelectMany(r => r.Elements<Text>()).Select(t => t.Text));
-
-                // Replace tất cả placeholder trong allText
-                var replacedText = allText;
-                foreach (var kv in replacements)
-                {
-                    replacedText = replacedText.Replace(kv.Key, kv.Value ?? "");
-                }
-
-                // Nếu không có gì thay đổi thì bỏ qua
-                if (allText == replacedText)
-                {
-                    continue;
-                }
-
-                // Phân bổ lại text vào các run cũ (giữ nguyên số lượng run và format)
-                int pos = 0;
+                
                 foreach (var run in runs)
                 {
-                    foreach (var text in run.Elements<Text>())
+                    var texts = run.Elements<Text>().ToList();
+                    foreach (var text in texts)
                     {
-                        int len = text.Text?.Length ?? 0;
-                        if (pos + len > replacedText.Length)
+                        var originalText = text.Text ?? "";
+                        var replacedText = originalText;
+                        
+                        // Replace từng placeholder trong text này
+                        foreach (var kv in replacements)
                         {
-                            text.Text = replacedText.Substring(pos);
-                            pos = replacedText.Length;
+                            if (replacedText.Contains(kv.Key))
+                            {
+                                // Giữ nguyên khoảng trắng xung quanh placeholder
+                                replacedText = replacedText.Replace(kv.Key, kv.Value ?? "");
+                            }
                         }
-                        else if (len > 0)
+                        
+                        // Chỉ update text nếu có thay đổi
+                        if (originalText != replacedText)
                         {
-                            text.Text = replacedText.Substring(pos, len);
-                            pos += len;
+                            text.Text = replacedText;
                         }
-                    }
-                }
-                // Nếu còn dư text (do placeholder dài hơn tổng độ dài cũ), thêm vào run cuối
-                if (pos < replacedText.Length)
-                {
-                    var lastRun = runs[runs.Count - 1];
-                    var lastText = lastRun.Elements<Text>().LastOrDefault();
-                    if (lastText != null)
-                    {
-                        lastText.Text += replacedText.Substring(pos);
                     }
                 }
             }
             mainPart.Document.Save();
         }
+        public static void ReplaceTextV2(this WordprocessingDocument doc, Dictionary<string, string> replacements)
+        {
+            var mainPart = doc.MainDocumentPart;
+            if (mainPart == null) return;
+
+            // Duyệt tất cả Text elements trong Body (bao gồm trong bảng và ngoài bảng)
+            foreach (var text in mainPart.Document.Body.Descendants<Text>())
+            {
+                if (text.Text == null) continue;
+
+                string updatedText = text.Text;
+
+                // Replace từng placeholder nếu có
+                foreach (var kv in replacements)
+                {
+                    if (updatedText.Contains(kv.Key))
+                    {
+                        updatedText = updatedText.Replace(kv.Key, kv.Value ?? "");
+                    }
+                }
+
+                // Chỉ cập nhật text nếu có thay đổi
+                if (updatedText != text.Text)
+                {
+                    text.Text = updatedText;
+                }
+            }
+
+            mainPart.Document.Save();
+        }
+
+        public static void ReplaceParagraph(this WordprocessingDocument doc, string placeholder, Paragraph newParagraph)
+        {
+            var mainPart = doc.MainDocumentPart;
+            if (mainPart == null) return;
+
+            // Duyệt toàn bộ Text trong document (kể cả trong bảng)
+            var texts = mainPart.Document.Body.Descendants<Text>().ToList();
+
+            foreach (var text in texts)
+            {
+                if (text.Text != null && text.Text.Contains(placeholder))
+                {
+                    var runWithPlaceholder = text.Parent as Run;
+                    var oldPara = text.Ancestors<Paragraph>().FirstOrDefault();
+                    if (oldPara == null) continue;
+
+                    // Clone pPr từ paragraph cũ
+                    var oldPPr = oldPara.ParagraphProperties?.CloneNode(true) as ParagraphProperties;
+
+                    // Clone rPr từ run chứa placeholder (ưu tiên dùng style này)
+                    var srcRPr = runWithPlaceholder?.RunProperties?.CloneNode(true) as RunProperties;
+
+                    // Tạo bản clone của paragraph mới để chỉnh style
+                    var insertPara = (Paragraph)newParagraph.CloneNode(true);
+
+                    // Áp pPr cũ nếu paragraph mới chưa có
+                    if (oldPPr != null)
+                    {
+                        if (insertPara.ParagraphProperties == null)
+                            insertPara.ParagraphProperties = (ParagraphProperties)oldPPr.CloneNode(true);
+                        // nếu newParagraph đã có pPr thì giữ nguyên (không ghi đè)
+                    }
+
+                    // Áp rPr nguồn cho các run thiếu RunProperties
+                    if (srcRPr != null)
+                    {
+                        foreach (var r in insertPara.Descendants<Run>())
+                        {
+                            if (r.RunProperties == null)
+                                r.RunProperties = (RunProperties)srcRPr.CloneNode(true);
+
+                            // Đảm bảo preserve space nếu có text thủ công
+                            var t = r.GetFirstChild<Text>();
+                            if (t != null) t.Space = SpaceProcessingModeValues.Preserve;
+                        }
+                    }
+                    else
+                    {
+                        // fallback: nếu không có run nguồn, vẫn preserve space cho text
+                        foreach (var r in insertPara.Descendants<Run>())
+                        {
+                            var t = r.GetFirstChild<Text>();
+                            if (t != null) t.Space = SpaceProcessingModeValues.Preserve;
+                        }
+                    }
+
+                    // Chèn và xoá theo đúng logic cũ
+                    oldPara.Parent.InsertAfter(insertPara, oldPara);
+                    oldPara.Remove();
+                }
+            }
+
+            mainPart.Document.Save();
+        }
+
+        public static void ReplaceSmart(this WordprocessingDocument doc, Dictionary<string, string> replacements)
+        {
+            var mainPart = doc.MainDocumentPart;
+            if (mainPart == null) return;
+
+            // --- Ưu tiên replace theo Paragraph ---
+            foreach (var kv in replacements)
+            {
+                var placeholder = kv.Key;
+                var newText = kv.Value ?? "";
+
+                var texts = mainPart.Document.Body.Descendants<Text>()
+                                .Where(t => t.Text != null && t.Text.Contains(placeholder))
+                                .ToList();
+
+                foreach (var text in texts)
+                {
+                    var runWithPlaceholder = text.Parent as Run;
+                    var oldPara = text.Ancestors<Paragraph>().FirstOrDefault();
+                    if (oldPara == null) continue;
+
+                    // Clone style của paragraph cũ
+                    var oldPPr = oldPara.ParagraphProperties?.CloneNode(true) as ParagraphProperties;
+                    var srcRPr = runWithPlaceholder?.RunProperties?.CloneNode(true) as RunProperties;
+
+                    // Tạo paragraph mới
+                    var newPara = new Paragraph();
+                    if (oldPPr != null)
+                        newPara.ParagraphProperties = (ParagraphProperties)oldPPr.CloneNode(true);
+
+                    // Xử lý xuống dòng nếu có \n
+                    var lines = newText.Split('\n');
+                    foreach (var line in lines)
+                    {
+                        var run = new Run();
+                        if (srcRPr != null)
+                            run.RunProperties = (RunProperties)srcRPr.CloneNode(true);
+
+                        run.Append(new Text(line) { Space = SpaceProcessingModeValues.Preserve });
+                        newPara.Append(run);
+                        newPara.Append(new Run(new Break()));
+                    }
+
+                    // Chèn paragraph mới thay paragraph cũ
+                    oldPara.Parent.InsertAfter(newPara, oldPara);
+                    oldPara.Remove();
+                }
+            }
+
+            // --- Nếu chưa replace được thì fallback về ReplaceTextV2 ---
+            var cells = mainPart.Document.Body.Descendants<TableCell>().ToList();
+
+            foreach (var cell in cells)
+            {
+                var texts = cell.Descendants<Text>().ToList();
+                if (texts.Count == 0) continue;
+
+                string fullText = string.Join("", texts.Select(t => t.Text));
+                bool hasReplace = false;
+
+                foreach (var kv in replacements)
+                {
+                    if (fullText.Contains(kv.Key))
+                    {
+                        fullText = fullText.Replace(kv.Key, kv.Value ?? "");
+                        hasReplace = true;
+                    }
+                }
+
+                if (hasReplace)
+                {
+                    var firstPara = cell.Descendants<Paragraph>().FirstOrDefault();
+                    var paraProps = firstPara?.ParagraphProperties?.CloneNode(true) as ParagraphProperties;
+                    var firstRun = cell.Descendants<Run>().FirstOrDefault();
+                    var runProps = firstRun?.RunProperties?.CloneNode(true) as RunProperties;
+
+                    foreach (var t in texts) t.Remove();
+
+                    var para = new Paragraph();
+                    if (paraProps != null)
+                        para.ParagraphProperties = (ParagraphProperties)paraProps.CloneNode(true);
+
+                    var lines = fullText.Split('\n');
+                    foreach (var line in lines)
+                    {
+                        var run = new Run();
+                        if (runProps != null)
+                            run.RunProperties = (RunProperties)runProps.CloneNode(true);
+
+                        run.Append(new Text(line) { Space = SpaceProcessingModeValues.Preserve });
+                        para.Append(run);
+                        para.Append(new Run(new Break()));
+                    }
+
+                    cell.Append(para);
+                }
+            }
+
+            mainPart.Document.Save();
+        }
+
     }
 }
