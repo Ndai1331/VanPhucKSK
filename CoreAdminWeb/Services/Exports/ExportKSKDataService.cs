@@ -10,7 +10,6 @@ using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.PDFService;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using System.IO.Compression;
@@ -334,7 +333,7 @@ namespace CoreAdminWeb.Services.Exports
                                                 var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.id == item.id && !string.IsNullOrEmpty(x.ket_qua)).ToList();
                                                 var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.luot_kham?.id == item.id);
 
-                                                doc.ReplaceTextV2(new Dictionary<string, string>
+                                                doc.ReplaceText(new Dictionary<string, string>
                                                 {
                                                     { "<<HoVaTen>>", $"{item.benh_nhan?.full_name}" },
                                                     { "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}" },
@@ -361,7 +360,7 @@ namespace CoreAdminWeb.Services.Exports
                                                     { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" }
                                                 });
 
-                                                doc.ReplaceSmart(new Dictionary<string, string>
+                                                doc.ReplaceText(new Dictionary<string, string>
                                                 {
                                                     { "<<kq_sanphukhoa>>",$"{sanPhuKhoa?.ket_qua}" }
                                                 });
@@ -376,23 +375,21 @@ namespace CoreAdminWeb.Services.Exports
                                                         chiDinhFormatted.AppendLine(text);
                                                     }
                                                     StringBuilder ketQuaFormatted = new StringBuilder();
-                                                    Paragraph para2 = new Paragraph();
                                                     for (int i = 0; i < items_kqcls.Count; i++)
                                                     {
                                                         var text = $"Kết quả {items_kqcls[i].TenChiDinh} :{items_kqcls[i].KetQua}\n";
                                                         ketQuaFormatted.AppendLine(text);
                                                     }
 
-                                                    doc.ReplaceSmart(new Dictionary<string, string>
+                                                    doc.ReplaceText(new Dictionary<string, string>
                                                     {
-                                                        { "<<TenChiDinh>>",$"{chiDinhFormatted.ToString()}" },
-                                                        { "<<kq_canlamsang>>",$"{ketQuaFormatted.ToString()}" }
+                                                        { "<<TenChiDinh>>",$"{chiDinhFormatted}" },
+                                                        { "<<kq_canlamsang>>",$"{ketQuaFormatted}" }
                                                     });
-                                                    // doc.ReplaceParagraph("<<kq_canlamsang>>", para2);
                                                 }
                                                 else
                                                 {
-                                                    doc.ReplaceTextV2(new Dictionary<string, string>
+                                                    doc.ReplaceText(new Dictionary<string, string>
                                                     {
                                                         { "<<TenChiDinh>>", "" },
                                                         { "<<kq_canlamsang>>", "" }
@@ -418,7 +415,7 @@ namespace CoreAdminWeb.Services.Exports
                                     }
                                 }
 
-                                filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.docx".ToNormalChar();
+                                filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.docx".ToUnsign(spaceReplacement: "-");
                                 fullFilePath = Path.Combine(savePath, filename);
                                 File.Copy(tempTemplatePath, fullFilePath, true);
                                 if (File.Exists(tempTemplatePath))
@@ -564,7 +561,7 @@ namespace CoreAdminWeb.Services.Exports
                             .Replace("{{NgayKetLuan_Nam}}", $"{ketLuan?.ngay_ket_luan:yyyy}")
                             .Replace("{{NguoiKetLuan}}", $"{ketLuan?.bs_ket_luan?.full_name}");
 
-                            filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf".ToNormalChar();
+                            filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf".ToUnsign(spaceReplacement: "-");
                             var pdfBytes = _pdfService.GeneratePdfFromHtml(tempTempalte, new PdfSettings
                             {
                                 FileName = filename,
@@ -600,7 +597,7 @@ namespace CoreAdminWeb.Services.Exports
 
                 await Task.Delay(200, cancellationToken);
 
-                string zipFileName = $"{exportType.GetDescription()}_{DateTime.Now:yyyyMMdd_HHmmss}".ToNormalChar();
+                string zipFileName = $"{exportType.GetDescription()}_{DateTime.Now:yyyyMMdd_HHmmss}".ToUnsign(spaceReplacement: "-");
                 string zipPath = Path.Combine(baseFolder, $"{zipFileName}.zip");
                 ZipFile.CreateFromDirectory(savePath, zipPath, CompressionLevel.Fastest, true);
 
