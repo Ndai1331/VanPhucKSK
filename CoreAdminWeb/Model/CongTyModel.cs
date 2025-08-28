@@ -12,13 +12,18 @@ namespace CoreAdminWeb.Model
         public int? parent_id { get; set; }
         public new Status status { get; set; } = Status.published;
     }
-    public class CongTyCRUDModel : BaseDetailModel
+    public class CongTyCRUDModel
     {
+        public string? code { get; set; }
+        public string? name { get; set; }
+        public bool? deleted { get; set; } = false;
+        public string? description { get; set; }
+        public int? sort { get; set; } = 0;
         public string? dia_chi { get; set; }
         public string? email { get; set; }
         public string? dien_thoai { get; set; }
         public string? nguoi_lien_he { get; set; }
         public int? parent_id { get; set; }
-        public new string status { get; set; } = Status.published.ToString();
+        public string status { get; set; } = Status.published.ToString();
     }
 }

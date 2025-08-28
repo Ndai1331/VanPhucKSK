@@ -221,10 +221,12 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
                             cong_ty = item.cong_ty?.name,
                             gia_tri_hop_dong = item.gia_tri_hop_dong,
                             gia_tri_quyet_toan = item.gia_tri_quyet_toan,
-                            tong_chi_phi_dm = item.chi_tiet?.Sum(x => x.thanh_tien_dm),
-                            tong_chi_phi_thuc_te = item.chi_tiet?.Sum(x => x.chi_phi_thuc_te),
-                            chenh_lech = item.gia_tri_quyet_toan - item.chi_tiet?.Sum(x => x.chi_phi_thuc_te),
-                            ket_qua = item.chi_tiet?.Sum(x => x.chi_phi_thuc_te) > item.gia_tri_quyet_toan ? "Vượt hợp đồng" : item.chi_tiet?.Sum(x => x.chi_phi_thuc_te) > item.chi_tiet?.Sum(x => x.thanh_tien_dm) ? "Vượt định mức" : "Đạt",
+                            tong_chi_phi_dm = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.thanh_tien_dm),
+                            tong_chi_phi_thuc_te = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te),
+                            chenh_lech = item.gia_tri_quyet_toan - item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te),
+                            ket_qua = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.gia_tri_quyet_toan ? "Vượt hợp đồng" 
+                                    : item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.thanh_tien_dm) ? "Vượt định mức" 
+                                    : "Đạt",
                         }
                     ).ToList() ?? new List<dynamic>();
 

@@ -29,10 +29,14 @@ namespace CoreAdminWeb.Model
         public new bool? active { get; set; } = true;
         public bool? la_dich_vu_ky_thuat { get; set; } = false;
     }
-    public class LoaiDinhMucCRUDModel : BaseDetailModel
+    public class LoaiDinhMucCRUDModel
     {
-        public new bool? active { get; set; } = true;
-        public new string status { get; set; } = Status.published.ToString();
+        public string? code { get; set; }
+        public string? name { get; set; }
+        public bool? deleted { get; set; } = false;
+        public string? description { get; set; }
+        public bool? active { get; set; } = true;
+        public string status { get; set; } = Status.published.ToString();
         public bool? la_dich_vu_ky_thuat { get; set; } = false;
     }
     public class PhanLoaiSucKhoeModel : BaseModel<int>
@@ -62,9 +66,12 @@ namespace CoreAdminWeb.Model
     public class ContractTypeModel : BaseModel<int>
     {
     }
-    public class ContractTypeCRUDModel : BaseDetailModel
+    public class ContractTypeCRUDModel
     {
-        public new bool? active { get; set; } = true;
-        public new string status { get; set; } = Status.published.ToString();
+        public string? code { get; set; }
+        public string? name { get; set; }
+        public bool? deleted { get; set; } = false;
+        public string? description { get; set; }
+        public string status { get; set; } = Status.published.ToString();
     }
 }

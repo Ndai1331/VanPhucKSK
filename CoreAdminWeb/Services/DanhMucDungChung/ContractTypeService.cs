@@ -42,8 +42,6 @@ namespace CoreAdminWeb.Services
                 code = model.code,
                 name = model.name,
                 description = model.description,
-                sort = model.sort,
-                active = model.active,
                 status = model.status.ToString()
             };
         }
