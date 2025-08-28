@@ -466,10 +466,10 @@
 
                 SetProfileImagePlaceholder();
             }
-            else
-            {
-                await LoadSoKhamSucKhoeDataAsync();
+            await LoadSoKhamSucKhoeDataAsync();
 
+            if (CurrentUser == null)
+            {
                 if (_isDisposed) return; // Check after async operation
 
                 if (SoKhamSucKhoeModel != null && SoKhamSucKhoeModel.ngay_kham != null && DateTime.Now > SoKhamSucKhoeModel.ngay_kham.Value.AddDays(ExpiredResultPage))
