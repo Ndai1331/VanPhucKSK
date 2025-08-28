@@ -838,25 +838,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
                 }
 
-                if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
-                {
-                    var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
-                        return;
-                    }
-                }
-                else
-                {
-                    var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
-                        return;
-                    }
-                }
-
                 if (onBSKetLuan)
                 {
                     SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe ??= plDefault;
@@ -886,6 +867,30 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
                         return;
                     }
+                }
+
+                if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
+                {
+                    var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
+                        return;
+                    }
+                }
+                else
+                {
+                    var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
+                    if (result == null || !result.IsSuccess)
+                    {
+                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
+                        return;
+                    }
+                }
+
+                if (onBSKetLuan)
+                {
+                    SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
                 }
 
                 AlertService.ShowAlert("Lưu thông tin khám sức khỏe thành công!", "success");
@@ -1226,12 +1231,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     if (e.Value == null || string.IsNullOrEmpty(e.Value.ToString()))
                     {
-                        ReflectionHelper.SetFieldValue(this, fieldName, null);
+                        ReflectionHelper.SetFieldValue(this, item, fieldName, null);
                     }
                     else
                     {
                         var value = e.Value.ToString();
-                        ReflectionHelper.SetFieldValue(this, fieldName, value);
+                        ReflectionHelper.SetFieldValue(this, item, fieldName, value);
                     }
                 }
                 else

@@ -358,11 +358,11 @@
     /// </summary>
     private async Task LoadMedicalDataAsync()
     {
-        string query = $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}";
+        string query = $"filter[_and][0][luot_kham][ma_luot_kham][_eq]={ma_luot_kham}";
         // Execute all medical data API calls in parallel for better performance
         var tasks = new[]
         {
-            BaseServiceHelper.LoadSingleRecordAsync(SoKhamSucKhoeService, query, r => SoKhamSucKhoeModel = r),
+            BaseServiceHelper.LoadSingleRecordAsync(SoKhamSucKhoeService, $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}", r => SoKhamSucKhoeModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaService, query, r => KhamSucKhoeChuyenKhoaModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanService, query, r => KhamSucKhoeKetLuanModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => KhamSucKhoeNgheNghiepModel = r),
@@ -371,12 +371,12 @@
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => KhamSucKhoeTienSuModel = r),
             BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, query, r => KhamSucKhoeKetQuaCanLamSangs = r)
         };
+        await Task.WhenAll(tasks);
 
         if (SoKhamSucKhoeModel != null)
         {
             SoKhamSucKhoeModel.benh_nhan = CurrentUser;
         }
-        await Task.WhenAll(tasks);
     }
 
     private async Task LoadSoKhamSucKhoeDataAsync()
