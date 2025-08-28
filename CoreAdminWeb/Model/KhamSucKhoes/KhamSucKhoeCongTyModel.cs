@@ -47,8 +47,12 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public UserModel? nguoi_lap_so { get; set; }
         public new Status status { get; set; } = Status.published;
     }
-    public class KhamSucKhoeCongTyCRUDModel : BaseDetailModel
+    public class KhamSucKhoeCongTyCRUDModel
     {
+        public string? code { get; set; }
+        public bool? deleted { get; set; } = false;
+        public string? description { get; set; }
+        public int? sort { get; set; } = 0;
         public string? ma_don_vi { get; set; }
         public int? so_luong_du_kien { get; set; }
         public int? so_luong_thuc_te { get; set; }
@@ -83,7 +87,7 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public Guid? bs_ket_luan { get; set; }
         public string? chu_ky_ket_luan { get; set; }
         public string? Ksk_status { get; set; }
-        public new string status { get; set; } = Status.published.ToString();
+        public string status { get; set; } = Status.published.ToString();
         public int? ma_hop_dong_ksk { get; set; }
         public string? chu_ky_lap_so { get; set; }
         public Guid? nguoi_lap_so { get; set; }

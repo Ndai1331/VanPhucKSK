@@ -57,10 +57,8 @@ namespace CoreAdminWeb.Services
             return new()
             {
                 code = model.code,
-                name = model.name,
                 description = model.description,
                 sort = model.sort,
-                active = model.active,
                 status = model.status.ToString(),
                 ma_don_vi = model.ma_don_vi,
                 so_luong_du_kien = model.so_luong_du_kien,

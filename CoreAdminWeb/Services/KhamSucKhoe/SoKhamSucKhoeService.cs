@@ -87,10 +87,6 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
         {
             return new()
             {
-                active = model.active,
-                code = model.code,
-                name = model.name,
-                description = model.description,
                 status = model.status.ToString(),
                 ngay_kham = model.ngay_kham,
                 ngay_lap_so = model.ngay_lap_so,
@@ -102,7 +98,6 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 send_mail = model.send_mail,
                 ma_cong_ty = model.ma_cong_ty,
                 GhiChu = model.GhiChu,
-                ChuanDoan = model.ChuanDoan,
                 Type = model.Type,
                 deleted = model.deleted,
                 benh_nhan = model.benh_nhan?.id,
