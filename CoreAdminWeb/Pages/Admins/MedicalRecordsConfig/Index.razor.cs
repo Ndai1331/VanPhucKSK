@@ -46,7 +46,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -87,7 +87,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             {
                 MainModels = new List<KhamSucKhoeCongTyModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -292,7 +292,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                     }
                 }
 
-                if (isFilter && !IsLoading)
+                if (isFilter && !Loading.IsBusy)
                 {
                     await LoadData(true);
                 }

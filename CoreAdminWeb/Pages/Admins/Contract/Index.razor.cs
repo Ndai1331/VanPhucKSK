@@ -80,7 +80,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -118,7 +118,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 MainModels = new List<ContractModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)

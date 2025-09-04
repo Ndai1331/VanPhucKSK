@@ -81,12 +81,12 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 _endDateFilter = new DateTime(dateNow.Year, dateNow.Month, DateTime.DaysInMonth(dateNow.Year, dateNow.Month), 0, 0, 0, DateTimeKind.Local);
             }
 
-            IsLoading = true;
+            Loading.Show();
 
             if (!CurrentUser.ma_don_vi.HasValue || CurrentUser.ma_don_vi <= 0)
             {
                 AlertService.ShowAlert($"Không tìm thấy thông tin công ty", "danger");
-                IsLoading = false;
+                Loading.Hide();
                 return;
             }
 
@@ -106,7 +106,6 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             {
                 MainModel = new GeneralDashboardModel();
             }
-            IsLoading = false;
 
             try
             {
@@ -174,6 +173,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             {
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu biểu đồ: {ex.Message}", "danger");
             }
+            Loading.Hide();
         }
 
         private async Task OnValueChanged(ChangeEventArgs e, string fieldName)

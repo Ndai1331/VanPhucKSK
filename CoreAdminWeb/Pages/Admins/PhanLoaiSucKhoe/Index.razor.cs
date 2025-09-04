@@ -33,7 +33,7 @@ namespace CoreAdminWeb.Pages.Admins.PhanLoaiSucKhoe
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -70,7 +70,7 @@ namespace CoreAdminWeb.Pages.Admins.PhanLoaiSucKhoe
             {
                 MainModels = new List<PhanLoaiSucKhoeModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)

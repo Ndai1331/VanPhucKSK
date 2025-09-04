@@ -54,10 +54,6 @@ namespace CoreAdminWeb.Pages.Users
             {
                 Console.WriteLine($"Error fetching user profile: {ex.Message}");
             }
-            finally
-            {
-                IsLoading = false;
-            }
         }
 
         private async Task HandleFileSelect(InputFileChangeEventArgs e)

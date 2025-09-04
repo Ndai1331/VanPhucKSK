@@ -15,7 +15,6 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
     ) : BlazorCoreBase
     {
         [Parameter] public int? Id { get; set; }
-        [Inject] private ILoadingService Loading { get; set; } = null!;
         private List<TrangThaiHopDong> TrangThaiHopDongList { get; set; } = Enum.GetValues(typeof(TrangThaiHopDong)).Cast<TrangThaiHopDong>().ToList();
         private List<ContractModel> MainModels { get; set; } = new();
         private string _searchString = "";
@@ -146,7 +145,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
 
                 ReflectionHelper.SetFieldValue(this, fieldName, newDate);
 
-                if (isFilter && !IsLoading)
+                if (isFilter && !Loading.IsBusy)
                 {
                     await LoadData(true);
                 }
@@ -161,7 +160,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
         {
             try
             {
-                IsLoading = true;
+                Loading.Show();
 
                 BuildPaginationQuery(1, int.MaxValue);
                 BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -246,7 +245,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
             }
             finally
             {
-                IsLoading = false;
+                Loading.Hide();
             }
         }
     }

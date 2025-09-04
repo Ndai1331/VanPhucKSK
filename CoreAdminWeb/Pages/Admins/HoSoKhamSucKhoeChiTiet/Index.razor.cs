@@ -45,7 +45,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
 
         private async Task LoadData()
         {
-            IsLoading = true;
+            Loading.Show();
 
             var res = await UserService.GetUserByIdAsync(Guid.Parse(UserId ?? ""));
             CurrentUser = res?.IsSuccess == true && res.Data != null
@@ -77,7 +77,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu hồ sơ khám sức khỏe: {ex.Message}", "danger");
             }
 
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task LoadMedicalRecordsAsync()

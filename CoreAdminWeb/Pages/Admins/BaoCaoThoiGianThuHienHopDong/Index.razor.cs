@@ -49,7 +49,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoThoiGianThuHienHopDong
 
         private async Task LoadData(bool isResetPage = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isResetPage)
             {
@@ -101,7 +101,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoThoiGianThuHienHopDong
             {
                 MainModels = new List<ContractModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -165,7 +165,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoThoiGianThuHienHopDong
 
                 ReflectionHelper.SetFieldValue(this, fieldName, newDate);
 
-                if (isFilter && !IsLoading)
+                if (isFilter && !Loading.IsBusy)
                 {
                     await LoadData(true);
                 }
@@ -180,7 +180,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoThoiGianThuHienHopDong
         {
             try
             {
-                IsLoading = true;
+                Loading.Show();
 
                 BuildPaginationQuery(1, int.MaxValue);
                 BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -240,7 +240,8 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoThoiGianThuHienHopDong
                 var result = await MainService.GetAllAsync(BuilderQuery);
                 if (result.IsSuccess)
                 {
-                    var prepareData = result.Data?.Select(item => {
+                    var prepareData = result.Data?.Select(item =>
+                    {
                         var ngayDuKienKham = item.cau_hinh_ho_so_ksk?
                             .OrderByDescending(x => x.ngay_du_kien_kham)
                             .FirstOrDefault()?.ngay_du_kien_kham;
@@ -291,7 +292,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoThoiGianThuHienHopDong
             }
             finally
             {
-                IsLoading = false;
+                Loading.Hide();
             }
         }
     }

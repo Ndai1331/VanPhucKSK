@@ -33,7 +33,7 @@ namespace CoreAdminWeb.Pages.Admins.LoaiDinhMuc
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -71,7 +71,7 @@ namespace CoreAdminWeb.Pages.Admins.LoaiDinhMuc
             {
                 MainModels = new List<LoaiDinhMucModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)

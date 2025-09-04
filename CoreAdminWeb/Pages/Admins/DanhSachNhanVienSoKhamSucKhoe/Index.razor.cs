@@ -49,7 +49,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -101,7 +101,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             {
                 MainModels = new List<DanhSachDoanSoKhamSucKhoeModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
 
             await InvokeAsync(StateHasChanged);
         }
@@ -194,7 +194,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                     }
                 }
 
-                if (isFilter && !IsLoading)
+                if (isFilter && !Loading.IsBusy)
                 {
                     await LoadData(true);
                 }
@@ -224,7 +224,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
         {
             try
             {
-                IsLoading = true;
+                Loading.Show();
 
                 BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset={0}";
                 if (_fromDate.HasValue)
@@ -366,7 +366,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             }
             finally
             {
-                IsLoading = false;
+                Loading.Hide();
             }
         }
     }

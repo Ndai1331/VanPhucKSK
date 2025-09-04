@@ -37,7 +37,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -78,7 +78,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
             {
                 MainModels = new List<CongTyModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)
