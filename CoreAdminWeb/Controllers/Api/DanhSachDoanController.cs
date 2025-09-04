@@ -43,7 +43,7 @@ public class DanhSachDoanController : ControllerBase
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
 
-            var where = " WHERE (ct.deleted = 0 OR ct.deleted IS NULL)  AND ct.id IS NOT NULL";
+            var where = " WHERE (ct.deleted = 0 OR ct.deleted IS NULL) AND ct.id IS NOT NULL AND (sksk.deleted = 0 OR sksk.deleted IS NULL)";
             if (!string.IsNullOrEmpty(maDotKham))
             {
                 where += " AND sksk.MaDotKham = " + maDotKham;
