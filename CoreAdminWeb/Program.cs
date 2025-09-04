@@ -2,7 +2,6 @@ using Blazored.LocalStorage;
 using CoreAdminWeb.Commons;
 using CoreAdminWeb.DIInjections;
 using CoreAdminWeb.Http;
-using CoreAdminWeb.Hubs;
 using CoreAdminWeb.Model.Configuration;
 using CoreAdminWeb.Models;
 using CoreAdminWeb.StateService;
@@ -155,7 +154,6 @@ app.UseRouting();
 // Add CORS middleware
 app.UseCors("ExposeResponseHeaders");
 
-app.MapHub<ProgressHub>("/progressHub");
 app.MapBlazorHub();
 app.MapRazorPages();
 // Add Controllers mapping

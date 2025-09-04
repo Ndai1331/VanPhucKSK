@@ -2,7 +2,6 @@
 using CoreAdminWeb.Commons.Validations;
 using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
-using CoreAdminWeb.Hubs;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.DanhSachDoan;
 using CoreAdminWeb.Model.KhamSucKhoes;
@@ -11,7 +10,6 @@ using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Users;
-using Microsoft.AspNetCore.SignalR;
 using OfficeOpenXml;
 using System.Globalization;
 using System.Text;
@@ -20,14 +18,12 @@ namespace CoreAdminWeb.Services.Imports
 {
     public class ImportSoKhamSucKhoeService
     {
-        private readonly IHubContext<ProgressHub> _hubContext;
         private readonly IBaseDetailService<SoKhamSucKhoeModel> _soKhamSucKhoeService;
         private readonly IUserService _userService;
         private readonly IBaseService<TinhModel> _tinhService;
         private readonly IBaseService<XaPhuongModel> _xaService;
-        public ImportSoKhamSucKhoeService(IHubContext<ProgressHub> hubContext, IServiceScopeFactory serviceScopeFactory)
+        public ImportSoKhamSucKhoeService(IServiceScopeFactory serviceScopeFactory)
         {
-            _hubContext = hubContext;
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 _soKhamSucKhoeService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<SoKhamSucKhoeModel>>();
@@ -42,6 +38,7 @@ namespace CoreAdminWeb.Services.Imports
                                                            string connectionId,
                                                            KhamSucKhoeCongTyModel SelectedItem,
                                                            SettingModel settings,
+                                                           Func<ProcessingModel, Task> updateProgress,
                                                            CancellationToken cancellationToken)
         {
             try
@@ -122,23 +119,35 @@ namespace CoreAdminWeb.Services.Imports
                         if (nextPercent != percent)
                         {
                             percent = nextPercent;
-                            await _hubContext.Clients.Client(connectionId)
-                                .SendAsync("ImportProgress", $"Đang đọc dữ liệu import {percent}%", cancellationToken);
+                            await updateProgress.Invoke(new ProcessingModel()
+                            {
+                                ProcessId = connectionId,
+                                Status = TrangThaiXuLyNen.Processing,
+                                Value = $"Đang đọc dữ liệu import {percent}%"
+                            });
                         }
                     }
                 }
 
                 if (result.Count == 0)
                 {
-                    await _hubContext.Clients.Client(connectionId)
-                        .SendAsync("ImportCompleted", "Không có dữ liệu để import!");
+                    await updateProgress.Invoke(new ProcessingModel()
+                    {
+                        ProcessId = connectionId,
+                        Status = TrangThaiXuLyNen.Error,
+                        Value = "Không có dữ liệu để import!"
+                    });
                     return;
                 }
 
                 if (errorBuilder.Length > 0)
                 {
-                    await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Dữ liệu import không hợp lệ:{errorBuilder}", true);
+                    await updateProgress.Invoke(new ProcessingModel()
+                    {
+                        ProcessId = connectionId,
+                        Status = TrangThaiXuLyNen.Error,
+                        Value = $"Dữ liệu import không hợp lệ:{errorBuilder}"
+                    });
                     return;
                 }
 
@@ -170,20 +179,35 @@ namespace CoreAdminWeb.Services.Imports
 
                 if (emailDuplicates.Any())
                 {
-                    await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Email bị trùng lặp: {string.Join("; ", emailDuplicates.Distinct())}", true);
+                    await updateProgress.Invoke(new ProcessingModel()
+                    {
+                        ProcessId = connectionId,
+                        Status = TrangThaiXuLyNen.Error,
+                        Value = $"Email bị trùng lặp: {string.Join("; ", emailDuplicates.Distinct())}",
+                        AdditionalParams = new { ShowPopup = true }
+                    });
                     return;
                 }
                 if (maBenhNhanDuplicates.Any())
                 {
-                    await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Mã bệnh nhân bị trùng lặp: {string.Join("; ", maBenhNhanDuplicates.Distinct())}", true);
+                    await updateProgress.Invoke(new ProcessingModel()
+                    {
+                        ProcessId = connectionId,
+                        Status = TrangThaiXuLyNen.Error,
+                        Value = $"Mã bệnh nhân bị trùng lặp: {string.Join("; ", maBenhNhanDuplicates.Distinct())}",
+                        AdditionalParams = new { ShowPopup = true }
+                    });
                     return;
                 }
                 if (maLuotKhamDuplicates.Any())
                 {
-                    await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Mã lượt khám bị trùng lặp: {string.Join("; ", maLuotKhamDuplicates.Distinct())}", true);
+                    await updateProgress.Invoke(new ProcessingModel()
+                    {
+                        ProcessId = connectionId,
+                        Status = TrangThaiXuLyNen.Error,
+                        Value = $"Mã lượt khám bị trùng lặp: {string.Join("; ", maLuotKhamDuplicates.Distinct())}",
+                        AdditionalParams = new { ShowPopup = true }
+                    });
                     return;
                 }
 
@@ -200,8 +224,12 @@ namespace CoreAdminWeb.Services.Imports
                 var maXas = result.Select(c => c.MaXa ?? string.Empty).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
                 var maLuotKhams = result.Select(c => c.MaLuotKham).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
 
-                await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ImportProgress", "Kiểm tra dữ liệu bênh nhân đã có...", cancellationToken);
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Processing,
+                    Value = $"Kiểm tra dữ liệu bênh nhân đã có..."
+                });
 
                 // Chạy các truy vấn batch song song
                 var userTask = BatchQueryAsync(
@@ -295,14 +323,23 @@ namespace CoreAdminWeb.Services.Imports
                     if (percent != nextPercent)
                     {
                         percent = nextPercent;
-                        await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportProgress", $"Đang xử lý thông tin bệnh nhân {percent}%", cancellationToken);
+
+                        await updateProgress.Invoke(new ProcessingModel()
+                        {
+                            ProcessId = connectionId,
+                            Status = TrangThaiXuLyNen.Processing,
+                            Value = $"Đang xử lý thông tin bệnh nhân {percent}%"
+                        });
                     }
                     rowIndex++;
                 }
 
-                await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ImportProgress", $"Đang kiểm tra mã lượt khám tồn tại...", cancellationToken);
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Processing,
+                    Value = $"Đang kiểm tra mã lượt khám tồn tại..."
+                });
 
                 var existingRecordsOthers = await BatchQueryAsync(
                     ids => _soKhamSucKhoeService.GetAllAsync(
@@ -313,13 +350,22 @@ namespace CoreAdminWeb.Services.Imports
 
                 if (existingRecordsOthers.Any())
                 {
-                    await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Mã lượt khám đã tồn tại trên hệ thống: {string.Join("; ", existingRecordsOthers.Select(c => $"'{c.ma_luot_kham}'"))}", true);
+                    await updateProgress.Invoke(new ProcessingModel()
+                    {
+                        ProcessId = connectionId,
+                        Status = TrangThaiXuLyNen.Error,
+                        Value = $"Mã lượt khám đã tồn tại trên hệ thống: {string.Join("; ", existingRecordsOthers.Select(c => $"'{c.ma_luot_kham}'"))}",
+                        AdditionalParams = new { ShowPopup = true }
+                    });
                     return;
                 }
 
-                await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ImportProgress", $"Đang cập nhật thông tin bệnh nhân...", cancellationToken);
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Processing,
+                    Value = $"Đang cập nhật thông tin bệnh nhân..."
+                });
 
                 if (newUsers.Any())
                 {
@@ -330,8 +376,13 @@ namespace CoreAdminWeb.Services.Imports
 
                     if (existingByEmail != null && existingByEmail.Any())
                     {
-                        await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ImportError", $"Email đã tồn tại trên hệ thống: {string.Join("; ", existingByEmail.Select(c => $"'{c.email}'"))}", true);
+                        await updateProgress.Invoke(new ProcessingModel()
+                        {
+                            ProcessId = connectionId,
+                            Status = TrangThaiXuLyNen.Error,
+                            Value = $"Email đã tồn tại trên hệ thống: {string.Join("; ", existingByEmail.Select(c => $"'{c.email}'"))}",
+                            AdditionalParams = new { ShowPopup = true }
+                        });
                         return;
                     }
                 }
@@ -363,8 +414,12 @@ namespace CoreAdminWeb.Services.Imports
                         .Select(r => r.ma_luot_kham!)
                 );
 
-                await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ImportProgress", $"Đang khởi tạo hồ sơ bệnh nhân...", cancellationToken);
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Processing,
+                    Value = $"Đang khởi tạo hồ sơ khám sức khỏe..."
+                });
 
                 var medicalRecordsToCreate = result
                     .Where(c => !existingRecordKeys.Contains(c.MaLuotKham))
@@ -384,13 +439,21 @@ namespace CoreAdminWeb.Services.Imports
 
                 await BatchExecuteAsync(medicalRecordsToCreate, _soKhamSucKhoeService.CreateAsync, batchSize);
 
-                await _hubContext.Clients.Client(connectionId)
-                .SendAsync("ImportCompleted", "Import Excel hoàn tất!");
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Completed,
+                    Value = $"Import Excel hoàn tất!"
+                });
             }
             catch (Exception ex)
             {
-                await _hubContext.Clients.Client(connectionId)
-                .SendAsync("ImportError", $"Lỗi khi import: {ex.Message}", false);
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Error,
+                    Value = $"Lỗi khi import: {ex.Message}"
+                });
             }
         }
 

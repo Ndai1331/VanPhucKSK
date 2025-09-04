@@ -4,8 +4,8 @@ namespace CoreAdminWeb.Services
 {
     public class AlertService
     {
-        public event Action<List<AlertModel>> OnAlertChange;
-        private List<AlertModel> _alerts = new List<AlertModel>();
+        public event Action<List<AlertModel>>? OnAlertChange;
+        private readonly List<AlertModel> _alerts = new List<AlertModel>();
         private readonly object _lock = new object();
 
         public void ShowAlert(string message, string type = "primary")
@@ -38,7 +38,7 @@ namespace CoreAdminWeb.Services
                 {
                     alert.Visible = false;
                     OnAlertChange?.Invoke(new List<AlertModel>(_alerts));
-                    
+
                     // Remove from list after animation
                     Task.Delay(300).ContinueWith(_ =>
                     {
@@ -60,4 +60,4 @@ namespace CoreAdminWeb.Services
             }
         }
     }
-} 
+}

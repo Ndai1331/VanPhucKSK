@@ -34,7 +34,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private int? _searchFromNumber = null;
         private int? _searchToNumber = null;
 
-        private HubConnection? connection;
         private string? connectionId = "";
         private string? exportProcessingMessage { get; set; }
         public bool isExportDone { get; set; } = false;
@@ -50,60 +49,14 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-
-            try
-            {
-                connection = new HubConnectionBuilder()
-                .WithUrl(NavManager.ToAbsoluteUri("/progressHub"))
-                .Build();
-
-                connection.On<string>("ExportExaminationProgress", message =>
-                {
-                    isDisabledExport = true;
-                    isExportError = false;
-                    isExportDone = false;
-                    exportProcessingMessage = message;
-                    InvokeAsync(StateHasChanged);
-                });
-
-                connection.On<object>("ExportExaminationCompleted", (payload) =>
-                {
-                    isDisabledExport = false;
-                    isExportDone = true;
-                    if (payload is System.Text.Json.JsonElement jsonElement && jsonElement.ValueKind == System.Text.Json.JsonValueKind.Object)
-                    {
-                        exportProcessingMessage = jsonElement.GetProperty("message").GetString();
-                        var url = jsonElement.GetProperty("relativeUrl").GetString();
-                        if (!string.IsNullOrWhiteSpace(url))
-                        {
-                            NavManager.NavigateTo(url, forceLoad: true);
-                        }
-                    }
-                    InvokeAsync(StateHasChanged);
-                });
-
-                connection.On<string>("ExportExaminationError", message =>
-                {
-                    isDisabledExport = false;
-                    isExportError = true;
-                    isExportDone = false;
-                    exportProcessingMessage = message;
-                    InvokeAsync(StateHasChanged);
-                });
-
-                await connection.StartAsync();
-                connectionId = connection.ConnectionId;
-            }
-            catch
-            {
-                Console.WriteLine("Lỗi khi khởi tạo socket");
-            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
+                connectionId = $"{UserId}_export";
+
                 // Load the KhamSucKhoeCongTy by ID if provided
                 if (Id.HasValue)
                 {
@@ -566,8 +519,68 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 CurrentSetting,
                 exportType,
                 Configuration["DrCoreApi:BaseUrl"] ?? string.Empty,
+                OnImportProcessing,
                 CancellationToken.None)
             );
+        }
+
+        private async Task OnImportProcessing(ProcessingModel progress)
+        {
+            if (!progress.ProcessId.Equals(connectionId))
+            {
+                return;
+            }
+
+            switch (progress.Status)
+            {
+                case TrangThaiXuLyNen.Processing:
+                    isDisabledExport = true;
+                    isExportError = false;
+                    isExportDone = false;
+                    exportProcessingMessage = progress.Value?.ToString() ?? "";
+                    await InvokeAsync(StateHasChanged);
+                    break;
+
+                case TrangThaiXuLyNen.Completed:
+                    isDisabledExport = false;
+                    isExportDone = true;
+                    exportProcessingMessage = progress.Value?.ToString() ?? "";
+                    if (progress.AdditionalParams != null && HasProperty(progress.AdditionalParams, "RelativeUrl"))
+                    {
+                        var url = progress.AdditionalParams?.RelativeUrl;
+                        if (!string.IsNullOrWhiteSpace(url))
+                        {
+                            NavManager.NavigateTo(url, forceLoad: true);
+                        }
+                    }
+                    await InvokeAsync(StateHasChanged);
+                    break;
+
+                case TrangThaiXuLyNen.Error:
+                    isDisabledExport = false;
+                    isExportError = true;
+                    isExportDone = false;
+                    exportProcessingMessage = progress.Value?.ToString() ?? "";
+                    await InvokeAsync(StateHasChanged);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        static bool HasProperty(dynamic? obj, string propertyName)
+        {
+            if (obj == null || string.IsNullOrEmpty(propertyName))
+            {
+                return false;
+            }
+
+            if (obj is IDictionary<string, object> dict)
+            {
+                return dict.ContainsKey(propertyName);
+            }
+
+            return obj?.GetType().GetProperty(propertyName) != null;
         }
     }
 }
