@@ -43,83 +43,34 @@ public class DanhSachDoanController : ControllerBase
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
 
-            var where = "";
+            var where = " WHERE (ct.deleted = 0 OR ct.deleted IS NULL)  AND ct.id IS NOT NULL";
             if (!string.IsNullOrEmpty(maDotKham))
             {
-                where += " WHERE sksk.MaDotKham = " + maDotKham;
+                where += " AND sksk.MaDotKham = " + maDotKham;
             }
             if (!string.IsNullOrEmpty(congTy))
             {
-                if (string.IsNullOrEmpty(where))
-                {
-                    where += " WHERE ";
-                }
-                else
-                {
-                    where += " AND ";
-                }
-                where += "hd.cong_ty = " + congTy;
+                where += " AND hd.cong_ty = " + congTy;
             }
             if (fromDate.HasValue)
             {
-                if (string.IsNullOrEmpty(where))
-                {
-                    where += " WHERE ";
-                }
-                else
-                {
-                    where += " AND ";
-                }
-                where += "sksk.ngay_kham >= '" + fromDate.Value.ToString("yyyy-MM-dd") + "'";
+                where += " AND sksk.ngay_kham >= '" + fromDate.Value.ToString("yyyy-MM-dd") + "'";
             }
             if (toDate.HasValue)
             {
-                if (string.IsNullOrEmpty(where))
-                {
-                    where += " WHERE ";
-                }
-                else
-                {
-                    where += " AND ";
-                }
-                where += "sksk.ngay_kham <= '" + toDate.Value.ToString("yyyy-MM-dd") + "'";
+                where += " AND sksk.ngay_kham <= '" + toDate.Value.ToString("yyyy-MM-dd") + "'";
             }
-
             if (!string.IsNullOrEmpty(maDieuTri))
             {
-                if (string.IsNullOrEmpty(where))
-                {
-                    where += " WHERE ";
-                }
-                else
-                {
-                    where += " AND ";
-                }
-                where += "sksk.ma_luot_kham = '" + maDieuTri + "'";
+                where += " AND sksk.ma_luot_kham = '" + maDieuTri + "'";
             }
             if (fromNumber.HasValue)
             {
-                if (string.IsNullOrEmpty(where))
-                {
-                    where += " WHERE ";
-                }
-                else
-                {
-                    where += " AND ";
-                }
-                where += "sksk.sort >= " + fromNumber;
+                where += " AND sksk.sort >= " + fromNumber;
             }
             if (toNumber.HasValue)
             {
-                if (string.IsNullOrEmpty(where))
-                {
-                    where += " WHERE ";
-                }
-                else
-                {
-                    where += " AND ";
-                }
-                where += "sksk.sort <= " + toNumber;
+                where += " AND sksk.sort <= " + toNumber;
             }
 
             // Query đếm tổng số bản ghi
