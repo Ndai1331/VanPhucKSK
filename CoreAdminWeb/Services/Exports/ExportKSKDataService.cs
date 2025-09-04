@@ -2,7 +2,7 @@
 using CoreAdminWeb.Enums;
 using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
-using CoreAdminWeb.Hubs;
+using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.Settings;
@@ -10,7 +10,6 @@ using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.PDFService;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using System.IO.Compression;
 using System.Text;
@@ -20,7 +19,6 @@ namespace CoreAdminWeb.Services.Exports
 {
     public class ExportKSKDataService
     {
-        private readonly IHubContext<ProgressHub> _hubContext;
         private readonly IMemoryCache _memoryCache;
         private readonly IBaseDetailService<SoKhamSucKhoeModel> _soKhamSucKhoeService;
         private readonly IBaseDetailService<KhamSucKhoeChuyenKhoaModel> _khamSucKhoeChuyenKhoaService;
@@ -31,9 +29,8 @@ namespace CoreAdminWeb.Services.Exports
         private readonly IBaseDetailService<KhamSucKhoeNgheNghiepModel> _khamSucKhoeNgheNghiepService;
         private readonly IBaseDetailService<KhamSucKhoeTienSuModel> _khamSucKhoeTienSuService;
         private readonly IPdfService _pdfService;
-        public ExportKSKDataService(IHubContext<ProgressHub> hubContext, IServiceScopeFactory serviceScopeFactory, IMemoryCache memoryCache)
+        public ExportKSKDataService(IServiceScopeFactory serviceScopeFactory, IMemoryCache memoryCache)
         {
-            _hubContext = hubContext;
             _memoryCache = memoryCache;
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -55,19 +52,28 @@ namespace CoreAdminWeb.Services.Exports
             SettingModel setting,
             HoSoKhamSucKhoeExportType exportType,
             string baseUrl,
+            Func<ProcessingModel, Task> updateProgress,
             CancellationToken cancellationToken)
         {
             try
             {
-                await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ExportExaminationProgress", $"Đang chuẩn bị dữ liệu...", cancellationToken);
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Processing,
+                    Value = "Đang chuẩn bị dữ liệu..."
+                });
 
                 byte[]? docTemplate1Bytes = null;
                 byte[]? docTemplate2Bytes = null;
                 string templateContent = string.Empty;
 
-                await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ExportExaminationProgress", "Đang kiểm tra mẫu xuất dữ liệu...", cancellationToken);
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Processing,
+                    Value = "Đang kiểm tra mẫu xuất dữ liệu..."
+                });
 
                 switch (exportType)
                 {
@@ -112,8 +118,12 @@ namespace CoreAdminWeb.Services.Exports
                                 errorBuilder.AppendLine($"'{exportType.GetDescription()} cho Nữ'");
                             }
 
-                            await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ExportExaminationError", $"Mẫu {errorBuilder} không tồn tại.", cancellationToken);
+                            await updateProgress.Invoke(new ProcessingModel()
+                            {
+                                ProcessId = connectionId,
+                                Status = TrangThaiXuLyNen.Error,
+                                Value = $"Mẫu {errorBuilder} không tồn tại."
+                            });
                             return;
                         }
 
@@ -144,8 +154,12 @@ namespace CoreAdminWeb.Services.Exports
                                 errorBuilder.AppendLine($"'{exportType.GetDescription()} cho Nữ'");
                             }
 
-                            await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ExportExaminationError", $"Mẫu {errorBuilder} không tồn tại hoặc đã bị xóa.", cancellationToken);
+                            await updateProgress.Invoke(new ProcessingModel()
+                            {
+                                ProcessId = connectionId,
+                                Status = TrangThaiXuLyNen.Error,
+                                Value = $"Mẫu {errorBuilder} không tồn tại hoặc đã bị xóa."
+                            });
                             return;
                         }
                         break;
@@ -158,14 +172,22 @@ namespace CoreAdminWeb.Services.Exports
                         }
                         else
                         {
-                            await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ExportExaminationError", $"Mẫu '{exportType.GetDescription()}' không tồn tại.", cancellationToken);
+                            await updateProgress.Invoke(new ProcessingModel()
+                            {
+                                ProcessId = connectionId,
+                                Status = TrangThaiXuLyNen.Error,
+                                Value = $"Mẫu '{exportType.GetDescription()}' không tồn tại."
+                            });
                             return;
                         }
                         break;
                     default:
-                        await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ExportExaminationError", "Chưa hỗ trợ xuất mẫu này.", cancellationToken);
+                        await updateProgress.Invoke(new ProcessingModel()
+                        {
+                            ProcessId = connectionId,
+                            Status = TrangThaiXuLyNen.Error,
+                            Value = "Chưa hỗ trợ xuất mẫu này."
+                        });
                         return;
                 }
 
@@ -194,8 +216,12 @@ namespace CoreAdminWeb.Services.Exports
 
                 if (soKhamSucKhoes == null || soKhamSucKhoes.Count == 0)
                 {
-                    await _hubContext.Clients.Client(connectionId)
-                        .SendAsync("ExportExaminationError", "Không có dữ liệu khám sức khỏe để xuất.", cancellationToken);
+                    await updateProgress.Invoke(new ProcessingModel()
+                    {
+                        ProcessId = connectionId,
+                        Status = TrangThaiXuLyNen.Error,
+                        Value = "Không có dữ liệu khám sức khỏe để xuất."
+                    });
                     return;
                 }
 
@@ -270,16 +296,24 @@ namespace CoreAdminWeb.Services.Exports
                                 processed++;
                                 if (cancellationToken.IsCancellationRequested)
                                 {
-                                    await _hubContext.Clients.Client(connectionId)
-                                    .SendAsync("ExportExaminationError", "Xuất dữ liệu đã bị hủy.", cancellationToken);
+                                    await updateProgress.Invoke(new ProcessingModel()
+                                    {
+                                        ProcessId = connectionId,
+                                        Status = TrangThaiXuLyNen.Error,
+                                        Value = "Xuất dữ liệu đã bị hủy."
+                                    });
                                     return;
                                 }
 
                                 var usingDocTemplate = item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? docTemplate1Bytes : docTemplate2Bytes;
                                 if (usingDocTemplate == null)
                                 {
-                                    await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ExportExaminationError", $"Không tìm thấy mẫu xuất cho giới tính {item.benh_nhan?.gioi_tinh?.GetDescription()}.", cancellationToken);
+                                    await updateProgress.Invoke(new ProcessingModel()
+                                    {
+                                        ProcessId = connectionId,
+                                        Status = TrangThaiXuLyNen.Error,
+                                        Value = $"Không tìm thấy mẫu xuất cho giới tính {item.benh_nhan?.gioi_tinh?.GetDescription()}."
+                                    });
                                     return;
                                 }
 
@@ -319,8 +353,12 @@ namespace CoreAdminWeb.Services.Exports
                                                          $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
 
                                                 Console.WriteLine(errorDetails);
-                                                await _hubContext.Clients.Client(connectionId)
-                                            .SendAsync("ExportExaminationError", $"Lỗi xử lý CheckListKsk: {ex.Message}", cancellationToken);
+                                                await updateProgress.Invoke(new ProcessingModel()
+                                                {
+                                                    ProcessId = connectionId,
+                                                    Status = TrangThaiXuLyNen.Error,
+                                                    Value = $"Lỗi xử lý {HoSoKhamSucKhoeExportType.CheckListKsk.GetDescription()}: {ex.Message}"
+                                                });
                                                 return;
                                             }
                                             break;
@@ -406,8 +444,12 @@ namespace CoreAdminWeb.Services.Exports
                                                          $"Inner Exception: {ex.InnerException?.Message ?? "None"}";
 
                                                 Console.WriteLine(errorDetails);
-                                                await _hubContext.Clients.Client(connectionId)
-                                            .SendAsync("ExportExaminationError", $"Lỗi xử lý ConsultationSlip: {ex.Message}", cancellationToken);
+                                                await updateProgress.Invoke(new ProcessingModel()
+                                                {
+                                                    ProcessId = connectionId,
+                                                    Status = TrangThaiXuLyNen.Error,
+                                                    Value = $"Lỗi xử lý {HoSoKhamSucKhoeExportType.ConsultationSlip.GetDescription()}: {ex.Message}"
+                                                });
                                                 return;
                                             }
 
@@ -427,8 +469,12 @@ namespace CoreAdminWeb.Services.Exports
                                 // Chỉ gửi progress mỗi 100 bản ghi
                                 if (processed % 100 == 0 || processed == totalRecords)
                                 {
-                                    await _hubContext.Clients.Client(connectionId)
-                                        .SendAsync("ExportExaminationProgress", $"Đang xuất dữ liệu {processed}/{totalRecords}", cancellationToken);
+                                    await updateProgress.Invoke(new ProcessingModel()
+                                    {
+                                        ProcessId = connectionId,
+                                        Status = TrangThaiXuLyNen.Processing,
+                                        Value = $"Đang xuất dữ liệu {processed}/{totalRecords}"
+                                    });
                                 }
                             });
 
@@ -444,8 +490,12 @@ namespace CoreAdminWeb.Services.Exports
                             // Chỉ gửi progress mỗi 100 bản ghi
                             if (processed % 100 == 0 || processed == totalRecords)
                             {
-                                await _hubContext.Clients.Client(connectionId)
-                                    .SendAsync("ExportExaminationProgress", $"Đang xuất dữ liệu {processed}/{totalRecords}", cancellationToken);
+                                await updateProgress.Invoke(new ProcessingModel()
+                                {
+                                    ProcessId = connectionId,
+                                    Status = TrangThaiXuLyNen.Processing,
+                                    Value = $"Đang xuất dữ liệu {processed}/{totalRecords}"
+                                });
                             }
 
                             var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.luot_kham?.id == item.id);
@@ -580,20 +630,32 @@ namespace CoreAdminWeb.Services.Exports
                         break;
 
                     default:
-                        await _hubContext.Clients.Client(connectionId)
-                            .SendAsync("ExportExaminationError", "Chưa hỗ trợ xuất mẫu này.", cancellationToken);
+                        await updateProgress.Invoke(new ProcessingModel()
+                        {
+                            ProcessId = connectionId,
+                            Status = TrangThaiXuLyNen.Error,
+                            Value = "Chưa hỗ trợ xuất mẫu này."
+                        });
                         return;
                 }
 
                 if (fileNames.Count == 0)
                 {
-                    await _hubContext.Clients.Client(connectionId)
-                        .SendAsync("ExportExaminationError", "Không có dữ liệu để xuất.", cancellationToken);
+                    await updateProgress.Invoke(new ProcessingModel()
+                    {
+                        ProcessId = connectionId,
+                        Status = TrangThaiXuLyNen.Error,
+                        Value = "Không có dữ liệu để xuất."
+                    });
                     return;
                 }
 
-                await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ExportExaminationProgress", $"Đang chuẩn bị tập tin nén...", cancellationToken);
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Processing,
+                    Value = $"Đang chuẩn bị tập tin nén..."
+                });
 
                 await Task.Delay(200, cancellationToken);
 
@@ -613,23 +675,29 @@ namespace CoreAdminWeb.Services.Exports
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
                 });
 
-                await _hubContext.Clients.Client(connectionId).SendAsync(
-                    "ExportExaminationCompleted",
-                    new
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Completed,
+                    Value = "Tập tin nén đã được chuẩn bị xong. Đang chuẩn bị tải về.",
+                    AdditionalParams = new
                     {
-                        Message = "Tập tin nén đã được chuẩn bị xong. Đang chuẩn bị tải về.",
                         RelativeUrl = $"/downloads/{ticketId}",
                         TicketId = ticketId,
                         FileName = Path.GetFileName(zipPath),
                         Size = new FileInfo(zipPath).Length
-                    },
-                    cancellationToken
-                );
+                    }
+                });
             }
             catch (Exception ex)
             {
-                await _hubContext.Clients.Client(connectionId)
-                    .SendAsync("ExportExaminationError", $"Lỗi khi xuất tập tin: {ex.Message}", cancellationToken);
+
+                await updateProgress.Invoke(new ProcessingModel()
+                {
+                    ProcessId = connectionId,
+                    Status = TrangThaiXuLyNen.Error,
+                    Value = $"Lỗi khi xuất tập tin: {ex.Message}"
+                });
             }
         }
 

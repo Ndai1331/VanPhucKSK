@@ -1,4 +1,5 @@
 ﻿using CoreAdminWeb.Helpers;
+using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
@@ -15,8 +16,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
     public partial class Index(IBaseService<KhamSucKhoeCongTyModel> MainService,
                                IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService,
                                IUserService UserService,
-                               ImportSoKhamSucKhoeService importSoKhamSucKhoeService,
-                               NavigationManager NavManager) : BlazorCoreBase
+                               ImportSoKhamSucKhoeService importSoKhamSucKhoeService) : BlazorCoreBase
     {
         private List<KhamSucKhoeCongTyModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
@@ -35,7 +35,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private const long MaxExcelFileSize = 25 * 1024 * 1024; // 25MB, adjust as needed
 
-        private HubConnection? connection;
         private string? connectionId = "";
         private string? importProcessingMessage { get; set; }
         public bool isImportDone { get; set; }
@@ -44,53 +43,13 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-
-            try
-            {
-                connection = new HubConnectionBuilder()
-                .WithUrl(NavManager.ToAbsoluteUri("/progressHub"))
-                .Build();
-
-                connection.On<string>("ImportProgress", message =>
-                {
-                    isImportError = false;
-                    isImportDone = false;
-                    importProcessingMessage = message;
-                    InvokeAsync(StateHasChanged);
-                });
-
-                connection.On<string>("ImportCompleted", async message =>
-                {
-                    isImportDone = true;
-                    isImportError = false;
-                    importProcessingMessage = message;
-
-                    await LoadDetailData();
-                    await InvokeAsync(StateHasChanged);
-                });
-
-                connection.On<string, bool>("ImportError", (message, isPopup) =>
-                {
-                    isImportError = true;
-                    isImportDone = isPopup;
-                    isErrorPopup = isPopup;
-                    importProcessingMessage = message;
-                    InvokeAsync(StateHasChanged);
-                });
-
-                await connection.StartAsync();
-                connectionId = connection.ConnectionId;
-            }
-            catch
-            {
-                Console.WriteLine("Lỗi khi khởi tạo socket");
-            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
+                connectionId = $"{UserId}_import";
                 await LoadData();
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
@@ -280,31 +239,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             SelectedItemDetail = default;
 
             openDetailDeleteModal = false;
-        }
-
-        private void OnAddChiTiet()
-        {
-            if (SelectedItemsDetail == null)
-            {
-                SelectedItemsDetail = new List<SoKhamSucKhoeModel>();
-            }
-
-            SelectedItemsDetail.Add(new SoKhamSucKhoeModel
-            {
-                MaDotKham = SelectedItem,
-                sort = (SelectedItemsDetail.Max(c => c.sort) ?? 0) + 1,
-                code = string.Empty,
-                name = string.Empty,
-                ngay_kham = SelectedItem.ngay_du_kien_kham,
-                ngay_lap_so = DateTime.Now
-            });
-
-            // Wait for modal to render
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(500);
-                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-            });
         }
 
         private async Task OpenAddOrUpdateModal(KhamSucKhoeCongTyModel? item)
@@ -533,6 +467,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                     connectionId ?? string.Empty,
                     SelectedItem,
                     CurrentSetting,
+                    OnImportProcessing,
                     CancellationToken.None)
                 );
             }
@@ -543,11 +478,65 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             }
         }
 
+        private async Task OnImportProcessing(ProcessingModel progress)
+        {
+            if (!progress.ProcessId.Equals(connectionId))
+            {
+                return;
+            }
+
+            switch (progress.Status)
+            {
+                case Enums.TrangThaiXuLyNen.Processing:
+                    isImportError = false;
+                    isImportDone = false;
+                    importProcessingMessage = progress.Value?.ToString() ?? "";
+                    await InvokeAsync(StateHasChanged);
+                    break;
+
+                case Enums.TrangThaiXuLyNen.Completed:
+                    isImportDone = true;
+                    isImportError = false;
+                    importProcessingMessage = progress.Value?.ToString() ?? "";
+
+                    await LoadDetailData();
+                    await InvokeAsync(StateHasChanged);
+                    break;
+
+                case Enums.TrangThaiXuLyNen.Error:
+                    var isPopup = HasProperty(progress.AdditionalParams, "IsPopup") && progress.AdditionalParams?.IsPopup ?? false;
+
+                    isImportError = true;
+                    isImportDone = isPopup;
+                    isErrorPopup = isPopup;
+                    importProcessingMessage = progress.Value?.ToString() ?? "";
+                    await InvokeAsync(StateHasChanged);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private async Task OpenFileDialog()
         {
             // Clear the file input before processing
             await JsRuntime.InvokeVoidAsync("eval", "document.getElementById('excelFileInput').value = ''");
             await JsRuntime.InvokeVoidAsync("eval", "document.getElementById('excelFileInput').click()");
+        }
+
+        static bool HasProperty(dynamic? obj, string propertyName)
+        {
+            if (obj == null || string.IsNullOrEmpty(propertyName))
+            {
+                return false;
+            }
+
+            if (obj is IDictionary<string, object> dict)
+            {
+                return dict.ContainsKey(propertyName);
+            }
+
+            return obj?.GetType().GetProperty(propertyName) != null;
         }
     }
 }

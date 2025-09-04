@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using System.Security.Claims;
 using System.Text;
 
 namespace CoreAdminWeb.Shared.Base
@@ -52,6 +53,8 @@ namespace CoreAdminWeb.Shared.Base
         public string BuilderQuery { get; set; } = "";
         public SettingModel CurrentSetting { get; set; } = new SettingModel();
         public string LogoImage { get; set; } = "assets/images/logo_horizontal_color.png";
+
+        public string UserId { get; set; } = "";
 
         // Cached file types string
         public string AcceptFileTypes { get; set; } = "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/pdf,application/zip, application/x-7z-compressed, application/x-rar-compressed, application/x-tar, application/x-gzip, application/x-bzip2, application/x-compressed, application/x-compressed-tar, application/x-compressed-zip, application/x-compressed-rar, application/x-compressed-7z";
@@ -132,6 +135,7 @@ namespace CoreAdminWeb.Shared.Base
             {
                 var authState = await AuthStateProvider.GetAuthenticationStateAsync();
                 var isAuthenticated = authState?.User?.Identity?.IsAuthenticated ?? false;
+                UserId = authState?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 
                 // Cache the result
                 _cachedIsAuthenticated = isAuthenticated;

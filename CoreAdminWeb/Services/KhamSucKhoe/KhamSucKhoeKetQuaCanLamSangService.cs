@@ -117,6 +117,8 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
 
             try
             {
+                await _httpClientService.DeleteAPIAsync<List<KhamSucKhoeKetQuaCanLamSangModel>>($"items/{_collection}?filter[luot_kham][_eq]={model.FirstOrDefault()?.luot_kham?.id}&force=true");
+
                 var createModel = model.Select(c => MapToCRUDModel(c)).ToList();
                 var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>>($"items/{_collection}?fields={Fields}", createModel);
 
