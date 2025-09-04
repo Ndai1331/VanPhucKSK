@@ -13,7 +13,7 @@
                  Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe, 0, SelectedPhanLoaiSucKhoes))"
                  OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe = v, 0, SelectedPhanLoaiSucKhoes))"
                  Multiselect="false"
-                 class="@(onReadonly || !onReadonly && !onBSKetLuan ? "select2-disabled" : "")" />
+                 class="@(onReadonly || !onReadonly && !onBSKetLuan ? "select2-disabled" : "select2-read-write")" />
     </div>
 
     <div class="flex items-center gap-2 mt-5">
