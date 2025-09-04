@@ -50,7 +50,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             if (firstRender)
             {
                 connectionId = $"{UserId}_import";
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
             }
@@ -58,7 +58,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -91,7 +91,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             {
                 MainModels = new List<KhamSucKhoeCongTyModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)

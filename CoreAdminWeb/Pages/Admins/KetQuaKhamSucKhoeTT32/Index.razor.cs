@@ -143,7 +143,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 await LoadPhanLoaiSucKhoeSelect2(PhanLoaiSucKhoes, string.Empty, CancellationToken.None);
 
                 SetProfileImagePlaceholder();
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -169,7 +169,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -228,7 +228,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 MainModels = new List<SoKhamSucKhoeModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
             StateHasChanged();
         }
 
@@ -303,7 +303,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private async Task LoadDetailData(int soKhamSKId)
         {
-            IsLoading = true;
+            Loading.Show();
             var resSoKhamSK = await MainService.GetByIdAsync(soKhamSKId.ToString());
             if (resSoKhamSK?.IsSuccess == true && resSoKhamSK.Data != null)
             {
@@ -378,7 +378,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 AlertService.ShowAlert("Không tìm thấy thông tin khám!", "danger");
             }
 
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -403,7 +403,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             currentFilterPhanLoaiSucKhoe = filter;
             await Task.Delay(300);
-            
+
             try
             {
                 ArgumentNullException.ThrowIfNull(allItems);
@@ -541,7 +541,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     return;
                 }
 
-                IsLoading = true;
+                Loading.Show();
 
                 SelectedKhamSucKhoeTienSu.ma_luot_kham = SelectedItem.ma_luot_kham;
                 SelectedKhamSucKhoeTienSu.luot_kham = SelectedItem;
@@ -917,7 +917,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
             finally
             {
-                IsLoading = false;
+                Loading.Hide();
             }
         }
 
@@ -925,7 +925,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         {
             try
             {
-                IsLoading = true;
+                Loading.Show();
 
                 SelectedItem.status = Model.Base.Status.published;
 
@@ -942,7 +942,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
             finally
             {
-                IsLoading = false;
+                Loading.Hide();
             }
         }
 
@@ -1274,7 +1274,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
                 }
 
-                if (isFilter && !IsLoading)
+                if (isFilter && !Loading.IsBusy)
                 {
                     await LoadData(true);
                 }
@@ -1347,6 +1347,26 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private async Task OnShowAll()
         {
             isShowOnlyMe = !isShowOnlyMe;
+
+            onBS = CurrentUser?.role?.ToLower() == CurrentSetting.doctor_role_id?.ToLower().ToString();
+
+            if (!isShowOnlyMe || isShowOnlyMe && onBS)
+            {
+                activeDefTab = "tab1";
+            }
+            else if (!isShowOnlyMe || isShowOnlyMe && (onBS || onBSTuanHoan || onBSHoHap || onBSTieuHoa || onBSThanTietNieu || onBSNoiTiet || onBSCoXuongKhop || onBSThanKinh || onBSThanKinh || onBSTamThan || onBSNgoaiKhoa || onBSSanPhuKhoa || onBSMat || onBSTaiMuiHong || onBSRangHamMat))
+            {
+                activeDefTab = "tab2";
+            }
+            else if (!isShowOnlyMe || isShowOnlyMe && onBSKetLuan)
+            {
+                activeDefTab = "tab3";
+            }
+            else
+            {
+                activeDefTab = "";
+            }
+
             await InvokeAsync(StateHasChanged);
         }
 

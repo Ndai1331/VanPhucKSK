@@ -146,7 +146,7 @@
             if (CurrentUser != null)
             {
                 // Load medical records and latest exam date in parallel
-                var medicalRecordsTask = LoadSubclinicalResultRecordsAsync();
+                var medicalRecordsTask = LoadSubclinicalResultRecordsAsync(true);
                 await Task.WhenAll(medicalRecordsTask);
             }
             else
@@ -190,12 +190,18 @@
     /// <summary>
     /// Load medical records with pagination
     /// </summary>
-    private async Task LoadSubclinicalResultRecordsAsync()
+    private async Task LoadSubclinicalResultRecordsAsync(bool isReset = false)
     {
         if (CurrentUser?.ma_benh_nhan == null) return;
 
         try
         {
+            if (isReset)
+            {
+                ResetPage();
+                await Task.Delay(100);
+            }
+
             // Build query for paginated results
             BuildPaginationQuery(Page, PageSize, "luot_kham.ngay_kham");
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";

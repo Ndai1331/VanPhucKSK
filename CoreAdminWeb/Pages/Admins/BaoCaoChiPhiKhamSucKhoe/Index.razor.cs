@@ -15,7 +15,6 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
     ) : BlazorCoreBase
     {
         [Parameter] public int? Id { get; set; }
-        [Inject] private ILoadingService Loading { get; set; } = null!;
         private List<TrangThaiHopDong> TrangThaiHopDongList { get; set; } = Enum.GetValues(typeof(TrangThaiHopDong)).Cast<TrangThaiHopDong>().ToList();
         private List<ContractModel> MainModels { get; set; } = new();
         private string _searchString = "";
@@ -32,7 +31,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -146,7 +145,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
 
                 ReflectionHelper.SetFieldValue(this, fieldName, newDate);
 
-                if (isFilter && !IsLoading)
+                if (isFilter && !Loading.IsBusy)
                 {
                     await LoadData(true);
                 }
@@ -161,7 +160,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
         {
             try
             {
-                IsLoading = true;
+                Loading.Show();
 
                 BuildPaginationQuery(1, int.MaxValue);
                 BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -224,8 +223,8 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
                             tong_chi_phi_dm = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.thanh_tien_dm),
                             tong_chi_phi_thuc_te = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te),
                             chenh_lech = item.gia_tri_quyet_toan - item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te),
-                            ket_qua = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.gia_tri_quyet_toan ? "Vượt hợp đồng" 
-                                    : item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.thanh_tien_dm) ? "Vượt định mức" 
+                            ket_qua = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.gia_tri_quyet_toan ? "Vượt hợp đồng"
+                                    : item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.thanh_tien_dm) ? "Vượt định mức"
                                     : "Đạt",
                         }
                     ).ToList() ?? new List<dynamic>();
@@ -246,7 +245,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
             }
             finally
             {
-                IsLoading = false;
+                Loading.Hide();
             }
         }
     }
