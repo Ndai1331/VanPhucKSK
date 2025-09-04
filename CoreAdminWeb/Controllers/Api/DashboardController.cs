@@ -34,22 +34,39 @@ namespace CoreAdminWeb.Controllers.Api
                     new DashboardQuery
                     {
                         Sql = @"
+                            WITH ksk_filt AS (
+                                SELECT 
+                                    ksk.id               AS ksk_id,
+                                    ct.id                AS contract_id
+                                FROM kham_suc_khoe_cong_ty ksk
+                                JOIN [contract] ct 
+                                    ON ct.id = ksk.ma_hop_dong_ksk
+                                WHERE CAST(ksk.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
+                                  AND ct.cong_ty = @MaDonVi
+                                  AND ISNULL(ksk.deleted, 0) = 0
+                                  AND ISNULL(ct.deleted, 0)  = 0
+                            ),
+                            contracts AS (
+                                SELECT DISTINCT contract_id FROM ksk_filt
+                            )
                             SELECT
-                                COUNT(1) SoDotKham,
-                                (SELECT COUNT(1) FROM SoKhamSucKhoe sksk WHERE sksk.MaDotKham = ksk.id) SoLuotKham,
-                                (SELECT SUM(kskdm.thanh_tien_tt) FROM kham_suc_khoe_dinh_muc_thuc_te kskdm WHERE kskdm.MaDotKham = ksk.id) ChiPhi,
+                                (SELECT COUNT(1) FROM ksk_filt) AS SoDotKham,
+                                (SELECT COUNT(1)
+                                 FROM SoKhamSucKhoe sk
+                                 WHERE EXISTS (SELECT 1 FROM ksk_filt f WHERE f.ksk_id = sk.MaDotKham)
+                                ) AS SoLuotKham,
+                                CAST(COALESCE((
+                                    SELECT SUM(kskdm.thanh_tien_tt)
+                                    FROM kham_suc_khoe_dinh_muc_thuc_te kskdm
+                                    WHERE kskdm.contract IN (SELECT contract_id FROM contracts)
+                                ), 0.0) AS decimal) AS ChiPhi,
                                 (
-                                    SELECT
-                                        COUNT(1)
-                                    FROM kham_suc_khoe_ket_luan kskkl
-                                    INNER JOIN SoKhamSucKhoe sksk ON sksk.id = kskkl.luot_kham
-                                    WHERE kskkl.isAbnormal = 1 and sksk.MaDotKham = ksk.id
-                                ) CaBatThuong
-                            FROM kham_suc_khoe_cong_ty ksk
-                            JOIN [contract] ct ON ct.id = ksk.ma_hop_dong_ksk
-                            WHERE CAST(ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
-                            AND ct.cong_ty = @MaDonVi
-                            GROUP BY ksk.id",
+                                    SELECT COUNT(1)
+                                    FROM kham_suc_khoe_ket_luan kkl
+                                    JOIN SoKhamSucKhoe sk ON sk.id = kkl.luot_kham
+                                    WHERE kkl.isAbnormal = 1
+                                    AND EXISTS (SELECT 1 FROM ksk_filt f WHERE f.ksk_id = sk.MaDotKham)
+                                ) AS CaBatThuong",
                         Action = async (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
@@ -87,7 +104,8 @@ namespace CoreAdminWeb.Controllers.Api
 	                            WHERE (tmpKsk.deleted IS NULL OR tmpKsk.deleted = 0)
 	                            AND CAST(tmpKsk.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
                                 AND ct.cong_ty = @MaDonVi
-                            )",
+                            )
+                            AND (ksk.deleted IS NULL OR ksk.deleted = 0)",
                         Action = async (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
@@ -115,6 +133,9 @@ namespace CoreAdminWeb.Controllers.Api
                             JOIN phan_loai_suc_khoe plsk ON plsk.id = kskkt.phan_loai_suc_khoe
                             JOIN [contract] ct ON ct.id = kskct.ma_hop_dong_ksk
                             WHERE (kskkt.deleted IS NULL OR kskkt.deleted = 0)
+                            AND (kskct.deleted IS NULL OR kskct.deleted = 0)
+                            AND (ct.deleted IS NULL OR ct.deleted = 0)
+                            AND (sksk.deleted IS NULL OR sksk.deleted = 0)
                             AND CAST(kskct.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
                             AND ct.cong_ty = @MaDonVi
                             GROUP BY plsk.[name], kskct.ngay_du_kien_kham",
@@ -146,6 +167,9 @@ namespace CoreAdminWeb.Controllers.Api
                             JOIN kham_suc_khoe_cong_ty kskct ON kskct.id = sksk.MaDotKham
                             JOIN [contract] ct ON ct.id = kskct.ma_hop_dong_ksk
                             WHERE (kskkt.deleted IS NULL OR kskkt.deleted = 0)
+                            AND (kskct.deleted IS NULL OR kskct.deleted = 0)
+                            AND (ct.deleted IS NULL OR ct.deleted = 0)
+                            AND (sksk.deleted IS NULL OR sksk.deleted = 0)
                             AND kskct.ngay_du_kien_kham BETWEEN @FromDate AND @ToDate
                             AND ct.cong_ty = @MaDonVi
                             GROUP BY kskkt.benh_tat_ket_luan
