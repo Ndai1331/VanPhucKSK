@@ -148,7 +148,6 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
                     theoDoiChiPhiDoanKhamSeries.Add(seriData);
                 }
 
-
                 await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#theoDoiChiPhiDoanKhamChart", theoDoiChiPhiDoanKhamSeries, theoDoiChiPhiDoanKhamLabels, GlobalConstant.PefaultChartColors.Take(3), false, true);
             }
             catch (Exception ex)
