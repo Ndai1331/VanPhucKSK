@@ -121,6 +121,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private Dictionary<int, List<UserModel>> SelectedUsers { get; set; } = new();
         private List<UserModel> Users { get; set; } = new();
+        private string currentFilterPhanLoaiSucKhoe { get; set; } = string.Empty;
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -137,6 +139,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                     onBS = CurrentUser?.role?.ToLower() == CurrentSetting.doctor_role_id?.ToLower().ToString();
                 }
+
+                await LoadPhanLoaiSucKhoeSelect2(PhanLoaiSucKhoes, string.Empty, CancellationToken.None);
 
                 SetProfileImagePlaceholder();
                 await LoadData();
@@ -392,6 +396,14 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private async Task<List<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeSelect2(IEnumerable<PhanLoaiSucKhoeModel> allItems, string filter, CancellationToken token)
         {
+            if (PhanLoaiSucKhoes != null && PhanLoaiSucKhoes.Count > 0 && currentFilterPhanLoaiSucKhoe == filter)
+            {
+                return PhanLoaiSucKhoes;
+            }
+
+            currentFilterPhanLoaiSucKhoe = filter;
+            await Task.Delay(300);
+            
             try
             {
                 ArgumentNullException.ThrowIfNull(allItems);

@@ -395,6 +395,10 @@
     min-width: 80px !important;
 }
 
+.select2-read-write .select2-selection--single {
+    background-color: #fff !important;
+}
+
 .select2-selection--single {
     border: 1px solid #323a461a !important;
 }

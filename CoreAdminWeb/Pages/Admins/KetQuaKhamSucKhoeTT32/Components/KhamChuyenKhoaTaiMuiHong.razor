@@ -31,7 +31,7 @@
                  Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_tmh, 14, SelectedPhanLoaiSucKhoes))"
                  OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_tmh = v, 14, SelectedPhanLoaiSucKhoes))"
                  Multiselect="false"
-                 class="@((onReadonly || !onReadonly && !onBSTaiMuiHong ? "select2-disabled " : "") + "select2-phan-loai")" />
+                 class="@((onReadonly || !onReadonly && !onBSTaiMuiHong ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai")" />
     </div>
 </div>
 
