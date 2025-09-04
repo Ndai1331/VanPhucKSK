@@ -395,6 +395,22 @@
     min-width: 80px !important;
 }
 
+.select2-read-write .select2-selection--single {
+    background-color: #fff !important;
+}
+
+.select2-selection--single {
+    border: 1px solid #323a461a !important;
+}
+
+.select2-selection__rendered {
+    border-radius: 4px !important;
+}
+
+.select2-selection__arrow {
+    border-radius: 4px !important;
+}
+
 .col-end {
     grid-column-end: -1;
 }

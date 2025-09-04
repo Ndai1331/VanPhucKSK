@@ -444,7 +444,7 @@
                                                                                          Value="@(Select2Helper.GetCurrentSelectionGeneric<DinhMucModel>(item.Data.MaDinhMuc, item.Index, SelectedDinhMucItems))"
                                                                                          OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<DinhMucModel>(e, v => item.Data.MaDinhMuc = v, item.Index, SelectedDinhMucItems, () => UpdateThanhTienAfterDinhMucChange(item.Data)))"
                                                                                          Multiselect="false"
-                                                                                         class="select2-dinh-muc" />
+                                                                                         class="select2-dinh-muc select2-read-write" />
                                                                             </td>
                                                                             <td>
                                                                                 <input type="number" class="form-input text-xs" step="1"

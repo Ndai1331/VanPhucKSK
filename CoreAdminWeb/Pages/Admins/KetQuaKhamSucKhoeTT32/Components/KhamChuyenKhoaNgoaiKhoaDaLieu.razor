@@ -13,7 +13,7 @@
                  Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa, 10, SelectedPhanLoaiSucKhoes))"
                  OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa = v, 10, SelectedPhanLoaiSucKhoes))"
                  Multiselect="false"
-                class="@((onReadonly || !onReadonly && !onBSNgoaiKhoa ? "select2-disabled " : "") + "select2-phan-loai")" />
+                class="@((onReadonly || !onReadonly && !onBSNgoaiKhoa ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai")" />
     </div>
     <div class="flex items-center gap-2">
         <span style="min-width:120px;">10. Da liễu:</span>
@@ -26,7 +26,7 @@
                  Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu, 11, SelectedPhanLoaiSucKhoes))"
                  OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu = v, 11, SelectedPhanLoaiSucKhoes))"
                  Multiselect="false"
-                class="@((onReadonly || !onReadonly && !onBSNgoaiKhoa ? "select2-disabled " : "") + "select2-phan-loai")" />
+                class="@((onReadonly || !onReadonly && !onBSNgoaiKhoa ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai")" />
     </div>
 </div>
 
