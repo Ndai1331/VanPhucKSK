@@ -174,6 +174,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
+            BuilderQuery += $"&filter[_and][1][MaDotKham][deleted][_eq]=false";
+
             if (!string.IsNullOrEmpty(_tenBenhNhanString))
             {
                 BuilderQuery += $"&filter[_and][1][_or][0][benh_nhan][first_name][_contains]={_tenBenhNhanString}";
