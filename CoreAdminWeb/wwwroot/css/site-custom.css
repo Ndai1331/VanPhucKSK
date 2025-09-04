@@ -424,3 +424,16 @@
 .max-w-8xl {
     max-width: 88rem !important;
 }
+
+
+
+
+
+.loading-backdrop{
+position: fixed; inset: 0; display:flex; align-items:center; justify-content:center;
+background: rgba(0,0,0,0.35); z-index: 9999; backdrop-filter: blur(2px);
+}
+.loading-box{
+min-width: 180px; max-width: 80vw; padding: 16px 20px; border-radius: 14px;
+background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align:center;
+}

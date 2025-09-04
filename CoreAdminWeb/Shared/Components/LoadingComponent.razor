@@ -1,0 +1,38 @@
+@using CoreAdminWeb.Services
+@inject ILoadingService Loading
+@implements IDisposable
+
+@if (_isBusy)
+{
+    <div class="loading-backdrop">
+        <div class="loading-box">
+            <div class="animate-[spin_3s_linear_infinite] border-8 border-r-light border-l-primary border-t-black border-b-success rounded-full size-14 inline-block align-middle"></div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isBusy;
+    private string? _message;
+
+    protected override void OnInitialized()
+    {
+        _isBusy = Loading.IsBusy;
+        Loading.OnChanged += HandleChanged;
+    }
+
+    private void HandleChanged()
+    {
+        // Blazor Server: gọi về UI thread an toàn
+        _ = InvokeAsync(() =>
+        {
+            _isBusy = Loading.IsBusy;
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        Loading.OnChanged -= HandleChanged;
+    }
+}
