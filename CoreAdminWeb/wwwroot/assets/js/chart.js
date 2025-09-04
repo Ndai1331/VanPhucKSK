@@ -12,30 +12,19 @@ function formatCurrency(val) {
     const sign = num < 0 ? "-" : "";
     const absNum = Math.abs(num);
 
-    if (absNum >= 1e15) {
-        return sign + (absNum / 1e15)
-            .toFixed(absNum % 1e15 === 0 ? 0 : 3)
-            .replace(/\.?0+$/, '') + 'Q'; // Quadrillion
-    }
-    if (absNum >= 1e12) {
-        return sign + (absNum / 1e12)
-            .toFixed(absNum % 1e12 === 0 ? 0 : 3)
-            .replace(/\.?0+$/, '') + 'T'; // Trillion
-    }
-    if (absNum >= 1e9) {
-        return sign + (absNum / 1e9)
-            .toFixed(absNum % 1e9 === 0 ? 0 : 3)
-            .replace(/\.?0+$/, '') + 'B'; // Billion
-    }
-    if (absNum >= 1e6) {
-        return sign + (absNum / 1e6)
-            .toFixed(absNum % 1e6 === 0 ? 0 : 3)
-            .replace(/\.?0+$/, '') + 'M'; // Million
-    }
-    if (absNum >= 1e3) {
-        return sign + (absNum / 1e3)
-            .toFixed(absNum % 1e3 === 0 ? 0 : 3)
-            .replace(/\.?0+$/, '') + 'K'; // Thousand
+    const units = [
+        { value: 1e15, symbol: 'Q' }, // Quadrillion
+        { value: 1e12, symbol: 'T' }, // Trillion
+        { value: 1e9, symbol: 'B' }, // Billion
+        { value: 1e6, symbol: 'M' }, // Million
+        { value: 1e3, symbol: 'K' }  // Thousand
+    ];
+
+    for (const element of units) {
+        if (absNum >= element.value) {
+            let result = absNum / element.value;
+            return sign + result.toFixed(3).replace(/\.?0+$/, '') + element.symbol;
+        }
     }
     return sign + absNum.toString();
 }
