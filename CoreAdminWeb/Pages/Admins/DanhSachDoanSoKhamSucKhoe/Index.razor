@@ -49,54 +49,6 @@
                         </div>
                     </div>
                     <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
-                        <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tên công ty</MudText>
-                        <BlazoredTypeahead EnableDropDown="true"
-                                           ShowDropDownOnFocus="true"
-                                           MinimumLength="0"
-                                           TItem="CongTyModel"
-                                           TValue="CongTyModel"
-                                           SearchMethod="LoaCongTyFilterData"
-                                           Value="_selectedCongTyFilter"
-                                           ValueExpression="@(() => _selectedCongTyFilter)"
-                                           ValueChanged="OnCongTyFilterChanged"
-                                           placeholder="Chọn công ty"
-                                           Class="form-select">
-                            <SelectedTemplate Context="item">
-                                @item.name
-                            </SelectedTemplate>
-                            <ResultTemplate Context="item">
-                                @item.name
-                            </ResultTemplate>
-                            <NotFoundTemplate Context="item">
-                                Không tìm thấy dữ liệu
-                            </NotFoundTemplate>
-                        </BlazoredTypeahead>
-                    </div>
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
-                        <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Mã hồ sơ</MudText>
-                        <BlazoredTypeahead EnableDropDown="true"
-                                           ShowDropDownOnFocus="true"
-                                           MinimumLength="0"
-                                           TItem="KhamSucKhoeCongTyModel"
-                                           TValue="KhamSucKhoeCongTyModel"
-                                           SearchMethod="LoadKhamSucKhoeCongTyData"
-                                           Value="_selectedKhamSucKhoeCongTyFilter"
-                                           ValueExpression="@(() => _selectedKhamSucKhoeCongTyFilter)"
-                                           ValueChanged="OnKhamSucKhoeCongTyFilterChanged"
-                                           placeholder="Chọn hồ sơ khám sức khỏe"
-                                           Class="form-select">
-                            <SelectedTemplate Context="item">
-                                @item.code
-                            </SelectedTemplate>
-                            <ResultTemplate Context="item">
-                                @item.code
-                            </ResultTemplate>
-                            <NotFoundTemplate Context="item">
-                                Không tìm thấy dữ liệu
-                            </NotFoundTemplate>
-                        </BlazoredTypeahead>
-                    </div>
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thư tự khám</MudText>
                         <div class="flex items-center gap-2 sm:gap-4">
                             <input type="text"
@@ -123,6 +75,54 @@
                                    @bind-value:event="oninput"
                                    @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadData)">
                         </MudForm>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                        <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tên công ty</MudText>
+                        <BlazoredTypeahead EnableDropDown="true"
+                                           ShowDropDownOnFocus="true"
+                                           MinimumLength="0"
+                                           TItem="CongTyModel"
+                                           TValue="CongTyModel"
+                                           SearchMethod="LoaCongTyFilterData"
+                                           Value="_selectedCongTyFilter"
+                                           ValueExpression="@(() => _selectedCongTyFilter)"
+                                           ValueChanged="OnCongTyFilterChanged"
+                                           placeholder="Chọn công ty"
+                                           Class="form-select">
+                            <SelectedTemplate Context="item">
+                                @item.name
+                            </SelectedTemplate>
+                            <ResultTemplate Context="item">
+                                @item.name
+                            </ResultTemplate>
+                            <NotFoundTemplate Context="item">
+                                Không tìm thấy dữ liệu
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-2">
+                        <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Mã hồ sơ</MudText>
+                        <BlazoredTypeahead EnableDropDown="true"
+                                           ShowDropDownOnFocus="true"
+                                           MinimumLength="0"
+                                           TItem="KhamSucKhoeCongTyModel"
+                                           TValue="KhamSucKhoeCongTyModel"
+                                           SearchMethod="LoadKhamSucKhoeCongTyData"
+                                           Value="_selectedKhamSucKhoeCongTyFilter"
+                                           ValueExpression="@(() => _selectedKhamSucKhoeCongTyFilter)"
+                                           ValueChanged="OnKhamSucKhoeCongTyFilterChanged"
+                                           placeholder="Chọn hồ sơ khám sức khỏe"
+                                           Class="form-select">
+                            <SelectedTemplate Context="item">
+                                @item.code
+                            </SelectedTemplate>
+                            <ResultTemplate Context="item">
+                                @item.code
+                            </ResultTemplate>
+                            <NotFoundTemplate Context="item">
+                                Không tìm thấy dữ liệu
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
                     </div>
 
                     <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-1 gap-2 col-end">
