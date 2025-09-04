@@ -24,9 +24,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
         private DateTime? _toDate = null;
         private CongTyModel? _selectedCongTyFilter = null;
         private KhamSucKhoeCongTyModel? _selectedKhamSucKhoeCongTyFilter = null;
-        private string? _searchMaDieuTriString = null;
-        private int? _searchFromNumber = null;
-        private int? _searchToNumber = null;
 
         protected override async Task OnInitializedAsync()
         {
