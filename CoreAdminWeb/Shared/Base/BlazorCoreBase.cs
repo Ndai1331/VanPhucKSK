@@ -77,7 +77,6 @@ namespace CoreAdminWeb.Shared.Base
             await base.OnInitializedAsync();
             await IsAuthenticatedAsync();
             await GetSettingAsync();
-            ResetPage();
         }
 
         /// <summary>

@@ -93,7 +93,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 SetProfileImagePlaceholder();
                 StateHasChanged();

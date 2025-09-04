@@ -30,7 +30,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 StateHasChanged();
             }
         }

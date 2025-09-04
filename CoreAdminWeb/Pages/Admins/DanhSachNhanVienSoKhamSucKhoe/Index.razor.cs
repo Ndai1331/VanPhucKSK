@@ -34,7 +34,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -82,11 +82,18 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                 if (result.Meta != null)
                 {
                     TotalItems = result.Meta.total_count ?? 0;
-                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
-
-                    if (Page > TotalPages)
+                    if (result.Meta.page_count.HasValue && result.Meta.page_count > 0)
                     {
-                        await SelectedPage(TotalPages);
+                        TotalPages = result.Meta.page_count.Value;
+                    }
+                    else
+                    {
+                        TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+
+                        if (Page > TotalPages)
+                        {
+                            await SelectedPage(TotalPages);
+                        }
                     }
                 }
             }
@@ -95,6 +102,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                 MainModels = new List<DanhSachDoanSoKhamSucKhoeModel>();
             }
             IsLoading = false;
+
+            await InvokeAsync(StateHasChanged);
         }
 
         private async Task OnPageSizeChanged(int newSize)

@@ -31,7 +31,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -224,8 +224,8 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
                             tong_chi_phi_dm = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.thanh_tien_dm),
                             tong_chi_phi_thuc_te = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te),
                             chenh_lech = item.gia_tri_quyet_toan - item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te),
-                            ket_qua = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.gia_tri_quyet_toan ? "Vượt hợp đồng" 
-                                    : item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.thanh_tien_dm) ? "Vượt định mức" 
+                            ket_qua = item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.gia_tri_quyet_toan ? "Vượt hợp đồng"
+                                    : item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.chi_phi_thuc_te) > item.chi_tiet?.Where(x => x.deleted == null || x.deleted == false).Sum(x => x.thanh_tien_dm) ? "Vượt định mức"
                                     : "Đạt",
                         }
                     ).ToList() ?? new List<dynamic>();

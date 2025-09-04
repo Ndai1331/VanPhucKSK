@@ -36,7 +36,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 {
                     CurrentUser = resUser.Data;
                 }
-                await LoadData();
+                await LoadData(true);
                 StateHasChanged();
                 // Wait for modal to render
                 _ = Task.Run(async () =>
@@ -47,11 +47,17 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             }
         }
 
-        private async Task LoadData()
+        private async Task LoadData(bool isReset = false)
         {
             if (CurrentUser == null)
             {
                 return;
+            }
+
+            if (isReset)
+            {
+                ResetPage();
+                await Task.Delay(100);
             }
 
             DateTime dateNow = DateTime.Now;
@@ -198,7 +204,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 }
 
                 ReflectionHelper.SetFieldValue(this, fieldName, newDate);
-                await LoadData();
+                await LoadData(true);
             }
             catch (Exception ex)
             {

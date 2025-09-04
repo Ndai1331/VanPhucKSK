@@ -22,10 +22,6 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
         private DateTime? NgayKhamGanNhat = null;
         private string? MaLuotKhamGanNhat { get; set; }
         private KhamSucKhoeKetLuanModel? KetLuanGanNhat { get; set; }
-        private string _searchMaKhachHang = "";
-        private string _searchSoDienThoai = "";
-        private string activeDefTab = "tab1";
-
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();

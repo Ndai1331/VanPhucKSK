@@ -26,7 +26,7 @@ namespace CoreAdminWeb.Pages.Admins.PhanLoaiSucKhoe
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 StateHasChanged();
             }
         }

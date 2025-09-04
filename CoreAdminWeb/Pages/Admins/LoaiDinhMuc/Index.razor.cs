@@ -26,7 +26,7 @@ namespace CoreAdminWeb.Pages.Admins.LoaiDinhMuc
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 StateHasChanged();
             }
         }

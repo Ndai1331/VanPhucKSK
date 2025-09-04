@@ -50,7 +50,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             if (firstRender)
             {
                 connectionId = $"{UserId}_import";
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
             }

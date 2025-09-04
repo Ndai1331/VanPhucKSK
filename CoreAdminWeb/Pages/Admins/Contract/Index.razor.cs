@@ -66,7 +66,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 await LoadDinhMucData("");
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
 
@@ -490,7 +490,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 AlertService.ShowAlert("Người liên hệ là bắt buộc", "danger");
                 return false;
             }
-            
+
             if (string.IsNullOrEmpty(SelectedItem.so_dien_thoai_lien_he))
             {
                 AlertService.ShowAlert("Số điện thoại liên hệ là bắt buộc", "danger");

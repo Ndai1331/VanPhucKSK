@@ -27,7 +27,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucDinhMuc
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 StateHasChanged();
             }
         }

@@ -143,7 +143,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 await LoadPhanLoaiSucKhoeSelect2(PhanLoaiSucKhoes, string.Empty, CancellationToken.None);
 
                 SetProfileImagePlaceholder();
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -403,7 +403,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             currentFilterPhanLoaiSucKhoe = filter;
             await Task.Delay(300);
-            
+
             try
             {
                 ArgumentNullException.ThrowIfNull(allItems);
