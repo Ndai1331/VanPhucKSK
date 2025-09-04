@@ -15,6 +15,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
     ) : BlazorCoreBase
     {
         [Parameter] public int? Id { get; set; }
+        [Inject] private ILoadingService Loading { get; set; } = null!;
         private List<TrangThaiHopDong> TrangThaiHopDongList { get; set; } = Enum.GetValues(typeof(TrangThaiHopDong)).Cast<TrangThaiHopDong>().ToList();
         private List<ContractModel> MainModels { get; set; } = new();
         private string _searchString = "";
@@ -46,8 +47,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
 
         private async Task LoadData(bool isResetPage = false)
         {
-            IsLoading = true;
-
+            Loading.Show();
             if (isResetPage)
             {
                 ResetPage();
@@ -94,7 +94,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoChiPhiKhamSucKhoe
             {
                 MainModels = new List<ContractModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)

@@ -62,6 +62,8 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseService<TinhModel>, TinhService>();
             services.AddScoped<IContractDinhMucService, ContractDinhMucService>();
             services.AddScoped<AlertService>();
+            services.AddSingleton<ILoadingService, LoadingService>();
+
             // PDF Service Configuration
             services.AddScoped<IPdfService, PdfService>();
             // FTP Service Configuration
