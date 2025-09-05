@@ -56,6 +56,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private readonly object _cacheLock = new();
 
         private int soHopDongDaKy = 0;
+        private UserModel? CurrentUser { get; set; }
+        private bool onKD { get; set; } = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -66,7 +68,15 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         {
             if (firstRender)
             {
-                await LoadData(true);
+                var resUser = await UserService.GetCurrentUserAsync();
+                if (resUser.IsSuccess)
+                {
+                    CurrentUser = resUser.Data;
+
+                    onKD = CurrentUser?.role?.ToLower() == CurrentSetting.kinh_doanh_role_id?.ToLower().ToString();
+                }
+
+                await LoadData(true); 
                 await LoadDinhMucData("");
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
 

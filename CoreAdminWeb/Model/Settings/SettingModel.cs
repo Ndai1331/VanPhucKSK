@@ -41,6 +41,7 @@
         public string? contract_folder_id { get; set; }
         public string? doctor_role_id { get; set; }
         public string? patient_role_id { get; set; }
+        public string? kinh_doanh_role_id { get; set; }
         public List<VisualEditorUrl> visual_editor_urls { get; set; } = new List<VisualEditorUrl>();
 
         public FileModel? phieu_ksk_nam { get; set; }

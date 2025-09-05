@@ -472,7 +472,7 @@
                                                                                        Label="Chi phí thực tế (VNĐ)"
                                                                                        value="@GetCurrencyDisplayValue(item.Data.chi_phi_thuc_te)"
                                                                                        @onchange="@(e => OnChiPhiThucTeChanged(e, item.Data))"
-                                                                                       @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" />
+                                                                                       @oninput="@(e => OnCurrencyInputRealTimeFormatting(e))" readonly="@onKD" />
                                                                             </td>
                                                                             <td>
                                                                                 <input type="text" class="form-input text-xs w-40" @bind-value="@item.Data.description" Label="Ghi chú" />
