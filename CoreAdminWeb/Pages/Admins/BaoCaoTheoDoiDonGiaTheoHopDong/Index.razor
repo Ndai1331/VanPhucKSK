@@ -20,7 +20,7 @@
             <div class="flex items-end justify-between flex-1 gap-2 sm:gap-4">
                 <!-- Left: Filter Area -->
                 <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                    <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày</MudText>
                         <div class="flex items-center gap-2 sm:gap-4">
                             <input type="text"
@@ -36,7 +36,7 @@
                                    @onchange="@(e => OnDateChanged(e, nameof(_toDate), true))" />
                         </div>
                     </div>
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                    <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Công ty</MudText>
                         <BlazoredTypeahead EnableDropDown="true"
                                            ShowDropDownOnFocus="true"
@@ -60,7 +60,7 @@
                             </NotFoundTemplate>
                         </BlazoredTypeahead>
                     </div>
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                    <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudForm class="flex-1">
                             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Trạng thái</MudText>
                             <select class="form-select" @bind="_searchStatusString" @bind:event="oninput" @onchange="OnStatusFilterChanged">
@@ -72,7 +72,7 @@
                             </select>
                         </MudForm>
                     </div>
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                    <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Hợp đồng</MudText>
                         <BlazoredTypeahead EnableDropDown="true"
                                            ShowDropDownOnFocus="true"
@@ -97,14 +97,14 @@
                         </BlazoredTypeahead>
                     </div>
 
-                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2 flex-col sm:flex-row gap-2 col-end">
-                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                    <div class="w-full flex flex-wrap items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1 gap-2 flex-row col-end">
+                        <MudButton Class="w-full sm:w-auto md:w-auto btn flex items-center justify-center gap-1.5
                             bg-success border-success text-white hover:bg-success/[0.85]
                             hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadData(true))">
                             <i class="ri-search-line"></i>
                             Thống kê
                         </MudButton>
-                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                        <MudButton Class="w-full sm:w-auto md:w-auto btn flex items-center justify-center gap-1.5
                             bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
                             text-nowrap" OnClick="OnExcelExport">
                             <i class="ri-file-excel-2-fill"></i>

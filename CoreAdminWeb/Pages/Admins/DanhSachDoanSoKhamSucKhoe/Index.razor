@@ -21,7 +21,7 @@
             <div class="flex items-end justify-between flex-1 gap-2 sm:gap-4">
                 <!-- Left: Filter Area -->
                 <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                    <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày</MudText>
                         <div class="flex items-center gap-2 sm:gap-4">
                             <input type="text"
@@ -37,7 +37,7 @@
                                    @onchange="@(e => OnValueChanged(e, nameof(_toDate), true))" />
                         </div>
                     </div>
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                    <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thư tự khám</MudText>
                         <div class="flex items-center gap-2 sm:gap-4">
                             <input type="text"
@@ -53,7 +53,7 @@
                                    @onchange="@(e => OnValueChanged(e, nameof(_searchToNumber), true, false))" />
                         </div>
                     </div>
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                    <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudForm class="flex-1">
                             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Mã điều trị</MudText>
                             <input type="text" id="search"
@@ -65,7 +65,7 @@
                                    @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadData)">
                         </MudForm>
                     </div>
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
+                    <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tên công ty</MudText>
                         <BlazoredTypeahead EnableDropDown="true"
                                            ShowDropDownOnFocus="true"
@@ -89,7 +89,7 @@
                             </NotFoundTemplate>
                         </BlazoredTypeahead>
                     </div>
-                    <div class="xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-2">
+                    <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-2">
                         <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Mã hồ sơ</MudText>
                         <BlazoredTypeahead EnableDropDown="true"
                                            ShowDropDownOnFocus="true"
@@ -114,21 +114,21 @@
                         </BlazoredTypeahead>
                     </div>
 
-                    <div class="flex items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-1 gap-2 col-end">
+                    <div class="w-full flex flex-wrap items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-1 gap-2 col-end">
                         @* <div> *@
-                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                        <MudButton Class="w-full sm:w-auto md:w-auto btn flex items-center justify-center gap-1.5
                             bg-success border-success text-white hover:bg-success/[0.85]
                             hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadData(true))">
                             <i class="ri-search-line"></i>
                             Thống kê
                         </MudButton>
-                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                        <MudButton Class="w-full sm:w-auto md:w-auto btn flex items-center justify-center gap-1.5
                             bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
                             text-nowrap" OnClick="OnShowExport">
                             <i class="ri-file-pdf-2-line"></i>
                             Xuất file
                         </MudButton>
-                        <MudButton Class="xs:w-full sm:w-auto md:w-auto btn flex items-center gap-1.5
+                        <MudButton Class="w-full sm:w-auto md:w-auto btn flex items-center justify-center gap-1.5
                             bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
                             text-nowrap" OnClick="OnExcelExport">
                             <i class="ri-file-excel-2-fill"></i>
@@ -143,14 +143,14 @@
                 <table id="example" class="display frozen-columns-table" style="width:100%">
                     <thead>
                         <tr>
-                            <th class="frozen-col frozen-col-cb">
+                            <th class="xl:frozen-col xl:frozen-col-cb">
                                 <input type="checkbox" @onchange="ToggleSelectAllRows" checked="@IsAllRowsSelected" />
                             </th>
-                            <th class="frozen-col frozen-col-1">STT</th>
-                            <th class="frozen-col frozen-col-2">Mã đoàn</th>
-                            <th class="frozen-col frozen-col-3">Họ và tên</th>
-                            <th class="frozen-col frozen-col-4">Năm sinh</th>
-                            <th class="frozen-col frozen-col-5">Giới tính</th>
+                            <th class="xl:frozen-col xl:frozen-col-1">STT</th>
+                            <th class="xl:frozen-col xl:frozen-col-2">Mã đoàn</th>
+                            <th class="xl:frozen-col xl:frozen-col-3">Họ và tên</th>
+                            <th class="xl:frozen-col xl:frozen-col-4">Năm sinh</th>
+                            <th class="xl:frozen-col xl:frozen-col-5">Giới tính</th>
                             <th>Tiền sử gia đình</th>
                             <th>Tiền sử bản thân</th>
                             <th>Chiều cao (cm)</th>
@@ -182,17 +182,17 @@
                         @foreach (var item in MainModels)
                         {
                             <tr>
-                                <td class="frozen-col frozen-col-cb">
+                                <td class="xl:frozen-col xl:frozen-col-cb">
                                     <input type="checkbox"
                                            @onclick:stopPropagation
                                            checked="@selectedSoKhamSucKhoes.Any(x => x.id == item.id)"
                                            @onchange="e => ToggleRowSelection(item, e.Value is bool b && b)" />
                                 </td>
-                                <td class="frozen-col frozen-col-1">@item.sort</td>
-                                <td class="frozen-col frozen-col-2">@item.ma_luot_kham</td>
-                                <td class="frozen-col frozen-col-3">@item.last_name @item.first_name</td>
-                                <td class="frozen-col frozen-col-4">@item.ngay_sinh?.ToString("dd/MM/yyyy")</td>
-                                <td class="frozen-col frozen-col-5">@item.gioi_tinh?.GetDescription()</td>
+                                <td class="xl:frozen-col xl:frozen-col-1">@item.sort</td>
+                                <td class="xl:frozen-col xl:frozen-col-2">@item.ma_luot_kham</td>
+                                <td class="xl:frozen-col xl:frozen-col-3">@item.last_name @item.first_name</td>
+                                <td class="xl:frozen-col xl:frozen-col-4">@item.ngay_sinh?.ToString("dd/MM/yyyy")</td>
+                                <td class="xl:frozen-col xl:frozen-col-5">@item.gioi_tinh?.GetDescription()</td>
                                 <td class="wrap-short-content">@item.tien_su_gia_dinh</td>
                                 <td class="wrap-short-content">@item.ten_benh</td>
                                 <td>@item.chieu_cao</td>
@@ -297,115 +297,3 @@
         </div>
     </div>
 }
-
-<style>
-    .blazored-typeahead__results {
-        z-index: 99999999 !important;
-    }
-
-    .wrap-short-content {
-        min-width: 200px;
-        white-space: pre-wrap;
-    }
-
-    .frozen-columns-table {
-        border-collapse: separate;
-        border-spacing: 0;
-        border: 1px solid #e5e7eb;
-    }
-
-        .frozen-columns-table th,
-        .frozen-columns-table td {
-            border: 1px solid #e5e7eb;
-            border-top: none;
-            border-left: none;
-            padding: 8px 12px;
-        }
-
-            .frozen-columns-table th:first-child,
-            .frozen-columns-table td:first-child {
-                border-left: 1px solid #e5e7eb;
-            }
-
-        .frozen-columns-table thead tr:first-child th {
-            border-top: 1px solid #e5e7eb;
-        }
-
-    .frozen-col {
-        position: sticky;
-        background-color: white;
-        z-index: 10;
-        box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.1);
-    }
-
-    .dark .frozen-col {
-        background-color: var(--tw-bg-darklight);
-        box-shadow: 2px 0 5px -2px rgba(255, 255, 255, 0.1);
-    }
-
-    .frozen-col::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 1px;
-        background-color: #e5e7eb;
-        z-index: 1;
-    }
-
-    .dark .frozen-col::after {
-        background-color: var(--tw-border-darkborder);
-    }
-
-    .frozen-col-cb {
-        left: 0;
-        min-width: 60px;
-        z-index: 15;
-        text-align: center;
-    }
-
-    .frozen-col-1 {
-        left: 60px;
-        min-width: 60px;
-        z-index: 15;
-    }
-
-    .frozen-col-2 {
-        left: 120px;
-        min-width: 200px;
-        z-index: 14;
-    }
-
-    .frozen-col-3 {
-        left: 320px;
-        min-width: 200px;
-        z-index: 13;
-    }
-
-    .frozen-col-4 {
-        left: 520px;
-        min-width: 100px;
-        z-index: 12;
-    }
-
-    .frozen-col-5 {
-        left: 620px;
-        min-width: 80px;
-        z-index: 11;
-    }
-
-    .frozen-columns-table thead .frozen-col {
-        background-color: #f9fafb;
-        z-index: 20;
-    }
-
-    .dark .frozen-columns-table thead .frozen-col {
-        background-color: var(--tw-bg-gray-700);
-    }
-
-    .dark .frozen-columns-table th,
-    .dark .frozen-columns-table td {
-        border-color: var(--tw-border-darkborder);
-    }
-</style>
