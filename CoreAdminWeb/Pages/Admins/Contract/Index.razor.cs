@@ -72,7 +72,6 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 if (resUser.IsSuccess)
                 {
                     CurrentUser = resUser.Data;
-
                     onKD = CurrentUser?.role?.ToLower() == CurrentSetting.kinh_doanh_role_id?.ToLower().ToString();
                 }
 
