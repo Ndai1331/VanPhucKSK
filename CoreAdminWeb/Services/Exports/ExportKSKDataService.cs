@@ -581,6 +581,7 @@ namespace CoreAdminWeb.Services.Exports
                             .Replace("{{KetQuaCLS_DaLieu}}", $"{cls?.kq_da_lieu}")
                             .Replace("{{KetQuaCLS_DaLieu_PhanLoai}}", $"{cls?.pl_da_lieu?.name}")
                             .Replace("{{KetQuaCLS_NgoaiKhoa_ChuKy}}", RenderSignature(cls?.chu_ky_ngoai_khoa ?? string.Empty, "", 100, 50) + $"<br/>{cls?.bs_ngoai_khoa}")
+                            .Replace("{{KetQuaCLS_SanPhuKhoa}}", $"{(!string.IsNullOrEmpty(sanPhuKhoa?.ket_qua) ? sanPhuKhoa?.ket_qua : "Chi tiết nội dung khám theo danh mục tại phụ lục XXV ban hành kèm theo Thông tư này.")}")
                             .Replace("{{KetQuaCLS_SanPhuKhoa_PhanLoai}}", $"{sanPhuKhoa?.phan_loai?.name}")
                             .Replace("{{KetQuaCLS_SanPhuKhoa_ChuKy}}", RenderSignature(sanPhuKhoa?.chu_ky ?? string.Empty, "", 100, 50) + $"<br/>{sanPhuKhoa?.nguoi_ket_luan}")
                             .Replace("{{KetQuaCLS_Mat_KhongKinh_Phai}}", $"{cls?.thi_luc_khong_kinh_phai}")

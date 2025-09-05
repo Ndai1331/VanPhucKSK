@@ -649,9 +649,7 @@
                 <td class="v-middle bold">3.</td>
                 <td colspan="2">
                     <div class="row">
-                        <b>Sản phụ khoa:</b> Chi tiết nội dung khám theo
-                        danh mục tại phụ lục XXV ban hành kèm theo Thông
-                        tư này.
+                        <b>Sản phụ khoa:</b> @(!string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_tam_than) ? SelectedKhamSucKhoeChuyenKhoa?.kq_nk_tam_than : "Chi tiết nội dung khám theo danh mục tại phụ lục XXV ban hành kèm theo Thông tư này.")
                     </div>
                     <div class="row">
                         <span>Phân loại:</span>

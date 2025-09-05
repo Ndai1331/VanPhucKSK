@@ -684,22 +684,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 if (onBSMat)
                 {
                     SelectedKhamSucKhoeChuyenKhoa.pl_mat ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
                     if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_mat?.Trim()))
                     {
                         SelectedKhamSucKhoeChuyenKhoa.benh_mat = CurrentSetting.ket_qua_ksk_mac_dinh;
@@ -711,22 +695,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 if (onBSTaiMuiHong)
                 {
                     SelectedKhamSucKhoeChuyenKhoa.pl_tmh ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
                     if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong?.Trim()))
                     {
                         SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong = CurrentSetting.ket_qua_ksk_mac_dinh;
