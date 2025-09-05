@@ -32,8 +32,9 @@ namespace CoreAdminWeb.Shared.Base
         [Inject]
         protected IJSRuntime JsRuntime { get; set; } = null!;
 
-        [Inject] private IFileService FileService { get; set; }
+        [Inject] private IFileService FileService { get; set; } = null!;
 
+        [Inject] public ILoadingService Loading { get; set; } = null!;
 
         // Cached authentication state to avoid repeated calls
         private bool? _cachedIsAuthenticated;
@@ -77,7 +78,6 @@ namespace CoreAdminWeb.Shared.Base
             await base.OnInitializedAsync();
             await IsAuthenticatedAsync();
             await GetSettingAsync();
-            ResetPage();
         }
 
         /// <summary>
@@ -104,15 +104,13 @@ namespace CoreAdminWeb.Shared.Base
                 if (!string.IsNullOrEmpty(CurrentSetting.project_logo))
                 {
                     var logoRes = await FileService.GetFileAsync(CurrentSetting.project_logo);
-                    if (logoRes.IsSuccess)
+                    if (
+                        logoRes.IsSuccess
+                        && logoRes.Data != null
+                        && !string.IsNullOrWhiteSpace(logoRes.Data.filename_disk)
+                    )
                     {
-                        if (logoRes.Data != null)
-                        {
-                            if (!string.IsNullOrWhiteSpace(logoRes.Data.filename_disk))
-                            {
-                                LogoImage = logoRes.Data.filename_disk;
-                            }
-                        }
+                        LogoImage = logoRes.Data.filename_disk;
                     }
                 }
                 ExpiredResultPage = settingResults.Data?.lock_result_page_after ?? 7;

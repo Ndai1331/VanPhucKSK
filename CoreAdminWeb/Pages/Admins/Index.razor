@@ -194,7 +194,7 @@
             if (CurrentUser != null)
             {
                 // Load medical records and latest exam date in parallel
-                var medicalRecordsTask = LoadMedicalRecordsAsync();
+                var medicalRecordsTask = LoadMedicalRecordsAsync(true);
                 var latestExamTask = LoadLatestExamDateAsync();
                 await Task.WhenAll(medicalRecordsTask, latestExamTask);
 
@@ -245,12 +245,18 @@
     /// <summary>
     /// Load medical records with pagination
     /// </summary>
-    private async Task LoadMedicalRecordsAsync()
+    private async Task LoadMedicalRecordsAsync(bool isReset = false)
     {
         if (CurrentUser?.ma_benh_nhan == null) return;
 
         try
         {
+            if (isReset)
+            {
+                ResetPage();
+                await Task.Delay(100);
+            }
+
             // Build query for paginated results
             BuildPaginationQuery(Page, PageSize, "ngay_kham");
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";

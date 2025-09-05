@@ -34,7 +34,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -49,7 +49,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -62,7 +62,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
             if (_selectedContractFilter == null)
             {
                 AlertService.ShowAlert("Vui lòng chọn hợp đồng để xem báo cáo", "warning");
-                IsLoading = false;
+                Loading.Hide();
                 return;
             }
 
@@ -87,7 +87,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
             {
                 MainModels = new List<ReportBaoCaoTheoDoiDonGiaTheoHopDongModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -177,7 +177,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
 
                 ReflectionHelper.SetFieldValue(this, fieldName, newDate);
 
-                if (isFilter && !IsLoading)
+                if (isFilter && !Loading.IsBusy)
                 {
                     await LoadData(true);
                 }
@@ -192,7 +192,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
         {
             try
             {
-                IsLoading = true;
+                Loading.Show();
 
                 BuilderQuery = $"Report/contract-unit-prices?limit={int.MaxValue}&offset={0}";
 
@@ -254,7 +254,7 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
             }
             finally
             {
-                IsLoading = false;
+                Loading.Hide();
             }
         }
     }

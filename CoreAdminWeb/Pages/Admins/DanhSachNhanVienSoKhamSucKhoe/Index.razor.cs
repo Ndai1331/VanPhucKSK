@@ -34,7 +34,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -49,7 +49,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -82,11 +82,18 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                 if (result.Meta != null)
                 {
                     TotalItems = result.Meta.total_count ?? 0;
-                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
-
-                    if (Page > TotalPages)
+                    if (result.Meta.page_count.HasValue && result.Meta.page_count > 0)
                     {
-                        await SelectedPage(TotalPages);
+                        TotalPages = result.Meta.page_count.Value;
+                    }
+                    else
+                    {
+                        TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+
+                        if (Page > TotalPages)
+                        {
+                            await SelectedPage(TotalPages);
+                        }
                     }
                 }
             }
@@ -94,7 +101,9 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             {
                 MainModels = new List<DanhSachDoanSoKhamSucKhoeModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
+
+            await InvokeAsync(StateHasChanged);
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -185,7 +194,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                     }
                 }
 
-                if (isFilter && !IsLoading)
+                if (isFilter && !Loading.IsBusy)
                 {
                     await LoadData(true);
                 }
@@ -215,7 +224,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
         {
             try
             {
-                IsLoading = true;
+                Loading.Show();
 
                 BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset={0}";
                 if (_fromDate.HasValue)
@@ -357,7 +366,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             }
             finally
             {
-                IsLoading = false;
+                Loading.Hide();
             }
         }
     }

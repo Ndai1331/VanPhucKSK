@@ -22,10 +22,6 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
         private DateTime? NgayKhamGanNhat = null;
         private string? MaLuotKhamGanNhat { get; set; }
         private KhamSucKhoeKetLuanModel? KetLuanGanNhat { get; set; }
-        private string _searchMaKhachHang = "";
-        private string _searchSoDienThoai = "";
-        private string activeDefTab = "tab1";
-
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -49,7 +45,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
 
         private async Task LoadData()
         {
-            IsLoading = true;
+            Loading.Show();
 
             var res = await UserService.GetUserByIdAsync(Guid.Parse(UserId ?? ""));
             CurrentUser = res?.IsSuccess == true && res.Data != null
@@ -81,7 +77,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu hồ sơ khám sức khỏe: {ex.Message}", "danger");
             }
 
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task LoadMedicalRecordsAsync()

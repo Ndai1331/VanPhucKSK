@@ -36,7 +36,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 {
                     CurrentUser = resUser.Data;
                 }
-                await LoadData();
+                await LoadData(true);
                 StateHasChanged();
                 // Wait for modal to render
                 _ = Task.Run(async () =>
@@ -47,11 +47,17 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             }
         }
 
-        private async Task LoadData()
+        private async Task LoadData(bool isReset = false)
         {
             if (CurrentUser == null)
             {
                 return;
+            }
+
+            if (isReset)
+            {
+                ResetPage();
+                await Task.Delay(100);
             }
 
             DateTime dateNow = DateTime.Now;
@@ -75,12 +81,12 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 _endDateFilter = new DateTime(dateNow.Year, dateNow.Month, DateTime.DaysInMonth(dateNow.Year, dateNow.Month), 0, 0, 0, DateTimeKind.Local);
             }
 
-            IsLoading = true;
+            Loading.Show();
 
             if (!CurrentUser.ma_don_vi.HasValue || CurrentUser.ma_don_vi <= 0)
             {
                 AlertService.ShowAlert($"Không tìm thấy thông tin công ty", "danger");
-                IsLoading = false;
+                Loading.Hide();
                 return;
             }
 
@@ -100,7 +106,6 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             {
                 MainModel = new GeneralDashboardModel();
             }
-            IsLoading = false;
 
             try
             {
@@ -168,6 +173,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             {
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu biểu đồ: {ex.Message}", "danger");
             }
+            Loading.Hide();
         }
 
         private async Task OnValueChanged(ChangeEventArgs e, string fieldName)
@@ -198,7 +204,7 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 }
 
                 ReflectionHelper.SetFieldValue(this, fieldName, newDate);
-                await LoadData();
+                await LoadData(true);
             }
             catch (Exception ex)
             {

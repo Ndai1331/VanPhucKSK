@@ -93,7 +93,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 SetProfileImagePlaceholder();
                 StateHasChanged();
@@ -117,7 +117,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -162,7 +162,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             {
                 MainModels = new List<HoSoKhamSucKhoeTT32Model>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -251,7 +251,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 
                 ReflectionHelper.SetFieldValue(this, fieldName, newDate);
 
-                if (isFilter && !IsLoading)
+                if (isFilter && !Loading.IsBusy)
                 {
                     await LoadData(true);
                 }
@@ -270,7 +270,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 
         private async Task LoadDetailData(HoSoKhamSucKhoeTT32Model item)
         {
-            IsLoading = true;
+            Loading.Show();
             var resSoKhamSK = await SoKhamSucKhoeService.GetByIdAsync(item.id.ToString());
             if (resSoKhamSK?.IsSuccess == true && resSoKhamSK.Data != null)
             {
@@ -345,7 +345,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                 AlertService.ShowAlert("Không tìm thấy thông tin khám!", "danger");
             }
 
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private MarkupString RenderSignature(string? signatureData, string? fallbackText = "", string? fileName = "", int maxWidth = 120, int maxHeight = 60)
@@ -661,7 +661,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 
         private async Task PrintPDF()
         {
-            if (!IsLoading)
+            if (!Loading.IsBusy)
             {
                 // Sử dụng function mới để chỉ in phần medical form content
                 await JsRuntime.InvokeVoidAsync("printMedicalForm");

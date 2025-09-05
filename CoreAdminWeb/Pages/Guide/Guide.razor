@@ -98,7 +98,7 @@
         try
         {
             _isLoading = true;
-            await LoadPostsAsync();
+            await LoadPostsAsync(true);
         }
         catch (Exception ex)
         {
@@ -114,10 +114,16 @@
     /// <summary>
     /// Load guide posts with optimized error handling
     /// </summary>
-    private async Task LoadPostsAsync()
+    private async Task LoadPostsAsync(bool isReset = false)
     {
         try
         {
+            if (isReset)
+            {
+                ResetPage();
+                await Task.Delay(100);
+            }
+
             BuildPaginationQuery(Page, PageSize, "date_created");
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
             BuilderQuery += $"&filter[_and][1][status][_eq]={Model.Base.Status.published.ToString()}";

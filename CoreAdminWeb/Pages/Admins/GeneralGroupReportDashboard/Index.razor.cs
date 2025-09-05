@@ -79,7 +79,7 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
                 _endDateFilter = new DateTime(dateNow.Year, dateNow.Month, DateTime.DaysInMonth(dateNow.Year, dateNow.Month), 0, 0, 0, DateTimeKind.Local);
             }
 
-            IsLoading = true;
+            Loading.Show();
 
             BuilderQuery = $"Dashboard/company-summary-report?companyHelthCheckId={_doanKhamFilter?.id}&fromDate={_startDateFilter:yyyy-MM-dd}&toDate={_endDateFilter:yyyy-MM-dd}";
 
@@ -97,7 +97,7 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
             };
             await Task.WhenAll(chartTasks);
 
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnLoadTheoDoiChiPhiDoanKhamChart()
@@ -147,7 +147,6 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
 
                     theoDoiChiPhiDoanKhamSeries.Add(seriData);
                 }
-
 
                 await JsRuntime.InvokeVoidAsync("initSimpleBarChart", "#theoDoiChiPhiDoanKhamChart", theoDoiChiPhiDoanKhamSeries, theoDoiChiPhiDoanKhamLabels, GlobalConstant.PefaultChartColors.Take(3), false, true);
             }

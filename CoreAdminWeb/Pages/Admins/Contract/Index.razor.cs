@@ -66,7 +66,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         {
             if (firstRender)
             {
-                await LoadData();
+                await LoadData(true);
                 await LoadDinhMucData("");
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
 
@@ -80,7 +80,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
         private async Task LoadData(bool isReset = false)
         {
-            IsLoading = true;
+            Loading.Show();
 
             if (isReset)
             {
@@ -118,7 +118,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 MainModels = new List<ContractModel>();
             }
-            IsLoading = false;
+            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -490,7 +490,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 AlertService.ShowAlert("Người liên hệ là bắt buộc", "danger");
                 return false;
             }
-            
+
             if (string.IsNullOrEmpty(SelectedItem.so_dien_thoai_lien_he))
             {
                 AlertService.ShowAlert("Số điện thoại liên hệ là bắt buộc", "danger");
