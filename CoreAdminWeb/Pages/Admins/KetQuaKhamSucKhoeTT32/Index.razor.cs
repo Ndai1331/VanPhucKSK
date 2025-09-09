@@ -311,7 +311,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 if (SelectedItem.benh_nhan == null)
                 {
-                    string queryBenhNhan = $"&filter[_and][][ma_benh_nhan][_eq]={SelectedItem.ma_benh_nhan}";
+                    string queryBenhNhan = $"&filter[_and][][ma_tai_khoan][_eq]={SelectedItem.ma_benh_nhan}";
                     var resBenhNhan = await UserService.GetUserByFilterAsync(queryBenhNhan);
                     SelectedUser = resBenhNhan?.IsSuccess == true && resBenhNhan.Data != null
                         ? resBenhNhan.Data

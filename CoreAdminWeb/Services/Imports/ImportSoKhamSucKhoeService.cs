@@ -233,7 +233,7 @@ namespace CoreAdminWeb.Services.Imports
 
                 // Chạy các truy vấn batch song song
                 var userTask = BatchQueryAsync(
-                    ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_benh_nhan][_in]={string.Join(",", ids)}"),
+                    ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", ids)}"),
                     maBenhNhans, batchSize
                 );
                 var tinhTask = BatchQueryAsync(
@@ -251,7 +251,7 @@ namespace CoreAdminWeb.Services.Imports
                 var existingTinhs = tinhTask.Result;
                 var existingXas = xaTask.Result;
 
-                var existingUserMap = existingUsers.DistinctBy(c => c.ma_benh_nhan).ToDictionary(c => c.ma_benh_nhan, c => c);
+                var existingUserMap = existingUsers.DistinctBy(c => c.ma_tai_khoan).ToDictionary(c => c.ma_tai_khoan, c => c);
                 var tinhMap = existingTinhs.DistinctBy(c => c.ma).ToDictionary(c => c.ma ?? "", c => c.id);
                 var xaMap = existingXas.DistinctBy(c => $"{c.ma}|{c.tinh?.ma}").ToDictionary(c => $"{c.ma}|{c.tinh?.ma}", c => c.id);
 
@@ -292,7 +292,7 @@ namespace CoreAdminWeb.Services.Imports
 
                         updatingUsers.Add(existingUser);
                     }
-                    else if (!newUsers.Any(c => c.ma_benh_nhan == item.MaBenhNhan))
+                    else if (!newUsers.Any(c => c.ma_tai_khoan == item.MaBenhNhan))
                     {
                         newUsers.Add(new UserModel
                         {
@@ -310,7 +310,7 @@ namespace CoreAdminWeb.Services.Imports
                             noi_cap = item.NoiCap ?? "",
                             dia_chi = item.DiaChi ?? "",
                             email = item.Email ?? "",
-                            ma_benh_nhan = item.MaBenhNhan,
+                            ma_tai_khoan = item.MaBenhNhan,
                             ma_don_vi = SelectedItem.ma_hop_dong_ksk?.cong_ty?.id,
                             tinh = tinhMap.TryGetValue(item.MaTinh ?? "", out var tinhId) ? tinhId : null,
                             xa = xaMap.TryGetValue($"{item.MaXa}|{item.MaTinh}", out var xaId) ? xaId : null,
@@ -394,12 +394,12 @@ namespace CoreAdminWeb.Services.Imports
                 if (newUsers.Any())
                 {
                     existingUsers = await BatchQueryAsync(
-                        ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_benh_nhan][_in]={string.Join(",", ids)}"),
+                        ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", ids)}"),
                         maBenhNhans, batchSize
                     );
                 }
 
-                var allUsers = existingUsers.DistinctBy(c => c.ma_benh_nhan).ToDictionary(c => c.ma_benh_nhan, c => c);
+                var allUsers = existingUsers.DistinctBy(c => c.ma_tai_khoan).ToDictionary(c => c.ma_tai_khoan, c => c);
 
                 var existingRecords = await BatchQueryAsync(
                     ids => _soKhamSucKhoeService.GetAllAsync(

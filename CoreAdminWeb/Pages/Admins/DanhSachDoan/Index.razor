@@ -204,7 +204,7 @@
                                                         <td>@(item.Index + 1)</td>
                                                         <td>
                                                             <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
-                                                                     TextSelector="c => c != null ? c.ma_benh_nhan : String.Empty"
+                                                                     TextSelector="c => c != null ? c.ma_tai_khoan : String.Empty"
                                                                      FilterFunction="LoadUserDataInTable"
                                                                      GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<UserModel, Guid>(items, id, c => c.id) ?? new UserModel()"
                                                                      Datasource="UserItems"

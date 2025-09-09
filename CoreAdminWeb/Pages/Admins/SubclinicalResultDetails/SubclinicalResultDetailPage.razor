@@ -156,7 +156,7 @@
                                     </div>
                                 </div>
                                 <div class="text-sm text-gray-600 dark:text-gray-400">
-                                    <strong>Mã BN:</strong> @(CurrentUser?.ma_benh_nhan ?? "BN001")
+                                    <strong>Mã BN:</strong> @(CurrentUser?.ma_tai_khoan ?? "BN001")
                                 </div>
                                 <div class="text-sm text-gray-600 dark:text-gray-400">
                                     <strong>Họ tên:</strong> @GetUserFullName()
@@ -537,7 +537,7 @@
 
                 // Validate user matches the medical record
                 if (SoKhamSucKhoeModel != null &&
-                    string.Equals(SoKhamSucKhoeModel.ma_benh_nhan, CurrentUser.ma_benh_nhan, StringComparison.OrdinalIgnoreCase))
+                    string.Equals(SoKhamSucKhoeModel.ma_benh_nhan, CurrentUser.ma_tai_khoan, StringComparison.OrdinalIgnoreCase))
                 {
                     _isShowInputCCCD = false;
                     SetProfileImagePlaceholder();
@@ -624,7 +624,7 @@
         // Build FTP folder path based on user and medical record
         if (CurrentUser != null)
         {
-            _ftpFolder = $"{CurrentUser.ma_benh_nhan}/{ma_luot_kham}/";
+            _ftpFolder = $"{CurrentUser.ma_tai_khoan}/{ma_luot_kham}/";
         }
         else
         {
@@ -1032,7 +1032,7 @@
             // Try different FTP paths
             var pathsToTry = new[]
             {
-                $"{CurrentUser?.ma_benh_nhan}/{ma_luot_kham}/{localFileName}",
+                $"{CurrentUser?.ma_tai_khoan}/{ma_luot_kham}/{localFileName}",
                 $"{ma_luot_kham}/{localFileName}",
             };
 

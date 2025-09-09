@@ -23,8 +23,12 @@ namespace CoreAdminWeb.Model.User
         [JsonPropertyName("so_dien_thoai")]
         public string so_dien_thoai { get; set; }
 
-        [JsonPropertyName("ma_benh_nhan")]
-        public string ma_benh_nhan { get; set; }
+        [JsonPropertyName("ma_tai_khoan")]
+        public string ma_tai_khoan { get; set; }
+        [JsonPropertyName("chung_chi_hanh_nghe")]
+        public string chung_chi_hanh_nghe { get; set; }
+        [JsonPropertyName("chuc_danh")]
+        public string chuc_danh { get; set; }
         [JsonPropertyName("gioi_tinh")]
         public GioiTinh? gioi_tinh { get; set; }
         [JsonPropertyName("ngay_sinh")]

@@ -136,7 +136,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                     query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(filter)}";
                     query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(filter)}";
                     query += $"&filter[_and][0][_or][2][so_dinh_danh][_contains]={Uri.EscapeDataString(filter)}";
-                    query += $"&filter[_and][0][_or][3][ma_benh_nhan][_contains]={Uri.EscapeDataString(filter)}";
+                    query += $"&filter[_and][0][_or][3][ma_tai_khoan][_contains]={Uri.EscapeDataString(filter)}";
                 }
 
                 Console.WriteLine($"Loading filter data from API for '{filter}'");

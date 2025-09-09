@@ -296,7 +296,7 @@
 
                 // Validate user matches the medical record
                 if (SoKhamSucKhoeModel != null &&
-                    string.Equals(SoKhamSucKhoeModel.ma_benh_nhan, CurrentUser.ma_benh_nhan, StringComparison.OrdinalIgnoreCase))
+                    string.Equals(SoKhamSucKhoeModel.ma_benh_nhan, CurrentUser.ma_tai_khoan, StringComparison.OrdinalIgnoreCase))
                 {
                     _isShowInputCCCD = false;
                     SetProfileImagePlaceholder();

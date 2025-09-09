@@ -85,7 +85,7 @@ public class CaNhanController : ControllerBase
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
-                select sksk.id, sksk.ma_luot_kham, sksk.ngay_kham, u.ma_benh_nhan, u.last_name, u.first_name,
+                select sksk.id, sksk.ma_luot_kham, sksk.ngay_kham, u.ma_tai_khoan as ma_benh_nhan, u.last_name, u.first_name,
                 kl.benh_tat_ket_luan, kl.de_nghi, plsk.name as phan_loai_suc_khoe,
                 (select top 1 name from CongTy where id = hd.cong_ty) as cong_ty
                 from SoKhamSucKhoe sksk 
@@ -95,7 +95,7 @@ public class CaNhanController : ControllerBase
                 Left join kham_suc_khoe_ket_luan kl on kl.ma_luot_kham = sksk.ma_luot_kham
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
                 " + where + @"
-                GROUP BY sksk.id, sksk.ma_luot_kham, sksk.ngay_kham, u.ma_benh_nhan, u.last_name, u.first_name,
+                GROUP BY sksk.id, sksk.ma_luot_kham, sksk.ngay_kham, u.ma_tai_khoan, u.last_name, u.first_name,
                 kl.benh_tat_ket_luan, kl.de_nghi, plsk.name, hd.cong_ty
                 ORDER BY sksk.id
                 OFFSET @offset ROWS 

@@ -82,7 +82,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
 
         private async Task LoadMedicalRecordsAsync()
         {
-            if (CurrentUser?.ma_benh_nhan == null)
+            if (CurrentUser?.ma_tai_khoan == null)
             {
                 return;
             }
@@ -92,7 +92,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
                 // Build query for paginated results
                 BuildPaginationQuery(Page, PageSize, "ngay_kham");
                 BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-                BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
+                BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_tai_khoan}";
 
                 var result = await MainService.GetAllAsync(BuilderQuery);
                 if (result.IsSuccess)
@@ -128,7 +128,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
         /// </summary>
         private async Task LoadLatestExamDateAsync()
         {
-            if (CurrentUser?.ma_benh_nhan == null)
+            if (CurrentUser?.ma_tai_khoan == null)
             {
                 return;
             }
@@ -138,7 +138,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
                 // Separate query to get only the latest exam date
                 string query = $"limit=1&offset=0&sort=-ngay_kham";
                 query += $"&filter[_and][0][deleted][_eq]=false";
-                query += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
+                query += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_tai_khoan}";
                 query += $"&fields=ngay_kham,ma_luot_kham"; // Only get the date field for performance
 
                 var result = await MainService.GetAllAsync(query);
@@ -205,7 +205,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
 
         private async Task LoadKetLuanAsync()
         {
-            if (CurrentUser?.ma_benh_nhan == null)
+            if (CurrentUser?.ma_tai_khoan == null)
             {
                 return;
             }

@@ -136,7 +136,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 {
                     query += $"&filter[_and][0][_or][0][first_name][_contains]={Uri.EscapeDataString(searchText)}";
                     query += $"&filter[_and][0][_or][1][last_name][_contains]={Uri.EscapeDataString(searchText)}";
-                    query += $"&filter[_and][0][_or][2][ma_benh_nhan][_contains]={Uri.EscapeDataString(searchText)}";
+                    query += $"&filter[_and][0][_or][2][ma_tai_khoan][_contains]={Uri.EscapeDataString(searchText)}";
                     query += $"&filter[_and][0][_or][3][so_dinh_danh][_contains]={Uri.EscapeDataString(searchText)}";
                 }
 

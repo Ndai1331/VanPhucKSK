@@ -72,7 +72,7 @@
                         <strong>Họ và tên:</strong> <span>@CurrentUser?.last_name @CurrentUser?.first_name</span>
                     </div>
                     <div class="md:col-span-1">
-                        <strong>Mã BN:</strong> <span>@CurrentUser?.ma_benh_nhan</span>
+                        <strong>Mã BN:</strong> <span>@CurrentUser?.ma_tai_khoan</span>
                     </div>
                     <div class="md:col-span-1">
                         <strong>Ngày sinh:</strong> <span>@CurrentUser?.ngay_sinh?.ToString("dd/MM/yyyy")</span>
@@ -248,7 +248,7 @@
     /// </summary>
     private async Task LoadMedicalRecordsAsync(bool isReset = false)
     {
-        if (CurrentUser?.ma_benh_nhan == null) return;
+        if (CurrentUser?.ma_tai_khoan == null) return;
 
         try
         {
@@ -261,7 +261,7 @@
             // Build query for paginated results
             BuildPaginationQuery(Page, PageSize, "ngay_kham");
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
+            BuilderQuery += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_tai_khoan}";
 
             var result = await SoKhamSucKhoeService.GetAllAsync(BuilderQuery);
             if (result.IsSuccess)
@@ -309,14 +309,14 @@
     /// </summary>
     private async Task LoadLatestExamDateAsync()
     {
-        if (CurrentUser?.ma_benh_nhan == null) return;
+        if (CurrentUser?.ma_tai_khoan == null) return;
 
         try
         {
             // Separate query to get only the latest exam date
             string query = $"limit=1&offset=0&sort=-ngay_kham";
             query += $"&filter[_and][0][deleted][_eq]=false";
-            query += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_benh_nhan}";
+            query += $"&filter[_and][1][ma_benh_nhan][_eq]={CurrentUser.ma_tai_khoan}";
             query += $"&fields=ngay_kham,ma_luot_kham"; // Only get the date field for performance
 
             var result = await SoKhamSucKhoeService.GetAllAsync(query);
@@ -370,7 +370,7 @@
 
     private async Task LoadKetLuanAsync()
     {
-        if (CurrentUser?.ma_benh_nhan == null) return;
+        if (CurrentUser?.ma_tai_khoan == null) return;
 
         try
         {
