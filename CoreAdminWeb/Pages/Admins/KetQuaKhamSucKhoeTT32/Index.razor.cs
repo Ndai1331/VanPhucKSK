@@ -372,6 +372,135 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     para3 = paraSplit.Length > 2 ? paraSplit[2].Trim() : string.Empty;
                     para4 = paraSplit.Length > 3 ? paraSplit[3].Trim() : string.Empty;
                 }
+
+                if (SelectedKhamSucKhoeCongTy != null)
+                {
+                    List<string> maTaiKhoans = new List<string>();
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_co_xuong_khop))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_co_xuong_khop);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_ho_hap))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_ho_hap);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_ket_luan))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_ket_luan);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_mat))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_mat);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_ngoai_khoa))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_ngoai_khoa);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_rang_ham_mat))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_rang_ham_mat);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_san_phu_khoa))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_san_phu_khoa);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_tai_mui_hong))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_tai_mui_hong);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_tam_than))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_tam_than);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_than_kinh))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_than_kinh);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_than_tiet_nieu))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_than_tiet_nieu);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_tuan_hoan))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_tuan_hoan);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_tieu_hoa))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_tieu_hoa);
+                    }
+
+                    if (!string.IsNullOrEmpty(SelectedKhamSucKhoeCongTy.ma_bs_noi_tiet))
+                    {
+                        maTaiKhoans.Add(SelectedKhamSucKhoeCongTy.ma_bs_noi_tiet);
+                    }
+
+                    if (maTaiKhoans.Any())
+                    {
+                        var bsResult = await UserService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", maTaiKhoans)}");
+                        if (bsResult.IsSuccess && bsResult.Data != null && bsResult.Data.Any())
+                        {
+                            foreach (var bs in bsResult.Data)
+                            {
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_co_xuong_khop)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_co_xuong_khop = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_ho_hap)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_ho_hap = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_ket_luan)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_ket_luan = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_mat)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_mat = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_ngoai_khoa)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_ngoai_khoa = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_rang_ham_mat)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_rang_ham_mat = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_san_phu_khoa)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_san_phu_khoa = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_tai_mui_hong)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_tai_mui_hong = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_tam_than)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_tam_than = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_than_kinh)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_than_kinh = bs;
+                                }
+                                if (bs.ma_tai_khoan == SelectedKhamSucKhoeCongTy.ma_bs_than_tiet_nieu)
+                                {
+                                    SelectedKhamSucKhoeCongTy.bs_than_tiet_nieu = bs;
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else
             {
@@ -1386,6 +1515,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         {
             if (string.IsNullOrEmpty(signatureData))
             {
+                if (!string.IsNullOrEmpty(fallbackText))
+                {
+                    return new MarkupString(fallbackText);
+                }
+
                 return new MarkupString();
             }
 

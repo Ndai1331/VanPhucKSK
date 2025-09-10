@@ -16,20 +16,20 @@ namespace CoreAdminWeb.Services
                 + ",ma_hop_dong_ksk.id,ma_hop_dong_ksk.code,ma_hop_dong_ksk.name"
                 + ",ma_hop_dong_ksk.cong_ty.id,ma_hop_dong_ksk.cong_ty.code,ma_hop_dong_ksk.cong_ty.name"
                 + ",bs_tuan_hoan.id,bs_tuan_hoan.first_name,bs_tuan_hoan.last_name"
-                + ",bs_ho_hap.id,bs_ho_hap.first_name,bs_ho_hap.last_name"
-                + ",bs_tieu_hoa.id,bs_tieu_hoa.first_name,bs_tieu_hoa.last_name"
-                + ",bs_than_tiet_nieu.id,bs_than_tiet_nieu.first_name,bs_than_tiet_nieu.last_name"
-                + ",bs_noi_tiet.id,bs_noi_tiet.first_name,bs_noi_tiet.last_name"
-                + ",bs_co_xuong_khop.id,bs_co_xuong_khop.first_name,bs_co_xuong_khop.last_name"
-                + ",bs_than_kinh.id,bs_than_kinh.first_name,bs_than_kinh.last_name"
-                + ",bs_tam_than.id,bs_tam_than.first_name,bs_tam_than.last_name"
-                + ",bs_ngoai_khoa.id,bs_ngoai_khoa.first_name,bs_ngoai_khoa.last_name"
-                + ",bs_mat.id,bs_mat.first_name,bs_mat.last_name"
-                + ",bs_tai_mui_hong.id,bs_tai_mui_hong.first_name,bs_tai_mui_hong.last_name"
-                + ",bs_rang_ham_mat.id,bs_rang_ham_mat.first_name,bs_rang_ham_mat.last_name"
-                + ",bs_san_phu_khoa.id,bs_san_phu_khoa.first_name,bs_san_phu_khoa.last_name"
-                + ",bs_ket_luan.id,bs_ket_luan.first_name,bs_ket_luan.last_name"
-                + ",nguoi_lap_so.id,nguoi_lap_so.first_name,nguoi_lap_so.last_name";
+                + ",bs_ho_hap.id,bs_ho_hap.ma_tai_khoan,bs_ho_hap.first_name,bs_ho_hap.last_name"
+                + ",bs_tieu_hoa.id,bs_tieu_hoa.ma_tai_khoan,bs_tieu_hoa.first_name,bs_tieu_hoa.last_name"
+                + ",bs_than_tiet_nieu.id,bs_than_tiet_nieu.ma_tai_khoan,bs_than_tiet_nieu.first_name,bs_than_tiet_nieu.last_name"
+                + ",bs_noi_tiet.id,bs_noi_tiet.ma_tai_khoan,bs_noi_tiet.first_name,bs_noi_tiet.last_name"
+                + ",bs_co_xuong_khop.id,bs_co_xuong_khop.ma_tai_khoan,bs_co_xuong_khop.first_name,bs_co_xuong_khop.last_name"
+                + ",bs_than_kinh.id,bs_than_kinh.ma_tai_khoan,bs_than_kinh.first_name,bs_than_kinh.last_name"
+                + ",bs_tam_than.id,bs_tam_than.ma_tai_khoan,bs_tam_than.first_name,bs_tam_than.last_name"
+                + ",bs_ngoai_khoa.id,bs_ngoai_khoa.ma_tai_khoan,bs_ngoai_khoa.first_name,bs_ngoai_khoa.last_name"
+                + ",bs_mat.id,bs_mat.ma_tai_khoan,bs_mat.first_name,bs_mat.last_name"
+                + ",bs_tai_mui_hong.id,bs_tai_mui_hong.ma_tai_khoan,bs_tai_mui_hong.first_name,bs_tai_mui_hong.last_name"
+                + ",bs_rang_ham_mat.id,bs_rang_ham_mat.ma_tai_khoan,bs_rang_ham_mat.first_name,bs_rang_ham_mat.last_name"
+                + ",bs_san_phu_khoa.id,bs_san_phu_khoa.ma_tai_khoan,bs_san_phu_khoa.first_name,bs_san_phu_khoa.last_name"
+                + ",bs_ket_luan.id,bs_ket_luan.ma_tai_khoan,bs_ket_luan.first_name,bs_ket_luan.last_name"
+                + ",nguoi_lap_so.id,nguoi_lap_so.ma_tai_khoan,nguoi_lap_so.first_name,nguoi_lap_so.last_name";
         private readonly IHttpClientService _httpClientService;
 
         public KhamSucKhoeCongTyService(IHttpClientService httpClientService)
@@ -96,7 +96,21 @@ namespace CoreAdminWeb.Services
                 Ksk_status = model.Ksk_status,
                 ma_hop_dong_ksk = model.ma_hop_dong_ksk?.id,
                 chu_ky_lap_so = model.chu_ky_lap_so,
-                nguoi_lap_so = model.nguoi_lap_so?.id
+                nguoi_lap_so = model.nguoi_lap_so?.id,
+                ma_bs_tuan_hoan = model.ma_bs_tuan_hoan,
+                ma_bs_san_phu_khoa = model.ma_bs_san_phu_khoa,
+                ma_bs_ket_luan = model.ma_bs_ket_luan,
+                ma_bs_rang_ham_mat = model.ma_bs_rang_ham_mat,
+                ma_bs_tai_mui_hong = model.ma_bs_tai_mui_hong,
+                ma_bs_mat = model.ma_bs_mat,
+                ma_bs_ho_hap = model.ma_bs_ho_hap,
+                ma_bs_tieu_hoa = model.ma_bs_tieu_hoa,
+                ma_bs_noi_tiet = model.ma_bs_noi_tiet,
+                ma_bs_than_tiet_nieu = model.ma_bs_than_tiet_nieu,
+                ma_bs_co_xuong_khop = model.ma_bs_co_xuong_khop,
+                ma_bs_than_kinh = model.ma_bs_than_kinh,
+                ma_bs_tam_than = model.ma_bs_tam_than,
+                ma_bs_ngoai_khoa = model.ma_bs_ngoai_khoa
             };
         }
 
