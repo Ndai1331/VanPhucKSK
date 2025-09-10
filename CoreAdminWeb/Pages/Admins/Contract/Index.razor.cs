@@ -87,6 +87,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             }
         }
 
+
         private async Task LoadData(bool isReset = false)
         {
             Loading.Show();
