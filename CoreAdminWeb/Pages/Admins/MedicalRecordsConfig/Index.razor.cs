@@ -197,6 +197,132 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                     SelectedCongTy = congTyResult.Data.FirstOrDefault();
                     SelectedItem.ma_don_vi = SelectedCongTy?.code;
                 }
+
+                List<string> maTaiKhoans = new List<string>();
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_co_xuong_khop))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_co_xuong_khop);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_ho_hap))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_ho_hap);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_ket_luan))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_ket_luan);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_mat))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_mat);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_ngoai_khoa))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_ngoai_khoa);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_rang_ham_mat))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_rang_ham_mat);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_san_phu_khoa))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_san_phu_khoa);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_tai_mui_hong))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_tai_mui_hong);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_tam_than))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_tam_than);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_than_kinh))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_than_kinh);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_than_tiet_nieu))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_than_tiet_nieu);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_tuan_hoan))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_tuan_hoan);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_tieu_hoa))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_tieu_hoa);
+                }
+
+                if (!string.IsNullOrEmpty(SelectedItem.ma_bs_noi_tiet))
+                {
+                    maTaiKhoans.Add(SelectedItem.ma_bs_noi_tiet);
+                }
+
+                if (maTaiKhoans.Any())
+                {
+                    var bsResult = await UserService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", maTaiKhoans)}");
+                    if (bsResult.IsSuccess && bsResult.Data != null && bsResult.Data.Any())
+                    {
+                        foreach (var bs in bsResult.Data)
+                        {
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_co_xuong_khop)
+                            {
+                                SelectedItem.bs_co_xuong_khop = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_ho_hap)
+                            {
+                                SelectedItem.bs_ho_hap = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_ket_luan)
+                            {
+                                SelectedItem.bs_ket_luan = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_mat)
+                            {
+                                SelectedItem.bs_mat = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_ngoai_khoa)
+                            {
+                                SelectedItem.bs_ngoai_khoa = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_rang_ham_mat)
+                            {
+                                SelectedItem.bs_rang_ham_mat = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_san_phu_khoa)
+                            {
+                                SelectedItem.bs_san_phu_khoa = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_tai_mui_hong)
+                            {
+                                SelectedItem.bs_tai_mui_hong = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_tam_than)
+                            {
+                                SelectedItem.bs_tam_than = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_than_kinh)
+                            {
+                                SelectedItem.bs_than_kinh = bs;
+                            }
+                            if (bs.ma_tai_khoan == SelectedItem.ma_bs_than_tiet_nieu)
+                            {
+                                SelectedItem.bs_than_tiet_nieu = bs;
+                            }
+                        }
+                    }
+                }
             }
 
             if (readOnly)
@@ -232,6 +358,76 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             {
                 AlertService.ShowAlert("Tên công ty là bắt buộc", "danger");
                 return;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_co_xuong_khop) && SelectedItem.bs_co_xuong_khop != null)
+            {
+                SelectedItem.ma_bs_co_xuong_khop = SelectedItem.bs_co_xuong_khop.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_ho_hap) && SelectedItem.bs_ho_hap != null)
+            {
+                SelectedItem.ma_bs_ho_hap = SelectedItem.bs_ho_hap.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_ket_luan) && SelectedItem.bs_ket_luan != null)
+            {
+                SelectedItem.ma_bs_ket_luan = SelectedItem.bs_ket_luan.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_mat) && SelectedItem.bs_mat != null)
+            {
+                SelectedItem.ma_bs_mat = SelectedItem.bs_mat.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_ngoai_khoa) && SelectedItem.bs_ngoai_khoa != null)
+            {
+                SelectedItem.ma_bs_ngoai_khoa = SelectedItem.bs_ngoai_khoa.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_rang_ham_mat) && SelectedItem.bs_rang_ham_mat != null)
+            {
+                SelectedItem.ma_bs_rang_ham_mat = SelectedItem.bs_rang_ham_mat.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_san_phu_khoa) && SelectedItem.bs_san_phu_khoa != null)
+            {
+                SelectedItem.ma_bs_san_phu_khoa = SelectedItem.bs_san_phu_khoa.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_tai_mui_hong) && SelectedItem.bs_tai_mui_hong != null)
+            {
+                SelectedItem.ma_bs_tai_mui_hong = SelectedItem.bs_tai_mui_hong.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_tam_than) && SelectedItem.bs_tam_than != null)
+            {
+                SelectedItem.ma_bs_tam_than = SelectedItem.bs_tam_than.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_than_kinh) && SelectedItem.bs_than_kinh != null)
+            {
+                SelectedItem.ma_bs_than_kinh = SelectedItem.bs_than_kinh.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_than_tiet_nieu) && SelectedItem.bs_than_tiet_nieu != null)
+            {
+                SelectedItem.ma_bs_than_tiet_nieu = SelectedItem.bs_than_tiet_nieu.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_tuan_hoan) && SelectedItem.bs_tuan_hoan != null)
+            {
+                SelectedItem.ma_bs_tuan_hoan = SelectedItem.bs_tuan_hoan.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_tieu_hoa) && SelectedItem.bs_tieu_hoa != null)
+            {
+                SelectedItem.ma_bs_tieu_hoa = SelectedItem.bs_tieu_hoa.ma_tai_khoan;
+            }
+
+            if (string.IsNullOrEmpty(SelectedItem.ma_bs_noi_tiet) && SelectedItem.bs_noi_tiet != null)
+            {
+                SelectedItem.ma_bs_noi_tiet = SelectedItem.bs_noi_tiet.ma_tai_khoan;
             }
 
             if (SelectedItem.id == 0)

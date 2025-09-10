@@ -1,4 +1,3 @@
-using CoreAdminWeb.Enums;
 using CoreAdminWeb.Model.Base;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.User;
@@ -46,6 +45,21 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? chu_ky_lap_so { get; set; }
         public UserModel? nguoi_lap_so { get; set; }
         public new Status status { get; set; } = Status.published;
+
+        public string? ma_bs_tuan_hoan { get; set; }
+        public string? ma_bs_san_phu_khoa { get; set; }
+        public string? ma_bs_ket_luan { get; set; }
+        public string? ma_bs_rang_ham_mat { get; set; }
+        public string? ma_bs_tai_mui_hong { get; set; }
+        public string? ma_bs_mat { get; set; }
+        public string? ma_bs_ho_hap { get; set; }
+        public string? ma_bs_tieu_hoa { get; set; }
+        public string? ma_bs_noi_tiet { get; set; }
+        public string? ma_bs_than_tiet_nieu { get; set; }
+        public string? ma_bs_co_xuong_khop { get; set; }
+        public string? ma_bs_than_kinh { get; set; }
+        public string? ma_bs_tam_than { get; set; }
+        public string? ma_bs_ngoai_khoa { get; set; }
     }
     public class KhamSucKhoeCongTyCRUDModel
     {
@@ -91,5 +105,20 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public int? ma_hop_dong_ksk { get; set; }
         public string? chu_ky_lap_so { get; set; }
         public Guid? nguoi_lap_so { get; set; }
+
+        public string? ma_bs_tuan_hoan { get; set; }
+        public string? ma_bs_san_phu_khoa { get; set; }
+        public string? ma_bs_ket_luan { get; set; }
+        public string? ma_bs_rang_ham_mat { get; set; }
+        public string? ma_bs_tai_mui_hong { get; set; }
+        public string? ma_bs_mat { get; set; }
+        public string? ma_bs_ho_hap { get; set; }
+        public string? ma_bs_tieu_hoa { get; set; }
+        public string? ma_bs_noi_tiet { get; set; }
+        public string? ma_bs_than_tiet_nieu { get; set; }
+        public string? ma_bs_co_xuong_khop { get; set; }
+        public string? ma_bs_than_kinh { get; set; }
+        public string? ma_bs_tam_than { get; set; }
+        public string? ma_bs_ngoai_khoa { get; set; }
     }
 }
