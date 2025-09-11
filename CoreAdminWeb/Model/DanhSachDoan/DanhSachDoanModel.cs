@@ -47,6 +47,7 @@ namespace CoreAdminWeb.Model
         public string? benh_tat_ket_luan { get; set; }
         public string? de_nghi { get; set; }
         public string? phan_loai_suc_khoe { get; set; }
+        public string? ngay_ket_luan { get; set; }
 
         // Cận lâm sàng (gộp tất cả kết quả)
         public string? can_lam_sang_results { get; set; }

@@ -7,8 +7,10 @@ using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Exports;
 using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
+using CoreAdminWeb.Services.Imports;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 
@@ -21,7 +23,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         IExportExcelService<dynamic> ExportExcelService,
         IConfiguration Configuration,
         NavigationManager NavManager,
-        ExportKSKDataService ExportKSKDataService
+        ExportKSKDataService ExportKSKDataService,
+        ImportKetQuaKhamSucKhoeService importKetQuaKhamSucKhoeService
     ) : BlazorCoreBase
     {
         [Parameter] public int? Id { get; set; }
@@ -34,7 +37,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private int? _searchFromNumber = null;
         private int? _searchToNumber = null;
 
-        private string? connectionId = "";
+        private string? connectionExportId = "";
         private string? exportProcessingMessage { get; set; }
         public bool isExportDone { get; set; } = false;
         public bool isErrorPopup { get; set; } = false;
@@ -46,6 +49,15 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private List<DanhSachDoanSoKhamSucKhoeModel> selectedSoKhamSucKhoes { get; set; } = new();
         private bool isSelectAllChecked { get; set; } = false; // Track Select All state separately
         private bool IsAllRowsSelected => isSelectAllChecked;
+
+        private const long MaxExcelFileSize = 25 * 1024 * 1024; // 25MB, adjust as needed
+
+        private string? connectionImportId = "";
+        private string? importProcessingMessage { get; set; }
+        public bool isImportDone { get; set; }
+        public bool isImportError { get; set; }
+        public bool isDisabledImport { get; set; } = false;
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -55,7 +67,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         {
             if (firstRender)
             {
-                connectionId = $"{UserId}_export";
+                connectionImportId = $"{UserId}_import";
+                connectionExportId = $"{UserId}_export";
 
                 // Load the KhamSucKhoeCongTy by ID if provided
                 if (Id.HasValue)
@@ -323,6 +336,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                     "phan_loai_suc_khoe",
                     "benh_tat_ket_luan",
                     "de_nghi",
+                    "ngay_ket_luan",
                 };
                 var labels = new List<string>()
                 {
@@ -356,6 +370,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                     "Phân loại sức khỏe",
                     "Các bệnh tật",
                     "Đề nghị",
+                    "Ngày kết luận",
                 };
 
                 var result = await MainService.GetAllAsync(BuilderQuery);
@@ -394,6 +409,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                             phan_loai_suc_khoe = item.phan_loai_suc_khoe,
                             benh_tat_ket_luan = item.benh_tat_ket_luan,
                             de_nghi = item.de_nghi,
+                            ngay_ket_luan = item.ngay_ket_luan,
                         }
                     ).ToList() ?? new List<dynamic>();
 
@@ -514,19 +530,19 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             }
 
             _ = Task.Run(() => ExportKSKDataService.ExportFromExaminationWithProgressAsync(
-                connectionId ?? string.Empty,
+                connectionExportId ?? string.Empty,
                 ids,
                 CurrentSetting,
                 exportType,
                 Configuration["DrCoreApi:BaseUrl"] ?? string.Empty,
-                OnImportProcessing,
+                OnExportProcessing,
                 CancellationToken.None)
             );
         }
 
-        private async Task OnImportProcessing(ProcessingModel progress)
+        private async Task OnExportProcessing(ProcessingModel progress)
         {
-            if (!progress.ProcessId.Equals(connectionId))
+            if (!progress.ProcessId.Equals(connectionExportId))
             {
                 return;
             }
@@ -581,6 +597,102 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             }
 
             return obj?.GetType().GetProperty(propertyName) != null;
+        }
+
+
+        private async Task OnExcelFileSelected(InputFileChangeEventArgs e)
+        {
+            try
+            {
+                var file = e.File;
+                if (file == null)
+                {
+                    AlertService.ShowAlert("Vui lòng chọn file excel!", "warning");
+                    return;
+                }
+                if (
+                    file.ContentType != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    && file.ContentType != "application/vnd.ms-excel")
+                {
+                    AlertService.ShowAlert("Vui lòng chọn file Excel hợp lệ!", "warning");
+                    return;
+                }
+
+                // Additional check to ensure file.Size is not greater than MaxExcelFileSize
+                if (file.Size <= 0 || file.Size > MaxExcelFileSize)
+                {
+                    AlertService.ShowAlert("Kích thước file không hợp lệ hoặc vượt quá giới hạn cho phép!", "warning");
+                    return;
+                }
+
+                using var stream = file.OpenReadStream(file.Size);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                var fileBytes = ms.ToArray();
+
+                // Gọi hàm import excel từ service
+                _ = Task.Run(() => importKetQuaKhamSucKhoeService.ImportFromExcelWithProgressAsync(
+                    fileBytes,
+                    connectionImportId ?? string.Empty,
+                    UserId,
+                    OnImportProcessing,
+                    CancellationToken.None)
+                );
+            }
+            catch (Exception ex)
+            {
+                AlertService.ShowAlert($"Lỗi khi import file: {ex.Message}", "danger");
+                await LoadData(true);
+            }
+        }
+
+        private async Task OnImportProcessing(ProcessingModel progress)
+        {
+            if (!progress.ProcessId.Equals(connectionImportId))
+            {
+                return;
+            }
+
+            switch (progress.Status)
+            {
+                case Enums.TrangThaiXuLyNen.Processing:
+                    isDisabledImport = true;
+                    isImportError = false;
+                    isImportDone = false;
+                    importProcessingMessage = progress.Value?.ToString() ?? "";
+                    await InvokeAsync(StateHasChanged);
+                    break;
+
+                case Enums.TrangThaiXuLyNen.Completed:
+                    isDisabledImport = false;
+                    isImportDone = true;
+                    isImportError = false;
+                    importProcessingMessage = progress.Value?.ToString() ?? "";
+
+                    await LoadData();
+                    await InvokeAsync(StateHasChanged);
+                    break;
+
+                case Enums.TrangThaiXuLyNen.Error:
+                    isDisabledImport = false;
+                    var isPopup = HasProperty(progress.AdditionalParams, "IsPopup") && progress.AdditionalParams?.IsPopup ?? false;
+
+                    isImportError = true;
+                    isImportDone = isPopup;
+                    isErrorPopup = isPopup;
+                    importProcessingMessage = progress.Value?.ToString() ?? "";
+                    await InvokeAsync(StateHasChanged);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private async Task OpenFileDialog()
+        {
+            // Clear the file input before processing
+            await JsRuntime.InvokeVoidAsync("eval", "document.getElementById('excelFileInput').value = ''");
+            await JsRuntime.InvokeVoidAsync("eval", "document.getElementById('excelFileInput').click()");
         }
     }
 }

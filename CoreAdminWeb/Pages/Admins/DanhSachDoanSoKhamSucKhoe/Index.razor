@@ -115,7 +115,6 @@
                     </div>
 
                     <div class="w-full flex flex-wrap items-end justify-end xs:col-span-4 sm:col-span-4 md:col-span-2 xl:col-span-1 gap-2 col-end">
-                        @* <div> *@
                         <MudButton Class="w-full sm:w-auto md:w-auto btn flex items-center justify-center gap-1.5
                             bg-success border-success text-white hover:bg-success/[0.85]
                             hover:border-success/[0.85] text-nowrap" @onclick="@(e => LoadData(true))">
@@ -134,11 +133,37 @@
                             <i class="ri-file-excel-2-fill"></i>
                             Xuất excel
                         </MudButton>
-                        @* </div> *@
+                        <MudButton Class="w-full sm:w-auto md:w-auto btn flex items-center justify-center gap-1.5
+                            bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
+                            text-nowrap"
+                                   onclick="OpenFileDialog"
+                                   Disabled="@(isDisabledImport)">
+                            <i class="ri-file-excel-2-fill"></i>
+                            Import excel kết luận
+                        </MudButton>
+                        <InputFile id="excelFileInput" style="display:none" accept=".xlsx,.xls" OnChange="OnExcelFileSelected" />
                     </div>
                 </div>
             </div>
-
+            <div class="flex gap-2 mb-4">
+                @if (isDisabledImport || isImportError)
+                {
+                    <div class="flex items-center gap-2">
+                        <MudText Typo="Typo.h5" Class="text-base capitalize text-slate-800 dark:text-slate-100">@importProcessingMessage</MudText>
+                        @if (!isImportError)
+                        {
+                            <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-purple-700 border-solid"></div>
+                        }
+                        @if (isImportError)
+                        {
+                            <svg class="w-5 h-5 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
+                                <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 9l-6 6m0-6l6 6" />
+                            </svg>
+                        }
+                    </div>
+                }
+            </div>
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table id="example" class="display frozen-columns-table" style="width:100%">
                     <thead>

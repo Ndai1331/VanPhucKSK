@@ -45,6 +45,7 @@ namespace CoreAdminWeb.Services.Http
             {
                 _client.DefaultRequestHeaders.Clear();
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                _client.DefaultRequestHeaders.Add("Prefer", "return=minimal");
             }
         }
 

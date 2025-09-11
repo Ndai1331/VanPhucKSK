@@ -83,6 +83,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IReportService<ReportBaoCaoTheoDoiDonGiaTheoHopDongModel>, ReportBaoCaoTheoDoiDonGiaTheoHopDongService>();
             services.AddScoped(typeof(IExportExcelService<>), typeof(ExportExcelService<>));
             services.AddScoped(typeof(ImportSoKhamSucKhoeService));
+            services.AddScoped(typeof(ImportKetQuaKhamSucKhoeService));
             services.AddScoped(typeof(ExportKSKDataService));
         }
     }

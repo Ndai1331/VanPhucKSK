@@ -1,9 +1,9 @@
+using CoreAdminWeb.Model.RequestHttps;
 using Microsoft.AspNetCore.Components.Forms;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Text;
-using CoreAdminWeb.Model.RequestHttps;
 
 namespace CoreAdminWeb.Http
 {
@@ -25,6 +25,7 @@ namespace CoreAdminWeb.Http
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _client.BaseAddress = new Uri(_configuration["DrCoreApi:BaseUrl"]);
+            _client.DefaultRequestHeaders.Add("Prefer", "return=minimal");
         }
 
         /// <summary>
@@ -165,11 +166,11 @@ namespace CoreAdminWeb.Http
         private static async Task<RequestHttpResponse<T>> ReturnApiResponse<T>(HttpResponseMessage response)
         {
             var result = new RequestHttpResponse<T>();
-            
+
             try
             {
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     result.Data = JsonConvert.DeserializeObject<T>(jsonResponse);
@@ -206,4 +207,4 @@ namespace CoreAdminWeb.Http
             return result;
         }
     }
-} 
+}
