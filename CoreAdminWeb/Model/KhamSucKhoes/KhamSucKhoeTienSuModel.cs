@@ -14,8 +14,10 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
 
-    public class KhamSucKhoeTienSuCRUDModel : BaseDetailModel
+    public class KhamSucKhoeTienSuCRUDModel
     {
+        public bool? deleted { get; set; } = false;
+        public int? sort { get; set; } = 0;
         public string? ma_luot_kham { get; set; }
         public string? tien_su_gia_dinh { get; set; }
         public string? ten_benh { get; set; }
@@ -24,6 +26,6 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public int? nam_phat_hien_benh_nghe_nghiep { get; set; }
 
         public int? luot_kham { get; set; }
-        public new string status { set; get; } = Status.published.ToString();
+        public string status { set; get; } = Status.published.ToString();
     }
 }
