@@ -1029,13 +1029,42 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 var result = await MainService.UpdateAsync(new List<SoKhamSucKhoeModel>() { SelectedItem });
                 if (result == null || !result.IsSuccess)
                 {
-                    AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                    AlertService.ShowAlert("Đã có lỗi xảy ra khi kết thúc!", "danger");
                     return;
+                } else {
+                    AlertService.ShowAlert("Kết thúc thành công!", "success");
                 }
             }
             catch
             {
                 AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin!", "danger");
+            }
+            finally
+            {
+                Loading.Hide();
+            }
+        }
+
+        public async Task OnCancelEndSubmit()
+        {
+            try
+            {
+                Loading.Show();
+
+                SelectedItem.status = Model.Base.Status.draft;
+
+                var result = await MainService.UpdateAsync(new List<SoKhamSucKhoeModel>() { SelectedItem });
+                if (result == null || !result.IsSuccess)
+                {
+                    AlertService.ShowAlert("Đã có lỗi xảy ra khi hủy kết thúc!", "danger");
+                    return;
+                } else {
+                    AlertService.ShowAlert("Hủy kết thúc thành công!", "success");
+                }
+            }
+            catch
+            {
+                AlertService.ShowAlert("Đã có lỗi xảy ra khi hủy kết thúc!", "danger");
             }
             finally
             {
