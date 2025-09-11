@@ -102,10 +102,6 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
         {
             return new()
             {
-                active = model.active,
-                code = model.code,
-                description = model.description,
-                name = model.name,
                 sort = model.sort,
                 status = model.status.ToString(),
                 luot_kham = model.luot_kham?.id,

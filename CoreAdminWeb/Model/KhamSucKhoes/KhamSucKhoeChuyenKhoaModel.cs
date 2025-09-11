@@ -87,9 +87,10 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
     }
 
 
-    public class KhamSucKhoeChuyenKhoaCRUDModel : BaseDetailModel
+    public class KhamSucKhoeChuyenKhoaCRUDModel
     {
-
+        public bool? deleted { get; set; } = false;
+        public int? sort { get; set; } = 0;
         public string? ma_luot_kham { get; set; }
         public string? kq_nk_tuan_hoan { get; set; }
         public int? pl_nk_tuan_hoan { get; set; }
@@ -166,9 +167,8 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? chu_ky_rhm { get; set; }
         public string? bs_ket_luan { get; set; }
         public string? chu_ky_ket_luan { get; set; }
-        public new bool deleted { get; set; } = false;
 
         public int? luot_kham { get; set; }
-        public new string status { set; get; } = Status.published.ToString();
+        public string status { set; get; } = Status.published.ToString();
     }
 }
