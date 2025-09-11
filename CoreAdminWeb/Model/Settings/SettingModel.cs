@@ -52,6 +52,7 @@
         public string? email_prefix { get; set; }
         public string? ket_qua_ksk_mac_dinh { get; set; }
         public int? phan_loai_sk_mac_dinh { get; set; }
+        public FileModel? mau_import_danh_sach_doan { get; set; }
     }
 
     public class VisualEditorUrl

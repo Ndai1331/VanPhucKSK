@@ -15,7 +15,8 @@ namespace CoreAdminWeb.Services.Settings
             + ",phieu_ksk_nam.id,phieu_ksk_nam.filename_disk,phieu_ksk_nam.filename_download"
             + ",phieu_ksk_nu.id,phieu_ksk_nu.filename_disk,phieu_ksk_nu.filename_download"
             + ",thcn_nu.id,thcn_nu.filename_disk,thcn_nu.filename_download"
-            + ",thcn_nam.id,thcn_nam.filename_disk,thcn_nam.filename_download";
+            + ",thcn_nam.id,thcn_nam.filename_disk,thcn_nam.filename_download"
+            + ",mau_import_danh_sach_doan.id,mau_import_danh_sach_doan.filename_disk,mau_import_danh_sach_doan.filename_download";
 
         public async Task<RequestHttpResponse<SettingModel>> GetCurrentSettingAsync()
         {
