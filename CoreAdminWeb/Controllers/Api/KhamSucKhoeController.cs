@@ -27,7 +27,8 @@ public class KhamSucKhoeController : ControllerBase
     }
 
     [HttpGet("get-data-san-phu-khoa-by-ma-luot-kham")]
-    public async Task<IActionResult> GetSanPhuKhoaByMaLuotKham([FromQuery] string? maLuotKham,
+    public async Task<IActionResult> GetSanPhuKhoaByMaLuotKham([FromQuery] string? luotKham,
+                                                    [FromQuery] string? maLuotKham,
                                                     [FromQuery] int offset = 0,
                                                     [FromQuery] int limit = 10)
     {
@@ -38,13 +39,15 @@ public class KhamSucKhoeController : ControllerBase
             // Validate parameters
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
-
-            var where = " WHERE ksk.luot_kham = @maLuotKham";
+        
+            var where = luotKham != null ? " WHERE ksk.luot_kham = @luotKham" : " WHERE sksk.ma_luot_kham = @maLuotKham";
 
             // Query đếm tổng số bản ghi
             var countSql = @"
             SELECT COUNT(*) as TotalCount
-            FROM kham_suc_khoe_san_phu_khoa ksk" + where;
+            FROM kham_suc_khoe_san_phu_khoa ksk
+            LEFT JOIN SoKhamSucKhoe sksk ON sksk.id = ksk.luot_kham
+            " + where;
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
@@ -54,6 +57,7 @@ public class KhamSucKhoeController : ControllerBase
                 plsk.name as phan_loai_name,
                 plsk.code as phan_loai_code
             FROM kham_suc_khoe_san_phu_khoa ksk
+            LEFT JOIN SoKhamSucKhoe sksk ON sksk.id = ksk.luot_kham
             LEFT JOIN phan_loai_suc_khoe plsk ON 
                 (ksk.phan_loai IS NOT NULL AND plsk.id = ksk.phan_loai)
                 OR
@@ -72,6 +76,10 @@ public class KhamSucKhoeController : ControllerBase
             using (var countCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 countCommand.CommandText = countSql;
+                if (!string.IsNullOrEmpty(luotKham))
+                {
+                    countCommand.Parameters.Add(new SqlParameter("@luotKham", luotKham));
+                }
                 if (!string.IsNullOrEmpty(maLuotKham))
                 {
                     countCommand.Parameters.Add(new SqlParameter("@maLuotKham", maLuotKham));
@@ -84,6 +92,10 @@ public class KhamSucKhoeController : ControllerBase
             using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 dataCommand.CommandText = dataSql;
+                if (!string.IsNullOrEmpty(luotKham))
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@luotKham", luotKham));
+                }
                 if (!string.IsNullOrEmpty(maLuotKham))
                 {
                     dataCommand.Parameters.Add(new SqlParameter("@maLuotKham", maLuotKham));
@@ -153,9 +165,11 @@ public class KhamSucKhoeController : ControllerBase
     }
 
     [HttpGet("get-data-the-luc-by-ma-luot-kham")]
-    public async Task<IActionResult> GetTheLucByMaLuotKham([FromQuery] string? maLuotKham,
-                                                    [FromQuery] int offset = 0,
-                                                    [FromQuery] int limit = 10)
+    public async Task<IActionResult> GetTheLucByMaLuotKham(
+            [FromQuery] string? luotKham,
+            [FromQuery] string? maLuotKham,
+            [FromQuery] int offset = 0,
+            [FromQuery] int limit = 10)
     {
 
         var response = new RequestHttpResponse<List<KhamSucKhoeTheLucModel>>();
@@ -165,12 +179,14 @@ public class KhamSucKhoeController : ControllerBase
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
 
-            var where = " WHERE ksk.luot_kham = @maLuotKham";
+            var where = luotKham != null ? " WHERE ksk.luot_kham = @luotKham" : " WHERE sksk.ma_luot_kham = @maLuotKham";
 
             // Query đếm tổng số bản ghi
             var countSql = @"
             SELECT COUNT(*) as TotalCount
-            FROM kham_suc_khoe_the_luc ksk" + where;
+            FROM kham_suc_khoe_the_luc ksk
+            LEFT JOIN SoKhamSucKhoe sksk ON sksk.id = ksk.luot_kham
+            " + where;
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
@@ -180,6 +196,7 @@ public class KhamSucKhoeController : ControllerBase
                 plsk.name as phan_loai_name,
                 plsk.code as phan_loai_code
             FROM kham_suc_khoe_the_luc ksk
+            LEFT JOIN SoKhamSucKhoe sksk ON sksk.id = ksk.luot_kham            
             LEFT JOIN phan_loai_suc_khoe plsk ON 
                 (ksk.phan_loai IS NOT NULL AND plsk.id = ksk.phan_loai)
                 OR
@@ -198,6 +215,10 @@ public class KhamSucKhoeController : ControllerBase
             using (var countCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 countCommand.CommandText = countSql;
+                if (!string.IsNullOrEmpty(luotKham))
+                {
+                    countCommand.Parameters.Add(new SqlParameter("@luotKham", luotKham));
+                }
                 if (!string.IsNullOrEmpty(maLuotKham))
                 {
                     countCommand.Parameters.Add(new SqlParameter("@maLuotKham", maLuotKham));
@@ -210,6 +231,10 @@ public class KhamSucKhoeController : ControllerBase
             using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 dataCommand.CommandText = dataSql;
+                if (!string.IsNullOrEmpty(luotKham))
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@luotKham", luotKham));
+                }
                 if (!string.IsNullOrEmpty(maLuotKham))
                 {
                     dataCommand.Parameters.Add(new SqlParameter("@maLuotKham", maLuotKham));
@@ -271,9 +296,11 @@ public class KhamSucKhoeController : ControllerBase
     }
 
     [HttpGet("get-data-ket-luan-by-ma-luot-kham")]
-    public async Task<IActionResult> GetKetLuanByMaLuotKham([FromQuery] string? maLuotKham,
-                                                    [FromQuery] int offset = 0,
-                                                    [FromQuery] int limit = 10)
+    public async Task<IActionResult> GetKetLuanByMaLuotKham(
+            [FromQuery] string? luotKham,
+            [FromQuery] string? maLuotKham,
+            [FromQuery] int offset = 0,
+            [FromQuery] int limit = 10)
     {
 
         var response = new RequestHttpResponse<List<KhamSucKhoeKetLuanModel>>();
@@ -283,12 +310,14 @@ public class KhamSucKhoeController : ControllerBase
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
 
-            var where = " WHERE ksk.luot_kham = @maLuotKham";
+            var where = luotKham != null ? " WHERE ksk.luot_kham = @luotKham" : " WHERE sksk.ma_luot_kham = @maLuotKham";
 
             // Query đếm tổng số bản ghi
             var countSql = @"
             SELECT COUNT(*) as TotalCount
-            FROM kham_suc_khoe_ket_luan ksk" + where;
+            FROM kham_suc_khoe_ket_luan ksk
+            LEFT JOIN SoKhamSucKhoe sksk ON sksk.id = ksk.luot_kham
+            " + where;
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
@@ -305,6 +334,7 @@ public class KhamSucKhoeController : ControllerBase
                 file_url.filename_disk as file_url_filename_disk,
                 file_url.filename_download as file_url_filename_download
             FROM kham_suc_khoe_ket_luan ksk
+            LEFT JOIN SoKhamSucKhoe sksk ON sksk.id = ksk.luot_kham            
             LEFT JOIN phan_loai_suc_khoe plsk ON 
                 (ksk.phan_loai_suc_khoe IS NOT NULL AND plsk.id = ksk.phan_loai_suc_khoe)
                 OR
@@ -325,6 +355,10 @@ public class KhamSucKhoeController : ControllerBase
             using (var countCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 countCommand.CommandText = countSql;
+                if (!string.IsNullOrEmpty(luotKham))
+                {
+                    countCommand.Parameters.Add(new SqlParameter("@luotKham", luotKham));
+                }
                 if (!string.IsNullOrEmpty(maLuotKham))
                 {
                     countCommand.Parameters.Add(new SqlParameter("@maLuotKham", maLuotKham));
@@ -337,6 +371,10 @@ public class KhamSucKhoeController : ControllerBase
             using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 dataCommand.CommandText = dataSql;
+                if (!string.IsNullOrEmpty(luotKham))
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@luotKham", luotKham));
+                }
                 if (!string.IsNullOrEmpty(maLuotKham))
                 {
                     dataCommand.Parameters.Add(new SqlParameter("@maLuotKham", maLuotKham));
@@ -410,7 +448,8 @@ public class KhamSucKhoeController : ControllerBase
     }
 
     [HttpGet("get-data-chuyen-khoa-by-ma-luot-kham")]
-    public async Task<IActionResult> GetChuyenKhoaByMaLuotKham([FromQuery] string? maLuotKham,
+    public async Task<IActionResult> GetChuyenKhoaByMaLuotKham([FromQuery] string? luotKham,
+                                                    [FromQuery] string? maLuotKham,
                                                     [FromQuery] int offset = 0,
                                                     [FromQuery] int limit = 10)
     {
@@ -422,12 +461,14 @@ public class KhamSucKhoeController : ControllerBase
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
 
-            var where = " WHERE ksk.luot_kham = @maLuotKham";
+            var where = luotKham != null ? " WHERE ksk.luot_kham = @luotKham" : " WHERE sksk.ma_luot_kham = @maLuotKham";
 
             // Query đếm tổng số bản ghi
             var countSql = @"
             SELECT COUNT(*) as TotalCount
-            FROM kham_suc_khoe_kham_chuyen_khoa ksk" + where;
+            FROM kham_suc_khoe_kham_chuyen_khoa ksk
+            LEFT JOIN SoKhamSucKhoe sksk ON sksk.id = ksk.luot_kham
+            " + where;
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
@@ -473,6 +514,7 @@ public class KhamSucKhoeController : ControllerBase
                 plsk_rhm.name as plsk_rhm_name,
                 plsk_rhm.code as plsk_rhm_code
             FROM kham_suc_khoe_kham_chuyen_khoa ksk
+            LEFT JOIN SoKhamSucKhoe sksk ON sksk.id = ksk.luot_kham            
             LEFT JOIN phan_loai_suc_khoe plsk_nk_tuan_hoan ON 
                 (ksk.pl_nk_tuan_hoan IS NOT NULL AND plsk_nk_tuan_hoan.id = ksk.pl_nk_tuan_hoan)
                 OR
@@ -539,6 +581,10 @@ public class KhamSucKhoeController : ControllerBase
             using (var countCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 countCommand.CommandText = countSql;
+                if (!string.IsNullOrEmpty(luotKham))
+                {
+                    countCommand.Parameters.Add(new SqlParameter("@luotKham", luotKham));
+                }
                 if (!string.IsNullOrEmpty(maLuotKham))
                 {
                     countCommand.Parameters.Add(new SqlParameter("@maLuotKham", maLuotKham));
@@ -551,6 +597,10 @@ public class KhamSucKhoeController : ControllerBase
             using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 dataCommand.CommandText = dataSql;
+                if (!string.IsNullOrEmpty(luotKham))
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@luotKham", luotKham));
+                }
                 if (!string.IsNullOrEmpty(maLuotKham))
                 {
                     dataCommand.Parameters.Add(new SqlParameter("@maLuotKham", maLuotKham));
