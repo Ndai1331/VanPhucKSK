@@ -230,13 +230,13 @@ public class KhamSucKhoeController : ControllerBase
                                 id = reader["luot_kham"] as int? ?? 0,
                                 ma_luot_kham = reader["ma_luot_kham"]?.ToString()
                             },
-                            chieu_cao = Convert.ToDecimal(reader["chieu_cao"]?.ToString() ?? "0"),
-                            can_nang = Convert.ToDecimal(reader["can_nang"]?.ToString() ?? "0"),
-                            bmi = Convert.ToDecimal(reader["bmi"]?.ToString() ?? "0"),
-                            nhip_tho = Convert.ToDecimal(reader["nhip_tho"]?.ToString() ?? "0"),
+                            chieu_cao = reader["chieu_cao"] == DBNull.Value ? null : Convert.ToDecimal(reader["chieu_cao"]),
+                            can_nang  = reader["can_nang"]  == DBNull.Value ? null : Convert.ToDecimal(reader["can_nang"]),
+                            bmi       = reader["bmi"]       == DBNull.Value ? null : Convert.ToDecimal(reader["bmi"]),
+                            nhip_tho  = reader["nhip_tho"]  == DBNull.Value ? null : Convert.ToDecimal(reader["nhip_tho"]),
+                            abi       = reader["abi"]       == DBNull.Value ? null : Convert.ToDecimal(reader["abi"]),
                             mach = reader["mach"] as int?,
                             huyet_ap = reader["huyet_ap"]?.ToString(),
-                            abi = Convert.ToDecimal(reader["abi"]?.ToString() ?? "0"),
                             phan_loai = reader["phan_loai_id"] != DBNull.Value ? new PhanLoaiSucKhoeModel
                             {
                                 id = reader["phan_loai_id"] as int? ?? 0,
