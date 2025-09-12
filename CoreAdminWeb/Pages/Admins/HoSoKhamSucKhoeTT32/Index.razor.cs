@@ -6,6 +6,7 @@ using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.ICaNhanSoKhamSucKhoeService;
+using CoreAdminWeb.Services.KhamSucKhoeApi;
 using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
@@ -31,7 +32,11 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService,
         IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService,
         IPdfService PdfService,
-        IWebHostEnvironment WebHostEnvironment
+        IWebHostEnvironment WebHostEnvironment,
+        IKhamSucKhoeAPIService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaAPIService,
+        IKhamSucKhoeAPIService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanAPIService,
+        IKhamSucKhoeAPIService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucAPIService,
+        IKhamSucKhoeAPIService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaAPIService
     ) : BlazorCoreBase
     {
         #region Constants
@@ -303,10 +308,10 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 
                 var tasks = new[]
                 {
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaService, query, r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanService, query, r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaService, query, r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucService, query, r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
+                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
+                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
+                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
+                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, query, r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),

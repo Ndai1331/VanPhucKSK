@@ -8,6 +8,7 @@
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Services.PDFService
 @using CoreAdminWeb.Services.Users
+@using CoreAdminWeb.Services.KhamSucKhoeApi
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Shared.Components
 @using Microsoft.Extensions.Configuration
@@ -175,6 +176,11 @@
     [Inject] IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService { get; set; } = null!;
     [Inject] IPdfService PdfService { get; set; } = null!;
     [Inject] IConfiguration Configuration { get; set; } = null!;
+    
+    [Inject] IKhamSucKhoeAPIService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaAPIService { get; set; } = null!;
+    [Inject] IKhamSucKhoeAPIService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanAPIService { get; set; } = null!;
+    [Inject] IKhamSucKhoeAPIService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaAPIService { get; set; } = null!;
+    [Inject] IKhamSucKhoeAPIService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucAPIService { get; set; } = null!;
 
     #endregion
 
@@ -380,11 +386,11 @@
         var tasks = new[]
         {
             BaseServiceHelper.LoadSingleRecordAsync(SoKhamSucKhoeService, $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}", r => SoKhamSucKhoeModel = r),
-            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaService, query, r => KhamSucKhoeChuyenKhoaModel = r),
-            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanService, query, r => KhamSucKhoeKetLuanModel = r),
+            BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?maLuotKham={ma_luot_kham}", r => KhamSucKhoeChuyenKhoaModel = r),
+            BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?maLuotKham={ma_luot_kham}", r => KhamSucKhoeKetLuanModel = r),
+            BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?maLuotKham={ma_luot_kham}", r => KhamSucKhoeSanPhuKhoaModel = r),
+            BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?maLuotKham={ma_luot_kham}", r => KhamSucKhoeTheLucModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => KhamSucKhoeNgheNghiepModel = r),
-            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaService, query, r => KhamSucKhoeSanPhuKhoaModel = r),
-            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucService, query, r => KhamSucKhoeTheLucModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => KhamSucKhoeTienSuModel = r),
             BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, query, r => KhamSucKhoeKetQuaCanLamSangs = r)
         };
