@@ -1,5 +1,6 @@
 ﻿using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.KhamSucKhoeApi;
 
 namespace CoreAdminWeb.Helpers
 {
@@ -65,6 +66,26 @@ namespace CoreAdminWeb.Helpers
         }
 
         public static async Task LoadSingleRecordAsync<T>(IBaseDetailService<T> service, string query, Action<T?> setResult) where T : class
+        {
+            try
+            {
+                var result = await service.GetAllAsync(query);
+                if (result?.IsSuccess == true && result.Data != null)
+                {
+                    setResult(result.Data.FirstOrDefault());
+                }
+                else
+                {
+                    setResult(null);
+                }
+            }
+            catch
+            {
+                setResult(null);
+            }
+        }
+
+        public static async Task LoadSingleRecordByApiAsync<T>(IKhamSucKhoeAPIService<T> service, string query, Action<T?> setResult) where T : class
         {
             try
             {
