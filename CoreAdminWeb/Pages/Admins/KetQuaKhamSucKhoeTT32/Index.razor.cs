@@ -23,6 +23,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                IUserService UserService,
                                IBaseService<ContractModel> ContractService,
                                IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService,
+                               IKhamSucKhoeAPIService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyAPIService,
                                IFileService FileService,
                                IBaseDetailService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaService,
                                IBaseDetailService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanService,
@@ -347,7 +348,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?maLuotKham={SelectedItem.id}", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?maLuotKham={SelectedItem.id}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, $"filter[_and][][id][_eq]={SelectedItem.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
+                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeCongTyAPIService, $"KhamSucKhoeCongTy/get-list?id={SelectedItem.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),
                     BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, $"filter[_and][][luot_kham][_eq]={SelectedItem.id}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KhamSucKhoeKetQuaCanLamSangModel>()),
                 };

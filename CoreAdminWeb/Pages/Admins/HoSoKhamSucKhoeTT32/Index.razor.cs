@@ -6,6 +6,7 @@ using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.ICaNhanSoKhamSucKhoeService;
+using CoreAdminWeb.Services.KhamSucKhoeApi;
 using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
@@ -29,7 +30,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         IBaseDetailService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService,
         IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService,
         IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService,
-        IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService,
+        IKhamSucKhoeAPIService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService,
         IPdfService PdfService,
         IWebHostEnvironment WebHostEnvironment
     ) : BlazorCoreBase
@@ -308,7 +309,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaService, query, r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucService, query, r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, query, r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
+                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeCongTyService, $"KhamSucKhoeCongTy/get-list?id={SelectedItem?.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),
                     BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, query, r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KhamSucKhoeKetQuaCanLamSangModel>()),
                 };

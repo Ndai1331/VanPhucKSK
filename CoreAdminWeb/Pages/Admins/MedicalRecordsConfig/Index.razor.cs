@@ -6,6 +6,7 @@ using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.KhamSucKhoeApi;
 using CoreAdminWeb.Services.Users;
 using CoreAdminWeb.Shared.Base;
 using Microsoft.AspNetCore.Components;
@@ -13,7 +14,8 @@ using Microsoft.JSInterop;
 
 namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
 {
-    public partial class Index(IBaseService<KhamSucKhoeCongTyModel> MainService,
+    public partial class Index(IKhamSucKhoeAPIService<KhamSucKhoeCongTyModel> MainService,
+                               IBaseService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService,
                                IBaseService<CongTyModel> CongTyService,
                                IBaseService<ContractModel> HopDongService,
                                IUserService UserService) : BlazorCoreBase
@@ -54,27 +56,22 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 await Task.Delay(100);
             }
 
-            BuildPaginationQuery(Page, PageSize);
-            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
+            string builderQuery = $"KhamSucKhoeCongTy/get-list?limit={PageSize}&offset={(Page - 1) * PageSize}";
             if (!string.IsNullOrEmpty(_searchString))
             {
-                BuilderQuery += $"&filter[_and][1][_or][0][ma_hop_dong_ksk][code][_eq]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][1][ma_hop_dong_ksk][cong_ty][code][_eq]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][2][ma_hop_dong_ksk][name][_contains]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][3][ma_hop_dong_ksk][cong_ty][name][_contains]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][4][code][_eq]={_searchString}";
+                builderQuery += "&searchText={_searchString}";
             }
             if (!string.IsNullOrEmpty(_searchStatusString))
             {
-                BuilderQuery += $"&filter[_and][2][status][_eq]={_searchStatusString}";
+                builderQuery += $"&status={_searchStatusString}";
             }
-            var result = await MainService.GetAllAsync(BuilderQuery);
+            var result = await MainService.GetAllAsync(builderQuery);
             if (result.IsSuccess)
             {
                 MainModels = result.Data ?? new List<KhamSucKhoeCongTyModel>();
                 if (result.Meta != null)
                 {
-                    TotalItems = result.Meta.filter_count ?? 0;
+                    TotalItems = result.Meta.total_count ?? 0;
                     TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
 
                     if (Page > TotalPages)
@@ -158,7 +155,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
 
         private async Task OnDelete()
         {
-            var result = await MainService.DeleteAsync(SelectedItem);
+            var result = await KhamSucKhoeCongTyService.DeleteAsync(SelectedItem);
             if (result.IsSuccess && result.Data)
             {
                 await LoadData();
@@ -306,7 +303,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
 
             if (SelectedItem.id == 0)
             {
-                var result = await MainService.CreateAsync(SelectedItem);
+                var result = await KhamSucKhoeCongTyService.CreateAsync(SelectedItem);
                 if (result.IsSuccess)
                 {
                     await LoadData();
@@ -320,7 +317,7 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             }
             else
             {
-                var result = await MainService.UpdateAsync(SelectedItem);
+                var result = await KhamSucKhoeCongTyService.UpdateAsync(SelectedItem);
                 if (result.IsSuccess)
                 {
                     await LoadData();
