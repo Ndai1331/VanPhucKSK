@@ -12,9 +12,11 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public SoKhamSucKhoeModel? luot_kham { get; set; }
     }
 
-    public class KhamSucKhoeKetQuaCanLamSangCRUDModel : BaseDetailModel
+    public class KhamSucKhoeKetQuaCanLamSangCRUDModel
     {
-        public new string status { set; get; } = Status.published.ToString();
+        public bool? deleted { get; set; } = false;
+        public int? sort { get; set; } = 0;
+        public string status { set; get; } = Status.published.ToString();
         public string? ket_qua { get; set; }
         public string? type { get; set; }
 

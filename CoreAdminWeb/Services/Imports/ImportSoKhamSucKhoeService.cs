@@ -521,5 +521,13 @@ namespace CoreAdminWeb.Services.Imports
 
             return builder.ToString();
         }
+
+        public async Task<byte[]> DownloadFileTemplateAsync(SettingModel setting, string baseUrl)
+        {
+            var importTemplate = setting.mau_import_danh_sach_doan ?? throw new Exception("Không tìm thấy mẫu import");
+
+            using var http = new HttpClient();
+            return await http.GetByteArrayAsync($"{baseUrl}assets/{importTemplate.id}");
+        }
     }
 }

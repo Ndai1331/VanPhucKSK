@@ -332,6 +332,33 @@
                                         Kết thúc
                                     </MudButton>
                                 }
+                                @if (
+                                                                onReadonly
+                                                                && (
+                                                                onBSHoHap
+                                                                || onBSTuanHoan
+                                                                || onBSTieuHoa
+                                                                || onBSThanTietNieu
+                                                                || onBSNoiTiet
+                                                                || onBSCoXuongKhop
+                                                                || onBSThanKinh
+                                                                || onBSTamThan
+                                                                || onBSNgoaiKhoa
+                                                                || onBSMat
+                                                                || onBSTaiMuiHong
+                                                                || onBSRangHamMat
+                                                                || onBSSanPhuKhoa
+                                                                || onBSKetLuan
+                                                                || onBS
+                                                                )
+                                                                )
+                                {
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                               OnClick="OnCancelEndSubmit">
+                                        <i class="ri-close-line"></i>
+                                        Hủy kết thúc
+                                    </MudButton>
+                                }
                                 <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="ExportPDF">
                                     <i class="ri-file-pdf-line"></i>
                                     Export pdf

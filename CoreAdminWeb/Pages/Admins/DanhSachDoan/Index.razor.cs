@@ -16,7 +16,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
     public partial class Index(IBaseService<KhamSucKhoeCongTyModel> MainService,
                                IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService,
                                IUserService UserService,
-                               ImportSoKhamSucKhoeService importSoKhamSucKhoeService) : BlazorCoreBase
+                               ImportSoKhamSucKhoeService importSoKhamSucKhoeService,
+                               IConfiguration Configuration) : BlazorCoreBase
     {
         private List<KhamSucKhoeCongTyModel> MainModels { get; set; } = new();
         private bool openDeleteModal = false;
@@ -537,6 +538,24 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             }
 
             return obj?.GetType().GetProperty(propertyName) != null;
+        }
+
+        private async Task DownloadFileTemplate()
+        {
+            Loading.Show();
+
+            try
+            {
+                var fileBytes = await importSoKhamSucKhoeService.DownloadFileTemplateAsync(CurrentSetting, Configuration["DrCoreApi:BaseUrl"] ?? string.Empty);
+                var fileName = "DanhSachDoanImportTemplate.xlsx";
+                await JsRuntime.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+            }
+            catch (Exception ex)
+            {
+                AlertService.ShowAlert($"{ex.Message}", "danger");
+            }
+
+            Loading.Hide();
         }
     }
 }
