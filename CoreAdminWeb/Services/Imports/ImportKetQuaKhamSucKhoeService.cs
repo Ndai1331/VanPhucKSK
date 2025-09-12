@@ -143,7 +143,7 @@ namespace CoreAdminWeb.Services.Imports
 
                 // Chạy các truy vấn batch song song
                 var plSucKhoeTask = BatchQueryAsync(
-                    ids => _phanLoaiSucKhoeService.GetAllAsync($"filter[_and][][ten][_in]={string.Join(",", ids)}"),
+                    ids => _phanLoaiSucKhoeService.GetAllAsync($"filter[_and][][name][_in]={string.Join(",", ids)}"),
                     phanLoaiSKs, batchSize
                 );
                 var klTask = BatchQueryAsync(
