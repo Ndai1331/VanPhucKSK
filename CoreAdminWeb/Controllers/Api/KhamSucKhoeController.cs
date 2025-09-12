@@ -306,11 +306,11 @@ public class KhamSucKhoeController : ControllerBase
                 file_url.filename_download as file_url_filename_download
             FROM kham_suc_khoe_ket_luan ksk
             LEFT JOIN phan_loai_suc_khoe plsk ON 
-                (ksk.phan_loai IS NOT NULL AND plsk.id = ksk.phan_loai_suc_khoe)
+                (ksk.phan_loai_suc_khoe IS NOT NULL AND plsk.id = ksk.phan_loai_suc_khoe)
                 OR
-                (ksk.phan_loai IS NULL AND plsk.code = ksk.ma_phan_loai_suc_khoe)
-            LEFT JOIN custom_users bs_ket_luan ON bs_ket_luan.id = ksk.nguoi_ket_luan
-            LEFT JOIN files file_url ON file_url.id = ksk.file_url
+                (ksk.phan_loai_suc_khoe IS NULL AND plsk.code = ksk.ma_phan_loai_suc_khoe)
+            LEFT JOIN custom_users bs_ket_luan ON bs_ket_luan.id = ksk.bs_ket_luan
+            LEFT JOIN custom_files file_url ON file_url.id = ksk.file_url
             " + where + @"
             ORDER BY ksk.id
             OFFSET @offset ROWS 
