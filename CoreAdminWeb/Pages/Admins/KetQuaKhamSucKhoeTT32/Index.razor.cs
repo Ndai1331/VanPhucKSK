@@ -37,7 +37,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                IWebHostEnvironment WebHostEnvironment,
                                IKhamSucKhoeAPIService<KhamSucKhoeSanPhuKhoaModel> KhamSucKhoeSanPhuKhoaAPIService,
                                IKhamSucKhoeAPIService<KhamSucKhoeKetLuanModel> KhamSucKhoeKetLuanAPIService,
-                               IKhamSucKhoeAPIService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucAPIService
+                               IKhamSucKhoeAPIService<KhamSucKhoeTheLucModel> KhamSucKhoeTheLucAPIService,
+                               IKhamSucKhoeAPIService<KhamSucKhoeChuyenKhoaModel> KhamSucKhoeChuyenKhoaAPIService
     ) : BlazorCoreBase
     {
         #region Constants
@@ -341,7 +342,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 var tasks = new[]
                 {
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaService, query, r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
+                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?maLuotKham={SelectedItem.id}", r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?maLuotKham={SelectedItem.id}", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
                     BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?maLuotKham={SelectedItem.id}", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?maLuotKham={SelectedItem.id}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),

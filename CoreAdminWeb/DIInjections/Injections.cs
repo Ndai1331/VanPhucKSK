@@ -85,6 +85,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IKhamSucKhoeAPIService<KhamSucKhoeSanPhuKhoaModel>, KhamSucKhoeSanPhuKhoaAPIService>();
             services.AddScoped<IKhamSucKhoeAPIService<KhamSucKhoeKetLuanModel>, KhamSucKhoeKetLuanAPIService>();
             services.AddScoped<IKhamSucKhoeAPIService<KhamSucKhoeTheLucModel>, KhamSucKhoeTheLucAPIService>();
+            services.AddScoped<IKhamSucKhoeAPIService<KhamSucKhoeChuyenKhoaModel>, KhamSucKhoeChuyenKhoaAPIService>();
             services.AddScoped(typeof(IExportExcelService<>), typeof(ExportExcelService<>));
             services.AddScoped(typeof(ImportSoKhamSucKhoeService));
             services.AddScoped(typeof(ExportKSKDataService));
