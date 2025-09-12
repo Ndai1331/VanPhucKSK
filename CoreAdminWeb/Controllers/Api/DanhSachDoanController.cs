@@ -43,7 +43,7 @@ public class DanhSachDoanController : ControllerBase
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
 
-            var where = " WHERE (ct.deleted = 0 OR ct.deleted IS NULL) AND ct.id IS NOT NULL AND (sksk.deleted = 0 OR sksk.deleted IS NULL)";
+            var where = " WHERE (hd.deleted = 0) AND (ct.deleted = 0) AND ct.id IS NOT NULL AND (sksk.deleted = 0 OR sksk.deleted IS NULL)";
             if (!string.IsNullOrEmpty(maDotKham))
             {
                 where += " AND sksk.MaDotKham = " + maDotKham;
@@ -120,7 +120,10 @@ public class DanhSachDoanController : ControllerBase
                 Left join kham_suc_khoe_kham_chuyen_khoa ck on ck.luot_kham = sksk.id
                 Left join kham_suc_khoe_san_phu_khoa spk on spk.luot_kham = sksk.id
                 Left join kham_suc_khoe_ket_luan kl on kl.luot_kham = sksk.id
-                Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
+                Left join phan_loai_suc_khoe plsk on 
+                    (kl.phan_loai_suc_khoe IS NOT NULL AND kl.phan_loai_suc_khoe = plsk.id)
+                    OR
+                    (kl.phan_loai_suc_khoe IS NULL AND kl.ma_phan_loai_suc_khoe = plsk.code)
                 " + where + @"
                 ORDER BY ct.id, sksk.sort
                 OFFSET @offset ROWS 
