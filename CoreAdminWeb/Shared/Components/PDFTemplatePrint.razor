@@ -818,7 +818,7 @@
                 </tr>
                 @{
                     var totalBlock = 1;
-                    if (SelectedKhamSucKhoeKetQuaCanLamSangs != null)
+                    if (SelectedKhamSucKhoeKetQuaCanLamSangs != null && SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
                     {
                         totalBlock = SelectedKhamSucKhoeKetQuaCanLamSangs.Count(c => !string.IsNullOrEmpty(c.ten_loai_cls));
                         var startIndex = 0;
@@ -861,7 +861,15 @@
                     else
                     {
                         <tr>
-                            <td></td>
+                            <td>
+                                <span>** Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</span>
+                                <div class="row">
+                                    <span>a) Kết quả:</span><span class="dotted-ruled" style="width: 100%"></span>
+                                </div>
+                                <div class="row">
+                                    <span>b) Đánh giá:</span><span class="dotted-ruled" style="width: 100%"></span>
+                                </div>
+                            </td>
                             <td class="center v-middle">
                                 @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky, "", "ket_luan_cls", 100, 50)
                                 <br />

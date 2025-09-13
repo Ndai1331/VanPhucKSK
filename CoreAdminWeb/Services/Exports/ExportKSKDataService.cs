@@ -815,7 +815,7 @@ namespace CoreAdminWeb.Services.Exports
             if (cls == null || !cls.Any())
             {
                 sb.Append("<tr><td>");
-                sb.Append($"<span>* * Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</span>");
+                sb.Append($"<span>** Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</span>");
                 sb.Append($"<div class=\"row\"><span>a) Kết quả:</span><span class=\"dotted-ruled\" style=\"width: 100%\"></span>");
                 sb.Append($"</div><div class=\"row\"><span>b) Đánh giá:</span><span class=\"dotted-ruled\" style=\"width: 100%\"></span></div>");
                 sb.Append("</td><td class=\"center v-middle\">" + signature);

@@ -231,72 +231,72 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 return;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_co_xuong_khop) && SelectedItem.bs_co_xuong_khop != null)
+            if (SelectedItem.bs_co_xuong_khop != null)
             {
                 SelectedItem.ma_bs_co_xuong_khop = SelectedItem.bs_co_xuong_khop.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_ho_hap) && SelectedItem.bs_ho_hap != null)
+            if (SelectedItem.bs_ho_hap != null)
             {
                 SelectedItem.ma_bs_ho_hap = SelectedItem.bs_ho_hap.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_ket_luan) && SelectedItem.bs_ket_luan != null)
+            if (SelectedItem.bs_ket_luan != null)
             {
                 SelectedItem.ma_bs_ket_luan = SelectedItem.bs_ket_luan.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_mat) && SelectedItem.bs_mat != null)
+            if (SelectedItem.bs_mat != null)
             {
                 SelectedItem.ma_bs_mat = SelectedItem.bs_mat.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_ngoai_khoa) && SelectedItem.bs_ngoai_khoa != null)
+            if (SelectedItem.bs_ngoai_khoa != null)
             {
                 SelectedItem.ma_bs_ngoai_khoa = SelectedItem.bs_ngoai_khoa.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_rang_ham_mat) && SelectedItem.bs_rang_ham_mat != null)
+            if (SelectedItem.bs_rang_ham_mat != null)
             {
                 SelectedItem.ma_bs_rang_ham_mat = SelectedItem.bs_rang_ham_mat.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_san_phu_khoa) && SelectedItem.bs_san_phu_khoa != null)
+            if (SelectedItem.bs_san_phu_khoa != null)
             {
                 SelectedItem.ma_bs_san_phu_khoa = SelectedItem.bs_san_phu_khoa.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_tai_mui_hong) && SelectedItem.bs_tai_mui_hong != null)
+            if (SelectedItem.bs_tai_mui_hong != null)
             {
                 SelectedItem.ma_bs_tai_mui_hong = SelectedItem.bs_tai_mui_hong.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_tam_than) && SelectedItem.bs_tam_than != null)
+            if (SelectedItem.bs_tam_than != null)
             {
                 SelectedItem.ma_bs_tam_than = SelectedItem.bs_tam_than.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_than_kinh) && SelectedItem.bs_than_kinh != null)
+            if (SelectedItem.bs_than_kinh != null)
             {
                 SelectedItem.ma_bs_than_kinh = SelectedItem.bs_than_kinh.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_than_tiet_nieu) && SelectedItem.bs_than_tiet_nieu != null)
+            if (SelectedItem.bs_than_tiet_nieu != null)
             {
                 SelectedItem.ma_bs_than_tiet_nieu = SelectedItem.bs_than_tiet_nieu.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_tuan_hoan) && SelectedItem.bs_tuan_hoan != null)
+            if (SelectedItem.bs_tuan_hoan != null)
             {
                 SelectedItem.ma_bs_tuan_hoan = SelectedItem.bs_tuan_hoan.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_tieu_hoa) && SelectedItem.bs_tieu_hoa != null)
+            if (SelectedItem.bs_tieu_hoa != null)
             {
                 SelectedItem.ma_bs_tieu_hoa = SelectedItem.bs_tieu_hoa.ma_tai_khoan;
             }
 
-            if (string.IsNullOrEmpty(SelectedItem.ma_bs_noi_tiet) && SelectedItem.bs_noi_tiet != null)
+            if (SelectedItem.bs_noi_tiet != null)
             {
                 SelectedItem.ma_bs_noi_tiet = SelectedItem.bs_noi_tiet.ma_tai_khoan;
             }
