@@ -6,12 +6,12 @@
     @foreach (var kqcls in SelectedKhamSucKhoeKetQuaCanLamSangs)
     {
         <div>
-            <label class="block text-sm font-normal">@(kqcls.type?.GetDescriptionFromString<KetQuaCanLamSang>()):</label>
-            <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write")" rows="2" readonly="@(onReadonly || !onReadonly && !onBSKetLuan)" @onchange="e => OnKhamCLSChangedHandler(e, kqcls.type?.ToEnum<KetQuaCanLamSang>())">@kqcls.ket_qua</textarea>
+            <label class="block text-sm font-normal">@kqcls.ten_loai_cls:</label>
+            <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write")" rows="2" readonly>@kqcls.ket_qua_cls</textarea>
         </div>
     }
 </div>
-@if (!(onReadonly || !onReadonly && !onBSKetLuan))
+@* @if (!(onReadonly || !onReadonly && !onBSKetLuan))
 {
     <div class="flex justify-end">
         <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
@@ -20,11 +20,11 @@
             Đồng bộ
         </MudButton>
     </div>
-}
+} *@
 
 @code {
     [Parameter]
-    public List<KhamSucKhoeKetQuaCanLamSangModel> SelectedKhamSucKhoeKetQuaCanLamSangs { get; set; } = new List<KhamSucKhoeKetQuaCanLamSangModel>();
+    public List<KetQuaCLSChiTietModel> SelectedKhamSucKhoeKetQuaCanLamSangs { get; set; } = new List<KetQuaCLSChiTietModel>();
     [Parameter]
     public bool onReadonly { get; set; } = false;
     [Parameter]

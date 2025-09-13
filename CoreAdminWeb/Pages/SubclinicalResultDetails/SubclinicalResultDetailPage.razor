@@ -9,6 +9,7 @@
 @using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Services.FTP
+@using CoreAdminWeb.Services.KhamSucKhoeApi
 @using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Shared.Base
 @using Microsoft.Extensions.Configuration
@@ -16,7 +17,7 @@
 @inject NavigationManager Navigation
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IUserService UserService
-@inject IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService
+@inject IKhamSucKhoeAPIService<KetQuaCLSChiTietModel> KetQuaCanLamSangChiTietService
 @inject IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService
 @inject IFtpService FtpService
 @inject IConfiguration Configuration
@@ -210,7 +211,7 @@
                                 @{
                                     var itemIndex = 0;
                                 }
-                                @foreach (var item in KhamSucKhoeCanLamSanModels.Where(c => !string.IsNullOrWhiteSpace(c.ket_qua)))
+                                @foreach (var item in KhamSucKhoeCanLamSanModels.Where(c => !string.IsNullOrWhiteSpace(c.ket_qua_cls)))
                                 {
                                     var currentIndex = itemIndex++;
                                     <div class="dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800 overflow-hidden shadow-sm">
@@ -219,10 +220,10 @@
                                                 x-on:click="activeAccordion = activeAccordion === @currentIndex ? null : @currentIndex">
                                             <div class="flex-1">
                                                 <h4 class="font-bold text-green-600 dark:text-green-300 mb-1">
-                                                    <i class="ri-list-check-3 me-2 text-green-600 me-2"></i> @(item.kq_cls?.name ?? item.type?.GetDescriptionFromString<KetQuaCanLamSang>())
+                                                    <i class="ri-list-check-3 me-2 text-green-600 me-2"></i> @item.ten_cls
                                                 </h4>
                                                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                                                    Mã CKS: @(item.kq_cls?.ma_can_lam_sang ?? item.type) | Ngày kết luận: @item.kq_cls?.date_created.ToString("dd/MM/yyyy")
+                                                    Mã CKS: @item.ma_cls | Ngày kết luận: @item.ngay_kham?.ToString("dd/MM/yyyy")
                                                 </p>
                                             </div>
                                             <div class="flex items-center space-x-2  bg-green-600 text-white dark:text-green-400 font-medium px-2 py-1 rounded-md">
@@ -242,7 +243,7 @@
                                              x-transition:leave-start="max-h-[1000px]"
                                              x-transition:leave-end="max-h-0">
                                             <div class="p-4 bg-white dark:bg-gray-800">
-                                                @if (!string.IsNullOrEmpty(item.ket_qua))
+                                                @if (!string.IsNullOrEmpty(item.ket_qua_cls))
                                                 {
                                                     <div class="mb-4">
                                                         <h5 class="font-bold dark:text-green-300 mb-2 flex items-center">
@@ -250,12 +251,12 @@
                                                             Kết luận:
                                                         </h5>
                                                         <p class="bg-green-50 text-gray-700 dark:text-gray-300 p-3 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
-                                                            @item.ket_qua
+                                                            @item.ket_qua_cls
                                                         </p>
                                                     </div>
                                                 }
 
-                                                @if (!string.IsNullOrEmpty(item.kq_cls?.file_cls?.filename_download))
+                                                @if (!string.IsNullOrEmpty(item.ten_file))
                                                 {
                                                     <div class="mb-4">
                                                         <h5 class="font-medium text-green-700 dark:text-green-300 mb-2 flex items-center">
@@ -265,7 +266,7 @@
                                                         <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-green-200 dark:border-green-800">
                                                             @{
                                                                 // Get file info for display
-                                                                var fileName = Path.GetFileName(item.kq_cls.file_cls.filename_download);
+                                                                var fileName = Path.GetFileName(item.ten_file);
                                                                 var localPath = GetDirectLocalPath(fileName);
 
                                                                 // Only attempt download if not already processed
@@ -281,7 +282,7 @@
                                                                         width="100%"
                                                                         height="600px"
                                                                         class="border rounded-lg border-gray-300 dark:border-gray-600"
-                                                                        title="Kết quả @item.name"
+                                                                        title="Kết quả @item.ten_cls"
                                                                         loading="lazy">
                                                                 </iframe>
                                                             }
@@ -393,7 +394,7 @@
     #region Private Fields
 
     // Medical record data models
-    private List<KhamSucKhoeKetQuaCanLamSangModel>? KhamSucKhoeCanLamSanModels { get; set; }
+    private List<KetQuaCLSChiTietModel>? KhamSucKhoeCanLamSanModels { get; set; }
     private SoKhamSucKhoeModel? SoKhamSucKhoeModel { get; set; }
 
     private UserModel? CurrentUser { get; set; }
@@ -401,7 +402,7 @@
     private bool _isLoading = true;
     private bool _isShowInputCCCD = false;
     private string? _errorMessage;
-    private string _imagesFolder = $"/images/";
+    private readonly string _imagesFolder = $"/images/";
     private string _logoPath = $"/images/Logo/logo.png";
     private string _ftpFolder = $"";
     private string _so_dinh_danh = string.Empty;
@@ -620,10 +621,7 @@
 
     private async Task LoadKhamSucKhoeKetQuaCanLamSangDataAsync()
     {
-        string query = $"filter[_and][][luot_kham][ma_luot_kham][_eq]={ma_luot_kham}";
-        query += $"&filter[_and][][deleted][_eq]=false";
-        query += $"&sort=kq_cls";
-        var result = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(query, true);
+        var result = await KetQuaCanLamSangChiTietService.GetAllAsync($"KhamSucKhoeKQCLS/get-ket-qua-chi-tiet?maLuotKham={ma_luot_kham}");
         if (result?.IsSuccess == true && result.Data != null)
         {
             KhamSucKhoeCanLamSanModels = result.Data;
@@ -1074,7 +1072,6 @@
                 catch (TimeoutException)
                 {
                     Console.WriteLine($"Download timeout for path: {ftpPath}");
-                    continue;
                 }
                 catch (OperationCanceledException)
                 {
@@ -1084,7 +1081,6 @@
                 catch (Exception pathEx)
                 {
                     Console.WriteLine($"Failed to download from {ftpPath}: {pathEx.Message}");
-                    continue;
                 }
             }
 
@@ -1317,7 +1313,7 @@
             // Cancel existing download if any
             if (_downloadCancellationTokens.TryGetValue(fileName, out var existingToken))
             {
-                existingToken.Cancel();
+                await existingToken.CancelAsync();
                 existingToken.Dispose();
                 _downloadCancellationTokens.Remove(fileName);
             }

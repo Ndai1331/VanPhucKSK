@@ -7,6 +7,7 @@ using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.KhamSucKhoeApi;
 using CoreAdminWeb.Services.PDFService;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -25,7 +26,7 @@ namespace CoreAdminWeb.Services.Exports
         private readonly IBaseDetailService<KhamSucKhoeSanPhuKhoaModel> _khamSucKhoeSanPhuKhoaService;
         private readonly IBaseDetailService<KhamSucKhoeKetLuanModel> _khamSucKhoeKetLuanService;
         private readonly IBaseDetailService<KhamSucKhoeTheLucModel> _khamSucKhoeTheLucService;
-        private readonly IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> _khamSucKhoeKetQuaCanLamSangService;
+        private readonly IKhamSucKhoeAPIService<KetQuaCLSChiTietModel> _ketQuaCanLamSangChiTietService;
         private readonly IBaseDetailService<KhamSucKhoeNgheNghiepModel> _khamSucKhoeNgheNghiepService;
         private readonly IBaseDetailService<KhamSucKhoeTienSuModel> _khamSucKhoeTienSuService;
         private readonly IPdfService _pdfService;
@@ -39,7 +40,7 @@ namespace CoreAdminWeb.Services.Exports
                 _khamSucKhoeKetLuanService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeKetLuanModel>>();
                 _khamSucKhoeSanPhuKhoaService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeSanPhuKhoaModel>>();
                 _khamSucKhoeTheLucService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeTheLucModel>>();
-                _khamSucKhoeKetQuaCanLamSangService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel>>();
+                _ketQuaCanLamSangChiTietService = scope.ServiceProvider.GetRequiredService<IKhamSucKhoeAPIService<KetQuaCLSChiTietModel>>();
                 _khamSucKhoeNgheNghiepService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeNgheNghiepModel>>();
                 _khamSucKhoeTienSuService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeTienSuModel>>();
                 _pdfService = scope.ServiceProvider.GetRequiredService<IPdfService>();
@@ -204,7 +205,7 @@ namespace CoreAdminWeb.Services.Exports
                 List<KhamSucKhoeSanPhuKhoaModel>? khamSucKhoeSanPhuKhoas = null;
                 List<KhamSucKhoeKetLuanModel>? khamSucKhoeKetLuans = null;
                 List<KhamSucKhoeTheLucModel>? khamSucKhoeTheLucs = null;
-                List<KhamSucKhoeKetQuaCanLamSangModel>? khamSucKhoeKetQuaCanLamSangs = null;
+                List<KetQuaCLSChiTietModel>? khamSucKhoeKetQuaCanLamSangs = null;
                 List<KhamSucKhoeNgheNghiepModel>? khamSucKhoeNgheNghieps = null;
                 List<KhamSucKhoeTienSuModel>? khamSucKhoeTienSus = null;
 
@@ -224,6 +225,8 @@ namespace CoreAdminWeb.Services.Exports
                     });
                     return;
                 }
+
+                List<string> maLuotKhams = soKhamSucKhoes.Where(x => !string.IsNullOrEmpty(x.ma_luot_kham)).Select(x => x.ma_luot_kham!).ToList();
 
                 // Lấy dữ liệu liên quan song song (nếu cần)
                 if (exportType == HoSoKhamSucKhoeExportType.ConsultationSlip || exportType == HoSoKhamSucKhoeExportType.HealthCheckupBook)
@@ -245,7 +248,7 @@ namespace CoreAdminWeb.Services.Exports
                         soKSKIds, batchSize
                     );
                     var kqCLSTask = BatchQueryAsync(
-                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _ketQuaCanLamSangChiTietService.GetAllAsync($"KhamSucKhoeKQCLS/get-ket-qua?{string.Join("&", maLuotKhams.Select(c => $"maLuotKhams={c}"))}"),
                         soKSKIds, batchSize
                     );
                     var ngheNghiepTask = BatchQueryAsync(
@@ -368,7 +371,7 @@ namespace CoreAdminWeb.Services.Exports
                                                 var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.luot_kham?.id == item.id);
                                                 var cls = khamSucKhoeChuyenKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
                                                 var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
-                                                var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.id == item.id && !string.IsNullOrEmpty(x.ket_qua)).ToList();
+                                                var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua_cls)).ToList();
                                                 var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.luot_kham?.id == item.id);
 
                                                 doc.ReplaceText(new Dictionary<string, string>
@@ -405,7 +408,7 @@ namespace CoreAdminWeb.Services.Exports
 
                                                 if (kqcls != null && kqcls.Any())
                                                 {
-                                                    var items_kqcls = kqcls.Select(c => new CanLamSangItem(c.type?.GetDescriptionFromString<KetQuaCanLamSang>() ?? string.Empty, c.ket_qua ?? string.Empty)).ToList();
+                                                    var items_kqcls = kqcls.Select(c => new CanLamSangItem(c.ten_loai_cls ?? string.Empty, c.ket_qua_cls ?? string.Empty)).ToList();
                                                     StringBuilder chiDinhFormatted = new StringBuilder();
                                                     for (int i = 0; i < items_kqcls.Count; i++)
                                                     {
@@ -501,7 +504,7 @@ namespace CoreAdminWeb.Services.Exports
                             var theLuc = khamSucKhoeTheLucs?.FirstOrDefault(x => x.luot_kham?.id == item.id);
                             var cls = khamSucKhoeChuyenKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
                             var sanPhuKhoa = khamSucKhoeSanPhuKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
-                            var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.luot_kham?.id == item.id && !string.IsNullOrEmpty(x.ket_qua)).ToList();
+                            var kqcls = khamSucKhoeKetQuaCanLamSangs?.Where(x => x.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua_cls)).ToList();
                             var ketLuan = khamSucKhoeKetLuans?.FirstOrDefault(x => x.luot_kham?.id == item.id);
                             var ngheNghiep = khamSucKhoeNgheNghieps?.FirstOrDefault(x => x.luot_kham?.id == item.id);
                             var tienSu = khamSucKhoeTienSus?.FirstOrDefault(x => x.luot_kham?.id == item.id);
@@ -603,7 +606,7 @@ namespace CoreAdminWeb.Services.Exports
                             .Replace("{{KetQuaCLS_RangHamMat_ChuKy}}", RenderSignature(cls?.chu_ky_rhm ?? string.Empty, "", 100, 50) + $"<br/>{cls?.bs_rhm}")
                             .Replace("{{KetQuaCLS_RangHamMat_Benh}}", $"{cls?.benh_rhm}")
                             .Replace("{{KetQuaCLS_RangHamMat_PhanLoai}}", $"{cls?.pl_rhm?.name}")
-                            .Replace("{{KetQuaCLS_CLS}}", RenderKQCLS(kqcls?.Where(c => !string.IsNullOrEmpty(c.ket_qua)).ToList()))
+                            .Replace("{{KetQuaCLS_CLS}}", RenderKQCLS(kqcls?.Where(c => !string.IsNullOrEmpty(c.ket_qua_cls)).ToList()))
                             .Replace("{{KetQuaCLS_CLS_ChuKy}}", RenderSignature(ketLuan?.chu_ky ?? string.Empty, "", 100, 50) + $"<br/>{ketLuan?.bs_ket_luan?.full_name}")
                             .Replace("{{KetQuaCLS_CLS_PhanLoaiSucKhoe}}", $"{ketLuan?.phan_loai_suc_khoe?.name}")
                             .Replace("{{KetLuan}}", MultilineSpanHtmlBuilder(ketLuan?.benh_tat_ket_luan ?? string.Empty))
@@ -759,7 +762,7 @@ namespace CoreAdminWeb.Services.Exports
             foreach (var splitStr in value.WrapToWidthMm())
             {
                 splitCount++;
-                stringBuilder.Append($"<span class=\"dotted-ruled\" style=\"width: 100%\">{splitStr}</span>");
+                stringBuilder.Append($"<span class=\"dotted-ruled\" style=\"width: 100%\"><span style=\"white-space: pre-wrap\">{splitStr}</span></span>");
             }
 
             if (splitCount < count)
@@ -807,7 +810,7 @@ namespace CoreAdminWeb.Services.Exports
             return signatureData.GetOptimizedSignatureDisplayHtml(fallbackText, maxWidth, maxHeight);
         }
 
-        private static string RenderKQCLS(List<KhamSucKhoeKetQuaCanLamSangModel>? cls)
+        private static string RenderKQCLS(List<KetQuaCLSChiTietModel>? cls)
         {
             StringBuilder sb = new StringBuilder();
             if (cls == null || !cls.Any())
@@ -820,9 +823,9 @@ namespace CoreAdminWeb.Services.Exports
 
             foreach (var item in cls)
             {
-                sb.Append($"<span>* {item.type?.GetDescriptionFromString<KetQuaCanLamSang>()}:</span>");
+                sb.Append($"<span>* {item.ten_loai_cls}:</span>");
                 sb.Append($"<div class=\"row\"><span>a) Kết quả:</span>");
-                sb.Append(MultilineSpanHtmlBuilder(item.ket_qua ?? string.Empty));
+                sb.Append(MultilineSpanHtmlBuilder(item.ket_qua_cls ?? string.Empty));
                 sb.Append($"</div><div class=\"row\"><span>b) Đánh giá:</span><span class=\"dotted-ruled\" style=\"width: 100%\"></span></div>");
             }
             return sb.ToString();

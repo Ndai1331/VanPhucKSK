@@ -1,6 +1,6 @@
 ﻿
+using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
-using CoreAdminWeb.Model.Base;
 using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.User;
@@ -297,18 +297,18 @@ LEFT JOIN U bskl_guid ON k.ma_bs_ket_luan IS NULL AND bskl_guid.id = k.bs_ket_lu
                         var item = new KhamSucKhoeCongTyModel
                         {
                             id = reader["id"] as int? ?? 0,
-                            bs_co_xuong_khop = MapUserOrNull(reader, "bs_co_xuong_khop"),
-                            bs_ho_hap = MapUserOrNull(reader, "bs_ho_hap"),
-                            bs_ket_luan = MapUserOrNull(reader, "bs_ket_luan"),
-                            bs_mat = MapUserOrNull(reader, "bs_mat"),
-                            bs_ngoai_khoa = MapUserOrNull(reader, "bs_ngoai_khoa"),
-                            bs_rang_ham_mat = MapUserOrNull(reader, "bs_rang_ham_mat"),
-                            bs_san_phu_khoa = MapUserOrNull(reader, "bs_san_phu_khoa"),
-                            bs_tam_than = MapUserOrNull(reader, "bs_tam_than"),
-                            bs_than_kinh = MapUserOrNull(reader, "bs_than_kinh"),
-                            bs_than_tiet_nieu = MapUserOrNull(reader, "bs_than_tiet_nieu"),
-                            bs_tieu_hoa = MapUserOrNull(reader, "bs_tieu_hoa"),
-                            bs_tuan_hoan = MapUserOrNull(reader, "bs_tuan_hoan"),
+                            bs_co_xuong_khop = DataSetHelper.MapUserOrNull(reader, "bs_co_xuong_khop"),
+                            bs_ho_hap = DataSetHelper.MapUserOrNull(reader, "bs_ho_hap"),
+                            bs_ket_luan = DataSetHelper.MapUserOrNull(reader, "bs_ket_luan"),
+                            bs_mat = DataSetHelper.MapUserOrNull(reader, "bs_mat"),
+                            bs_ngoai_khoa = DataSetHelper.MapUserOrNull(reader, "bs_ngoai_khoa"),
+                            bs_rang_ham_mat = DataSetHelper.MapUserOrNull(reader, "bs_rang_ham_mat"),
+                            bs_san_phu_khoa = DataSetHelper.MapUserOrNull(reader, "bs_san_phu_khoa"),
+                            bs_tam_than = DataSetHelper.MapUserOrNull(reader, "bs_tam_than"),
+                            bs_than_kinh = DataSetHelper.MapUserOrNull(reader, "bs_than_kinh"),
+                            bs_than_tiet_nieu = DataSetHelper.MapUserOrNull(reader, "bs_than_tiet_nieu"),
+                            bs_tieu_hoa = DataSetHelper.MapUserOrNull(reader, "bs_tieu_hoa"),
+                            bs_tuan_hoan = DataSetHelper.MapUserOrNull(reader, "bs_tuan_hoan"),
                             code = reader["code"]?.ToString(),
                             deleted = reader["deleted"] as bool? ?? false,
                             description = reader["description"]?.ToString(),
@@ -328,7 +328,7 @@ LEFT JOIN U bskl_guid ON k.ma_bs_ket_luan IS NULL AND bskl_guid.id = k.bs_ket_lu
                             ma_don_vi = reader["ma_don_vi"]?.ToString(),
                             ngay_du_kien_kham = reader["ngay_du_kien_kham"] as DateTime?,
                             ngay_ket_thuc = reader["ngay_ket_thuc"] as DateTime?,
-                            nguoi_lap_so = MapUserOrNull(reader, "nguoi_lap_so"),
+                            nguoi_lap_so = DataSetHelper.MapUserOrNull(reader, "nguoi_lap_so"),
                             so_luong_du_kien = reader["so_luong_du_kien"] as int?,
                             so_luong_thuc_te = reader["so_luong_thuc_te"] as int?,
                             user_created = new UserModel
@@ -345,9 +345,9 @@ LEFT JOIN U bskl_guid ON k.ma_bs_ket_luan IS NULL AND bskl_guid.id = k.bs_ket_lu
                                 last_name = reader["user_updated_last_name"]?.ToString() ?? string.Empty
                             },
                             date_updated = reader["date_updated"] as DateTime?,
-                            status = ReadStatus(reader["status"]),
-                            bs_noi_tiet = MapUserOrNull(reader, "bs_noi_tiet"),
-                            bs_tai_mui_hong = MapUserOrNull(reader, "bs_tai_mui_hong"),
+                            status = DataSetHelper.ReadStatus(reader["status"]),
+                            bs_noi_tiet = DataSetHelper.MapUserOrNull(reader, "bs_noi_tiet"),
+                            bs_tai_mui_hong = DataSetHelper.MapUserOrNull(reader, "bs_tai_mui_hong"),
                             ma_bs_co_xuong_khop = reader["ma_bs_co_xuong_khop"]?.ToString(),
                             ma_bs_ho_hap = reader["ma_bs_ho_hap"]?.ToString(),
                             ma_bs_ket_luan = reader["ma_bs_ket_luan"]?.ToString(),
@@ -388,89 +388,6 @@ LEFT JOIN U bskl_guid ON k.ma_bs_ket_luan IS NULL AND bskl_guid.id = k.bs_ket_lu
                 await _context.Database.CloseConnectionAsync();
             }
         }
-    }
-
-    static Status ReadStatus(object val)
-    {
-        if (val == null || val == DBNull.Value)
-        {
-            return Status.published;
-        }
-
-        if (val is int i)
-        {
-            return (Status)i;
-        }
-
-        var s = val.ToString()?.Trim();
-
-        if (int.TryParse(s, out var n))
-        {
-            return (Status)n;
-        }
-
-        if (Enum.TryParse<Status>(s, true, out var byName))
-        {
-            return byName;
-        }
-
-        // map tay nếu tên enum khác string trong DB
-        switch (s?.ToLowerInvariant())
-        {
-            case "published": return Status.published;
-            case "draft": return Status.draft;
-            case "removed": return Status.removed;
-            default: return Status.published;
-        }
-    }
-
-    static bool TryGetOrdinal(IDataRecord r, string name, out int ordinal)
-    {
-        try { ordinal = r.GetOrdinal(name); return true; }
-        catch (IndexOutOfRangeException) { ordinal = -1; return false; }
-    }
-
-    static string ReadString(IDataRecord r, string name)
-    {
-        return TryGetOrdinal(r, name, out var i) && i >= 0 && !r.IsDBNull(i) ? r.GetString(i) : string.Empty;
-    }
-
-    static Guid? ReadGuidNullable(IDataRecord r, string name)
-    {
-        if (!TryGetOrdinal(r, name, out var i) || i < 0 || r.IsDBNull(i))
-        {
-            return null;
-        }
-
-        var v = r.GetValue(i);
-        if (v is Guid g)
-        {
-            return g;
-        }
-
-        if (v is string s && Guid.TryParse(s, out var g2))
-        {
-            return g2;
-        }
-
-        return null;
-    }
-
-    static UserModel? MapUserOrNull(IDataRecord r, string prefix)
-    {
-        var id = ReadGuidNullable(r, $"{prefix}_id");
-        if (id == null || id == Guid.Empty)
-        {
-            return null;
-        }
-
-        return new UserModel
-        {
-            id = id.Value,
-            ma_tai_khoan = ReadString(r, $"{prefix}_ma_tai_khoan"),   // nếu cột này không có trong SELECT thì ReadString trả ""
-            first_name = ReadString(r, $"{prefix}_first_name"),
-            last_name = ReadString(r, $"{prefix}_last_name")
-        };
     }
 
     private Meta CreateMetaDataWithPagination(int totalCount, int filterCount, int offset, int limit)

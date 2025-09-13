@@ -324,7 +324,7 @@ namespace CoreAdminWeb.Extensions
             }
 
             // Fallback to text display
-            return $"<span class='signature-text'>{signatureData}</span>";
+            return $"<span class='signature-text'>{fallbackText}</span>";
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace CoreAdminWeb.Extensions
             }
 
             // Fallback to text display
-            return $"<span class='signature-text'>{signatureData}</span>";
+            return $"<span class='signature-text'>{fallbackText}</span>";
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using CoreAdminWeb.Enums;
-using CoreAdminWeb.Extensions;
+﻿using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.KhamSucKhoes;
@@ -24,7 +23,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         IConfiguration Configuration,
         IBaseDetailService<SoKhamSucKhoeModel> SoKhamSucKhoeService,
         IBaseDetailService<KhamSucKhoeTienSuModel> KhamSucKhoeTienSuService,
-        IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService,
+        IKhamSucKhoeAPIService<KetQuaCLSChiTietModel> KetQuaCanLamSangChiTietService,
         IBaseDetailService<KhamSucKhoeNgheNghiepModel> KhamSucKhoeNgheNghiepService,
         IKhamSucKhoeAPIService<KhamSucKhoeCongTyModel> KhamSucKhoeCongTyService,
         IPdfService PdfService,
@@ -58,28 +57,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         private KhamSucKhoeTienSuModel SelectedKhamSucKhoeTienSu { get; set; } = new KhamSucKhoeTienSuModel();
         private KhamSucKhoeCongTyModel SelectedKhamSucKhoeCongTy { get; set; } = new KhamSucKhoeCongTyModel();
         private KhamSucKhoeNgheNghiepModel SelectedKhamSucKhoeNgheNghiep { get; set; } = new KhamSucKhoeNgheNghiepModel();
-        private List<KhamSucKhoeKetQuaCanLamSangModel> SelectedKhamSucKhoeKetQuaCanLamSangs { get; set; } = new List<KhamSucKhoeKetQuaCanLamSangModel>() {
-            new KhamSucKhoeKetQuaCanLamSangModel()
-            {
-                type = KetQuaCanLamSang.CDHATDCN.ToString(),
-                sort = 0
-            },
-            new KhamSucKhoeKetQuaCanLamSangModel()
-            {
-                type = KetQuaCanLamSang.XNCongThucMau.ToString(),
-                sort = 1
-            },
-            new KhamSucKhoeKetQuaCanLamSangModel()
-            {
-                type = KetQuaCanLamSang.XNNuocTieu.ToString(),
-                sort = 2
-            },
-            new KhamSucKhoeKetQuaCanLamSangModel()
-            {
-                type = KetQuaCanLamSang.XNKhac.ToString(),
-                sort = 3
-            }
-        };
+        private List<KetQuaCLSChiTietModel> SelectedKhamSucKhoeKetQuaCanLamSangs { get; set; } = new List<KetQuaCLSChiTietModel>();
         private string para1 { get; set; } = string.Empty;
         private string para2 { get; set; } = string.Empty;
         private string para3 { get; set; } = string.Empty;
@@ -304,14 +282,14 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
 
                 var tasks = new[]
                 {
-                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
-                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
-                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
-                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
-                    BaseServiceHelper.LoadSingleRecordByApiAsync(KhamSucKhoeCongTyService, $"KhamSucKhoeCongTy/get-list?id={SelectedItem?.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, $"KhamSucKhoeCongTy/get-list?id={SelectedItem?.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),
-                    BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, query, r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KhamSucKhoeKetQuaCanLamSangModel>()),
+                    BaseServiceHelper.LoadMultipleRecordAsync(KetQuaCanLamSangChiTietService, $"KhamSucKhoeKQCLS/get-ket-qua?maLuotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KetQuaCLSChiTietModel>()),
                 };
 
                 await Task.WhenAll(tasks);
@@ -319,17 +297,6 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                 if (SelectedItem != null && string.IsNullOrEmpty(SelectedItem.nguoi_lap))
                 {
                     SelectedItem.nguoi_lap = SelectedKhamSucKhoeCongTy.nguoi_lap_so?.full_name;
-                }
-
-                if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
-                {
-                    SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
-                    {
-                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.CDHATDCN.ToString(), sort = 0 },
-                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNCongThucMau.ToString(), sort = 1 },
-                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNNuocTieu.ToString(), sort = 2 },
-                        new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNKhac.ToString(), sort = 3 }
-                    };
                 }
 
                 if (!string.IsNullOrEmpty(SelectedKhamSucKhoeSanPhuKhoa.para))
@@ -372,28 +339,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             SelectedKhamSucKhoeTienSu = new KhamSucKhoeTienSuModel();
             SelectedKhamSucKhoeCongTy = new KhamSucKhoeCongTyModel();
             SelectedKhamSucKhoeNgheNghiep = new KhamSucKhoeNgheNghiepModel();
-            SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>() {
-                    new KhamSucKhoeKetQuaCanLamSangModel()
-                    {
-                        type = KetQuaCanLamSang.CDHATDCN.ToString(),
-                        sort = 0
-                    },
-                    new KhamSucKhoeKetQuaCanLamSangModel()
-                    {
-                        type = KetQuaCanLamSang.XNCongThucMau.ToString(),
-                        sort = 1
-                    },
-                    new KhamSucKhoeKetQuaCanLamSangModel()
-                    {
-                        type = KetQuaCanLamSang.XNNuocTieu.ToString(),
-                        sort = 2
-                    },
-                    new KhamSucKhoeKetQuaCanLamSangModel()
-                    {
-                        type = KetQuaCanLamSang.XNKhac.ToString(),
-                        sort = 3
-                    }
-                };
+            SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KetQuaCLSChiTietModel>();
 
             para1 = string.Empty;
             para2 = string.Empty;

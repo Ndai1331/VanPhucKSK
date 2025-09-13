@@ -6,13 +6,14 @@
 @using CoreAdminWeb.Model.User
 @using CoreAdminWeb.Services
 @using CoreAdminWeb.Services.BaseServices
+@using CoreAdminWeb.Services.KhamSucKhoeApi
 @using CoreAdminWeb.Services.Users
 @using CoreAdminWeb.Shared.Base
 @layout CoreAdminWeb.Shared.MainLayout
 @inherits BlazorCoreBase
 @inject NavigationManager Navigation
 @inject IUserService UserService
-@inject IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> KhamSucKhoeKetQuaCanLamSangService
+@inject IKhamSucKhoeAPIService<KetQuaCLSChiTietModel> KetQuaCanLamSangChiTietService
 
 <!-- Start Main Content -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
@@ -79,10 +80,10 @@
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.luot_kham?.ma_luot_kham</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.kq_cls?.ma_can_lam_sang</MudTd>
-                            <MudTd DataLabel="Ngày khám">@(context.kq_cls?.ten_can_lam_san ?? context.type?.GetDescriptionFromString<KetQuaCanLamSang>())</MudTd>
-                            <MudTd DataLabel="Ngày khám">@context.luot_kham?.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.ma_luot_kham</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.ma_cls</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.ten_cls</MudTd>
+                            <MudTd DataLabel="Ngày khám">@context.ngay_kham?.ToString("dd/MM/yyyy")</MudTd>
                             <MudTd DataLabel="Thao tác">
                                 <button class="px-3 py-1.5 text-xs font-medium text-white bg-purple rounded shadow hover:bg-purple transition-colors" @onclick="@(() => ViewRecordDetail(context))">
                                     <i class="ri-eye-line me-1"></i>Xem chi tiết
@@ -114,7 +115,7 @@
     private UserModel? CurrentUser { get; set; }
 
     // Subclinical result Records
-    private List<KhamSucKhoeKetQuaCanLamSangModel> MainModels = new List<KhamSucKhoeKetQuaCanLamSangModel>();
+    private List<KetQuaCLSChiTietModel> MainModels = new List<KetQuaCLSChiTietModel>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -202,15 +203,10 @@
                 await Task.Delay(100);
             }
 
-            // Build query for paginated results
-            BuildPaginationQuery(Page, PageSize, "luot_kham.ngay_kham");
-            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            BuilderQuery += $"&filter[_and][1][kq_cls][_nnull]=true";
-
-            var result = await KhamSucKhoeKetQuaCanLamSangService.GetAllAsync(BuilderQuery);
+            var result = await KetQuaCanLamSangChiTietService.GetAllAsync($"KhamSucKhoeKQCLS/get-ket-qua-chi-tiet");
             if (result.IsSuccess)
             {
-                MainModels = result.Data ?? new List<KhamSucKhoeKetQuaCanLamSangModel>();
+                MainModels = result.Data ?? new List<KetQuaCLSChiTietModel>();
 
                 if (result.Meta != null)
                 {
@@ -225,13 +221,13 @@
             }
             else
             {
-                MainModels = new List<KhamSucKhoeKetQuaCanLamSangModel>();
+                MainModels = new List<KetQuaCLSChiTietModel>();
             }
         }
         catch (Exception ex)
         {
             AlertService.ShowAlert("Lỗi khi tải hồ sơ khám bệnh: " + ex.Message, "danger");
-            MainModels = new List<KhamSucKhoeKetQuaCanLamSangModel>();
+            MainModels = new List<KetQuaCLSChiTietModel>();
         }
     }
 
@@ -268,8 +264,8 @@
         };
     }
 
-    private void ViewRecordDetail(KhamSucKhoeKetQuaCanLamSangModel record)
+    private void ViewRecordDetail(KetQuaCLSChiTietModel record)
     {
-        Navigation.NavigateTo($"/subclinical-result-detail-page/{record.luot_kham?.ma_luot_kham}");
+        Navigation.NavigateTo($"/subclinical-result-detail-page/{record.ma_luot_kham}");
     }
 }
