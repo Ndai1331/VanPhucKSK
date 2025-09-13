@@ -255,9 +255,3 @@ th {
     border-top: 1px solid #000;
     margin: 4px 0;
 }
-
-tr,
-td,
-th {
-    page-break-inside: avoid;
-}
