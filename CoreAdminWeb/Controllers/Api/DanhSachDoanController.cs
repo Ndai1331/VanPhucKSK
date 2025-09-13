@@ -82,48 +82,92 @@ public class DanhSachDoanController : ControllerBase
 
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
-                select sksk.id, sksk.sort, sksk.ma_luot_kham, ct.code, u.id as user_id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,  
-                ts.ten_benh, ts.tien_su_gia_dinh,
-                tl.chieu_cao, tl.can_nang, tl.bmi, tl.mach, tl.huyet_ap,
-                ck.kq_nk_tuan_hoan, ck.kq_nk_ho_hap, ck.kq_nk_tieu_hoa, ck.kq_nk_than_tiet_nieu, ck.kq_nk_noi_tiet,
-                ck.kq_nk_co_xuong_khop, ck.kq_nk_than_kinh, ck.kq_nk_tam_than, ck.kq_ngoai_khoa,
-                spk.ket_qua, ck.benh_mat, ck.benh_tai_mui_hong, ck.benh_rhm, ck.kq_da_lieu,
-                kl.benh_tat_ket_luan, kl.de_nghi, plsk.name as phan_loai_suc_khoe,
-                -- Gộp tất cả kết quả cận lâm sàng thành một cột, phân cách bằng dấu |
-                (SELECT STRING_AGG(
-                    CASE 
-                        WHEN (kqcls.ten_can_lam_san IS NOT NULL AND kqcls.ket_luan_can_lam_sang IS NOT NULL) OR cls.ket_qua IS NOT NULL
-                        THEN CONCAT(
-                            ISNULL(
-                                kqcls.ten_can_lam_san,
-                                CASE WHEN cls.[type] = 'CDHATDCN' THEN N'CDHA - TDCN'
-                                WHEN cls.[type] = 'XNCongThucMau' THEN N'XN Công thức máu'
-                                WHEN cls.[type] = 'XNNuocTieu' THEN N'XN nước tiểu'
-                                ELSE N'XN khác'
-                                END
-                            ),
-                            ': ',
-                            ISNULL(kqcls.ket_luan_can_lam_sang, cls.ket_qua)) 
-                        ELSE NULL
-                    END,
-                    ' | ' )
-                    FROM kham_suc_khoe_ket_qua_can_lam_sang cls
-                    LEFT JOIN ket_qua_can_lam_san kqcls ON kqcls.id = cls.kq_cls
-                    WHERE cls.luot_kham = sksk.id
-                ) AS can_lam_sang_results
-                from SoKhamSucKhoe sksk 
-                Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
-                Left join contract hd on hd.id = ct.ma_hop_dong_ksk
-                Left join custom_users u on u.id = sksk.benh_nhan 
-                Left join kham_suc_khoe_tien_su ts on ts.luot_kham = sksk.id
-                Left join kham_suc_khoe_the_luc tl on tl.luot_kham = sksk.id
-                Left join kham_suc_khoe_kham_chuyen_khoa ck on ck.luot_kham = sksk.id
-                Left join kham_suc_khoe_san_phu_khoa spk on spk.luot_kham = sksk.id
-                Left join kham_suc_khoe_ket_luan kl on kl.luot_kham = sksk.id
-                Left join phan_loai_suc_khoe plsk on 
-                    (kl.phan_loai_suc_khoe IS NOT NULL AND kl.phan_loai_suc_khoe = plsk.id)
-                    OR
-                    (kl.phan_loai_suc_khoe IS NULL AND kl.ma_phan_loai_suc_khoe = plsk.code)
+                WITH kq_src AS (
+                    SELECT
+                        luot_kham_code = NULLIF(LTRIM(RTRIM(CAST(kq.ma_luot_kham AS NVARCHAR(200)))), N''),
+                        grp_class = CASE
+                            WHEN kq.ma_cls = 'XN210' THEN 'A'
+                            WHEN kq.ma_cls <> 'XN210' AND kq.ten_loai_cls = N'Huyết học' THEN 'B'
+                            WHEN kq.ma_cls <> 'XN210' AND kq.ten_loai_cls = N'CDHA'       THEN 'C'
+                            WHEN kq.ma_cls <> 'XN210' AND kq.ten_loai_cls IS NOT NULL
+                                 AND kq.ten_loai_cls <> N'CDHA' AND kq.ten_loai_cls <> N'Huyết học' THEN 'D'
+                            ELSE NULL
+                        END,
+                        grp_show = CASE
+                            WHEN kq.ma_cls = 'XN210' THEN N'XN Nước tiểu'
+                            WHEN kq.ten_loai_cls IN (N'Huyết học', N'CDHA') THEN kq.ten_loai_cls
+                            ELSE N'XN Khác'
+                        END,
+                        ten_cls   = kq.ten_cls,
+                        expr_item = CASE 
+                            WHEN kq.ma_cls = 'XN210' THEN kq.chi_so + N': ' + kq.ket_qua_chi_so
+                            ELSE kq.ket_qua_chi_so
+                        END
+                    FROM dbo.ket_qua_can_lam_sang_chi_tiet kq
+                ),
+                cls_items AS (
+                    SELECT
+                        s.luot_kham_code, s.grp_class, s.grp_show, s.ten_cls,
+                        cls_items = CAST(STRING_AGG(CAST(s.expr_item AS NVARCHAR(MAX)), NCHAR(13) + NCHAR(10) + N'       ') AS NVARCHAR(MAX))
+                    FROM kq_src s
+                    WHERE s.luot_kham_code IS NOT NULL
+                      AND s.expr_item IS NOT NULL AND LTRIM(RTRIM(s.expr_item)) <> N''
+                    GROUP BY s.luot_kham_code, s.grp_class, s.grp_show, s.ten_cls
+                ),
+                cls_block AS (
+                    SELECT
+                        i.luot_kham_code, i.grp_class, i.grp_show, i.ten_cls,
+                        cls_block = CAST(N'   ' + i.ten_cls + NCHAR(13) + NCHAR(10) + N'       ' + i.cls_items AS NVARCHAR(MAX))
+                    FROM cls_items i
+                ),
+                grp_agg AS (
+                    SELECT
+                        b.luot_kham_code, b.grp_class, b.grp_show,
+                        grp_block = CAST(STRING_AGG(CAST(b.cls_block AS NVARCHAR(MAX)), NCHAR(13) + NCHAR(10)) AS NVARCHAR(MAX))
+                    FROM cls_block b
+                    GROUP BY b.luot_kham_code, b.grp_class, b.grp_show
+                ),
+                final_agg AS (
+                    SELECT
+                        g.luot_kham_code,
+                        ket_qua_cls = CAST(
+                            STRING_AGG(
+                                CAST(g.grp_show + NCHAR(13) + NCHAR(10) + g.grp_block AS NVARCHAR(MAX)),
+                                NCHAR(13) + NCHAR(10)
+                            )
+                            WITHIN GROUP (ORDER BY 
+                                CASE g.grp_class WHEN 'A' THEN 1 WHEN 'B' THEN 2 WHEN 'C' THEN 3 WHEN 'D' THEN 4 ELSE 5 END,
+                                g.grp_show
+                            ) AS NVARCHAR(MAX)
+                        )
+                    FROM grp_agg g
+                    GROUP BY g.luot_kham_code
+                )
+                SELECT
+                    sksk.id, sksk.sort, sksk.ma_luot_kham, ct.code,
+                    u.id AS user_id, u.last_name, u.first_name, u.ngay_sinh, u.gioi_tinh,
+                    ts.ten_benh, ts.tien_su_gia_dinh,
+                    tl.chieu_cao, tl.can_nang, tl.bmi, tl.mach, tl.huyet_ap,
+                    ck.kq_nk_tuan_hoan, ck.kq_nk_ho_hap, ck.kq_nk_tieu_hoa, ck.kq_nk_than_tiet_nieu, ck.kq_nk_noi_tiet,
+                    ck.kq_nk_co_xuong_khop, ck.kq_nk_than_kinh, ck.kq_nk_tam_than, ck.kq_ngoai_khoa,
+                    spk.ket_qua, ck.benh_mat, ck.benh_tai_mui_hong, ck.benh_rhm, ck.kq_da_lieu,
+                    kl.benh_tat_ket_luan, kl.de_nghi,
+                    plsk.name AS phan_loai_suc_khoe,
+                    fa.ket_qua_cls AS can_lam_sang_results
+                FROM SoKhamSucKhoe sksk 
+                LEFT JOIN kham_suc_khoe_cong_ty ct    ON ct.id = sksk.MaDotKham
+                LEFT JOIN contract hd                  ON hd.id = ct.ma_hop_dong_ksk
+                LEFT JOIN custom_users u               ON u.id = sksk.benh_nhan 
+                LEFT JOIN kham_suc_khoe_tien_su ts     ON ts.luot_kham = sksk.id
+                LEFT JOIN kham_suc_khoe_the_luc tl     ON tl.luot_kham = sksk.id
+                LEFT JOIN kham_suc_khoe_kham_chuyen_khoa ck ON ck.luot_kham = sksk.id
+                LEFT JOIN kham_suc_khoe_san_phu_khoa spk    ON spk.luot_kham = sksk.id
+                LEFT JOIN kham_suc_khoe_ket_luan kl         ON kl.luot_kham = sksk.id
+                LEFT JOIN phan_loai_suc_khoe plsk
+                    ON (kl.phan_loai_suc_khoe IS NOT NULL AND TRY_CONVERT(INT, kl.phan_loai_suc_khoe) = plsk.id)
+                    OR (kl.phan_loai_suc_khoe IS NULL AND kl.ma_phan_loai_suc_khoe = plsk.code)
+                LEFT JOIN final_agg fa
+                    ON fa.luot_kham_code = NULLIF(LTRIM(RTRIM(CAST(sksk.ma_luot_kham AS NVARCHAR(200)))), N'')
                 " + where + @"
                 ORDER BY ct.id, sksk.sort
                 OFFSET @offset ROWS 

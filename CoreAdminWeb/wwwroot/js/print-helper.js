@@ -719,6 +719,15 @@ window.getMedicalFormHtml = function() {
 			.fixed-width {
 				 width: 150px;
 			}
+			@media print {
+    table, tr, td, th {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+    overflow: visible !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+  }
+}
         `;
         const htmlContent = `
             <!DOCTYPE html>

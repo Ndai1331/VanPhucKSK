@@ -157,7 +157,7 @@
                                     </div>
                                 </div>
                                 <div class="text-sm text-gray-600 dark:text-gray-400">
-                                    <strong>Mã BN:</strong> @(CurrentUser?.ma_tai_khoan ?? "BN001")
+                                    <strong>Mã BN:</strong> @CurrentUser?.ma_tai_khoan
                                 </div>
                                 <div class="text-sm text-gray-600 dark:text-gray-400">
                                     <strong>Họ tên:</strong> @GetUserFullName()
@@ -267,6 +267,7 @@
                                                         <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-green-200 dark:border-green-800">
                                                             @{
                                                                 // Get file info for display
+                                                                _clsImagesFolder = Path.Combine(CurrentUser?.ma_tai_khoan ?? SoKhamSucKhoeModel?.ma_benh_nhan ?? string.Empty, SoKhamSucKhoeModel?.ma_luot_kham ?? ma_luot_kham);
                                                                 var fileName = Path.GetFileName(item.ten_file);
                                                                 var localPath = GetDirectLocalPath(fileName);
 
@@ -416,7 +417,7 @@
     private readonly Dictionary<string, bool> _fileNotFound = new(); // cache files that don't exist to avoid retry
     private readonly Dictionary<string, int> _downloadRetryCount = new(); // track retry attempts per file
     private readonly Dictionary<string, bool> _fileNotFoundLogged = new(); // track logged not found messages to avoid spam
-    private string _clsImagesFolder => $"/images/cls/{ma_luot_kham}/"; // Local folder for CLS files
+    private string _clsImagesFolder { get; set; } = ""; // Local folder for CLS files
     private bool _isDisposed = false;
     private const int MAX_DOWNLOAD_RETRIES = 2; // Maximum retry attempts per file
     private const int DOWNLOAD_TIMEOUT_SECONDS = 30; // Download timeout

@@ -131,14 +131,7 @@
                             <th>Tai - Mũi - Họng</th>
                             <th>Răng - Hàm - Mặt</th>
                             <th>Da liễu</th>
-                            @* <th>X-quang ngực thẳng</th>
-                            <th>X-quang CSC thẳng - nghiêng</th>
-                            <th>Siêu âm bụng</th>
-                            <th>Siêu âm tuyến giáp</th>
-                            <th>Siêu âm Doppler tim</th>
-                            <th>Siêu âm tuyến vú</th>
-                            <th>Huyết học</th> *@
-                            <th>Cận lâm sàn</th>
+                            <th style="min-width: 350px;">Cận lâm sàn</th>
                             <th>Phân loại sức khỏe</th>
                             <th>Các bệnh tật</th>
                             <th>Đề nghị</th>
@@ -174,23 +167,7 @@
                                 <td>@item.Data.benh_tai_mui_hong</td>
                                 <td>@item.Data.benh_rhm</td>
                                 <td>@item.Data.kq_da_lieu</td>
-                                <td>
-                                    @if (!string.IsNullOrEmpty(item.Data.can_lam_sang_results))
-                                    {
-                                        var results = item.Data.can_lam_sang_results.Split('|');
-                                        if (results.Length > 1)
-                                        {
-                                            @foreach (var result in results.Where(c => !string.IsNullOrEmpty(c.Trim())))
-                                            {
-                                                <div>- @result.Trim()</div>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <div>@item.Data.can_lam_sang_results</div>
-                                        }
-                                    }
-                                </td>
+                                <td><div class="whitespace-pre-wrap">@item.Data.can_lam_sang_results</div></td>
                                 <td>@item.Data.phan_loai_suc_khoe</td>
                                 <td class="wrap-long-content">@item.Data.benh_tat_ket_luan?.Trim()</td>
                                 <td class="wrap-long-content">@item.Data.de_nghi?.Trim()</td>
