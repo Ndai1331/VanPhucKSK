@@ -48,7 +48,7 @@ AND (ct.deleted IS NULL OR ct.deleted = 0)";
 
             if (id.HasValue)
             {
-                where += " AND ksk.id = @id";
+                where += " AND k.id = @id";
             }
 
             if (!string.IsNullOrEmpty(searchText))
