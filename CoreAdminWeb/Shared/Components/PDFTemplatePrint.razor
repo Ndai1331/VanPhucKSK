@@ -851,7 +851,7 @@
                                     <td class="center v-middle" rowspan="@totalBlock">
                                         @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 1mm\"></div>", "ket_luan_cls", 100, 50)
                                         <br />
-                                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)
+                                        @CoreHelpers.GetSafeString($"{SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chuc_danh} {SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name}")
                                     </td>
                                 }
                             </tr>
@@ -873,7 +873,7 @@
                             <td class="center v-middle">
                                 @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 1mm\"></div>", "ket_luan_cls", 100, 50)
                                 <br />
-                                @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)
+                                @CoreHelpers.GetSafeString($"{SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chuc_danh} {SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name}")
                             </td>
                         </tr>
                     }
@@ -929,7 +929,7 @@
                             <span class="italic">(Ký, ghi rõ họ tên và đóng dấu)</span>
                             <br />
                             @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 20mm\"></div>", "ket_luan", 100, 50)
-                            <span class="bold">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)</span>
+                            <span class="bold">@CoreHelpers.GetSafeString($"{SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chuc_danh} {SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name}")</span>
                         </div>
                     </td>
                 </tr>

@@ -32,12 +32,17 @@ public class KhamSucKhoeController : ControllerBase
                                                                [FromQuery] string? maLuotKham,
                                                                [FromQuery] List<string>? luotKhams,
                                                                [FromQuery] int offset = 0,
-                                                               [FromQuery] int limit = 10)
+                                                               [FromQuery] int limit = 10,
+                                                               [FromQuery] string isSign = "false")
     {
 
         var response = new RequestHttpResponse<List<KhamSucKhoeSanPhuKhoaModel>>();
         try
         {
+            if (!bool.TryParse(isSign, out var isSignBool))
+            {
+                isSignBool = false;
+            }
             // Validate parameters
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
@@ -93,7 +98,34 @@ public class KhamSucKhoeController : ControllerBase
             // Query lấy dữ liệu với phân trang
             var dataSql = @"
             SELECT 
-                ksk.*,
+                ksk.[id]
+                ,ksk.[status]
+                ,ksk.[sort]
+                ,ksk.[user_created]
+                ,ksk.[date_created]
+                ,ksk.[user_updated]
+                ,ksk.[date_updated]
+                ,ksk.[ma_luot_kham]
+                ,ksk.[tien_su_san_phu_khoa]
+                ,ksk.[tuoi_bat_dau_kinh]
+                ,ksk.[tinh_chat_kinh]
+                ,ksk.[chu_ky_kinh]
+                ,ksk.[luong_kinh]
+                ,ksk.[dau_bung_kinh]
+                ,ksk.[da_lap_gia_dinh]
+                ,ksk.[para]
+                ,ksk.[so_lan_mo_san_phu_khoa]
+                ,ksk.[mo_san_phu_khoa_ghi_ro]
+                ,ksk.[ap_dung_bptt]
+                ,ksk.[bptt_ghi_ro]
+                ,ksk.[ket_qua]
+                ,ksk.[nguoi_ket_luan]
+" + (isSignBool ? "bs_ket_luan.chu_ky_bac_si as chu_ky, " : "") + @"
+                ,ksk.[deleted]
+                ,ksk.[luot_kham]
+                ,ksk.[phan_loai]
+                ,ksk.[ma_phan_loai]
+                ,ksk.[ma_nguoi_ket_luan],
                 plsk.id as phan_loai_id,
                 plsk.name as phan_loai_name,
                 plsk.code as phan_loai_code
@@ -103,6 +135,7 @@ public class KhamSucKhoeController : ControllerBase
                 (ksk.phan_loai IS NOT NULL AND plsk.id = ksk.phan_loai)
                 OR
                 (ksk.phan_loai IS NULL AND plsk.code = ksk.ma_phan_loai)
+            LEFT JOIN custom_users bs_ket_luan ON bs_ket_luan.ma_tai_khoan = ksk.ma_nguoi_ket_luan
             " + where + @"
             ORDER BY ksk.id
             OFFSET @offset ROWS 
@@ -455,6 +488,7 @@ public class KhamSucKhoeController : ControllerBase
                 bs_ket_luan.ma_tai_khoan as bs_ket_luan_ma_tai_khoan,
                 bs_ket_luan.first_name as bs_ket_luan_first_name,
                 bs_ket_luan.last_name as bs_ket_luan_last_name,
+                bs_ket_luan.chuc_danh as bs_ket_luan_chuc_danh,
 " + (isSignBool ? "bs_ket_luan.chu_ky_bac_si as bs_ket_luan_chu_ky_bac_si, " : "") + @"
                 file_url.id as file_url_id,
                 file_url.filename_disk as file_url_filename_disk,
@@ -544,7 +578,8 @@ public class KhamSucKhoeController : ControllerBase
                                 ma_tai_khoan = DataSetHelper.ReadString(reader, "bs_ket_luan_ma_tai_khoan"),
                                 first_name = DataSetHelper.ReadString(reader, "bs_ket_luan_first_name"),
                                 last_name = DataSetHelper.ReadString(reader, "bs_ket_luan_last_name"),
-                                chu_ky_bac_si = DataSetHelper.ReadString(reader, "bs_ket_luan_chu_ky_bac_si")
+                                chu_ky_bac_si = DataSetHelper.ReadString(reader, "bs_ket_luan_chu_ky_bac_si"),
+                                chuc_danh = DataSetHelper.ReadString(reader, "bs_ket_luan_chuc_danh")
                             } : null,
                             isAbnormal = DataSetHelper.ReadBool(reader, "isAbnormal", false)
                         };

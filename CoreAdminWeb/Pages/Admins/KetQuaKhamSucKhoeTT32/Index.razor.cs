@@ -513,7 +513,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap = null;
                 }
                 if (onBSTuanHoan)
@@ -524,7 +524,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan = null;
                 }
                 if (onBSTieuHoa)
@@ -535,7 +535,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa = null;
                 }
                 if (onBSThanTietNieu)
@@ -546,7 +546,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu = null;
                 }
                 if (onBSNoiTiet)
@@ -557,7 +557,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet = null;
                 }
                 if (onBSCoXuongKhop)
@@ -568,7 +568,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop = null;
                 }
                 if (onBSThanKinh)
@@ -579,7 +579,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh = null;
                 }
                 if (onBSTamThan)
@@ -590,7 +590,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_tam_than = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_tam_than = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than = null;
                 }
                 if (onBSNgoaiKhoa)
@@ -607,7 +607,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa = null;
                 }
                 if (onBSMat)
@@ -618,7 +618,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.benh_mat = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_mat = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_mat = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat = null;
                 }
                 if (onBSTaiMuiHong)
@@ -629,7 +629,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_tmh = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_tmh = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh = null;
                 }
                 if (onBSRangHamMat)
@@ -648,7 +648,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeChuyenKhoa.benh_rhm = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_rhm = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeChuyenKhoa.bs_rhm = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm = null;
                 }
                 if (onBSSanPhuKhoa)
@@ -662,7 +662,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         }
                     }
 
-                    SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeSanPhuKhoa.chu_ky = null;
                 }
 
@@ -757,7 +757,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan = CurrentSetting.ket_qua_ksk_mac_dinh;
                     }
 
-                    SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = CurrentUser?.full_name;
+                    SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                     SelectedKhamSucKhoeKetLuan.chu_ky = null;
                     SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
                 }
