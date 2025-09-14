@@ -767,6 +767,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     SelectedKhamSucKhoeKetLuan.chu_ky = null;
                     SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
                 }
+
                 if (SelectedKhamSucKhoeKetLuan.id > 0)
                 {
                     var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
