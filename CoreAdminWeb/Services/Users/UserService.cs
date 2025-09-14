@@ -34,7 +34,6 @@ namespace CoreAdminWeb.Services.Users
 
     public class UserService : IUserService
     {
-
         private readonly ILocalStorageService _localStorage;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
         private readonly IHttpClientService _httpClientService;
