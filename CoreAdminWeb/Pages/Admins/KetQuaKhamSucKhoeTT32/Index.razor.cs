@@ -302,7 +302,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 var tasks = new[]
                 {
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?luotKham={SelectedItem.id}&isSign=false", r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem.id}&isSign=true", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
@@ -799,14 +799,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 //    }
                 //}
 
-                if (onBSKetLuan)
-                {
-                    SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
-                }
-
                 AlertService.ShowAlert("Lưu thông tin khám sức khỏe thành công!", "success");
-
-                await LoadDetailData(SelectedItem.id);
             }
             catch
             {
