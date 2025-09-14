@@ -109,6 +109,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private List<UserModel> Users { get; set; } = new();
         private string currentFilterPhanLoaiSucKhoe { get; set; } = string.Empty;
 
+        private int renderKey { get; set; } = 0;
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -804,6 +806,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 //}
 
                 AlertService.ShowAlert("Lưu thông tin khám sức khỏe thành công!", "success");
+                renderKey++;
+                if (renderKey == int.MaxValue)
+                {
+                    renderKey = 0;
+                }
             }
             catch
             {
@@ -949,13 +956,17 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
         }
 
-        private async Task ReloadKhamSucKhoeChuyenKhoa()
+        private async Task ReloadKhamSucKhoeData()
         {
-            await BaseServiceHelper.LoadSingleRecordAsync(
-                KhamSucKhoeChuyenKhoaAPIService,
-                $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?maLuotKham={SelectedItem.ma_luot_kham}&isSign=true",
-                r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()
-            );
+            var tasks = new[]
+            {
+                BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?luotKham={SelectedItem.id}&isSign=true", r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
+                BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem.id}&isSign=true", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
+                BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
+                BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
+                BaseServiceHelper.LoadMultipleRecordAsync(KetQuaCanLamSangChiTietService, $"KhamSucKhoeKQCLS/get-ket-qua?maLuotKham={SelectedItem.ma_luot_kham}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KetQuaCLSChiTietModel>()),
+            };
+            await Task.WhenAll(tasks);
             _shownAlerts.Clear();
             StateHasChanged();
         }
@@ -984,7 +995,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 // Hiển thị thông báo đang xử lý
                 ShowUniqueAlert("Đang xử lý ảnh chữ ký và tạo PDF, vui lòng đợi...", "info");
-                await ReloadKhamSucKhoeChuyenKhoa();
+                await ReloadKhamSucKhoeData();
 
                 await Task.Delay(50);
 

@@ -45,15 +45,11 @@
     </div>
     <div>
         <label class="block text-sm font-normal">Người kết luận:</label>
-        <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
-                 TextSelector="c => c != null ? c.full_name : String.Empty"
-                 FilterFunction="LoadBacSiDataHandler"
-                 GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<UserModel, Guid>(items, id, c => c.id) ?? new UserModel()"
-                 Datasource="Users"
-                 Value="@(Select2Helper.GetCurrentSelectionGeneric<UserModel>(SelectedKhamSucKhoeKetLuan.bs_ket_luan, 0, SelectedUsers))"
-                 OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<UserModel>(e, v => SelectedKhamSucKhoeKetLuan.bs_ket_luan = v, 0, SelectedUsers))"
-                 Multiselect="false"
-                 class="select2-disabled" />
+        <input type="text"
+               class="form-input"
+               placeholder="Người kết luận"
+               value="@($"{SelectedKhamSucKhoeKetLuan.bs_ket_luan?.chuc_danh} {SelectedKhamSucKhoeKetLuan.bs_ket_luan?.full_name}")"
+               readonly />
     </div>
 </div>
 
