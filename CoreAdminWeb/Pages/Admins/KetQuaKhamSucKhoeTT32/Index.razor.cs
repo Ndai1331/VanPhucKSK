@@ -765,6 +765,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     SelectedKhamSucKhoeKetLuan.chu_ky = null;
                     SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
                 }
+                
+                // Luôn cập nhật nguoi_ket_luan nếu bs_ket_luan đã được chọn
+                if (SelectedKhamSucKhoeKetLuan.bs_ket_luan != null)
+                {
+                    SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = $"{SelectedKhamSucKhoeKetLuan.bs_ket_luan.chuc_danh} {SelectedKhamSucKhoeKetLuan.bs_ket_luan.full_name}";
+                }
                 if (SelectedKhamSucKhoeKetLuan.id > 0)
                 {
                     var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
@@ -803,6 +809,9 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 //    }
                 //}
 
+                // Reload dữ liệu kết luận từ database để đảm bảo UI hiển thị đúng
+                await ReloadKhamSucKhoeKetLuan();
+                
                 AlertService.ShowAlert("Lưu thông tin khám sức khỏe thành công!", "success");
             }
             catch
@@ -957,6 +966,16 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()
             );
             _shownAlerts.Clear();
+            StateHasChanged();
+        }
+
+        private async Task ReloadKhamSucKhoeKetLuan()
+        {
+            await BaseServiceHelper.LoadSingleRecordAsync(
+                KhamSucKhoeKetLuanAPIService,
+                $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem.id}&isSign=true",
+                r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()
+            );
             StateHasChanged();
         }
 

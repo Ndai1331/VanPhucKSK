@@ -53,7 +53,7 @@
                  Value="@(Select2Helper.GetCurrentSelectionGeneric<UserModel>(SelectedKhamSucKhoeKetLuan.bs_ket_luan, 0, SelectedUsers))"
                  OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<UserModel>(e, v => SelectedKhamSucKhoeKetLuan.bs_ket_luan = v, 0, SelectedUsers))"
                  Multiselect="false"
-                 class="select2-disabled" />
+                 class="@(onReadonly || !onReadonly && !onBSKetLuan ? "select2-disabled" : "select2-read-write")" />
     </div>
 </div>
 
