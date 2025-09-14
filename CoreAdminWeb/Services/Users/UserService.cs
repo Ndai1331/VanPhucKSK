@@ -34,6 +34,9 @@ namespace CoreAdminWeb.Services.Users
 
     public class UserService : IUserService
     {
+        private readonly string Fields = "id,first_name,last_name,email,so_dien_thoai,ma_tai_khoan,chung_chi_hanh_nghe,"
+            + "chuc_danh,gioi_tinh,ngay_sinh,so_dinh_danh,ngay_cap,noi_cap,dia_chi,avatar,language,status,"
+            + "role,token,policies,ma_don_vi,tinh,xa";
         private readonly ILocalStorageService _localStorage;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
         private readonly IHttpClientService _httpClientService;
@@ -196,7 +199,7 @@ namespace CoreAdminWeb.Services.Users
             {
                 string filter = $"filter[_or][0][so_dinh_danh][_eq]={cccd}" +
                 $"&filter[_or][1][so_dien_thoai][_eq]={cccd}";
-                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?{filter}");
+                var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?{filter}&fields={Fields}");
                 if (result.IsSuccess)
                 {
                     response.Data = result.Data?.Data?.FirstOrDefault();
@@ -218,6 +221,7 @@ namespace CoreAdminWeb.Services.Users
             var response = new RequestHttpResponse<UserModel>();
             try
             {
+                strFilter += (!string.IsNullOrEmpty(strFilter) ? "&" : "") + $"fields={Fields}";
                 var result = await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>($"users?{strFilter}");
                 if (result.IsSuccess)
                 {
@@ -442,6 +446,7 @@ namespace CoreAdminWeb.Services.Users
         {
             try
             {
+                query += (!string.IsNullOrEmpty(query) ? "&" : "") + $"fields={Fields}";
                 string url = $"users?{query}";
                 var response = isPublic
                     ? await PublicRequestClient.GetAPIAsync<RequestHttpResponse<List<UserModel>>>(url)
