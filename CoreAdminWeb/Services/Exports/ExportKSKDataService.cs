@@ -783,6 +783,10 @@ namespace CoreAdminWeb.Services.Exports
             {
                 var splitStr = value
                         .Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                if (splitStr.Length == 1)
+                {
+                    splitStr = value.SplitStringByTwoChars();
+                }
                 foreach (var c in splitStr)
                 {
                     stringBuilder.Append($"<td width=\"30\" height=\"30\" class=\"center v-middle\">{c}</td>");

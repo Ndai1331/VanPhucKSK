@@ -129,5 +129,30 @@ namespace CoreAdminWeb.Extensions
 
             return res;
         }
+
+        /// <summary>
+        /// Splits the specified string into substrings, each containing up to two characters.
+        /// </summary>
+        /// <remarks>This method processes the input string sequentially, grouping characters into
+        /// substrings of up to two characters each. The last substring may contain fewer than two characters if the
+        /// total length of the input string is odd.</remarks>
+        /// <param name="input">The input string to be split. If the string is empty or null, an empty array is returned.</param>
+        /// <returns>An array of strings, where each element contains up to two characters from the input string, in order.
+        /// Returns an empty array if <paramref name="input"/> is null or empty.</returns>
+        public static string[] SplitStringByTwoChars(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return Array.Empty<string>();
+            }
+
+            var result = new List<string>();
+            for (int i = 0; i < input.Length; i += 2)
+            {
+                int length = Math.Min(2, input.Length - i);
+                result.Add(input.Substring(i, length));
+            }
+            return result.ToArray();
+        }
     }
 }

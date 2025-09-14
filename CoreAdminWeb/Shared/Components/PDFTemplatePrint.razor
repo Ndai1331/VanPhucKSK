@@ -418,10 +418,24 @@
                             <tr>
                                 @{
                                     var paras = SelectedKhamSucKhoeSanPhuKhoa?.para?
-                                        .Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
-                                    if (paras == null || paras.Length < 4)
+                                    .Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                                    if (paras.Length == 1)
                                     {
-                                        paras = new string[] { "", "", "", "" }; // Default to "00" if not set
+                                        paras = SelectedKhamSucKhoeSanPhuKhoa?.para?.SplitStringByTwoChars();
+                                    }
+                                    if (paras == null)
+                                    {
+                                        paras = new[] { "", "", "", "" };
+                                    }
+
+                                    if (paras.Length < 4)
+                                    {
+                                        var tempList = paras.ToList();
+                                        for (int i = tempList.Count - 1; i < 4; i++)
+                                        {
+                                            tempList.Add("");
+                                        }
+                                        paras = tempList.ToArray();
                                     }
                                 }
                                 @foreach (var c in paras)
