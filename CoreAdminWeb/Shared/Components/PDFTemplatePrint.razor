@@ -4,7 +4,6 @@
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.KhamSucKhoes
 
-<!-- Printable Medical Form Content -->
 <div class=" relative overflow-x-auto p-5 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder" id="medical-form-content">
     <section class="page overflow-x-auto">
         <div class="header">
@@ -850,7 +849,7 @@
                                 @if (startIndex == 0)
                                 {
                                     <td class="center v-middle" rowspan="@totalBlock">
-                                        @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky ?? SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "", "ket_luan_cls", 100, 50)
+                                        @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 1mm\"></div>", "ket_luan_cls", 100, 50)
                                         <br />
                                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)
                                     </td>
@@ -872,7 +871,7 @@
                                 </div>
                             </td>
                             <td class="center v-middle">
-                                @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky ?? SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "", "ket_luan_cls", 100, 50)
+                                @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 1mm\"></div>", "ket_luan_cls", 100, 50)
                                 <br />
                                 @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)
                             </td>
@@ -911,7 +910,7 @@
                 <tr>
                     <td></td>
                     <td>
-                        <div class="signature-box">
+                        <div class="signature-box text-center">
                             <div class="row">
                                 <span class="dotted-ruled"
                                       style="width: 20mm"></span>
@@ -929,7 +928,7 @@
                             <br />
                             <span class="italic">(Ký, ghi rõ họ tên và đóng dấu)</span>
                             <br />
-                            @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky ?? SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 20mm\"></div>", "ket_luan", 100, 50)
+                            @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 20mm\"></div>", "ket_luan", 100, 50)
                             <span class="bold">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)</span>
                         </div>
                     </td>

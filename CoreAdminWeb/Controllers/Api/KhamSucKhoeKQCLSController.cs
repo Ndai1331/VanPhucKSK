@@ -62,11 +62,6 @@ public class KhamSucKhoeKQCLSController : ControllerBase
         WHEN kq.ten_loai_cls IN (N'Huyết học', N'CDHA') THEN kq.ten_loai_cls
         ELSE N'XN Khác'
       END,
-      grp_key = CASE
-        WHEN kq.ma_cls = 'XN210' THEN N'XN Nước tiểu'
-        WHEN kq.ten_loai_cls IN (N'Huyết học', N'CDHA') THEN kq.ten_loai_cls
-        ELSE N'XN Khác|' + kq.ten_loai_cls
-      END,
       expr_item = CASE
                     WHEN kq.ma_cls = 'XN210'
                       THEN kq.chi_so + N': ' + kq.ket_qua_chi_so
@@ -94,7 +89,6 @@ per_cls AS (
   SELECT
       s.ma_benh_nhan,
       s.ma_luot_kham,
-      s.grp_key,
       s.grp_show,
       s.grp_class,
       s.ten_cls,
@@ -103,13 +97,12 @@ per_cls AS (
         STRING_AGG(CAST(s.expr_item AS nvarchar(max)), CHAR(10))
   FROM src AS s
   GROUP BY
-      s.ma_benh_nhan, s.ma_luot_kham, s.grp_key, s.grp_show, s.grp_class, s.ten_cls
+      s.ma_benh_nhan, s.ma_luot_kham, s.grp_show, s.grp_class, s.ten_cls
 ),
 agg_other AS (
   SELECT
       s.ma_benh_nhan,
       s.ma_luot_kham,
-      s.grp_key,
       s.grp_show,
       COALESCE(
         STRING_AGG(CASE WHEN s.grp_class = 'A' THEN s.expr_bt END, N'; '),
@@ -120,36 +113,53 @@ agg_other AS (
         STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.file_nm END, N'| ')
       ) AS ten_file
   FROM src AS s
-  GROUP BY s.ma_benh_nhan, s.ma_luot_kham, s.grp_key, s.grp_show
+  GROUP BY s.ma_benh_nhan, s.ma_luot_kham, s.grp_show
 ),
 grouped AS (
   SELECT
       pc.ma_benh_nhan,
       pc.ma_luot_kham,
-      pc.grp_key,
       pc.grp_show AS ten_loai_cls,
       STRING_AGG(pc.block_text, CHAR(10) + CHAR(10))
         WITHIN GROUP (ORDER BY pc.ten_cls) AS ket_qua_cls
   FROM per_cls pc
-  GROUP BY pc.ma_benh_nhan, pc.ma_luot_kham, pc.grp_key, pc.grp_show
+  GROUP BY pc.ma_benh_nhan, pc.ma_luot_kham, pc.grp_show
+),
+grp_dim AS (
+  SELECT 1 AS ord, N'CDHA'           AS ten_loai_cls UNION ALL
+  SELECT 2       , N'Huyết học'                   UNION ALL
+  SELECT 3       , N'XN Nước tiểu'                UNION ALL
+  SELECT 4       , N'XN Khác'
+),
+lk AS (
+  SELECT DISTINCT ma_benh_nhan, ma_luot_kham FROM src
 )
 SELECT
-    g.ma_benh_nhan,
-    g.ma_luot_kham,
-    g.ten_loai_cls,
+    lk.ma_benh_nhan,
+    lk.ma_luot_kham,
+    gd.ten_loai_cls,
     g.ket_qua_cls,
     a.bat_thuong,
     a.ten_file
-FROM grouped g
-JOIN agg_other a
-  ON a.ma_benh_nhan = g.ma_benh_nhan
- AND a.ma_luot_kham = g.ma_luot_kham
- AND a.grp_key      = g.grp_key
- AND a.grp_show     = g.ten_loai_cls
+FROM (
+    SELECT ISNULL(lk.ma_benh_nhan, NULL) ma_benh_nhan, ISNULL(lk.ma_luot_kham, @maLuotKham) ma_luot_kham FROM lk
+    UNION ALL
+    SELECT NULL, @maLuotKham
+) lk
+CROSS JOIN grp_dim gd
+LEFT JOIN grouped  g
+  ON g.ma_benh_nhan = lk.ma_benh_nhan
+ AND g.ma_luot_kham = lk.ma_luot_kham
+ AND g.ten_loai_cls = gd.ten_loai_cls
+LEFT JOIN agg_other a
+  ON a.ma_benh_nhan = lk.ma_benh_nhan
+ AND a.ma_luot_kham = lk.ma_luot_kham
+ AND a.grp_show     = gd.ten_loai_cls
+WHERE NOT (lk.ma_benh_nhan IS NULL AND EXISTS (SELECT 1 FROM src))
 ORDER BY
-    g.ma_benh_nhan,
-    g.ma_luot_kham,
-    g.ten_loai_cls";
+    lk.ma_benh_nhan,
+    lk.ma_luot_kham,
+    gd.ord";
 
             var results = new List<KetQuaCLSChiTietModel>();
 
@@ -249,11 +259,6 @@ ORDER BY
         WHEN kq.ten_loai_cls IN (N'Huyết học', N'CDHA') THEN kq.ten_loai_cls
         ELSE N'XN Khác'
       END,
-      grp_key = CASE
-        WHEN kq.ma_cls = 'XN210' THEN N'XN Nước tiểu'
-        WHEN kq.ten_loai_cls IN (N'Huyết học', N'CDHA') THEN kq.ten_loai_cls
-        ELSE N'XN Khác|' + kq.ten_loai_cls
-      END,
       expr_item = CASE 
         WHEN kq.ma_cls = 'XN210' 
              THEN kq.chi_so + N': ' + kq.ket_qua_chi_so
@@ -266,18 +271,13 @@ ORDER BY
       sk.ngay_kham
   FROM dbo.ket_qua_can_lam_sang_chi_tiet AS kq
   LEFT JOIN SoKhamSucKhoe sk ON sk.ma_luot_kham = kq.ma_luot_kham
-  WHERE
-    (
+  WHERE (
         kq.ma_cls = 'XN210'
-        OR (
-            kq.ma_cls <> 'XN210'
-            AND (
-                kq.ten_loai_cls = N'Huyết học'
-                OR kq.ten_loai_cls = N'CDHA'
-                OR (kq.ten_loai_cls IS NOT NULL AND kq.ten_loai_cls <> N'CDHA' AND kq.ten_loai_cls <> N'Huyết học')
-            )
-        )
-    )" + whereClause + @"
+     OR (kq.ma_cls <> 'XN210' AND (
+            kq.ten_loai_cls = N'Huyết học'
+         OR kq.ten_loai_cls = N'CDHA'
+         OR (kq.ten_loai_cls IS NOT NULL AND kq.ten_loai_cls <> N'CDHA' AND kq.ten_loai_cls <> N'Huyết học')
+     )))" + whereClause + @"
 ),
 grouped AS (
   SELECT
@@ -288,39 +288,68 @@ grouped AS (
     s.grp_show AS ten_loai_cls,
     (
         CASE WHEN MIN(CASE WHEN s.grp_class = 'A' THEN 1 ELSE 0 END) = 1
-        THEN s.grp_show
-        ELSE s.ten_cls
-        END
+             THEN s.grp_show ELSE s.ten_cls END
     ) + N':' + CHAR(13) + CHAR(10)
-    + STRING_AGG(CAST(s.expr_item AS nvarchar(max)), CHAR(13) + CHAR(10)) AS ket_qua_cls,
-      COALESCE(
-        STRING_AGG(CASE WHEN s.grp_class = 'A' THEN s.expr_bt END, N'; '),
-        STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.expr_bt END, N'| ')
-      ) AS bat_thuong,
-      COALESCE(
-        MAX(CASE WHEN s.grp_class = 'A' THEN s.file_nm END),
-        STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.file_nm END, N'| ')
-      ) AS ten_file,
-      MIN(s.ngay_kham) AS ngay_kham,
-      order_grp = MIN(CASE s.grp_class WHEN 'A' THEN 1 WHEN 'B' THEN 2 WHEN 'C' THEN 3 ELSE 4 END)
+      + STRING_AGG(CAST(s.expr_item AS nvarchar(max)), CHAR(13) + CHAR(10)) AS ket_qua_cls,
+    COALESCE(
+      STRING_AGG(CASE WHEN s.grp_class = 'A' THEN s.expr_bt END, N'; '),
+      STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.expr_bt END, N'| ')
+    ) AS bat_thuong,
+    COALESCE(
+      MAX(CASE WHEN s.grp_class = 'A' THEN s.file_nm END),
+      STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.file_nm END, N'| ')
+    ) AS ten_file,
+    MIN(s.ngay_kham) AS ngay_kham,
+    order_grp = MIN(CASE s.grp_class WHEN 'A' THEN 1 WHEN 'B' THEN 2 WHEN 'C' THEN 3 ELSE 4 END)
   FROM src AS s
   GROUP BY
       s.ma_benh_nhan,
       s.ma_luot_kham,
-      s.grp_key,
       s.grp_show,
       s.ma_cls,
       s.ten_cls
+),
+grp_dim AS (
+  SELECT 1 AS ord, N'CDHA'           AS ten_loai_cls UNION ALL
+  SELECT 2       , N'Huyết học'                      UNION ALL
+  SELECT 3       , N'XN Nước tiểu'                   UNION ALL
+  SELECT 4       , N'XN Khác'
+),
+pairs AS (
+  SELECT DISTINCT s.ma_benh_nhan, s.ma_luot_kham
+  FROM src s
+  UNION ALL
+  SELECT NULL AS ma_benh_nhan, NULL AS ma_luot_kham
+  WHERE NOT EXISTS (SELECT 1 FROM src)
+),
+base4 AS (
+  SELECT
+    p.ma_benh_nhan,
+    p.ma_luot_kham,
+    gd.ten_loai_cls,
+    gd.ord AS order_grp
+  FROM pairs p
+  CROSS JOIN grp_dim gd
 )
 SELECT
-    g.*,
-    COUNT(*) OVER() AS total_rows   -- tổng số dòng sau GROUP BY, để client tính tổng trang
-FROM grouped AS g
+    COALESCE(g.ma_benh_nhan, b.ma_benh_nhan) AS ma_benh_nhan,
+    b.ma_luot_kham,
+    b.ten_loai_cls,
+    g.ket_qua_cls,
+    g.bat_thuong,
+    g.ten_file,
+    g.ngay_kham,
+    g.ma_cls,
+    g.ten_cls,
+    b.order_grp
+FROM base4 b
+LEFT JOIN grouped g
+  ON g.ma_luot_kham = b.ma_luot_kham
+ AND g.ten_loai_cls = b.ten_loai_cls
 ORDER BY
-    g.ma_benh_nhan,
-    g.ma_luot_kham,
-    g.order_grp,
-    g.ten_loai_cls,
+    b.ma_luot_kham,
+    b.order_grp,
+    b.ten_loai_cls,
     g.ma_cls,
     g.ten_cls" + pagingClause;
 
@@ -328,7 +357,6 @@ ORDER BY
 
             await _context.Database.OpenConnectionAsync();
 
-            // Lấy dữ liệu với phân trang
             using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 dataCommand.CommandText = dataSQL;

@@ -380,12 +380,18 @@ public class KhamSucKhoeController : ControllerBase
                                                             [FromQuery] string? maLuotKham,
                                                             [FromQuery] List<string>? luotKhams,
                                                             [FromQuery] int offset = 0,
-                                                            [FromQuery] int limit = 10)
+                                                            [FromQuery] int limit = 10,
+                                                            [FromQuery] string isSign = "false")
     {
 
         var response = new RequestHttpResponse<List<KhamSucKhoeKetLuanModel>>();
         try
         {
+            if (!bool.TryParse(isSign, out var isSignBool))
+            {
+                isSignBool = false;
+            }
+
             // Validate parameters
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
@@ -449,6 +455,7 @@ public class KhamSucKhoeController : ControllerBase
                 bs_ket_luan.ma_tai_khoan as bs_ket_luan_ma_tai_khoan,
                 bs_ket_luan.first_name as bs_ket_luan_first_name,
                 bs_ket_luan.last_name as bs_ket_luan_last_name,
+" + (isSignBool ? "bs_ket_luan.chu_ky_bac_si as bs_ket_luan_chu_ky_bac_si, " : "") + @"
                 file_url.id as file_url_id,
                 file_url.filename_disk as file_url_filename_disk,
                 file_url.filename_download as file_url_filename_download
@@ -534,9 +541,10 @@ public class KhamSucKhoeController : ControllerBase
                             bs_ket_luan = reader["bs_ket_luan_id"] != DBNull.Value ? new UserModel
                             {
                                 id = reader["bs_ket_luan_id"] as Guid? ?? Guid.Empty,
-                                ma_tai_khoan = reader["bs_ket_luan_ma_tai_khoan"]?.ToString() ?? string.Empty,
-                                first_name = reader["bs_ket_luan_first_name"]?.ToString() ?? string.Empty,
-                                last_name = reader["bs_ket_luan_last_name"]?.ToString() ?? string.Empty
+                                ma_tai_khoan = DataSetHelper.ReadString(reader, "bs_ket_luan_ma_tai_khoan"),
+                                first_name = DataSetHelper.ReadString(reader, "bs_ket_luan_first_name"),
+                                last_name = DataSetHelper.ReadString(reader, "bs_ket_luan_last_name"),
+                                chu_ky_bac_si = DataSetHelper.ReadString(reader, "bs_ket_luan_chu_ky_bac_si")
                             } : null,
                             isAbnormal = DataSetHelper.ReadBool(reader, "isAbnormal", false)
                         };

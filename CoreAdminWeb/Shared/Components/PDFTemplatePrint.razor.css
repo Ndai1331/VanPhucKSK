@@ -163,7 +163,7 @@ body {
 
     .cb.checked::after,
     .cb[checked]::after {
-        content: "✓"; /* dấu tick */
+        content: "\00D7"; /* dấu tick */
         font-size: 20px;
         line-height: 12px;
         text-align: center;
@@ -254,4 +254,10 @@ th {
     border: none;
     border-top: 1px solid #000;
     margin: 4px 0;
+}
+
+tr,
+td,
+th {
+    page-break-inside: avoid;
 }
