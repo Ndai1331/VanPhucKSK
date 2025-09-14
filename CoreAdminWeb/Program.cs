@@ -118,7 +118,10 @@ builder.Services.AddResponseCompression(options =>
 builder.Services
     .AddControllers();
 
-
+builder.WebHost.ConfigureKestrel(k =>
+{
+    k.Limits.MaxRequestBodySize = 1_000_000_000;
+});
 
 var app = builder.Build();
 

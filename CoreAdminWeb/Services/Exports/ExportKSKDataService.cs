@@ -22,10 +22,10 @@ namespace CoreAdminWeb.Services.Exports
     {
         private readonly IMemoryCache _memoryCache;
         private readonly IBaseDetailService<SoKhamSucKhoeModel> _soKhamSucKhoeService;
-        private readonly IBaseDetailService<KhamSucKhoeChuyenKhoaModel> _khamSucKhoeChuyenKhoaService;
-        private readonly IBaseDetailService<KhamSucKhoeSanPhuKhoaModel> _khamSucKhoeSanPhuKhoaService;
-        private readonly IBaseDetailService<KhamSucKhoeKetLuanModel> _khamSucKhoeKetLuanService;
-        private readonly IBaseDetailService<KhamSucKhoeTheLucModel> _khamSucKhoeTheLucService;
+        private readonly IKhamSucKhoeAPIService<KhamSucKhoeChuyenKhoaModel> _khamSucKhoeChuyenKhoaService;
+        private readonly IKhamSucKhoeAPIService<KhamSucKhoeSanPhuKhoaModel> _khamSucKhoeSanPhuKhoaService;
+        private readonly IKhamSucKhoeAPIService<KhamSucKhoeKetLuanModel> _khamSucKhoeKetLuanService;
+        private readonly IKhamSucKhoeAPIService<KhamSucKhoeTheLucModel> _khamSucKhoeTheLucService;
         private readonly IKhamSucKhoeAPIService<KetQuaCLSChiTietModel> _ketQuaCanLamSangChiTietService;
         private readonly IBaseDetailService<KhamSucKhoeNgheNghiepModel> _khamSucKhoeNgheNghiepService;
         private readonly IBaseDetailService<KhamSucKhoeTienSuModel> _khamSucKhoeTienSuService;
@@ -36,10 +36,10 @@ namespace CoreAdminWeb.Services.Exports
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 _soKhamSucKhoeService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<SoKhamSucKhoeModel>>();
-                _khamSucKhoeChuyenKhoaService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeChuyenKhoaModel>>();
-                _khamSucKhoeKetLuanService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeKetLuanModel>>();
-                _khamSucKhoeSanPhuKhoaService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeSanPhuKhoaModel>>();
-                _khamSucKhoeTheLucService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeTheLucModel>>();
+                _khamSucKhoeChuyenKhoaService = scope.ServiceProvider.GetRequiredService<IKhamSucKhoeAPIService<KhamSucKhoeChuyenKhoaModel>>();
+                _khamSucKhoeKetLuanService = scope.ServiceProvider.GetRequiredService<IKhamSucKhoeAPIService<KhamSucKhoeKetLuanModel>>();
+                _khamSucKhoeSanPhuKhoaService = scope.ServiceProvider.GetRequiredService<IKhamSucKhoeAPIService<KhamSucKhoeSanPhuKhoaModel>>();
+                _khamSucKhoeTheLucService = scope.ServiceProvider.GetRequiredService<IKhamSucKhoeAPIService<KhamSucKhoeTheLucModel>>();
                 _ketQuaCanLamSangChiTietService = scope.ServiceProvider.GetRequiredService<IKhamSucKhoeAPIService<KetQuaCLSChiTietModel>>();
                 _khamSucKhoeNgheNghiepService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeNgheNghiepModel>>();
                 _khamSucKhoeTienSuService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeTienSuModel>>();
@@ -232,19 +232,19 @@ namespace CoreAdminWeb.Services.Exports
                 if (exportType == HoSoKhamSucKhoeExportType.ConsultationSlip || exportType == HoSoKhamSucKhoeExportType.HealthCheckupBook)
                 {
                     var chuyenKhoaTask = BatchQueryAsync(
-                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?{string.Join("&", ids.Select(c => $"luotKhams={c}"))}&isSign=true"),
                         soKSKIds, batchSize
                     );
                     var sanPhuKhoaTask = BatchQueryAsync(
-                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?{string.Join("&", ids.Select(c => $"luotKhams={c}"))}"),
                         soKSKIds, batchSize
                     );
                     var ketLuanTask = BatchQueryAsync(
-                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?{string.Join("&", ids.Select(c => $"luotKhams={c}"))}"),
                         soKSKIds, batchSize
                     );
                     var theLucTask = BatchQueryAsync(
-                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeTheLucService.GetAllAsync($"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?{string.Join("&", ids.Select(c => $"luotKhams={c}"))}"),
                         soKSKIds, batchSize
                     );
                     var kqCLSTask = BatchQueryAsync(
@@ -779,9 +779,10 @@ namespace CoreAdminWeb.Services.Exports
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            if (!string.IsNullOrEmpty(value) && value.Contains("|"))
+            if (!string.IsNullOrEmpty(value) && (value.Contains("|") || value.Contains("-")))
             {
-                var splitStr = value.Split("|");
+                var splitStr = value
+                        .Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                 foreach (var c in splitStr)
                 {
                     stringBuilder.Append($"<td width=\"30\" height=\"30\" class=\"center v-middle\">{c}</td>");

@@ -99,5 +99,147 @@ namespace CoreAdminWeb.Helpers
 
             return null;
         }
+        public static int ReadInt(IDataRecord r, string name, int defaultValue)
+        {
+            if (TryGetOrdinal(r, name, out var i) && i >= 0 && !r.IsDBNull(i))
+            {
+                var v = r.GetValue(i);
+                if (v is int n)
+                {
+                    return n;
+                }
+
+                if (v is long l)
+                {
+                    return (int)l;
+                }
+
+                if (v is short s)
+                {
+                    return s;
+                }
+
+                if (v is byte b)
+                {
+                    return b;
+                }
+
+                if (v is string str && int.TryParse(str, out var parsed))
+                {
+                    return parsed;
+                }
+            }
+            return defaultValue;
+        }
+        public static int? ReadInt(IDataRecord r, string name)
+        {
+            if (TryGetOrdinal(r, name, out var i) && i >= 0 && !r.IsDBNull(i))
+            {
+                var v = r.GetValue(i);
+                if (v is int n)
+                {
+                    return n;
+                }
+
+                if (v is long l)
+                {
+                    return (int)l;
+                }
+
+                if (v is short s)
+                {
+                    return s;
+                }
+
+                if (v is byte b)
+                {
+                    return b;
+                }
+
+                if (v is string str && int.TryParse(str, out var parsed))
+                {
+                    return parsed;
+                }
+            }
+            return default;
+        }
+        public static bool? ReadBool(IDataRecord r, string name)
+        {
+            if (TryGetOrdinal(r, name, out var i) && i >= 0 && !r.IsDBNull(i))
+            {
+                var v = r.GetValue(i);
+                if (v is bool b)
+                {
+                    return b;
+                }
+                if (v is int n)
+                {
+                    return n != 0;
+                }
+                if (v is long l)
+                {
+                    return l != 0;
+                }
+                if (v is short s)
+                {
+                    return s != 0;
+                }
+                if (v is byte by)
+                {
+                    return by != 0;
+                }
+                if (v is string str)
+                {
+                    if (bool.TryParse(str, out var parsedBool))
+                    {
+                        return parsedBool;
+                    }
+                    if (int.TryParse(str, out var parsedInt))
+                    {
+                        return parsedInt != 0;
+                    }
+                }
+            }
+            return null;
+        }
+        public static bool ReadBool(IDataRecord r, string name, bool defaultValue = false)
+        {
+            if (TryGetOrdinal(r, name, out var i) && i >= 0 && !r.IsDBNull(i))
+            {
+                var v = r.GetValue(i);
+                if (v is bool b)
+                {
+                    return b;
+                }
+                if (v is int n)
+                {
+                    return n != 0;
+                }
+                if (v is long l)
+                {
+                    return l != 0;
+                }
+                if (v is short s)
+                {
+                    return s != 0;
+                }
+                if (v is byte by)
+                {
+                    return by != 0;
+                }
+                if (v is string str)
+                {
+                    if (bool.TryParse(str, out var parsedBool))
+                    {
+                        return parsedBool;
+                    }
+                    if (int.TryParse(str, out var parsedInt))
+                    {
+                        return parsedInt != 0;
+                    }
+                }
+            }
+            return defaultValue;
+        }
     }
 }

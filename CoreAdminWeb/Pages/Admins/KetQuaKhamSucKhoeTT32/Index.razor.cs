@@ -301,7 +301,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 var tasks = new[]
                 {
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?luotKham={SelectedItem.id}&isSign=false", r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
@@ -320,7 +320,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 if (!string.IsNullOrEmpty(SelectedKhamSucKhoeSanPhuKhoa.para))
                 {
-                    var paraSplit = SelectedKhamSucKhoeSanPhuKhoa.para.Split('|');
+                    var paraSplit = SelectedKhamSucKhoeSanPhuKhoa.para?
+                        .Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                     para1 = paraSplit.Length > 0 ? paraSplit[0].Trim() : string.Empty;
                     para2 = paraSplit.Length > 1 ? paraSplit[1].Trim() : string.Empty;
                     para3 = paraSplit.Length > 2 ? paraSplit[2].Trim() : string.Empty;
@@ -513,7 +514,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap = null;
                 }
                 if (onBSTuanHoan)
                 {
@@ -524,7 +525,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan = null;
                 }
                 if (onBSTieuHoa)
                 {
@@ -535,7 +536,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa = null;
                 }
                 if (onBSThanTietNieu)
                 {
@@ -546,7 +547,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu = null;
                 }
                 if (onBSNoiTiet)
                 {
@@ -557,7 +558,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet = null;
                 }
                 if (onBSCoXuongKhop)
                 {
@@ -568,7 +569,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop = null;
                 }
                 if (onBSThanKinh)
                 {
@@ -579,7 +580,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh = null;
                 }
                 if (onBSTamThan)
                 {
@@ -590,7 +591,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_tam_than = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than = null;
                 }
                 if (onBSNgoaiKhoa)
                 {
@@ -607,7 +608,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa = null;
                 }
                 if (onBSMat)
                 {
@@ -618,7 +619,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_mat = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat = null;
                 }
                 if (onBSTaiMuiHong)
                 {
@@ -629,7 +630,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_tmh = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh = null;
                 }
                 if (onBSRangHamMat)
                 {
@@ -648,7 +649,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeChuyenKhoa.bs_rhm = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm = null;
                 }
                 if (onBSSanPhuKhoa)
                 {
@@ -662,7 +663,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeSanPhuKhoa.chu_ky = null;
                 }
 
                 SelectedKhamSucKhoeKetQuaCanLamSangs = SelectedKhamSucKhoeKetQuaCanLamSangs.Select(c =>
@@ -757,7 +758,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
 
                     SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeKetLuan.chu_ky = CurrentUser?.chu_ky_bac_si;
+                    SelectedKhamSucKhoeKetLuan.chu_ky = null;
                     SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
                 }
                 if (SelectedKhamSucKhoeKetLuan.id > 0)
@@ -951,8 +952,28 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
         }
 
+        private async Task ReloadKhamSucKhoeChuyenKhoa()
+        {
+            await BaseServiceHelper.LoadSingleRecordAsync(
+                KhamSucKhoeChuyenKhoaAPIService,
+                $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?maLuotKham={SelectedItem.ma_luot_kham}&isSign=true",
+                r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()
+            );
+            _shownAlerts.Clear();
+            StateHasChanged();
+        }
 
+        private HashSet<string> _shownAlerts = new HashSet<string>();
+        private void ShowUniqueAlert(string message, string type = "primary")
+        {
+            var key = $"{type}:{message}";
+            if (_shownAlerts.Contains(key))
+            {
+                return;
+            }
 
+            AlertService.ShowAlert(message, type);
+        }
         private async Task ExportPDF()
         {
             if (IsLoading || CurrentUser == null || SelectedItem.id <= 0)
@@ -965,13 +986,16 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 imageWebRootPath = Path.Combine(WebHostEnvironment.WebRootPath, _imagesFolder, $"{SelectedItem.ma_luot_kham}");
 
                 // Hiển thị thông báo đang xử lý
-                AlertService?.ShowAlert("Đang xử lý ảnh chữ ký và tạo PDF, vui lòng đợi...", "info");
+                ShowUniqueAlert("Đang xử lý ảnh chữ ký và tạo PDF, vui lòng đợi...", "info");
+                await ReloadKhamSucKhoeChuyenKhoa();
+
+                await Task.Delay(50);
 
                 string htmlContent = await GetMedicalFormHtmlAsync();
                 if (string.IsNullOrEmpty(htmlContent))
                 {
                     Console.WriteLine("ERROR: HTML content is null or empty!");
-                    AlertService?.ShowAlert("Không thể lấy nội dung để xuất PDF - HTML content empty", "danger");
+                    ShowUniqueAlert("Không thể lấy nội dung để xuất PDF - HTML content empty", "danger");
                     return;
                 }
 
@@ -1019,7 +1043,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 // Trigger download via JavaScript
                 Console.WriteLine("Step 7: Trigger download...");
                 await JsRuntime.InvokeVoidAsync("downloadFile", dataUrl, pdfSettings.FileName);
-                AlertService?.ShowAlert("Xuất PDF thành công!", "success");
+                ShowUniqueAlert("Xuất PDF thành công!", "success");
 
                 Console.WriteLine("Step 8: Hoàn thành thành công!");
 
@@ -1076,7 +1100,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 }
 
                 var errorMsg = $"Lỗi khi xuất PDF: {ex.Message}";
-                AlertService?.ShowAlert(errorMsg, "danger");
+                ShowUniqueAlert(errorMsg, "danger");
             }
             finally
             {
@@ -1089,6 +1113,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     Console.WriteLine($"Lỗi khi dọn dẹp ảnh chữ ký: {cleanupEx.Message}");
                 }
+                _shownAlerts.Clear();
             }
         }
 

@@ -418,7 +418,8 @@
                         <table class="auto mt-0">
                             <tr>
                                 @{
-                                    var paras = SelectedKhamSucKhoeSanPhuKhoa?.para?.Split('|');
+                                    var paras = SelectedKhamSucKhoeSanPhuKhoa?.para?
+                                        .Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                                     if (paras == null || paras.Length < 4)
                                     {
                                         paras = new string[] { "", "", "", "" }; // Default to "00" if not set
@@ -849,7 +850,7 @@
                                 @if (startIndex == 0)
                                 {
                                     <td class="center v-middle" rowspan="@totalBlock">
-                                        @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky, "", "ket_luan_cls", 100, 50)
+                                        @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky ?? SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "", "ket_luan_cls", 100, 50)
                                         <br />
                                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)
                                     </td>
@@ -871,7 +872,7 @@
                                 </div>
                             </td>
                             <td class="center v-middle">
-                                @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky, "", "ket_luan_cls", 100, 50)
+                                @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky ?? SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "", "ket_luan_cls", 100, 50)
                                 <br />
                                 @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)
                             </td>
@@ -928,7 +929,7 @@
                             <br />
                             <span class="italic">(Ký, ghi rõ họ tên và đóng dấu)</span>
                             <br />
-                            @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky, "<div style=\"height: 20mm\"></div>", "ket_luan", 100, 50)
+                            @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky ?? SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 20mm\"></div>", "ket_luan", 100, 50)
                             <span class="bold">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)</span>
                         </div>
                     </td>
