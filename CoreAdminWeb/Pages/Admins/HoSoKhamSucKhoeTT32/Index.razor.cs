@@ -284,7 +284,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                 {
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?maLuotKham={SelectedItem?.ma_luot_kham}&isSign=true", r => SelectedKhamSucKhoeChuyenKhoa = r ?? new KhamSucKhoeChuyenKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}&isSign=true", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
-                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
+                    BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}&isSign=true", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?luotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, $"KhamSucKhoeCongTy/get-list?id={SelectedItem?.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),

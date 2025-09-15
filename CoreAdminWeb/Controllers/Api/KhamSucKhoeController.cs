@@ -120,7 +120,7 @@ public class KhamSucKhoeController : ControllerBase
                 ,ksk.[bptt_ghi_ro]
                 ,ksk.[ket_qua]
                 ,ksk.[nguoi_ket_luan]
-" + (isSignBool ? "bs_ket_luan.chu_ky_bac_si as chu_ky, " : "") + @"
+" + (isSignBool ? ",bs_ket_luan.chu_ky_bac_si as chu_ky" : "") + @"
                 ,ksk.[deleted]
                 ,ksk.[luot_kham]
                 ,ksk.[phan_loai]

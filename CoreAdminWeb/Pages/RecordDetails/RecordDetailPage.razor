@@ -365,7 +365,7 @@
             BaseServiceHelper.LoadSingleRecordAsync(SoKhamSucKhoeService, $"filter[_and][0][ma_luot_kham][_eq]={ma_luot_kham}", r => SoKhamSucKhoeModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeChuyenKhoaAPIService, $"KhamSucKhoe/get-data-chuyen-khoa-by-ma-luot-kham?maLuotKham={ma_luot_kham}&isSign=true", r => KhamSucKhoeChuyenKhoaModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?maLuotKham={ma_luot_kham}&isSign=true", r => KhamSucKhoeKetLuanModel = r),
-            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?maLuotKham={ma_luot_kham}", r => KhamSucKhoeSanPhuKhoaModel = r),
+            BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?maLuotKham={ma_luot_kham}&isSign=true", r => KhamSucKhoeSanPhuKhoaModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?maLuotKham={ma_luot_kham}", r => KhamSucKhoeTheLucModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => KhamSucKhoeNgheNghiepModel = r),
             BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => KhamSucKhoeTienSuModel = r),
