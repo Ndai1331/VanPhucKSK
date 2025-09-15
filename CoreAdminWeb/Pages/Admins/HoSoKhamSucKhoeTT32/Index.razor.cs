@@ -289,7 +289,7 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, $"KhamSucKhoeCongTy/get-list?id={SelectedItem?.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),
-                    BaseServiceHelper.LoadMultipleRecordAsync(KetQuaCanLamSangChiTietService, $"KhamSucKhoeKQCLS/get-ket-qua?maLuotKham={SelectedItem?.ma_luot_kham}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KetQuaCLSChiTietModel>()),
+                    BaseServiceHelper.LoadMultipleRecordAsync(KetQuaCanLamSangChiTietService, $"KhamSucKhoeKQCLS/get-ket-qua?maLuotKham={SelectedItem?.ma_luot_kham}&isAbnormal=true", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KetQuaCLSChiTietModel>()),
                 };
 
                 await Task.WhenAll(tasks);

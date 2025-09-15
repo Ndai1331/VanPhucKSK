@@ -248,7 +248,7 @@ namespace CoreAdminWeb.Services.Exports
                         soKSKIds, batchSize
                     );
                     var kqCLSTask = BatchQueryAsync(
-                        ids => _ketQuaCanLamSangChiTietService.GetAllAsync($"KhamSucKhoeKQCLS/get-ket-qua?{string.Join("&", maLuotKhams.Select(c => $"maLuotKhams={c}"))}"),
+                        ids => _ketQuaCanLamSangChiTietService.GetAllAsync($"KhamSucKhoeKQCLS/get-ket-qua?{string.Join("&", maLuotKhams.Select(c => $"maLuotKhams={c}"))}&isAbnormal=true"),
                         soKSKIds, batchSize
                     );
                     var ngheNghiepTask = BatchQueryAsync(

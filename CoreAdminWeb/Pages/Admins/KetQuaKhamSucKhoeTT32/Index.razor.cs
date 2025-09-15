@@ -310,7 +310,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyAPIService, $"KhamSucKhoeCongTy/get-list?id={SelectedItem.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),
-                    BaseServiceHelper.LoadMultipleRecordAsync(KetQuaCanLamSangChiTietService, $"KhamSucKhoeKQCLS/get-ket-qua?maLuotKham={SelectedItem.ma_luot_kham}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KetQuaCLSChiTietModel>()),
+                    BaseServiceHelper.LoadMultipleRecordAsync(KetQuaCanLamSangChiTietService, $"KhamSucKhoeKQCLS/get-ket-qua?maLuotKham={SelectedItem.ma_luot_kham}&isAbnormal=true", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KetQuaCLSChiTietModel>()),
                 };
 
                 await Task.WhenAll(tasks);
@@ -965,7 +965,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeKetLuanAPIService, $"KhamSucKhoe/get-data-ket-luan-by-ma-luot-kham?luotKham={SelectedItem.id}&isSign=true", r => SelectedKhamSucKhoeKetLuan = r ?? new KhamSucKhoeKetLuanModel()),
                 BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeSanPhuKhoaAPIService, $"KhamSucKhoe/get-data-san-phu-khoa-by-ma-luot-kham?luotKham={SelectedItem.id}&isSign=true", r => SelectedKhamSucKhoeSanPhuKhoa = r ?? new KhamSucKhoeSanPhuKhoaModel()),
                 BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTheLucAPIService, $"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?luotKham={SelectedItem.id}", r => SelectedKhamSucKhoeTheLuc = r ?? new KhamSucKhoeTheLucModel()),
-                BaseServiceHelper.LoadMultipleRecordAsync(KetQuaCanLamSangChiTietService, $"KhamSucKhoeKQCLS/get-ket-qua?maLuotKham={SelectedItem.ma_luot_kham}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KetQuaCLSChiTietModel>()),
+                BaseServiceHelper.LoadMultipleRecordAsync(KetQuaCanLamSangChiTietService, $"KhamSucKhoeKQCLS/get-ket-qua?maLuotKham={SelectedItem.ma_luot_kham}&isAbnormal=true", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KetQuaCLSChiTietModel>()),
             };
             await Task.WhenAll(tasks);
             _shownAlerts.Clear();

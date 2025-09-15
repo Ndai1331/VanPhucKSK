@@ -25,14 +25,19 @@ public class KhamSucKhoeKQCLSController : ControllerBase
     }
 
     [HttpGet("get-ket-qua")]
-    public async Task<IActionResult> GetData([FromQuery] string? maLuotKham, [FromQuery] List<string>? maLuotKhams)
+    public async Task<IActionResult> GetData([FromQuery] string? maLuotKham, [FromQuery] List<string>? maLuotKhams, [FromQuery] string? isAbnormal)
     {
 
         var response = new RequestHttpResponse<List<KetQuaCLSChiTietModel>>();
         try
         {
             // Validate parameters
+            if (!bool.TryParse(isAbnormal, out bool isAbnormalValue))
+            {
+                isAbnormalValue = false;
+            }
 
+            string whereClause = string.Empty;
             string seedValue = string.Empty;
             if (!string.IsNullOrEmpty(maLuotKham))
             {
@@ -47,6 +52,17 @@ public class KhamSucKhoeKQCLSController : ControllerBase
             if (string.IsNullOrEmpty(seedValue))
             {
                 seedValue = "(NULL)";
+            }
+
+            if (isAbnormalValue)
+            {
+                whereClause = @"WHERE
+    (
+        (kq.ten_loai_cls IN (N'Huyết học') OR kq.ma_cls = 'XN210')
+        AND kq.bat_thuong = 1
+    )
+    OR
+    (kq.ten_loai_cls NOT IN (N'Huyết học') AND kq.ma_cls <> 'XN210')";
             }
 
             var dataSQL = @";WITH
@@ -108,6 +124,7 @@ src AS(
       kq.ten_cls
   FROM dbo.ket_qua_can_lam_sang_chi_tiet kq
   INNER JOIN lk ON lk.ma_luot_kham = LTRIM(RTRIM(kq.ma_luot_kham))
+" + whereClause + @"
 ),
 per_cls AS(
   SELECT
@@ -129,12 +146,12 @@ agg_other AS(
   SELECT
       s.ma_benh_nhan, s.ma_luot_kham, s.grp_show,
       COALESCE(
-        STRING_AGG(CASE WHEN s.grp_class = 'A' THEN s.expr_bt END, N'; '),
-        STRING_AGG(CASE WHEN s.grp_class<> 'A' THEN s.expr_bt END, N'| ')
+        STRING_AGG(CASE WHEN s.grp_class = 'A' THEN s.expr_bt END, N'|'),
+        STRING_AGG(CASE WHEN s.grp_class<> 'A' THEN s.expr_bt END, N'|')
       ) AS bat_thuong,
       COALESCE(
         MAX(CASE WHEN s.grp_class = 'A' THEN s.file_nm END),
-        STRING_AGG(CASE WHEN s.grp_class<> 'A' THEN s.file_nm END, N'| ')
+        STRING_AGG(CASE WHEN s.grp_class<> 'A' THEN s.file_nm END, N'|')
       ) AS ten_file
   FROM src s
   GROUP BY s.ma_benh_nhan, s.ma_luot_kham, s.grp_show
@@ -214,7 +231,6 @@ ORDER BY gd.ma_benh_nhan, gd.ma_luot_kham, gd.ord;
     [HttpGet("get-ket-qua-chi-tiet")]
     public async Task<IActionResult> GetDetailData([FromQuery] string? maLuotKham, [FromQuery] string? maCls, [FromQuery] int? offset, [FromQuery] int? limit)
     {
-
         var response = new RequestHttpResponse<List<KetQuaCLSChiTietModel>>();
         try
         {
@@ -291,12 +307,12 @@ grouped AS (
     ) + N':' + CHAR(13) + CHAR(10)
       + STRING_AGG(CAST(s.expr_item AS nvarchar(max)), CHAR(13) + CHAR(10)) AS ket_qua_cls,
     COALESCE(
-      STRING_AGG(CASE WHEN s.grp_class = 'A' THEN s.expr_bt END, N'; '),
-      STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.expr_bt END, N'| ')
+      STRING_AGG(CASE WHEN s.grp_class = 'A' THEN s.expr_bt END, N'|'),
+      STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.expr_bt END, N'|')
     ) AS bat_thuong,
     COALESCE(
       MAX(CASE WHEN s.grp_class = 'A' THEN s.file_nm END),
-      STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.file_nm END, N'| ')
+      STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.file_nm END, N'|')
     ) AS ten_file,
     MIN(s.ngay_kham) AS ngay_kham,
     order_grp = MIN(CASE s.grp_class WHEN 'A' THEN 1 WHEN 'B' THEN 2 WHEN 'C' THEN 3 ELSE 4 END)
