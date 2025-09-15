@@ -247,10 +247,6 @@ namespace CoreAdminWeb.Services.Exports
                         ids => _khamSucKhoeTheLucService.GetAllAsync($"KhamSucKhoe/get-data-the-luc-by-ma-luot-kham?{string.Join("&", ids.Select(c => $"luotKhams={c}"))}"),
                         soKSKIds, batchSize
                     );
-                    var kqCLSTask = BatchQueryAsync(
-                        ids => _ketQuaCanLamSangChiTietService.GetAllAsync($"KhamSucKhoeKQCLS/get-ket-qua?{string.Join("&", maLuotKhams.Select(c => $"maLuotKhams={c}"))}&isAbnormal=true"),
-                        soKSKIds, batchSize
-                    );
                     var ngheNghiepTask = BatchQueryAsync(
                         ids => _khamSucKhoeNgheNghiepService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
@@ -260,13 +256,12 @@ namespace CoreAdminWeb.Services.Exports
                         soKSKIds, batchSize
                     );
 
-                    await Task.WhenAll(chuyenKhoaTask, sanPhuKhoaTask, ketLuanTask, theLucTask, kqCLSTask, ngheNghiepTask, tienSuTask);
+                    await Task.WhenAll(chuyenKhoaTask, sanPhuKhoaTask, ketLuanTask, theLucTask, ngheNghiepTask, tienSuTask);
 
                     khamSucKhoeChuyenKhoas = chuyenKhoaTask.Result;
                     khamSucKhoeSanPhuKhoas = sanPhuKhoaTask.Result;
                     khamSucKhoeKetLuans = ketLuanTask.Result;
                     khamSucKhoeTheLucs = theLucTask.Result;
-                    khamSucKhoeKetQuaCanLamSangs = kqCLSTask.Result;
                     khamSucKhoeNgheNghieps = ngheNghiepTask.Result;
                     khamSucKhoeTienSus = tienSuTask.Result;
                 }
@@ -290,6 +285,10 @@ namespace CoreAdminWeb.Services.Exports
                 {
                     case HoSoKhamSucKhoeExportType.CheckListKsk:
                     case HoSoKhamSucKhoeExportType.ConsultationSlip:
+                        khamSucKhoeKetQuaCanLamSangs = await BatchQueryAsync(
+                            ids => _ketQuaCanLamSangChiTietService.GetAllAsync($"KhamSucKhoeKQCLS/get-ket-qua?{string.Join("&", maLuotKhams.Select(c => $"maLuotKhams={c}"))}"),
+                            soKSKIds, batchSize
+                        );
                         // Duyệt theo batch để giảm memory pressure
                         foreach (var batch in soKhamSucKhoes.Chunk(batchSize))
                         {
@@ -488,6 +487,10 @@ namespace CoreAdminWeb.Services.Exports
                         break;
 
                     case HoSoKhamSucKhoeExportType.HealthCheckupBook:
+                        khamSucKhoeKetQuaCanLamSangs = await BatchQueryAsync(
+                            ids => _ketQuaCanLamSangChiTietService.GetAllAsync($"KhamSucKhoeKQCLS/get-ket-qua?{string.Join("&", maLuotKhams.Select(c => $"maLuotKhams={c}"))}&isAbnormal=true"),
+                            soKSKIds, batchSize
+                        );
                         foreach (var item in soKhamSucKhoes)
                         {
                             // Chỉ gửi progress mỗi 100 bản ghi
