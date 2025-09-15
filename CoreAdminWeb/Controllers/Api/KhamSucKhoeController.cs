@@ -499,7 +499,10 @@ public class KhamSucKhoeController : ControllerBase
                 (ksk.phan_loai_suc_khoe IS NOT NULL AND plsk.id = ksk.phan_loai_suc_khoe)
                 OR
                 (ksk.phan_loai_suc_khoe IS NULL AND plsk.code = ksk.ma_phan_loai_suc_khoe)
-            LEFT JOIN custom_users bs_ket_luan ON bs_ket_luan.id = ksk.bs_ket_luan
+            LEFT JOIN custom_users bs_ket_luan ON
+                (ksk.bs_ket_luan IS NOT NULL AND bs_ket_luan.id = ksk.bs_ket_luan) 
+                OR
+                (ksk.ma_bs_ket_luan IS NOT NULL AND bs_ket_luan.ma_tai_khoan = ksk.ma_bs_ket_luan)
             LEFT JOIN custom_files file_url ON file_url.id = ksk.file_url
             " + where + @"
             ORDER BY ksk.id
