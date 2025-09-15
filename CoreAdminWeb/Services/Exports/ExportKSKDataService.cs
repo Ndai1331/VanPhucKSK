@@ -542,7 +542,7 @@ namespace CoreAdminWeb.Services.Exports
                             .Replace("{{DauBungKinh_Khong}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.dau_bung_kinh == false))
                             .Replace("{{DaLapGiaDinh_Co}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.da_lap_gia_dinh == true))
                             .Replace("{{DaLapGiaDinh_Chua}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.da_lap_gia_dinh == false))
-                            .Replace("{{PARA}}", TableTdHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.para : "", 4))
+                            .Replace("{{PARA}}", TableTdHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.para : "", 4, true))
                             .Replace("{{MoSanPhuKhoa_Co}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Co))
                             .Replace("{{MoSanPhuKhoa_GhiRo}}", $"{(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.mo_san_phu_khoa_ghi_ro : "")}")
                             .Replace("{{MoSanPhuKhoa_Khong}}", CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Khong))
@@ -775,11 +775,11 @@ namespace CoreAdminWeb.Services.Exports
             return stringBuilder.ToString();
         }
 
-        private static string TableTdHtmlBuilder(string? value, int count = 2)
+        private static string TableTdHtmlBuilder(string? value, int count = 2, bool isSplitChar = false)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            if (!string.IsNullOrEmpty(value) && (value.Contains("|") || value.Contains("-")))
+            if (!string.IsNullOrEmpty(value) && ((value.Contains("|") || value.Contains("-")) || isSplitChar))
             {
                 var splitStr = value
                         .Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
