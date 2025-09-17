@@ -174,11 +174,14 @@
                                     }
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5 bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85] text-nowrap"
-                                               @onclick="OpenFileDialog" Disabled="onReadonly">
-                                        <i class="ri-file-excel-2-fill"></i>
-                                        Import excel
-                                    </MudButton>
+                                    @if (!onReadonly)
+                                    {
+                                        <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5 bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85] text-nowrap"
+                                                   @onclick="OpenFileDialog">
+                                            <i class="ri-file-excel-2-fill"></i>
+                                            Import excel
+                                        </MudButton>
+                                    }
                                     <InputFile id="excelFileInput" style="display:none" accept=".xlsx,.xls" OnChange="OnExcelFileSelected" />
                                     <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5 bg-success border-success text-white hover:bg-success/[0.85] hover:border-success/[0.85] text-nowrap"
                                                @onclick="DownloadFileTemplate">
@@ -263,9 +266,12 @@
                         </div>
 
                         <div class="flex items-center justify-end gap-2 py-4">
-                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseAddOrUpdateModal">Huỷ</MudButton>
-                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
-                                       OnClick="OnValidSubmit">Lưu</MudButton>
+                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseAddOrUpdateModal">@(onReadonly ? "Đóng" : "Huỷ")</MudButton>
+                            @if (!onReadonly)
+                            {
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                                           OnClick="OnValidSubmit">Lưu</MudButton>
+                            }
                         </div>
                     </EditForm>
                 </div>

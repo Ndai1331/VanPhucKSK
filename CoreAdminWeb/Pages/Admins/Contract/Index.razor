@@ -96,10 +96,13 @@
                                                @onclick="@(e => OpenAddOrUpdateModal(item.Data))">
                                         <i class="ri-edit-line"></i>
                                     </MudButton>
-                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                               @onclick="@(e => OpenDeleteModal(item.Data))" Disabled="onReadonly">
-                                        <i class="ri-delete-bin-line"></i>
-                                    </MudButton>
+                                    @if (!onReadonly)
+                                    {
+                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                                   @onclick="@(e => OpenDeleteModal(item.Data))">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </MudButton>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -452,7 +455,7 @@
                                                                                              Value="@(Select2Helper.GetCurrentSelectionGeneric<DinhMucModel>(item.Data.MaDinhMuc, item.Index, SelectedDinhMucItems))"
                                                                                              OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<DinhMucModel>(e, v => item.Data.MaDinhMuc = v, item.Index, SelectedDinhMucItems, () => UpdateThanhTienAfterDinhMucChange(item.Data)))"
                                                                                              Multiselect="false"
-                                                                                             class="select2-dinh-muc"/>
+                                                                                             class="select2-dinh-muc" />
                                                                                 }
                                                                             </td>
                                                                             <td>
@@ -544,7 +547,10 @@
                                                         </div>
                                                     </div>
                                                     <div class="w-full flex items-center justify-end mt-2">
-                                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnAddChiTiet" Disabled="onReadonly">Thêm dòng</MudButton>
+                                                        @if (!onReadonly)
+                                                        {
+                                                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnAddChiTiet">Thêm dòng</MudButton>
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
@@ -562,8 +568,11 @@
                         </div>
 
                         <div class="flex items-center justify-end gap-2 py-4">
-                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseAddOrUpdateModal">Huỷ</MudButton>
-                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnValidSubmit">Lưu</MudButton>
+                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseAddOrUpdateModal">@(onReadonly ? "Đóng" : "Huỷ")</MudButton>
+                            @if (!onReadonly)
+                            {
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnValidSubmit">Lưu</MudButton>
+                            }
                         </div>
                     </EditForm>
                 </div>

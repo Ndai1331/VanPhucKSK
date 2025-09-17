@@ -333,26 +333,26 @@
                                     </MudButton>
                                 }
                                 @if (
-                                    onReadonly
-                                    && (
-                                        onBSHoHap
-                                        || onBSTuanHoan
-                                        || onBSTieuHoa
-                                        || onBSThanTietNieu
-                                        || onBSNoiTiet
-                                        || onBSCoXuongKhop
-                                        || onBSThanKinh
-                                        || onBSTamThan
-                                        || onBSNgoaiKhoa
-                                        || onBSMat
-                                        || onBSTaiMuiHong
-                                        || onBSRangHamMat
-                                        || onBSSanPhuKhoa
-                                        || onBSKetLuan
-                                        || onBS
-                                    )
-                                    && SelectedItem.status == Model.Base.Status.published
-                                )
+                                                                onReadonly
+                                                                && (
+                                                                onBSHoHap
+                                                                || onBSTuanHoan
+                                                                || onBSTieuHoa
+                                                                || onBSThanTietNieu
+                                                                || onBSNoiTiet
+                                                                || onBSCoXuongKhop
+                                                                || onBSThanKinh
+                                                                || onBSTamThan
+                                                                || onBSNgoaiKhoa
+                                                                || onBSMat
+                                                                || onBSTaiMuiHong
+                                                                || onBSRangHamMat
+                                                                || onBSSanPhuKhoa
+                                                                || onBSKetLuan
+                                                                || onBS
+                                                                )
+                                                                && SelectedItem.status == Model.Base.Status.published
+                                                                )
                                 {
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
                                                OnClick="OnCancelEndSubmit">
