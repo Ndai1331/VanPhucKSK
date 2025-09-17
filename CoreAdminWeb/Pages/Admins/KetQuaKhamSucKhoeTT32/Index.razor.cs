@@ -1023,8 +1023,6 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
         }
 
-
-
         private async Task ExportPDF()
         {
             if (IsLoading || CurrentUser == null || SelectedItem.id <= 0)
