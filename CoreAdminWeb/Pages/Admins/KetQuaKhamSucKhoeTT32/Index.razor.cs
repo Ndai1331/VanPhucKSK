@@ -81,7 +81,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private string _tenBenhNhanString = "";
 
         private bool openSyncKetQuaCanLamSangModal { get; set; } = false;
-        private bool onReadonly => SelectedItem.status == Model.Base.Status.published;
+        private bool onReadonly => SelectedItem.status == Model.Base.Status.published || SelectedItem.MaDotKham?.ma_hop_dong_ksk?.status == TrangThaiHopDong.locked;
 
         private bool isShowOnlyMe { get; set; } = false;
         private bool onBS { get; set; } = false;
