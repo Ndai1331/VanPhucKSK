@@ -970,7 +970,7 @@
         if (_isDisposed || string.IsNullOrEmpty(ftpFileName) || !IsValidFileName(ftpFileName)) return string.Empty;
 
         var localFileName = Path.GetFileName(ftpFileName);
-        var localPath = _clsImagesFolder + localFileName;
+        var localPath = Path.Combine(_clsImagesFolder, localFileName);
 
         // Check if file is already marked as not found - avoid retrying
         if (_fileNotFound.ContainsKey(ftpFileName) && _fileNotFound[ftpFileName])
