@@ -1224,7 +1224,7 @@
     /// </summary>
     private string GetDirectLocalPath(string fileName)
     {
-        return _clsImagesFolder + fileName;
+        return Path.Combine(_clsImagesFolder, fileName);
     }
 
     /// <summary>

@@ -270,7 +270,7 @@
                                                                 _clsImagesFolder = Path.Combine(CurrentUser?.ma_tai_khoan ?? SoKhamSucKhoeModel?.ma_benh_nhan ?? string.Empty, SoKhamSucKhoeModel?.ma_luot_kham ?? ma_luot_kham);
                                                                 var fileName = Path.GetFileName(item.ten_file);
                                                                 var localPath = GetDirectLocalPath(fileName);
-
+                                                                 
                                                                 // Only attempt download if not already processed
                                                                 if (!IsFileAvailableLocally(fileName) && !IsFileCurrentlyDownloading(fileName) && !IsFileNotFound(fileName))
                                                                 {
@@ -1235,7 +1235,7 @@
     /// </summary>
     private string GetDirectLocalPath(string fileName)
     {
-        return _clsImagesFolder + fileName;
+        return Path.Combine(_clsImagesFolder, fileName);
     }
 
     /// <summary>
