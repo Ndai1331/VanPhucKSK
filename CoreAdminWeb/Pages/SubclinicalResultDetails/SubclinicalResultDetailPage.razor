@@ -1103,6 +1103,8 @@
 
             if (fileBytes != null && fileBytes.Length > 0)
             {
+                EnsureClsImagesFolderExists();
+
                 // Save to local file
                 var physicalPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "cls", ma_luot_kham, localFileName);
                 await File.WriteAllBytesAsync(physicalPath, fileBytes, cancellationTokenSource.Token);
