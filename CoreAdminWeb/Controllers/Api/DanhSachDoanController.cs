@@ -1,4 +1,5 @@
 
+using CoreAdminWeb.Enums;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Models;
@@ -110,7 +111,8 @@ public class DanhSachDoanController : ControllerBase
                     FROM kham_suc_khoe_ket_qua_can_lam_sang cls
                     LEFT JOIN ket_qua_can_lam_san kqcls ON kqcls.id = cls.kq_cls
                     WHERE cls.luot_kham = sksk.id
-                ) AS can_lam_sang_results
+                ) AS can_lam_sang_results,
+                hd.status trang_thai_hop_dong
                 from SoKhamSucKhoe sksk 
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
                 Left join contract hd on hd.id = ct.ma_hop_dong_ksk
@@ -222,7 +224,10 @@ public class DanhSachDoanController : ControllerBase
                             benh_tat_ket_luan = reader["benh_tat_ket_luan"]?.ToString(),
                             de_nghi = reader["de_nghi"]?.ToString(),
                             phan_loai_suc_khoe = reader["phan_loai_suc_khoe"]?.ToString(),
-                            can_lam_sang_results = reader["can_lam_sang_results"]?.ToString()
+                            can_lam_sang_results = reader["can_lam_sang_results"]?.ToString(),
+                            trang_thai_hop_dong = (reader["trang_thai_hop_dong"] != DBNull.Value
+                                ? (TrangThaiHopDong?)Convert.ToInt32(reader["trang_thai_hop_dong"])
+                                : null)
                         };
 
                         results.Add(item);

@@ -58,6 +58,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private int soHopDongDaKy = 0;
         private UserModel? CurrentUser { get; set; }
         private bool onKD { get; set; } = false;
+        private bool onReadonly => SelectedItem.status == TrangThaiHopDong.locked;
 
         protected override async Task OnInitializedAsync()
         {
@@ -75,7 +76,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                     onKD = CurrentUser?.role?.ToLower() == CurrentSetting.kinh_doanh_role_id?.ToLower().ToString();
                 }
 
-                await LoadData(true); 
+                await LoadData(true);
                 await LoadDinhMucData("");
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
 
@@ -617,6 +618,13 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                     await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
                 });
             }
+
+            // Wait for modal to render
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(500);
+                await JsRuntime.InvokeVoidAsync("disabledSelect2", "select2", onReadonly);
+            });
         }
 
         private async Task GetNewSoHopDongDaKy()

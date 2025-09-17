@@ -175,7 +175,7 @@
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <MudButton Class="xs:w-full sm:w-auto md:w-full btn flex items-center gap-1.5 bg-warning border-warning text-white hover:bg-warning/[0.85] hover:border-warning/[0.85] text-nowrap"
-                                               @onclick="OpenFileDialog">
+                                               @onclick="OpenFileDialog" Disabled="onReadonly">
                                         <i class="ri-file-excel-2-fill"></i>
                                         Import excel
                                     </MudButton>
