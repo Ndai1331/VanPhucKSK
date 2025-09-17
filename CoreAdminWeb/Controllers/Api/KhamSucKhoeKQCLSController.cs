@@ -310,10 +310,7 @@ grouped AS (
       STRING_AGG(CASE WHEN s.grp_class = 'A' THEN s.expr_bt END, N'|'),
       STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.expr_bt END, N'|')
     ) AS bat_thuong,
-    COALESCE(
-      MAX(CASE WHEN s.grp_class = 'A' THEN s.file_nm END),
-      STRING_AGG(CASE WHEN s.grp_class <> 'A' THEN s.file_nm END, N'|')
-    ) AS ten_file,
+    s.file_nm AS ten_file,
     MIN(s.ngay_kham) AS ngay_kham,
     order_grp = MIN(CASE s.grp_class WHEN 'A' THEN 1 WHEN 'B' THEN 2 WHEN 'C' THEN 3 ELSE 4 END)
   FROM src AS s
@@ -322,7 +319,8 @@ grouped AS (
       s.ma_luot_kham,
       s.grp_show,
       s.ma_cls,
-      s.ten_cls
+      s.ten_cls,
+      s.file_nm
 ),
 grp_dim AS (
   SELECT 1 AS ord, N'CDHA'           AS ten_loai_cls UNION ALL
