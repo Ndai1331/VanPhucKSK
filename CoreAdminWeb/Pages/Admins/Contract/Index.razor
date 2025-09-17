@@ -97,7 +97,7 @@
                                         <i class="ri-edit-line"></i>
                                     </MudButton>
                                     <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                               @onclick="@(e => OpenDeleteModal(item.Data))">
+                                               @onclick="@(e => OpenDeleteModal(item.Data))" Disabled="onReadonly">
                                         <i class="ri-delete-bin-line"></i>
                                     </MudButton>
                                 </td>
