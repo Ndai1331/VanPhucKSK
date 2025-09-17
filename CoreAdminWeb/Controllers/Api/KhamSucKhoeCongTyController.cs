@@ -1,4 +1,5 @@
 ﻿
+using CoreAdminWeb.Enums;
 using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.KhamSucKhoes;
@@ -125,6 +126,7 @@ OR k.code = @searchText)";
     c.id   AS ma_hop_dong_ksk_id,
     c.code AS ma_hop_dong_ksk_code,
     c.name AS ma_hop_dong_ksk_name,
+    c.status AS ma_hop_dong_ksk_status,
     ct.id  AS ma_hop_dong_ksk_cong_ty_id,
     ct.code AS ma_hop_dong_ksk_cong_ty_code,
     ct.name AS ma_hop_dong_ksk_cong_ty_name,
@@ -318,11 +320,12 @@ LEFT JOIN U bskl_guid ON k.ma_bs_ket_luan IS NULL AND bskl_guid.id = k.bs_ket_lu
                                 id = reader["ma_hop_dong_ksk_id"] as int? ?? 0,
                                 code = reader["ma_hop_dong_ksk_code"]?.ToString(),
                                 name = reader["ma_hop_dong_ksk_name"]?.ToString(),
+                                status = DataSetHelper.ReadEnum<TrangThaiHopDong>(reader, "ma_hop_dong_ksk_status"),
                                 cong_ty = new CongTyModel()
                                 {
                                     id = reader["ma_hop_dong_ksk_cong_ty_id"] as int? ?? 0,
                                     code = reader["ma_hop_dong_ksk_cong_ty_code"]?.ToString(),
-                                    name = reader["ma_hop_dong_ksk_cong_ty_name"]?.ToString()
+                                    name = reader["ma_hop_dong_ksk_cong_ty_name"]?.ToString(),
                                 }
                             },
                             ma_don_vi = reader["ma_don_vi"]?.ToString(),

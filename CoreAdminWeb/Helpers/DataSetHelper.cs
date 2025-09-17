@@ -241,5 +241,33 @@ namespace CoreAdminWeb.Helpers
             }
             return defaultValue;
         }
+        public static TEnum ReadEnum<TEnum>(IDataRecord r, string name, TEnum defaultValue = default) where TEnum : struct, Enum
+        {
+            if (TryGetOrdinal(r, name, out var i) && i >= 0 && !r.IsDBNull(i))
+            {
+                var v = r.GetValue(i);
+                if (v is TEnum e)
+                {
+                    return e;
+                }
+                if (v is int n && Enum.IsDefined(typeof(TEnum), n))
+                {
+                    return (TEnum)Enum.ToObject(typeof(TEnum), n);
+                }
+                if (v is string s)
+                {
+                    s = s.Trim();
+                    if (int.TryParse(s, out var parsedInt) && Enum.IsDefined(typeof(TEnum), parsedInt))
+                    {
+                        return (TEnum)Enum.ToObject(typeof(TEnum), parsedInt);
+                    }
+                    if (Enum.TryParse<TEnum>(s, true, out var parsedEnum))
+                    {
+                        return parsedEnum;
+                    }
+                }
+            }
+            return defaultValue;
+        }
     }
 }
