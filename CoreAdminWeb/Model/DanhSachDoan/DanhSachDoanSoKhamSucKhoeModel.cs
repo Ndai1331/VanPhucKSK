@@ -39,5 +39,7 @@ namespace CoreAdminWeb.Model
         public string? phan_loai_suc_khoe { get; set; }
         public string? can_lam_sang_results { get; set; }
         public string? ngay_ket_luan { get; set; }
+
+        public TrangThaiHopDong? trang_thai_hop_dong { get; set; }
     }
 }

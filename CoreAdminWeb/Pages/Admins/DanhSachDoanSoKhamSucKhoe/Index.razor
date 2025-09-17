@@ -133,15 +133,18 @@
                             <i class="ri-file-excel-2-fill"></i>
                             Xuất excel
                         </MudButton>
-                        <MudButton Class="w-full sm:w-auto md:w-auto btn flex items-center justify-center gap-1.5
-                            bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
-                            text-nowrap"
-                                   onclick="OpenFileDialog"
-                                   Disabled="@(isDisabledImport)">
-                            <i class="ri-file-excel-2-fill"></i>
-                            Import excel kết luận
-                        </MudButton>
-                        <InputFile id="excelFileInput" style="display:none" accept=".xlsx,.xls" OnChange="OnExcelFileSelected" />
+                        @if (!onReadonly)
+                        {
+                            <MudButton Class="w-full sm:w-auto md:w-auto btn flex items-center justify-center gap-1.5
+                                bg-info border-info text-white hover:bg-info/[0.85] hover:border-info/[0.85]
+                                text-nowrap"
+                                       onclick="OpenFileDialog"
+                                       Disabled="@(isDisabledImport)">
+                                <i class="ri-file-excel-2-fill"></i>
+                                Import excel kết luận
+                            </MudButton>
+                            <InputFile id="excelFileInput" style="display:none" accept=".xlsx,.xls" OnChange="OnExcelFileSelected" />
+}
                     </div>
                 </div>
             </div>

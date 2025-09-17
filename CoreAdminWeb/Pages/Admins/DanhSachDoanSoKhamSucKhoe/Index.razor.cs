@@ -58,6 +58,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         public bool isImportError { get; set; }
         public bool isDisabledImport { get; set; } = false;
 
+        public bool onReadonly { get; set; } = false;
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -148,6 +150,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             {
                 MainModels = new List<DanhSachDoanSoKhamSucKhoeModel>();
             }
+
+            onReadonly = MainModels.Any(c => c.trang_thai_hop_dong == TrangThaiHopDong.locked);
 
             ResetSelectionState();
 

@@ -1,5 +1,6 @@
 
 using CoreAdminWeb.Enums;
+using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Models;
@@ -227,7 +228,7 @@ public class DanhSachDoanController : ControllerBase
                             can_lam_sang_results = reader["can_lam_sang_results"]?.ToString(),
                             ngay_ket_luan = reader["ngay_ket_luan"]?.ToString(),
                             trang_thai_hop_dong = (reader["trang_thai_hop_dong"] != DBNull.Value
-                                ? (TrangThaiHopDong?)Convert.ToInt32(reader["trang_thai_hop_dong"])
+                                ? reader["trang_thai_hop_dong"].ToString()?.ToEnum<TrangThaiHopDong>()
                                 : null)
                         };
 
