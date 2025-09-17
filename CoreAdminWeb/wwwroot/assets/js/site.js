@@ -167,51 +167,51 @@ function initBassicLineChart(element, serries, labels, colors) {
 
 function initBassicBarChart(element, serries, labels, colors) {
 
-// barchart
-var barchart = {
-    series: [{
-        name: "Số lượng cơ sở",
-        data: serries
-    }],
-    chart: {
-        type: "bar",
-        height: 300,
-        stacked: false,
-        toolbar: {
-            show: false,
+    // barchart
+    var barchart = {
+        series: [{
+            name: "Số lượng cơ sở",
+            data: serries
+        }],
+        chart: {
+            type: "bar",
+            height: 300,
+            stacked: false,
+            toolbar: {
+                show: false,
+            },
+            zoom: {
+                enabled: false,
+            },
         },
-        zoom: {
+        dataLabels: {
             enabled: false,
         },
-    },
-    dataLabels: {
-        enabled: false,
-    },
-    colors: colors,
-    plotOptions: {
-        bar: {
-            horizontal: false,
-            columnWidth: "25%",
-            distributed: true,
+        colors: colors,
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: "25%",
+                distributed: true,
+            },
         },
-    },
-    xaxis: {
-        categories: labels,
-    },
-    legend: {
-        show: false,
-    },
-    fill: {
-        opacity: 1,
-    },
-};
+        xaxis: {
+            categories: labels,
+        },
+        legend: {
+            show: false,
+        },
+        fill: {
+            opacity: 1,
+        },
+    };
 
     var chart = new ApexCharts(document.querySelector(element), barchart);
     chart.render();
 }
 
 // Function to open URL in new tab without affecting current tab
-window.openInNewTab = function(url) {
+window.openInNewTab = function (url) {
     try {
         window.open(url, '_blank', 'noopener,noreferrer');
         return true;

@@ -1,3 +1,5 @@
+using CoreAdminWeb.Enums;
+
 namespace CoreAdminWeb.Model
 {
     public class MedicalExaminationDto
@@ -51,6 +53,8 @@ namespace CoreAdminWeb.Model
 
         // Cận lâm sàng (gộp tất cả kết quả)
         public string? can_lam_sang_results { get; set; }
+
+        public TrangThaiHopDong? trang_thai_hop_dong { get; set; }
     }
 
 }

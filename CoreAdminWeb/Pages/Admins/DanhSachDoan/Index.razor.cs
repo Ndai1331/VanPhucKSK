@@ -41,6 +41,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
         public bool isImportDone { get; set; }
         public bool isErrorPopup { get; set; }
         public bool isImportError { get; set; }
+        public bool onReadonly => SelectedItem.ma_hop_dong_ksk?.status == Enums.TrangThaiHopDong.locked;
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();

@@ -13,7 +13,7 @@ namespace CoreAdminWeb.Services
     {
         private readonly string _collection = "kham_suc_khoe_cong_ty";
         private const string Fields = "*,user_created.last_name,user_created.first_name,user_updated.last_name,user_updated.first_name"
-                + ",ma_hop_dong_ksk.id,ma_hop_dong_ksk.code,ma_hop_dong_ksk.name"
+                + ",ma_hop_dong_ksk.id,ma_hop_dong_ksk.code,ma_hop_dong_ksk.name,ma_hop_dong_ksk.status"
                 + ",ma_hop_dong_ksk.cong_ty.id,ma_hop_dong_ksk.cong_ty.code,ma_hop_dong_ksk.cong_ty.name"
                 + ",bs_tuan_hoan.id,bs_tuan_hoan.first_name,bs_tuan_hoan.last_name"
                 + ",bs_ho_hap.id,bs_ho_hap.ma_tai_khoan,bs_ho_hap.first_name,bs_ho_hap.last_name"
