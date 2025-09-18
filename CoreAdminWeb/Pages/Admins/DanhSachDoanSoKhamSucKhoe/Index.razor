@@ -197,22 +197,14 @@
                                     @(item.tien_su_gia_dinh?.Trim().Length > 100 ? item.tien_su_gia_dinh.Trim().Substring(0, 100) + "…" : item.tien_su_gia_dinh?.Trim())
                                     @if (item.tien_su_gia_dinh?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Tiền sử gia đình", item.tien_su_gia_dinh))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Tiền sử gia đình", item.tien_su_gia_dinh))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-short-content">
                                     @(item.ten_benh?.Trim().Length > 100 ? item.ten_benh.Trim().Substring(0, 100) + "…" : item.ten_benh?.Trim())
                                     @if (item.ten_benh?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Tiền sử bản thân", item.ten_benh))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Tiền sử bản thân", item.ten_benh))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td>@item.chieu_cao</td>
@@ -224,154 +216,98 @@
                                     @(item.kq_nk_tuan_hoan?.Trim().Length > 100 ? item.kq_nk_tuan_hoan.Trim().Substring(0, 100) + "…" : item.kq_nk_tuan_hoan?.Trim())
                                     @if (item.kq_nk_tuan_hoan?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Tuần hoàn", item.kq_nk_tuan_hoan))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Tuần hoàn", item.kq_nk_tuan_hoan))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.kq_nk_ho_hap?.Trim().Length > 100 ? item.kq_nk_ho_hap.Trim().Substring(0, 100) + "…" : item.kq_nk_ho_hap?.Trim())
                                     @if (item.kq_nk_ho_hap?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Hô hấp", item.kq_nk_ho_hap))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Hô hấp", item.kq_nk_ho_hap))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.kq_nk_tieu_hoa?.Trim().Length > 100 ? item.kq_nk_tieu_hoa.Trim().Substring(0, 100) + "…" : item.kq_nk_tieu_hoa?.Trim())
                                     @if (item.kq_nk_tieu_hoa?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Tiêu hóa", item.kq_nk_tieu_hoa))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Tiêu hóa", item.kq_nk_tieu_hoa))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.kq_nk_than_tiet_nieu?.Trim().Length > 100 ? item.kq_nk_than_tiet_nieu.Trim().Substring(0, 100) + "…" : item.kq_nk_than_tiet_nieu?.Trim())
                                     @if (item.kq_nk_than_tiet_nieu?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Thận - Tiết niệu", item.kq_nk_than_tiet_nieu))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Thận - Tiết niệu", item.kq_nk_than_tiet_nieu))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.kq_nk_noi_tiet?.Trim().Length > 100 ? item.kq_nk_noi_tiet.Trim().Substring(0, 100) + "…" : item.kq_nk_noi_tiet?.Trim())
                                     @if (item.kq_nk_noi_tiet?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Nội tiết", item.kq_nk_noi_tiet))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Nội tiết", item.kq_nk_noi_tiet))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.kq_nk_co_xuong_khop?.Trim().Length > 100 ? item.kq_nk_co_xuong_khop.Trim().Substring(0, 100) + "…" : item.kq_nk_co_xuong_khop?.Trim())
                                     @if (item.kq_nk_co_xuong_khop?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Cơ - xương - khớp", item.kq_nk_co_xuong_khop))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Cơ - xương - khớp", item.kq_nk_co_xuong_khop))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.kq_nk_than_kinh?.Trim().Length > 100 ? item.kq_nk_than_kinh.Trim().Substring(0, 100) + "…" : item.kq_nk_than_kinh?.Trim())
                                     @if (item.kq_nk_than_kinh?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Thần kinh", item.kq_nk_than_kinh))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Thần kinh", item.kq_nk_than_kinh))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.kq_nk_tam_than?.Trim().Length > 100 ? item.kq_nk_tam_than.Trim().Substring(0, 100) + "…" : item.kq_nk_tam_than?.Trim())
                                     @if (item.kq_nk_tam_than?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Tâm thần", item.kq_nk_tam_than))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Tâm thần", item.kq_nk_tam_than))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.kq_ngoai_khoa?.Trim().Length > 100 ? item.kq_ngoai_khoa.Trim().Substring(0, 100) + "…" : item.kq_ngoai_khoa?.Trim())
                                     @if (item.kq_ngoai_khoa?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Ngoại khoa", item.kq_ngoai_khoa))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Ngoại khoa", item.kq_ngoai_khoa))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.ket_qua_san_phu_khoa?.Trim().Length > 100 ? item.ket_qua_san_phu_khoa.Trim().Substring(0, 100) + "…" : item.ket_qua_san_phu_khoa?.Trim())
                                     @if (item.ket_qua_san_phu_khoa?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Sản phụ khoa", item.ket_qua_san_phu_khoa))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Sản phụ khoa", item.ket_qua_san_phu_khoa))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.benh_mat?.Trim().Length > 100 ? item.benh_mat.Trim().Substring(0, 100) + "…" : item.benh_mat?.Trim())
                                     @if (item.benh_mat?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Mắt", item.benh_mat))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Mắt", item.benh_mat))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.benh_tai_mui_hong?.Trim().Length > 100 ? item.benh_tai_mui_hong.Trim().Substring(0, 100) + "…" : item.benh_tai_mui_hong?.Trim())
                                     @if (item.benh_tai_mui_hong?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Tai - Mũi - Họng", item.benh_tai_mui_hong))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Tai - Mũi - Họng", item.benh_tai_mui_hong))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.benh_rhm?.Trim().Length > 100 ? item.benh_rhm.Trim().Substring(0, 100) + "…" : item.benh_rhm?.Trim())
                                     @if (item.benh_rhm?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Răng - Hàm - Mặt", item.benh_rhm))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Răng - Hàm - Mặt", item.benh_rhm))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.kq_da_lieu?.Trim().Length > 100 ? item.kq_da_lieu.Trim().Substring(0, 100) + "…" : item.kq_da_lieu?.Trim())
                                     @if (item.kq_da_lieu?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Da liễu", item.kq_da_lieu))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Da liễu", item.kq_da_lieu))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
@@ -381,11 +317,7 @@
                                         @(results.Trim().Length > 100 ? results.Trim().Substring(0, 100) + "…" : results.Trim())
                                         if (results.Trim().Length > 100)
                                         {
-                                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                       title="Xem chi tiết"
-                                                       @onclick="@(e => showDetail("KQ cận lâm sàng", results))">
-                                                <i class="ri-eye-line"></i>
-                                            </MudButton>
+                                            <MudLink OnClick="@(e => showDetail("KQ cận lâm sàng", results))"> Xem thêm</MudLink>
                                         }
                                     }
                                 </td>
@@ -394,22 +326,14 @@
                                     @(item.benh_tat_ket_luan?.Trim().Length > 100 ? item.benh_tat_ket_luan.Trim().Substring(0, 100) + "…" : item.benh_tat_ket_luan?.Trim())
                                     @if (item.benh_tat_ket_luan?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Da liễu", item.benh_tat_ket_luan))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Các bệnh tật", item.benh_tat_ket_luan))"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.de_nghi?.Trim().Length > 100 ? item.de_nghi.Trim().Substring(0, 100) + "…" : item.de_nghi?.Trim())
                                     @if (item.de_nghi?.Trim().Length > 100)
                                     {
-                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                                   title="Xem chi tiết"
-                                                   @onclick="@(e => showDetail("Da liễu", item.de_nghi))">
-                                            <i class="ri-eye-line"></i>
-                                        </MudButton>
+                                        <MudLink OnClick="@(e => showDetail("Đề nghị", item.de_nghi))"> Xem thêm</MudLink>
                                     }
                                 </td>
                             </tr>
@@ -491,7 +415,7 @@
                     </MudButton>
                 </div>
                 <div class="p-5 space-y-4">
-                    <div class="text-black dark:text-muted">
+                    <div class="text-black dark:text-muted wrap-long-content">
                         @((MarkupString)viewContentContent)
                     </div>
                     <div class="flex items-center justify-end gap-2">
