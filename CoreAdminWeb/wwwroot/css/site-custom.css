@@ -456,6 +456,10 @@ background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align:center;
     white-space: pre-wrap;
 }
 
+.wrap-content {
+    white-space: pre-wrap;
+}
+
 .frozen-columns-table {
     border-collapse: separate;
     border-spacing: 0;
