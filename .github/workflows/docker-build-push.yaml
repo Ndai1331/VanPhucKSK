@@ -25,7 +25,7 @@ jobs:
         git log -1 --pretty=%B >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
     
-    - name: Build and Push Admin QLCL Web Image
+    - name: Build and Push BV199 Web KSK Image
       if: contains(steps.commit.outputs.message, '[WEB]') || contains(steps.commit.outputs.message, '[ALL]')
       run: |
         docker build --platform linux/amd64 -t longnguyen1331/van-phuc-web:bv199-latest -f CoreAdminWeb/Dockerfile .
