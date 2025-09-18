@@ -58,7 +58,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private int soHopDongDaKy = 0;
         private UserModel? CurrentUser { get; set; }
         private bool onKD { get; set; } = false;
-        private bool onReadonly => SelectedItem.status == TrangThaiHopDong.locked;
+        private bool onReadonly => false;
 
         protected override async Task OnInitializedAsync()
         {
