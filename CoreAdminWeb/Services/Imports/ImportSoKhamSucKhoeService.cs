@@ -437,13 +437,17 @@ namespace CoreAdminWeb.Services.Imports
                         chu_ky_nls = SelectedItem.nguoi_lap_so?.chu_ky_bac_si
                     }).ToList();
 
-                await BatchExecuteAsync(medicalRecordsToCreate, _soKhamSucKhoeService.CreateAsync, batchSize);
+                //await BatchExecuteAsync(medicalRecordsToCreate, _soKhamSucKhoeService.CreateAsync, batchSize);
 
                 await updateProgress.Invoke(new ProcessingModel()
                 {
                     ProcessId = connectionId,
                     Status = TrangThaiXuLyNen.Completed,
-                    Value = $"Import Excel hoàn tất!"
+                    Value = $"Import Excel hoàn tất!",
+                    AdditionalParams = new
+                    {
+                        MedicalRecordCreates = medicalRecordsToCreate
+                    }
                 });
             }
             catch (Exception ex)

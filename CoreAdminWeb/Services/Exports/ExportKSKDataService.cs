@@ -603,14 +603,13 @@ namespace CoreAdminWeb.Services.Exports
                             .Replace("{{KetQuaCLS_RangHamMat_ChuKy}}", RenderSignature(cls?.chu_ky_rhm ?? string.Empty, "", 100, 50) + $"<br/>{cls?.bs_rhm}")
                             .Replace("{{KetQuaCLS_RangHamMat_Benh}}", $"{cls?.benh_rhm}")
                             .Replace("{{KetQuaCLS_RangHamMat_PhanLoai}}", $"{cls?.pl_rhm?.name}")
-                            .Replace("{{KetQuaCLS_CLS}}", RenderKQCLS(kqcls?.Where(c => !string.IsNullOrEmpty(c.ket_qua)).ToList()))
-                            .Replace("{{KetQuaCLS_CLS_ChuKy}}", RenderSignature(ketLuan?.chu_ky ?? string.Empty, "", 100, 50) + $"<br/>{ketLuan?.bs_ket_luan?.full_name}")
+                            .Replace("{{KetQuaCLS}}", RenderKQCLS(kqcls?.Where(c => !string.IsNullOrEmpty(c.ket_qua)).ToList(), RenderSignature(ketLuan?.bs_ket_luan?.chu_ky_bac_si ?? string.Empty, "", 100, 50) + $"<br/>{ketLuan?.bs_ket_luan?.chuc_danh} {ketLuan?.bs_ket_luan?.full_name}"))
                             .Replace("{{KetQuaCLS_CLS_PhanLoaiSucKhoe}}", $"{ketLuan?.phan_loai_suc_khoe?.name}")
                             .Replace("{{KetLuan}}", MultilineSpanHtmlBuilder(ketLuan?.benh_tat_ket_luan ?? string.Empty))
                             .Replace("{{NgayKetLuan_Ngay}}", $"{ketLuan?.ngay_ket_luan:dd}")
                             .Replace("{{NgayKetLuan_Thang}}", $"{ketLuan?.ngay_ket_luan:MM}")
                             .Replace("{{NgayKetLuan_Nam}}", $"{ketLuan?.ngay_ket_luan:yyyy}")
-                            .Replace("{{NguoiKetLuan}}", RenderSignature(ketLuan?.chu_ky ?? string.Empty, "<div style=\"height: 20mm\"></div>", 100, 50) + $"<br/><span class=\"bold\">{ketLuan?.bs_ket_luan?.full_name}</span>");
+                            .Replace("{{NguoiKetLuan}}", RenderSignature(ketLuan?.bs_ket_luan?.chu_ky_bac_si ?? string.Empty, "<div style=\"height: 20mm\"></div>", 100, 50) + $"<br/><span class=\"bold\">{ketLuan?.bs_ket_luan?.chuc_danh} {ketLuan?.bs_ket_luan?.full_name}</span>");
 
                             filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf".ToUnsign(spaceReplacement: "-");
                             var pdfBytes = _pdfService.GeneratePdfFromHtml(tempTempalte, new PdfSettings
@@ -807,23 +806,34 @@ namespace CoreAdminWeb.Services.Exports
             return signatureData.GetOptimizedSignatureDisplayHtml(fallbackText, maxWidth, maxHeight);
         }
 
-        private static string RenderKQCLS(List<KhamSucKhoeKetQuaCanLamSangModel>? cls)
+        private static string RenderKQCLS(List<KhamSucKhoeKetQuaCanLamSangModel>? cls, string signature)
         {
             StringBuilder sb = new StringBuilder();
             if (cls == null || !cls.Any())
             {
-                sb.Append($"<span>* * Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</span>");
+                sb.Append("<tr><td>");
+                sb.Append($"<span>** Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</span>");
                 sb.Append($"<div class=\"row\"><span>a) Kết quả:</span><span class=\"dotted-ruled\" style=\"width: 100%\"></span>");
                 sb.Append($"</div><div class=\"row\"><span>b) Đánh giá:</span><span class=\"dotted-ruled\" style=\"width: 100%\"></span></div>");
+                sb.Append("</td><td class=\"center v-middle\">" + signature);
+                sb.Append("</td></tr>");
                 return sb.ToString();
             }
 
-            foreach (var item in cls)
+            foreach (var item in cls.Select((v, i) => new { data = v, index = i }))
             {
-                sb.Append($"<span>* {item.type?.GetDescriptionFromString<KetQuaCanLamSang>()}:</span>");
+                sb.Append("<tr><td>");
+                sb.Append($"<span>* {item.data.type?.GetDescriptionFromString<KetQuaCanLamSang>()}:</span>");
                 sb.Append($"<div class=\"row\"><span>a) Kết quả:</span>");
-                sb.Append(MultilineSpanHtmlBuilder(item.ket_qua ?? string.Empty));
+                sb.Append(MultilineSpanHtmlBuilder(item.data.ket_qua ?? string.Empty));
                 sb.Append($"</div><div class=\"row\"><span>b) Đánh giá:</span><span class=\"dotted-ruled\" style=\"width: 100%\"></span></div>");
+
+                if (item.index == 0)
+                {
+                    sb.Append($"</td><td rowspan=\"{cls.Count}\" class=\"center v-middle\">" + signature);
+                }
+
+                sb.Append("</td></tr>");
             }
             return sb.ToString();
         }

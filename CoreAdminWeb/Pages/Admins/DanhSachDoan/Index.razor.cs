@@ -170,6 +170,11 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             {
                 AlertService.ShowAlert(result.Message ?? "Lỗi khi tải dữ liệu chi tiết", "danger");
             }
+
+            if (SelectedItemsDetail.Any(c => c.benh_nhan != null))
+            {
+                UserItems.AddRange(SelectedItemsDetail.Where(c => c.benh_nhan != null).Select(c => c.benh_nhan!).ToList());
+            }
         }
 
         private async Task OnDelete()
@@ -220,19 +225,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
             openDetailDeleteModal = false;
 
-            if (!SelectedItemsDetail.Any(c => !c.deleted))
-            {
-                SelectedItemsDetail.Add(new SoKhamSucKhoeModel()
-                {
-                    MaDotKham = SelectedItem,
-                    sort = (SelectedItemsDetail.Max(c => c.sort) ?? 0) + 1,
-                    code = string.Empty,
-                    name = string.Empty,
-                    ngay_kham = SelectedItem.ngay_du_kien_kham,
-                    ngay_lap_so = DateTime.Now
-                });
-            }
-
             StateHasChanged();
         }
 
@@ -254,19 +246,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
             if (SelectedItem.id > 0)
             {
                 await LoadDetailData();
-            }
-
-            if (!SelectedItemsDetail.Any())
-            {
-                SelectedItemsDetail.Add(new SoKhamSucKhoeModel()
-                {
-                    MaDotKham = SelectedItem,
-                    sort = (SelectedItemsDetail.Max(c => c.sort) ?? 0) + 1,
-                    code = string.Empty,
-                    name = string.Empty,
-                    ngay_kham = SelectedItem.ngay_du_kien_kham,
-                    ngay_lap_so = DateTime.Now
-                });
             }
 
             openAddOrUpdateModal = true;
@@ -299,13 +278,28 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                         })
                         .ToList();
 
-                    var detailResult = await SoKhamSucKhoeService.CreateAsync(chiTietList);
-                    if (!detailResult.IsSuccess)
+                    var createdItem = chiTietList.Where(c => c.id <= 0);
+                    var updatedItem = chiTietList.Where(c => c.id > 0);
+
+                    if (createdItem != null && createdItem.Any())
                     {
-                        AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
-                        return;
+                        var detailResult = await SoKhamSucKhoeService.CreateAsync(createdItem.ToList());
+                        if (!detailResult.IsSuccess)
+                        {
+                            AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
+                            return;
+                        }
                     }
-                    await LoadDetailData();
+
+                    if (updatedItem != null && updatedItem.Any())
+                    {
+                        var detailResult = await SoKhamSucKhoeService.UpdateAsync(updatedItem.ToList());
+                        if (!detailResult.IsSuccess)
+                        {
+                            AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi cập nhật chi tiết dữ liệu", "danger");
+                            return;
+                        }
+                    }
                     AlertService.ShowAlert("Thêm mới thành công!", "success");
                 }
                 else
@@ -370,8 +364,6 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                             return;
                         }
                     }
-
-                    await LoadDetailData();
                     AlertService.ShowAlert("Cập nhật thành công!", "success");
                 }
                 else
@@ -379,6 +371,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                     AlertService.ShowAlert(result.Message ?? "Lỗi khi cập nhật dữ liệu", "danger");
                 }
             }
+
+            await LoadDetailData();
         }
 
         private bool FormValidation()
@@ -501,7 +495,10 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                     isImportError = false;
                     importProcessingMessage = progress.Value?.ToString() ?? "";
 
-                    await LoadDetailData();
+                    if (HasProperty(progress.AdditionalParams, "MedicalRecordCreates"))
+                    {
+                        SelectedItemsDetail.AddRange(progress.AdditionalParams?.MedicalRecordCreates ?? new List<SoKhamSucKhoeModel>());
+                    }
                     await InvokeAsync(StateHasChanged);
                     break;
 

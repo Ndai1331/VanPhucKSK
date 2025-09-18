@@ -60,6 +60,11 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
         public bool onReadonly { get; set; } = false;
 
+
+        private bool onShowViewContent { get; set; } = false;
+        private string viewContentTitle { get; set; } = "";
+        private string viewContentContent { get; set; } = "";
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -697,6 +702,18 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             // Clear the file input before processing
             await JsRuntime.InvokeVoidAsync("eval", "document.getElementById('excelFileInput').value = ''");
             await JsRuntime.InvokeVoidAsync("eval", "document.getElementById('excelFileInput').click()");
+        }
+
+        private void showDetail(string title, string? content)
+        {
+            onShowViewContent = true;
+            viewContentTitle = title;
+            viewContentContent = content ?? string.Empty;
+        }
+
+        private void closeDetail()
+        {
+            onShowViewContent = false;
         }
     }
 }
