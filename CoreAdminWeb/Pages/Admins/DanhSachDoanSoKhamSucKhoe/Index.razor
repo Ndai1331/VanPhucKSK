@@ -345,7 +345,7 @@
                                         @(results.Trim().Length > 100 ? results.Trim().Substring(0, 100) + "…" : results.Trim())
                                         if (results.Trim().Length > 100)
                                         {
-                                            <MudLink Class="link-primary" OnClick="@(e => showDetail("KQ cận lâm sàng", item.can_lam_sang_results))"> Xem thêm</MudLink>
+                                            <MudLink Class="link-primary" OnClick="@(e => showDetail("KQ cận lâm sàng", results))"> Xem thêm</MudLink>
                                         }
                                     }
                                 </td>
