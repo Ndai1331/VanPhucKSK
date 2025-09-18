@@ -46,6 +46,11 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         private List<DanhSachDoanSoKhamSucKhoeModel> selectedSoKhamSucKhoes { get; set; } = new();
         private bool isSelectAllChecked { get; set; } = false; // Track Select All state separately
         private bool IsAllRowsSelected => isSelectAllChecked;
+
+        private bool onShowViewContent { get; set; } = false;
+        private string viewContentTitle { get; set; } = "";
+        private string viewContentContent { get; set; } = "";
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -581,6 +586,18 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
             }
 
             return obj?.GetType().GetProperty(propertyName) != null;
+        }
+
+        private void showDetail(string title, string? content)
+        {
+            onShowViewContent = true;
+            viewContentTitle = title;
+            viewContentContent = content ?? string.Empty;
+        }
+
+        private void closeDetail()
+        {
+            onShowViewContent = false;
         }
     }
 }
