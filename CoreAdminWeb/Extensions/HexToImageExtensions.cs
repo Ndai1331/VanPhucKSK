@@ -309,13 +309,12 @@ namespace CoreAdminWeb.Extensions
                 base64Image = signatureData;
             }
 
-            if (!string.IsNullOrEmpty(base64Image) && !string.IsNullOrEmpty(webRootPath) && !string.IsNullOrEmpty(fileName))
+            if (!string.IsNullOrEmpty(base64Image))
             {
-                var imagePath = SaveBase64AsImage(base64Image, fileName, webRootPath);
-                if (!string.IsNullOrEmpty(imagePath))
-                {
-                    return $"<div class='signature-wrapper'><img src='{baseUrl}{imagePath}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' /></div>";
-                }
+                string imgSrc = base64Image.StartsWith("data:image", StringComparison.OrdinalIgnoreCase)
+                    ? base64Image
+                    : $"data:image/png;base64,{base64Image.Replace("data:image/png;base64,", "")}";
+                return $"<div class='signature-wrapper'><img src='{imgSrc}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' /></div>";
             }
 
             if (!string.IsNullOrEmpty(fallbackText) && fallbackText.Contains('<') && fallbackText.Contains('>'))
@@ -324,7 +323,7 @@ namespace CoreAdminWeb.Extensions
             }
 
             // Fallback to text display
-            return $"<span class='signature-text'>{signatureData}</span>";
+            return $"<span class='signature-text'>{fallbackText}</span>";
         }
 
         /// <summary>
@@ -345,24 +344,27 @@ namespace CoreAdminWeb.Extensions
                 return $"<span class='signature-text'>{fallbackText}</span>";
             }
 
+            string base64Image = "";
             // Check if it's a hex signature
             if (signatureData.IsValidHexSignature())
             {
-                var base64Image = signatureData.ToBase64Image();
-                if (!string.IsNullOrEmpty(base64Image))
-                {
-                    // Cho PDF, luôn sử dụng placeholder nếu ảnh quá lớn
-                    if (base64Image.Length > 30000) // Ngưỡng thấp hơn cho PDF
-                    {
-                        return $"<div class='signature-placeholder' style='border: 1px solid #000; padding: 4px; text-align: center; width: {maxWidth}px; height: {maxHeight}px; display: inline-block; line-height: {maxHeight}px; font-size: 12px;'>Chữ ký</div>";
-                    }
+                base64Image = signatureData.ToBase64Image();
+            }
+            else
+            {
+                base64Image = signatureData;
+            }
 
-                    return $"<img src='{base64Image}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' />";
-                }
+            if (!string.IsNullOrEmpty(base64Image))
+            {
+                string imgSrc = base64Image.StartsWith("data:image", StringComparison.OrdinalIgnoreCase)
+                ? base64Image
+                : $"data:image/png;base64,{base64Image.Replace("data:image/png;base64,", "")}";
+                return $"<img src='{imgSrc}' alt='Chữ ký' class='signature-image' style='max-width:{maxWidth}px; max-height:{maxHeight}px; object-fit: contain;' />";
             }
 
             // Fallback to text display
-            return $"<span class='signature-text'>{signatureData}</span>";
+            return $"<span class='signature-text'>{fallbackText}</span>";
         }
     }
 }

@@ -149,10 +149,10 @@
             @if (!string.IsNullOrEmpty(SelectedKhamSucKhoeTienSu?.tien_su_gia_dinh))
             {
                 splitCount = 0;
-                foreach (var splitStr in SelectedKhamSucKhoeTienSu?.tien_su_gia_dinh.WrapToWidthMm())
+                foreach (var splitStr in SelectedKhamSucKhoeTienSu.tien_su_gia_dinh.WrapToWidthMm())
                 {
                     splitCount++;
-                    <span class="dotted-ruled" style="width: 100%">@splitStr</span>
+                    <span class="dotted-ruled" style="width: 100%"><span style="white-space: pre-wrap">@splitStr</span></span>
                 }
 
                 if (splitCount < 4)
@@ -256,10 +256,10 @@
             @if (!string.IsNullOrEmpty(SelectedKhamSucKhoeTienSu?.tien_su_gia_dinh))
             {
                 splitCount = 0;
-                foreach (var splitStr in SelectedKhamSucKhoeTienSu?.tien_su_gia_dinh.WrapToWidthMm())
+                foreach (var splitStr in SelectedKhamSucKhoeTienSu.tien_su_gia_dinh.WrapToWidthMm())
                 {
                     splitCount++;
-                    <span class="dotted-ruled" style="width: 100%">@splitStr</span>
+                    <span class="dotted-ruled" style="width: 100%"><span style="white-space: pre-wrap">@splitStr</span></span>
                 }
 
                 if (splitCount < 4)
@@ -418,10 +418,25 @@
                         <table class="auto mt-0">
                             <tr>
                                 @{
-                                    var paras = SelectedKhamSucKhoeSanPhuKhoa?.para?.Split('|');
-                                    if (paras == null || paras.Length < 4)
+                                    var paras = SelectedKhamSucKhoeSanPhuKhoa?.para?
+                                    .Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                                    if (paras.Length == 1)
                                     {
-                                        paras = new string[] { "", "", "", "" }; // Default to "00" if not set
+                                        paras = SelectedKhamSucKhoeSanPhuKhoa?.para?.SplitStringByTwoChars();
+                                    }
+                                    if (paras == null)
+                                    {
+                                        paras = new[] { "", "", "", "" };
+                                    }
+
+                                    if (paras.Length < 4)
+                                    {
+                                        var tempList = paras.ToList();
+                                        for (int i = tempList.Count - 1; i < 4; i++)
+                                        {
+                                            tempList.Add("");
+                                        }
+                                        paras = tempList.ToArray();
                                     }
                                 }
                                 @foreach (var c in paras)
@@ -516,7 +531,7 @@
                 <td class="italic ">Tuần hoàn</td>
                 <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_tuan_hoan)</td>
                 <td rowspan="2" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_tuan_hoan, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_tuan_hoan, "", "tuan_hoan", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_tuan_hoan)
                 </td>
@@ -530,7 +545,7 @@
                 <td class="italic ">Hô hấp</td>
                 <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_ho_hap)</td>
                 <td rowspan="2" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_ho_hap, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_ho_hap, "", "ho_hap", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_ho_hap)
                 </td>
@@ -544,7 +559,7 @@
                 <td class="italic ">Tiêu hóa</td>
                 <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_tieu_hoa)</td>
                 <td rowspan="2" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_tieu_hoa, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_tieu_hoa, "", "tieu_hoa", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_tieu_hoa)
                 </td>
@@ -558,7 +573,7 @@
                 <td class="italic ">Thận-Tiết niệu</td>
                 <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_than_tiet_nieu)</td>
                 <td rowspan="2" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_than_tiet_nieu, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_than_tiet_nieu, "", "than_tiet_nieu", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_than_tiet_nieu)
                 </td>
@@ -572,7 +587,7 @@
                 <td class="italic ">Nội tiết</td>
                 <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_noi_tiet)</td>
                 <td rowspan="2" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_noi_tiet, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_noi_tiet, "", "noi_tiet", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_noi_tiet)
                 </td>
@@ -586,7 +601,7 @@
                 <td class="italic ">Cơ - xương - khớp</td>
                 <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_co_xuong_khop)</td>
                 <td rowspan="2" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_co_xuong_khop, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_co_xuong_khop, "", "co_xuong_khop", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_co_xuong_khop)
                 </td>
@@ -600,7 +615,7 @@
                 <td class="italic ">Thần kinh</td>
                 <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_than_kinh)</td>
                 <td rowspan="2" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_than_kinh, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_than_kinh, "", "than_kinh", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_than_kinh)
                 </td>
@@ -614,7 +629,7 @@
                 <td class="italic ">Tâm thần</td>
                 <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_tam_than)</td>
                 <td rowspan="2" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_tam_than, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_tam_than, "", "tam_than", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_tam_than)
                 </td>
@@ -648,7 +663,7 @@
                     </div>
                 </td>
                 <td class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_ngoai_khoa, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_ngoai_khoa, "", "chuyen_khoa", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_ngoai_khoa)
                 </td>
@@ -668,7 +683,7 @@
                 <td class="center v-middle">
                     @if (SelectedItem.benh_nhan?.gioi_tinh != null && SelectedItem.benh_nhan?.gioi_tinh == Enums.GioiTinh.Nu && SelectedKhamSucKhoeSanPhuKhoa != null)
                     {
-                        @RenderSignatureHandler(SelectedKhamSucKhoeSanPhuKhoa.chu_ky, "", "", 100, 50)
+                        @RenderSignatureHandler(SelectedKhamSucKhoeSanPhuKhoa.chu_ky, "", "san_phu_khoa", 100, 50)
                         <br />
                         @CoreHelpers.GetSafeString(SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan)
                     }
@@ -695,7 +710,7 @@
                     </div>
                 </td>
                 <td rowspan="3" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_mat, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_mat, "", "mat", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_mat)
                 </td>
@@ -742,7 +757,7 @@
                     </div>
                 </td>
                 <td rowspan="3" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_tmh, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_tmh, "", "tai_mui_hong", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_tmh)
                 </td>
@@ -782,7 +797,7 @@
                     </div>
                 </td>
                 <td rowspan="3" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_rhm, "", "", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_rhm, "", "rang_ham_mat", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_rhm)
                 </td>
@@ -807,46 +822,77 @@
     </section>
 
     <section class="page overflow-x-auto">
-        <div class="title">IV. KHÁM CẬN LÂM SÀNG</div>
         <table>
             <colgroup>
                 <col style="width: 80%" />
                 <col style="width: 20%" />
             </colgroup>
             <tbody>
-                <tr>
-                    <td>
-                        @if (SelectedKhamSucKhoeKetQuaCanLamSangs != null)
-                        {
-                            foreach (var item in SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => !string.IsNullOrEmpty(c.ket_qua)))
-                            {
-                                <span>
-                                    * @(item.type?.GetDescriptionFromString<KetQuaCanLamSang>()):
-                                </span>
-                                <div class="row">
-                                    <span>
-                                        a) Kết quả:
-                                    </span>
-                                    @foreach (var splitStr in item.ket_qua?.WrapToWidthMm() ?? new List<string>())
-                                    {
-                                        <span class="dotted-ruled" style="width: 100%">@splitStr</span>
-                                    }
-                                </div>
-                                <div class="row">
-                                    <span>
-                                        b) Đánh giá:
-                                    </span>
-                                    <span class="dotted-ruled" style="width: 100%"></span>
-                                </div>
-                            }
-                        }
-                    </td>
-                    <td class="center v-middle">
-                        @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky, "", "", 100, 50)
-                        <br />
-                        @CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)
-                    </td>
+                <tr style="border: none;">
+                    <td colspan="2" style="border: none;"><div class="title">IV. KHÁM CẬN LÂM SÀNG</div></td>
                 </tr>
+                @{
+                    var totalBlock = 1;
+                    if (SelectedKhamSucKhoeKetQuaCanLamSangs != null && SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
+                    {
+                        totalBlock = SelectedKhamSucKhoeKetQuaCanLamSangs.Count(c => !string.IsNullOrEmpty(c.ket_qua));
+                        var startIndex = 0;
+                        foreach (var item in SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => !string.IsNullOrEmpty(c.ket_qua)))
+                        {
+                            <tr>
+                                <td>
+                                    <span>
+                                        * @(item.type?.GetDescriptionFromString<KetQuaCanLamSang>()):
+                                    </span>
+                                    <div class="row">
+                                        <span>
+                                            a) Kết quả:
+                                        </span>
+                                        @foreach (var splitStr in item.ket_qua?.WrapToWidthMm() ?? new List<string>())
+                                        {
+                                            <br />
+                                            <span class="dotted-ruled" style="width: 100%"><span style="white-space: pre-wrap">@splitStr</span></span>
+                                        }
+                                    </div>
+                                    <div class="row">
+                                        <span>
+                                            b) Đánh giá:
+                                        </span>
+                                        <span class="dotted-ruled" style="width: 100%"></span>
+                                    </div>
+                                </td>
+                                @if (startIndex == 0)
+                                {
+                                    <td class="center v-middle" rowspan="@totalBlock">
+                                        @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 1mm\"></div>", "ket_luan_cls", 100, 50)
+                                        <br />
+                                        @CoreHelpers.GetSafeString($"{SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chuc_danh} {SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name}")
+                                    </td>
+                                }
+                            </tr>
+                            startIndex++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>
+                                <span>** Xét nghiệm huyết học/sinh hóa/X.quang và các xét nghiệm khác khi có chỉ định của bác sỹ:</span>
+                                <div class="row">
+                                    <span>a) Kết quả:</span><span class="dotted-ruled" style="width: 100%"></span>
+                                </div>
+                                <div class="row">
+                                    <span>b) Đánh giá:</span><span class="dotted-ruled" style="width: 100%"></span>
+                                </div>
+                            </td>
+                            <td class="center v-middle">
+                                @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 1mm\"></div>", "ket_luan_cls", 100, 50)
+                                <br />
+                                @CoreHelpers.GetSafeString($"{SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chuc_danh} {SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name}")
+                            </td>
+                        </tr>
+                    }
+                }
             </tbody>
         </table>
 
@@ -856,12 +902,11 @@
             <span class="dotted-ruled" style="width: 148mm">@SelectedKhamSucKhoeKetLuan?.phan_loai_suc_khoe?.name</span>
         </div>
         <div class="row">
-            <b>2. Các bệnh, tật (nếu có)<sup>2</sup>:</b>
             @if (!string.IsNullOrEmpty(SelectedKhamSucKhoeKetLuan?.benh_tat_ket_luan))
             {
                 foreach (var splitStr in SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan.WrapToWidthMm())
                 {
-                    <span class="dotted-ruled" style="width: 100%">@splitStr</span>
+                    <span class="dotted-ruled" style="width: 100%"><span style="white-space: pre-wrap">@splitStr</span></span>
                 }
             }
             else
@@ -879,7 +924,7 @@
                 <tr>
                     <td></td>
                     <td>
-                        <div class="signature-box">
+                        <div class="signature-box text-center">
                             <div class="row">
                                 <span class="dotted-ruled"
                                       style="width: 20mm"></span>
@@ -897,8 +942,8 @@
                             <br />
                             <span class="italic">(Ký, ghi rõ họ tên và đóng dấu)</span>
                             <br />
-                            @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.chu_ky, "<div style=\"height: 20mm\"></div>", "", 100, 50)
-                            <span class="bold">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name)</span>
+                            @RenderSignatureHandler(SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chu_ky_bac_si, "<div style=\"height: 20mm\"></div>", "ket_luan", 100, 50)
+                            <span class="bold">@CoreHelpers.GetSafeString($"{SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.chuc_danh} {SelectedKhamSucKhoeKetLuan?.bs_ket_luan?.full_name}")</span>
                         </div>
                     </td>
                 </tr>
