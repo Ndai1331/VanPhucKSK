@@ -122,7 +122,7 @@
                             <th>Tiêu hóa</th>
                             <th>Thận-Tiết niệu</th>
                             <th>Nội tiết</th>
-                            <th>Cơ-xương-khớp</th>
+                            <th>Cơ - xương - khớp</th>
                             <th>Thần kinh</th>
                             <th>Tâm thần</th>
                             <th>Ngoại khoa</th>
@@ -146,31 +146,149 @@
                                 <td class="xl:frozen-col xl:frozen-col-3">@item.Data.last_name @item.Data.first_name</td>
                                 <td class="xl:frozen-col xl:frozen-col-4">@item.Data.ngay_sinh?.ToString("dd/MM/yyyy")</td>
                                 <td class="xl:frozen-col xl:frozen-col-5">@item.Data.gioi_tinh?.GetDescription()</td>
-                                <td class="wrap-short-content">@item.Data.tien_su_gia_dinh</td>
-                                <td class="wrap-short-content">@item.Data.ten_benh</td>
+                                <td class="wrap-short-content">
+                                    @(item.Data.tien_su_gia_dinh?.Trim().Length > 100 ? item.Data.tien_su_gia_dinh.Trim().Substring(0, 100) + "…" : item.Data.tien_su_gia_dinh?.Trim())
+                                    @if (item.Data.tien_su_gia_dinh?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tiền sử gia đình", item.Data.tien_su_gia_dinh))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-short-content">
+                                    @(item.Data.ten_benh?.Trim().Length > 100 ? item.Data.ten_benh.Trim().Substring(0, 100) + "…" : item.Data.ten_benh?.Trim())
+                                    @if (item.Data.ten_benh?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tiền sử bản thân", item.Data.ten_benh))"> Xem thêm</MudLink>
+                                    }
+                                </td>
                                 <td>@item.Data.chieu_cao</td>
                                 <td>@item.Data.can_nang</td>
                                 <td>@item.Data.bmi</td>
                                 <td>@item.Data.mach</td>
                                 <td>@item.Data.huyet_ap</td>
-                                <td>@item.Data.kq_nk_tuan_hoan</td>
-                                <td>@item.Data.kq_nk_ho_hap</td>
-                                <td>@item.Data.kq_nk_tieu_hoa</td>
-                                <td>@item.Data.kq_nk_than_tiet_nieu</td>
-                                <td>@item.Data.kq_nk_noi_tiet</td>
-                                <td>@item.Data.kq_nk_co_xuong_khop</td>
-                                <td>@item.Data.kq_nk_than_kinh</td>
-                                <td>@item.Data.kq_nk_tam_than</td>
-                                <td>@item.Data.kq_ngoai_khoa</td>
-                                <td>@item.Data.ket_qua_san_phu_khoa</td>
-                                <td>@item.Data.benh_mat</td>
-                                <td>@item.Data.benh_tai_mui_hong</td>
-                                <td>@item.Data.benh_rhm</td>
-                                <td>@item.Data.kq_da_lieu</td>
-                                <td><div class="whitespace-pre-wrap">@item.Data.can_lam_sang_results</div></td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_nk_tuan_hoan?.Trim().Length > 100 ? item.Data.kq_nk_tuan_hoan.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_tuan_hoan?.Trim())
+                                    @if (item.Data.kq_nk_tuan_hoan?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tuần hoàn", item.Data.kq_nk_tuan_hoan))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_nk_ho_hap?.Trim().Length > 100 ? item.Data.kq_nk_ho_hap.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_ho_hap?.Trim())
+                                    @if (item.Data.kq_nk_ho_hap?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Hô hấp", item.Data.kq_nk_ho_hap))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_nk_tieu_hoa?.Trim().Length > 100 ? item.Data.kq_nk_tieu_hoa.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_tieu_hoa?.Trim())
+                                    @if (item.Data.kq_nk_tieu_hoa?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tiêu hóa", item.Data.kq_nk_tieu_hoa))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_nk_than_tiet_nieu?.Trim().Length > 100 ? item.Data.kq_nk_than_tiet_nieu.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_than_tiet_nieu?.Trim())
+                                    @if (item.Data.kq_nk_than_tiet_nieu?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Thận - Tiết niệu", item.Data.kq_nk_than_tiet_nieu))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_nk_noi_tiet?.Trim().Length > 100 ? item.Data.kq_nk_noi_tiet.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_noi_tiet?.Trim())
+                                    @if (item.Data.kq_nk_noi_tiet?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Nội tiết", item.Data.kq_nk_noi_tiet))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_nk_co_xuong_khop?.Trim().Length > 100 ? item.Data.kq_nk_co_xuong_khop.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_co_xuong_khop?.Trim())
+                                    @if (item.Data.kq_nk_co_xuong_khop?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Cơ - xương - khớp", item.Data.kq_nk_co_xuong_khop))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_nk_than_kinh?.Trim().Length > 100 ? item.Data.kq_nk_than_kinh.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_than_kinh?.Trim())
+                                    @if (item.Data.kq_nk_than_kinh?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Thần kinh", item.Data.kq_nk_than_kinh))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_nk_tam_than?.Trim().Length > 100 ? item.Data.kq_nk_tam_than.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_tam_than?.Trim())
+                                    @if (item.Data.kq_nk_tam_than?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tâm thần", item.Data.kq_nk_tam_than))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_ngoai_khoa?.Trim().Length > 100 ? item.Data.kq_ngoai_khoa.Trim().Substring(0, 100) + "…" : item.Data.kq_ngoai_khoa?.Trim())
+                                    @if (item.Data.kq_ngoai_khoa?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Ngoại khoa", item.Data.kq_ngoai_khoa))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.ket_qua_san_phu_khoa?.Trim().Length > 100 ? item.Data.ket_qua_san_phu_khoa.Trim().Substring(0, 100) + "…" : item.Data.ket_qua_san_phu_khoa?.Trim())
+                                    @if (item.Data.ket_qua_san_phu_khoa?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Sản phụ khoa", item.Data.ket_qua_san_phu_khoa))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.benh_mat?.Trim().Length > 100 ? item.Data.benh_mat.Trim().Substring(0, 100) + "…" : item.Data.benh_mat?.Trim())
+                                    @if (item.Data.benh_mat?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Mắt", item.Data.benh_mat))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.benh_tai_mui_hong?.Trim().Length > 100 ? item.Data.benh_tai_mui_hong.Trim().Substring(0, 100) + "…" : item.Data.benh_tai_mui_hong?.Trim())
+                                    @if (item.Data.benh_tai_mui_hong?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tai - Mũi - Họng", item.Data.benh_tai_mui_hong))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.benh_rhm?.Trim().Length > 100 ? item.Data.benh_rhm.Trim().Substring(0, 100) + "…" : item.Data.benh_rhm?.Trim())
+                                    @if (item.Data.benh_rhm?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Răng - Hàm - Mặt", item.Data.benh_rhm))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.kq_da_lieu?.Trim().Length > 100 ? item.Data.kq_da_lieu.Trim().Substring(0, 100) + "…" : item.Data.kq_da_lieu?.Trim())
+                                    @if (item.Data.kq_da_lieu?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Da liễu", item.Data.kq_da_lieu))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @if (!string.IsNullOrEmpty(item.Data.can_lam_sang_results))
+                                    {
+                                        var results = item.Data.can_lam_sang_results.Replace("|", "\n");
+                                        @(item.Data.can_lam_sang_results?.Trim().Length > 100 ? item.Data.can_lam_sang_results.Trim().Substring(0, 100) + "…" : item.Data.can_lam_sang_results?.Trim())
+                                        if (item.Data.can_lam_sang_results?.Trim().Length > 100)
+                                        {
+                                            <MudLink Class="link-primary" OnClick="@(e => showDetail("KQ cận lâm sàng", results))"> Xem thêm</MudLink>
+                                        }
+                                    }
+                                </td>
                                 <td>@item.Data.phan_loai_suc_khoe</td>
-                                <td class="wrap-long-content">@item.Data.benh_tat_ket_luan?.Trim()</td>
-                                <td class="wrap-long-content">@item.Data.de_nghi?.Trim()</td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.benh_tat_ket_luan?.Trim().Length > 100 ? item.Data.benh_tat_ket_luan.Trim().Substring(0, 100) + "…" : item.Data.benh_tat_ket_luan?.Trim())
+                                    @if (item.Data.benh_tat_ket_luan?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Các bệnh tật", item.Data.benh_tat_ket_luan))"> Xem thêm</MudLink>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.de_nghi?.Trim().Length > 100 ? item.Data.de_nghi.Trim().Substring(0, 100) + "…" : item.Data.de_nghi?.Trim())
+                                    @if (item.Data.de_nghi?.Trim().Length > 100)
+                                    {
+                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Đề nghị", item.Data.de_nghi))"> Xem thêm</MudLink>
+                                    }
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -180,3 +298,30 @@
         </div>
     </div>
 </div>
+
+@if (onShowViewContent)
+{
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="closeDetail">
+            <div class="relative w-full max-w-lg p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+                <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">@viewContentTitle</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="closeDetail">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
+                            <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
+                        </svg>
+                    </MudButton>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="text-black dark:text-muted wrap-long-content">
+                        @((MarkupString)viewContentContent)
+                    </div>
+                    <div class="flex items-center justify-end gap-2">
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="closeDetail">Đóng</MudButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

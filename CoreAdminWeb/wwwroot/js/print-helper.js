@@ -17,7 +17,7 @@ window.printMedicalForm = function() {
     }
     
     // CSS đơn giản cho print - không lấy từ stylesheet để tránh lỗi
-    const printStyles = `
+	const printStyles = `
         * {
 				box-sizing: border-box;
 			}

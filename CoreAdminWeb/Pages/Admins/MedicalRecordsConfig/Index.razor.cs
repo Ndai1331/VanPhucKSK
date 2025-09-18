@@ -201,11 +201,6 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
                 _titleAddOrUpdate = $"Thông tin hồ sơ: {SelectedItem.code}";
             }
 
-            if (!readOnly && SelectedItem.ma_hop_dong_ksk?.status == TrangThaiHopDong.locked)
-            {
-                readOnly = true;
-            }
-
             openAddOrUpdateModal = true;
 
             // Wait for modal to render

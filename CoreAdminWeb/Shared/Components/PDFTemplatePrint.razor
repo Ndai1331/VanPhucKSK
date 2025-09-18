@@ -600,7 +600,7 @@
                 <td class="italic ">Cơ - xương - khớp</td>
                 <td>@CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_co_xuong_khop)</td>
                 <td rowspan="2" class="center v-middle">
-                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_co_xuong_khop, "", "xo_xuong_khop", 100, 50)
+                    @RenderSignatureHandler(SelectedKhamSucKhoeChuyenKhoa?.chu_ky_co_xuong_khop, "", "co_xuong_khop", 100, 50)
                     <br />
                     @CoreHelpers.GetSafeString(SelectedKhamSucKhoeChuyenKhoa?.bs_co_xuong_khop)
                 </td>
@@ -901,7 +901,6 @@
             <span class="dotted-ruled" style="width: 148mm">@SelectedKhamSucKhoeKetLuan?.phan_loai_suc_khoe?.name</span>
         </div>
         <div class="row">
-            <b>2. Các bệnh, tật (nếu có)<sup>2</sup>:</b>
             @if (!string.IsNullOrEmpty(SelectedKhamSucKhoeKetLuan?.benh_tat_ket_luan))
             {
                 foreach (var splitStr in SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan.WrapToWidthMm())
