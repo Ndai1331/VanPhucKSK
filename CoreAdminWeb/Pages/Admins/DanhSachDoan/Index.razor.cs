@@ -367,6 +367,8 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
                         }
                     }
                     AlertService.ShowAlert("Cập nhật thành công!", "success");
+
+                    openAddOrUpdateModal = false;
                 }
                 else
                 {
