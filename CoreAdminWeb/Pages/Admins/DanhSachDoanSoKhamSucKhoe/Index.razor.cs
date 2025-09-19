@@ -708,7 +708,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         {
             onShowViewContent = true;
             viewContentTitle = title;
-            viewContentContent = (content ?? string.Empty).Trim('\r', '\n');
+            viewContentContent = (content ?? string.Empty).Trim('\r', '\n'); 
         }
 
         private void closeDetail()
