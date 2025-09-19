@@ -157,14 +157,14 @@
                                     @(item.Data.tien_su_gia_dinh?.Trim().Length > 100 ? item.Data.tien_su_gia_dinh.Trim().Substring(0, 100) + "…" : item.Data.tien_su_gia_dinh?.Trim())
                                     @if (item.Data.tien_su_gia_dinh?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tiền sử gia đình", item.Data.tien_su_gia_dinh))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Tiền sử gia đình", item.Data.tien_su_gia_dinh); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-short-content">
                                     @(item.Data.ten_benh?.Trim().Length > 100 ? item.Data.ten_benh.Trim().Substring(0, 100) + "…" : item.Data.ten_benh?.Trim())
                                     @if (item.Data.ten_benh?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tiền sử bản thân", item.Data.ten_benh))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Tiền sử bản thân", item.Data.ten_benh); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td>@item.Data.chieu_cao</td>
@@ -176,98 +176,98 @@
                                     @(item.Data.kq_nk_tuan_hoan?.Trim().Length > 100 ? item.Data.kq_nk_tuan_hoan.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_tuan_hoan?.Trim())
                                     @if (item.Data.kq_nk_tuan_hoan?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tuần hoàn", item.Data.kq_nk_tuan_hoan))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Tuần hoàn", item.Data.kq_nk_tuan_hoan); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.kq_nk_ho_hap?.Trim().Length > 100 ? item.Data.kq_nk_ho_hap.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_ho_hap?.Trim())
                                     @if (item.Data.kq_nk_ho_hap?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Hô hấp", item.Data.kq_nk_ho_hap))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Hô hấp", item.Data.kq_nk_ho_hap); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.kq_nk_tieu_hoa?.Trim().Length > 100 ? item.Data.kq_nk_tieu_hoa.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_tieu_hoa?.Trim())
                                     @if (item.Data.kq_nk_tieu_hoa?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tiêu hóa", item.Data.kq_nk_tieu_hoa))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Tiêu hóa", item.Data.kq_nk_tieu_hoa); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.kq_nk_than_tiet_nieu?.Trim().Length > 100 ? item.Data.kq_nk_than_tiet_nieu.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_than_tiet_nieu?.Trim())
                                     @if (item.Data.kq_nk_than_tiet_nieu?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Thận - Tiết niệu", item.Data.kq_nk_than_tiet_nieu))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Thận - Tiết niệu", item.Data.kq_nk_than_tiet_nieu); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.kq_nk_noi_tiet?.Trim().Length > 100 ? item.Data.kq_nk_noi_tiet.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_noi_tiet?.Trim())
                                     @if (item.Data.kq_nk_noi_tiet?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Nội tiết", item.Data.kq_nk_noi_tiet))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Nội tiết", item.Data.kq_nk_noi_tiet); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.kq_nk_co_xuong_khop?.Trim().Length > 100 ? item.Data.kq_nk_co_xuong_khop.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_co_xuong_khop?.Trim())
                                     @if (item.Data.kq_nk_co_xuong_khop?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Cơ - xương - khớp", item.Data.kq_nk_co_xuong_khop))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Cơ - xương - khớp", item.Data.kq_nk_co_xuong_khop); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.kq_nk_than_kinh?.Trim().Length > 100 ? item.Data.kq_nk_than_kinh.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_than_kinh?.Trim())
                                     @if (item.Data.kq_nk_than_kinh?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Thần kinh", item.Data.kq_nk_than_kinh))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Thần kinh", item.Data.kq_nk_than_kinh); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.kq_nk_tam_than?.Trim().Length > 100 ? item.Data.kq_nk_tam_than.Trim().Substring(0, 100) + "…" : item.Data.kq_nk_tam_than?.Trim())
                                     @if (item.Data.kq_nk_tam_than?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tâm thần", item.Data.kq_nk_tam_than))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Tâm thần", item.Data.kq_nk_tam_than); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.kq_ngoai_khoa?.Trim().Length > 100 ? item.Data.kq_ngoai_khoa.Trim().Substring(0, 100) + "…" : item.Data.kq_ngoai_khoa?.Trim())
                                     @if (item.Data.kq_ngoai_khoa?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Ngoại khoa", item.Data.kq_ngoai_khoa))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Ngoại khoa", item.Data.kq_ngoai_khoa); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.ket_qua_san_phu_khoa?.Trim().Length > 100 ? item.Data.ket_qua_san_phu_khoa.Trim().Substring(0, 100) + "…" : item.Data.ket_qua_san_phu_khoa?.Trim())
                                     @if (item.Data.ket_qua_san_phu_khoa?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Sản phụ khoa", item.Data.ket_qua_san_phu_khoa))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Sản phụ khoa", item.Data.ket_qua_san_phu_khoa); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.benh_mat?.Trim().Length > 100 ? item.Data.benh_mat.Trim().Substring(0, 100) + "…" : item.Data.benh_mat?.Trim())
                                     @if (item.Data.benh_mat?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Mắt", item.Data.benh_mat))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Mắt", item.Data.benh_mat); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.benh_tai_mui_hong?.Trim().Length > 100 ? item.Data.benh_tai_mui_hong.Trim().Substring(0, 100) + "…" : item.Data.benh_tai_mui_hong?.Trim())
                                     @if (item.Data.benh_tai_mui_hong?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Tai - Mũi - Họng", item.Data.benh_tai_mui_hong))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Tai - Mũi - Họng", item.Data.benh_tai_mui_hong); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.benh_rhm?.Trim().Length > 100 ? item.Data.benh_rhm.Trim().Substring(0, 100) + "…" : item.Data.benh_rhm?.Trim())
                                     @if (item.Data.benh_rhm?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Răng - Hàm - Mặt", item.Data.benh_rhm))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Răng - Hàm - Mặt", item.Data.benh_rhm); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.kq_da_lieu?.Trim().Length > 100 ? item.Data.kq_da_lieu.Trim().Substring(0, 100) + "…" : item.Data.kq_da_lieu?.Trim())
                                     @if (item.Data.kq_da_lieu?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Da liễu", item.Data.kq_da_lieu))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Da liễu", item.Data.kq_da_lieu); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
@@ -277,7 +277,7 @@
                                         @(results.Trim().Length > 100 ? results.Trim().Substring(0, 100) + "…" : results.Trim())
                                         if (results.Trim().Length > 100)
                                         {
-                                            <MudLink Class="link-primary" OnClick="@(e => showDetail("KQ cận lâm sàng", results))"> Xem thêm</MudLink>
+                                            <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("KQ cận lâm sàng", results); })"> Xem thêm</MudLink>
                                         }
                                     }
                                 </td>
@@ -286,14 +286,14 @@
                                     @(item.Data.benh_tat_ket_luan?.Trim().Length > 100 ? item.Data.benh_tat_ket_luan.Trim().Substring(0, 100) + "…" : item.Data.benh_tat_ket_luan?.Trim())
                                     @if (item.Data.benh_tat_ket_luan?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Các bệnh tật", item.Data.benh_tat_ket_luan))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Các bệnh tật", item.Data.benh_tat_ket_luan); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                                 <td class="wrap-long-content">
                                     @(item.Data.de_nghi?.Trim().Length > 100 ? item.Data.de_nghi.Trim().Substring(0, 100) + "…" : item.Data.de_nghi?.Trim())
                                     @if (item.Data.de_nghi?.Trim().Length > 100)
                                     {
-                                        <MudLink Class="link-primary" OnClick="@(e => showDetail("Đề nghị", item.Data.de_nghi))"> Xem thêm</MudLink>
+                                        <MudLink Class="link-primary" OnClick="@(async e => { await JsRuntime.InvokeVoidAsync("eventStopPropagation", e); showDetail("Đề nghị", item.Data.de_nghi); })"> Xem thêm</MudLink>
                                     }
                                 </td>
                             </tr>
