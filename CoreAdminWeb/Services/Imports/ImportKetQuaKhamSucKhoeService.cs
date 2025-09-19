@@ -55,7 +55,7 @@ namespace CoreAdminWeb.Services.Imports
                     result = new List<ImportKetQuaKhamSucKhoeModel>();
 
                     // Đọc dữ liệu theo batch để giảm memory pressure
-                    for (int row = 3; row <= rowCount; row++)
+                    for (int row = 2; row <= rowCount; row++)
                     {
                         bool isEmptyRow = true;
                         for (int col = 1; col <= colCount; col++)
