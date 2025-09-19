@@ -833,7 +833,7 @@
                 </tr>
                 @{
                     var totalBlock = 1;
-                    if (SelectedKhamSucKhoeKetQuaCanLamSangs != null && SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
+                    if (SelectedKhamSucKhoeKetQuaCanLamSangs != null && SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => !string.IsNullOrEmpty(c.ket_qua)))
                     {
                         totalBlock = SelectedKhamSucKhoeKetQuaCanLamSangs.Count(c => !string.IsNullOrEmpty(c.ket_qua));
                         var startIndex = 0;
