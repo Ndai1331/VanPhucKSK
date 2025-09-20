@@ -29,8 +29,8 @@ namespace CoreAdminWeb.Services.BaseServices
 
     public interface IBaseDetailService<T> : IBaseGetService<T>
     {
-        Task<RequestHttpResponse<List<T>>> CreateAsync(List<T> model);
-        Task<RequestHttpResponse<bool>> UpdateAsync(List<T> model);
+        Task<RequestHttpResponse<List<T>>> CreateAsync(List<dynamic> model);
+        Task<RequestHttpResponse<bool>> UpdateAsync(List<dynamic> model);
         Task<RequestHttpResponse<bool>> DeleteAsync(List<T> model);
     }
     public interface IBaseAllService<T> : IBaseService<T>

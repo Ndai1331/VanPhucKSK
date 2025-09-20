@@ -45,6 +45,8 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? chu_ky_lap_so { get; set; }
         public UserModel? nguoi_lap_so { get; set; }
         public new Status status { get; set; } = Status.published;
+
+        public bool? kham_noi_vien { get; set; }
     }
     public class KhamSucKhoeCongTyCRUDModel
     {
@@ -90,5 +92,7 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public int? ma_hop_dong_ksk { get; set; }
         public string? chu_ky_lap_so { get; set; }
         public Guid? nguoi_lap_so { get; set; }
+
+        public bool? kham_noi_vien { get; set; }
     }
 }

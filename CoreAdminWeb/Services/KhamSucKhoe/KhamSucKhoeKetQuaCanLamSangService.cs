@@ -178,6 +178,100 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
         }
 
         /// <summary>
+        /// Sends a request to create new items in the specified collection and returns the result.
+        /// </summary>
+        /// <remarks>This method sends a POST request to the configured API endpoint to create the
+        /// specified items. If the <paramref name="model"/> parameter is <see langword="null"/>, the method returns a
+        /// response with a <see cref="HttpStatusCode.BadRequest"/> status and an error message. In case of an
+        /// exception, the method returns a response with error details.</remarks>
+        /// <param name="model">A list of dynamic objects representing the items to be created. Cannot be <see langword="null"/>.</param>
+        /// <returns>A <see cref="RequestHttpResponse{T}"/> containing a list of <see cref="KhamSucKhoeKetQuaCanLamSangModel"/> objects if
+        /// the operation is successful. If the request fails, the response contains error details.</returns>
+        public async Task<RequestHttpResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>> CreateAsync(List<dynamic> model)
+        {
+            if (model == null)
+            {
+                return new RequestHttpResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>
+                {
+                    Errors = new List<ErrorResponse> { new() { Message = "Vui lòng nhập đầy đủ thông tin" } },
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
+            // Check if all items in model are of type KhamSucKhoeKetQuaCanLamSangModel
+            bool allKhamSucKhoeKetQuaCanLamSangModel = model.All(item => item is KhamSucKhoeKetQuaCanLamSangModel);
+            if (allKhamSucKhoeKetQuaCanLamSangModel)
+            {
+                var typedList = model.Cast<KhamSucKhoeKetQuaCanLamSangModel>().ToList();
+                return await CreateAsync(typedList);
+            }
+
+            try
+            {
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>>($"items/{_collection}?fields={Fields}", model);
+
+                if (!response.IsSuccess)
+                {
+                    return new RequestHttpResponse<List<KhamSucKhoeKetQuaCanLamSangModel>> { Errors = response.Errors };
+                }
+
+                return response.Data ?? new RequestHttpResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>();
+            }
+            catch (Exception ex)
+            {
+                return IBaseGetService<KhamSucKhoeKetQuaCanLamSangModel>.CreateErrorResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>(ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates the specified list of models asynchronously.
+        /// </summary>
+        /// <remarks>This method sends a PATCH request to update the specified models. If the <paramref
+        /// name="model"/> parameter is null, empty, or contains any objects with invalid <c>id</c> values, the method
+        /// returns a response with a <see cref="HttpStatusCode.BadRequest"/> status.</remarks>
+        /// <param name="model">A list of dynamic objects representing the models to be updated. Each object must have a valid <c>id</c>
+        /// property that is not null or zero.</param>
+        /// <returns>A <see cref="RequestHttpResponse{T}"/> containing a boolean value indicating whether the update operation
+        /// was successful. If the operation fails, the response includes error details and an appropriate HTTP status
+        /// code.</returns>
+        public async Task<RequestHttpResponse<bool>> UpdateAsync(List<dynamic> model)
+        {
+            if (model == null || !model.Any() || model.Any(c => c.id == null || c.id == 0))
+            {
+                return new RequestHttpResponse<bool>
+                {
+                    Data = false,
+                    Errors = new List<ErrorResponse> { new() { Message = "Vui lòng chọn bản ghi để cập nhật" } },
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
+            // Check if all items in model are of type KhamSucKhoeKetQuaCanLamSangModel
+            bool allKhamSucKhoeKetQuaCanLamSangModel = model.All(item => item is KhamSucKhoeKetQuaCanLamSangModel);
+            if (allKhamSucKhoeKetQuaCanLamSangModel)
+            {
+                var typedList = model.Cast<KhamSucKhoeKetQuaCanLamSangModel>().ToList();
+                return await UpdateAsync(typedList);
+            }
+
+            try
+            {
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>>(
+                    $"items/{_collection}?fields={Fields}", model);
+
+                return new RequestHttpResponse<bool>
+                {
+                    Data = response.IsSuccess,
+                    Errors = response.Errors
+                };
+            }
+            catch (Exception ex)
+            {
+                return IBaseGetService<bool>.CreateErrorResponse<bool>(ex);
+            }
+        }
+
+        /// <summary>
         /// Asynchronously deletes the specified health check results by marking them as deleted.
         /// </summary>
         /// <remarks>This method sends a PATCH request to mark the specified items as deleted. If the

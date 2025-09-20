@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using MudBlazor;
+using System.Dynamic;
 
 namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 {
@@ -95,24 +96,25 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private string _tenBenhNhanString = "";
 
         private bool openSyncKetQuaCanLamSangModal { get; set; } = false;
+        private bool openSoKhamSucKhoeModal { get; set; } = false;
         private bool onReadonly => SelectedItem.status == Model.Base.Status.published || SelectedItem.MaDotKham?.ma_hop_dong_ksk?.status == TrangThaiHopDong.locked;
 
         private bool isShowOnlyMe { get; set; } = false;
         private bool onBS { get; set; } = false;
-        private bool onBSHoHap => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ho_hap?.id == CurrentUser.id;
-        private bool onBSTuanHoan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tuan_hoan?.id == CurrentUser.id;
-        private bool onBSTieuHoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tieu_hoa?.id == CurrentUser.id;
-        private bool onBSThanTietNieu => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_than_tiet_nieu?.id == CurrentUser.id;
-        private bool onBSNoiTiet => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_noi_tiet?.id == CurrentUser.id;
-        private bool onBSCoXuongKhop => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_co_xuong_khop?.id == CurrentUser.id;
-        private bool onBSThanKinh => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_than_kinh?.id == CurrentUser.id;
-        private bool onBSTamThan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tam_than?.id == CurrentUser.id;
-        private bool onBSNgoaiKhoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ngoai_khoa?.id == CurrentUser.id;
-        private bool onBSMat => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_mat?.id == CurrentUser.id;
-        private bool onBSTaiMuiHong => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tai_mui_hong?.id == CurrentUser.id;
-        private bool onBSRangHamMat => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_rang_ham_mat?.id == CurrentUser.id;
-        private bool onBSSanPhuKhoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_san_phu_khoa?.id == CurrentUser.id;
-        private bool onBSKetLuan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ket_luan?.id == CurrentUser.id;
+        private bool onBSHoHap => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ho_hap?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSTuanHoan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tuan_hoan?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSTieuHoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tieu_hoa?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSThanTietNieu => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_than_tiet_nieu?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSNoiTiet => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_noi_tiet?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSCoXuongKhop => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_co_xuong_khop?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSThanKinh => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_than_kinh?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSTamThan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tam_than?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSNgoaiKhoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ngoai_khoa?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSMat => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_mat?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSTaiMuiHong => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_tai_mui_hong?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSRangHamMat => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_rang_ham_mat?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSSanPhuKhoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_san_phu_khoa?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
+        private bool onBSKetLuan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ket_luan?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
 
         private string imageWebRootPath { get; set; } = string.Empty;
 
@@ -123,6 +125,14 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private List<UserModel> Users { get; set; } = new();
         private string currentFilterPhanLoaiSucKhoe { get; set; } = string.Empty;
 
+        private int renderKey { get; set; } = 0;
+
+        private dynamic dynamicTheLucObj = new System.Dynamic.ExpandoObject();
+        private dynamic dynamicSanPhuKhoaObj = new System.Dynamic.ExpandoObject();
+        private dynamic dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
+        private dynamic dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
+        private dynamic dynamicTienSuObj = new System.Dynamic.ExpandoObject();
+        private List<dynamic> dynamicKhamCLSObj = new List<dynamic>();
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -143,7 +153,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 await LoadPhanLoaiSucKhoeSelect2(PhanLoaiSucKhoes, string.Empty, CancellationToken.None);
 
                 SetProfileImagePlaceholder();
-                await LoadData(true);
+                //await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 StateHasChanged();
 
@@ -223,11 +233,21 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         await SelectedPage(TotalPages);
                     }
                 }
+
+                if (MainModels.Any())
+                {
+                    openSoKhamSucKhoeModal = true;
+                }
+                else
+                {
+                    AlertService.ShowAlert("Không tìm thấy thông tin sổ khám sức khỏe!", "danger");
+                }
             }
             else
             {
                 MainModels = new List<SoKhamSucKhoeModel>();
             }
+            OnResetData();
             Loading.Hide();
             StateHasChanged();
         }
@@ -236,6 +256,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         {
             if (SelectedItem.id != soKhamSKId)
             {
+                openSoKhamSucKhoeModal = false;
                 OnResetData();
 
                 onBS = CurrentUser?.role?.ToLower() == CurrentSetting.doctor_role_id?.ToLower().ToString();
@@ -304,6 +325,13 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private async Task LoadDetailData(int soKhamSKId)
         {
             Loading.Show();
+            dynamicTheLucObj = new System.Dynamic.ExpandoObject();
+            dynamicSanPhuKhoaObj = new System.Dynamic.ExpandoObject();
+            dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
+            dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
+            dynamicTienSuObj = new System.Dynamic.ExpandoObject();
+            dynamicKhamCLSObj = new List<dynamic>();
+
             var resSoKhamSK = await MainService.GetByIdAsync(soKhamSKId.ToString());
             if (resSoKhamSK?.IsSuccess == true && resSoKhamSK.Data != null)
             {
@@ -376,6 +404,81 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     para2 = paraSplit.Length > 1 ? paraSplit[1].Trim() : string.Empty;
                     para3 = paraSplit.Length > 2 ? paraSplit[2].Trim() : string.Empty;
                     para4 = paraSplit.Length > 3 ? paraSplit[3].Trim() : string.Empty;
+                }
+
+                if (SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe);
+                }
+
+                if (SelectedKhamSucKhoeSanPhuKhoa.phan_loai != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeSanPhuKhoa.phan_loai.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeSanPhuKhoa.phan_loai);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_mat != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_mat.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_mat);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_tmh != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_tmh.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_tmh);
+                }
+
+                if (SelectedKhamSucKhoeChuyenKhoa.pl_rhm != null && !PhanLoaiSucKhoes.Any(c => c.id == SelectedKhamSucKhoeChuyenKhoa.pl_rhm.id))
+                {
+                    PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_rhm);
                 }
             }
             else
@@ -537,6 +640,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             openSyncKetQuaCanLamSangModal = false;
         }
 
+        private void CloseSoKhamSucKhoeModal()
+        {
+            openSoKhamSucKhoeModal = false;
+        }
+
         private async Task OnValidSubmit()
         {
             try
@@ -559,330 +667,751 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 SelectedKhamSucKhoeSanPhuKhoa.ma_luot_kham = SelectedItem.ma_luot_kham;
                 SelectedKhamSucKhoeSanPhuKhoa.luot_kham = SelectedItem;
 
-                if (SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt != true)
+                if (SelectedKhamSucKhoeCongTy.kham_noi_vien == null || SelectedKhamSucKhoeCongTy.kham_noi_vien == false)
                 {
-                    SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro = string.Empty;
-                }
-
-                if ((SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa ?? 0) <= 0)
-                {
-                    SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro = string.Empty;
-                }
-
-                PhanLoaiSucKhoeModel? plDefault = default;
-                if (CurrentSetting.phan_loai_sk_mac_dinh.HasValue && CurrentSetting.phan_loai_sk_mac_dinh > 0)
-                {
-                    var plResult = await PhanLoaiSucKhoaService.GetByIdAsync($"{CurrentSetting.phan_loai_sk_mac_dinh}");
-                    plDefault = plResult.Data;
-                }
-
-                if (onBS)
-                {
-                    SelectedKhamSucKhoeTheLuc.phan_loai ??= plDefault;
-                }
-
-                if (onBSHoHap)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap?.Trim()))
+                    if (SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt != true)
                     {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro = string.Empty;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSTuanHoan)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan?.Trim()))
+                    if ((SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa ?? 0) <= 0)
                     {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro = string.Empty;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSTieuHoa)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa?.Trim()))
+                    PhanLoaiSucKhoeModel? plDefault = default;
+                    if (CurrentSetting.phan_loai_sk_mac_dinh.HasValue && CurrentSetting.phan_loai_sk_mac_dinh > 0)
                     {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        var plResult = await PhanLoaiSucKhoaService.GetByIdAsync($"{CurrentSetting.phan_loai_sk_mac_dinh}");
+                        plDefault = plResult.Data;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSThanTietNieu)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu?.Trim()))
+                    if (onBS)
                     {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeTheLuc.phan_loai ??= plDefault;
                     }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSNoiTiet)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet?.Trim()))
+                    if (onBSHoHap)
                     {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
+                        SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSCoXuongKhop)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap = CurrentUser?.chu_ky_bac_si;
                     }
+                    if (onBSTuanHoan)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSThanKinh)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan = CurrentUser?.chu_ky_bac_si;
                     }
+                    if (onBSTieuHoa)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSTamThan)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa = CurrentUser?.chu_ky_bac_si;
                     }
+                    if (onBSThanTietNieu)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_tam_than = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSNgoaiKhoa)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu = CurrentUser?.chu_ky_bac_si;
                     }
+                    if (onBSNoiTiet)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                    SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet = CurrentUser?.chu_ky_bac_si;
                     }
+                    if (onBSCoXuongKhop)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSMat)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_mat ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_mat?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.benh_mat = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop = CurrentUser?.chu_ky_bac_si;
                     }
+                    if (onBSThanKinh)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_mat = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSTaiMuiHong)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_tmh ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh = CurrentUser?.chu_ky_bac_si;
                     }
+                    if (onBSTamThan)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_tmh = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSRangHamMat)
-                {
-                    SelectedKhamSucKhoeChuyenKhoa.pl_rhm ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        SelectedKhamSucKhoeChuyenKhoa.bs_tam_than = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than = CurrentUser?.chu_ky_bac_si;
                     }
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi?.Trim()))
+                    if (onBSNgoaiKhoa)
                     {
-                        SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_rhm?.Trim()))
-                    {
-                        SelectedKhamSucKhoeChuyenKhoa.benh_rhm = CurrentSetting.ket_qua_ksk_mac_dinh;
-                    }
+                        SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                    SelectedKhamSucKhoeChuyenKhoa.bs_rhm = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm = CurrentUser?.chu_ky_bac_si;
-                }
-                if (onBSSanPhuKhoa)
-                {
-                    if (SelectedUser.gioi_tinh == GioiTinh.Nu)
+                        SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
+
+                        SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa = CurrentUser?.chu_ky_bac_si;
+                    }
+                    if (onBSMat)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_mat ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_mat?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.benh_mat = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
+
+                        SelectedKhamSucKhoeChuyenKhoa.bs_mat = CurrentUser?.full_name;
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat = CurrentUser?.chu_ky_bac_si;
+                    }
+                    if (onBSTaiMuiHong)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_tmh ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
+
+                        SelectedKhamSucKhoeChuyenKhoa.bs_tmh = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_tmh = CurrentUser?.chu_ky_bac_si;
+                    }
+                    if (onBSRangHamMat)
+                    {
+                        SelectedKhamSucKhoeChuyenKhoa.pl_rhm ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa.benh_rhm?.Trim()))
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.benh_rhm = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
+
+                        SelectedKhamSucKhoeChuyenKhoa.bs_rhm = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm = CurrentUser?.chu_ky_bac_si;
+                    }
+                    if (onBSSanPhuKhoa && SelectedUser.gioi_tinh == GioiTinh.Nu)
                     {
                         SelectedKhamSucKhoeSanPhuKhoa.phan_loai ??= plDefault;
                         if (string.IsNullOrEmpty(SelectedKhamSucKhoeSanPhuKhoa.ket_qua?.Trim()))
                         {
                             SelectedKhamSucKhoeSanPhuKhoa.ket_qua = CurrentSetting.ket_qua_ksk_mac_dinh;
                         }
+
+                        SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
                     }
 
-                    SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
-                }
+                    SelectedKhamSucKhoeKetQuaCanLamSangs = SelectedKhamSucKhoeKetQuaCanLamSangs.Select(c =>
+                            {
+                                c.luot_kham = SelectedItem;
 
-                SelectedKhamSucKhoeKetQuaCanLamSangs = SelectedKhamSucKhoeKetQuaCanLamSangs.Select(c =>
+                                return c;
+                            }).ToList();
+
+
+                    if (onBSKetLuan)
+                    {
+                        SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe ??= plDefault;
+                        if (string.IsNullOrEmpty(SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan?.Trim()))
                         {
-                            c.luot_kham = SelectedItem;
+                            SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan = CurrentSetting.ket_qua_ksk_mac_dinh;
+                        }
 
-                            return c;
-                        }).ToList();
+                        SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                        SelectedKhamSucKhoeKetLuan.chu_ky = CurrentUser?.chu_ky_bac_si;
+                        SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
+                    }
 
-                if (SelectedKhamSucKhoeTienSu.id > 0)
-                {
-                    var result = await KhamSucKhoeTienSuService.UpdateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
-                    if (result == null || !result.IsSuccess)
+                    if (SelectedKhamSucKhoeTienSu.id > 0)
                     {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
-                        return;
+                        var result = await KhamSucKhoeTienSuService.UpdateAsync(new List<dynamic>() { SelectedKhamSucKhoeTienSu });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        var result = await KhamSucKhoeTienSuService.CreateAsync(new List<dynamic>() { SelectedKhamSucKhoeTienSu });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
+                            return;
+                        }
+                    }
+
+                    if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
+                    {
+                        var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<dynamic>() { SelectedKhamSucKhoeSanPhuKhoa });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<dynamic>() { SelectedKhamSucKhoeSanPhuKhoa });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
+                            return;
+                        }
+                    }
+
+                    if (SelectedKhamSucKhoeTheLuc.id > 0)
+                    {
+                        var result = await KhamSucKhoeTheLucService.UpdateAsync(new List<dynamic>() { SelectedKhamSucKhoeTheLuc });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        var result = await KhamSucKhoeTheLucService.CreateAsync(new List<dynamic>() { SelectedKhamSucKhoeTheLuc });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
+                            return;
+                        }
+                    }
+
+                    if (SelectedKhamSucKhoeChuyenKhoa.id > 0)
+                    {
+                        var result = await KhamSucKhoeChuyenKhoaService.UpdateAsync(new List<dynamic>() { SelectedKhamSucKhoeChuyenKhoa });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        var result = await KhamSucKhoeChuyenKhoaService.CreateAsync(new List<dynamic>() { SelectedKhamSucKhoeChuyenKhoa });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
+                            return;
+                        }
+                    }
+
+                    if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
+                    {
+                        var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs.Cast<dynamic>().ToList());
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs.Cast<dynamic>().ToList());
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
+                            return;
+                        }
+                    }
+
+                    if (SelectedKhamSucKhoeKetLuan.id > 0)
+                    {
+                        var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<dynamic>() { SelectedKhamSucKhoeKetLuan });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        var result = await KhamSucKhoeKetLuanService.CreateAsync(new List<dynamic>() { SelectedKhamSucKhoeKetLuan });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                            return;
+                        }
                     }
                 }
                 else
                 {
-                    var result = await KhamSucKhoeTienSuService.CreateAsync(new List<KhamSucKhoeTienSuModel>() { SelectedKhamSucKhoeTienSu });
-                    if (result == null || !result.IsSuccess)
+                    #region Tien su
+                    dynamic updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    var updateFields = (IDictionary<string, object?>)updateDynamicObj;
+                    var dict = dynamicTienSuObj as IDictionary<string, object?>;
+                    if (dict != null && dict.Count > 0)
                     {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
-                        return;
-                    }
-                }
+                        var props = typeof(KhamSucKhoeTienSuModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                        foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
+                        {
+                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                        }
 
-                if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
-                {
-                    var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
-                        return;
-                    }
-                }
-                else
-                {
-                    var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<KhamSucKhoeSanPhuKhoaModel>() { SelectedKhamSucKhoeSanPhuKhoa });
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử khám phụ khoa!", "danger");
-                        return;
-                    }
-                }
+                        if (updateFields.Any())
+                        {
+                            if (SelectedKhamSucKhoeTienSu.id > 0)
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeTienSu.id)] = SelectedKhamSucKhoeTienSu.id;
+                            }
 
-                if (SelectedKhamSucKhoeTheLuc.id > 0)
-                {
-                    var result = await KhamSucKhoeTheLucService.UpdateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
-                        return;
-                    }
-                }
-                else
-                {
-                    var result = await KhamSucKhoeTheLucService.CreateAsync(new List<KhamSucKhoeTheLucModel>() { SelectedKhamSucKhoeTheLuc });
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám thể lực!", "danger");
-                        return;
-                    }
-                }
-
-                if (SelectedKhamSucKhoeChuyenKhoa.id > 0)
-                {
-                    var result = await KhamSucKhoeChuyenKhoaService.UpdateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
-                        return;
-                    }
-                }
-                else
-                {
-                    var result = await KhamSucKhoeChuyenKhoaService.CreateAsync(new List<KhamSucKhoeChuyenKhoaModel>() { SelectedKhamSucKhoeChuyenKhoa });
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám chuyên khoa!", "danger");
-                        return;
-                    }
-                }
-
-                if (onBSKetLuan)
-                {
-                    SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe ??= plDefault;
-                    if (string.IsNullOrEmpty(SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan?.Trim()))
-                    {
-                        SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan = CurrentSetting.ket_qua_ksk_mac_dinh;
+                            updateFields[nameof(SelectedKhamSucKhoeTienSu.luot_kham)] = SelectedItem.id;
+                            updateFields[nameof(SelectedKhamSucKhoeTienSu.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
+                        }
                     }
 
-                    SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = CurrentUser?.full_name;
-                    SelectedKhamSucKhoeKetLuan.chu_ky = CurrentUser?.chu_ky_bac_si;
-                    SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
-                }
-                if (SelectedKhamSucKhoeKetLuan.id > 0)
-                {
-                    var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
-                    if (result == null || !result.IsSuccess)
+                    if (updateFields.Any())
                     {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
-                        return;
+                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeTienSu.id)))
+                        {
+                            var result = await KhamSucKhoeTienSuService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeTienSuService.CreateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu tiền sử bệnh tật!", "danger");
+                                return;
+                            }
+                        }
                     }
-                }
-                else
-                {
-                    var result = await KhamSucKhoeKetLuanService.CreateAsync(new List<KhamSucKhoeKetLuanModel>() { SelectedKhamSucKhoeKetLuan });
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
-                        return;
-                    }
-                }
+                    #endregion
 
-                if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
-                {
-                    var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
-                    if (result == null || !result.IsSuccess)
+                    #region San phu khoa
+                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateFields = (IDictionary<string, object?>)updateDynamicObj;
+                    dict = dynamicSanPhuKhoaObj as IDictionary<string, object?>;
+                    if (dict != null && dict.Count > 0)
                     {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
-                        return;
-                    }
-                }
-                else
-                {
-                    var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
-                    if (result == null || !result.IsSuccess)
-                    {
-                        AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
-                        return;
-                    }
-                }
+                        var props = typeof(KhamSucKhoeSanPhuKhoaModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                        foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
+                        {
+                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                        }
 
-                if (onBSKetLuan)
-                {
-                    SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
+                        if (updateFields.Any())
+                        {
+                            if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.id)] = SelectedKhamSucKhoeSanPhuKhoa.id;
+                            }
+                            updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.luot_kham)] = SelectedItem.id;
+                            updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
+
+                            if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.phan_loai)) || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.ket_qua)))
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.chu_ky)] = null;
+                            }
+                        }
+                    }
+
+                    if (updateFields.Any())
+                    {
+                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.id)))
+                        {
+                            var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
+                                return;
+                            }
+                        }
+                    }
+                    #endregion
+
+                    #region The luc
+                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateFields = (IDictionary<string, object?>)updateDynamicObj;
+                    dict = dynamicTheLucObj as IDictionary<string, object?>;
+                    if (dict != null && dict.Count > 0)
+                    {
+                        var props = typeof(KhamSucKhoeTheLucModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                        foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
+                        {
+                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                        }
+
+                        if (updateFields.Any())
+                        {
+                            if (SelectedKhamSucKhoeTheLuc.id > 0)
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeTheLuc.id)] = SelectedKhamSucKhoeTheLuc.id;
+                            }
+
+                            updateFields[nameof(SelectedKhamSucKhoeTheLuc.luot_kham)] = SelectedItem.id;
+                            updateFields[nameof(SelectedKhamSucKhoeTheLuc.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
+                        }
+                    }
+
+                    if (updateFields.Any())
+                    {
+                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeTheLuc.id)))
+                        {
+                            var result = await KhamSucKhoeTheLucService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám thể lực!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeTheLucService.CreateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám thể lực!", "danger");
+                                return;
+                            }
+                        }
+                    }
+                    #endregion
+
+                    #region Chuyen khoa
+                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateFields = (IDictionary<string, object?>)updateDynamicObj;
+                    dict = dynamicChuyenKhoaObj as IDictionary<string, object?>;
+                    if (dict != null && dict.Count > 0)
+                    {
+                        var props = typeof(KhamSucKhoeChuyenKhoaModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                        foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
+                        {
+                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                        }
+
+                        if (updateFields.Any())
+                        {
+                            if (SelectedKhamSucKhoeChuyenKhoa.id > 0)
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.id)] = SelectedKhamSucKhoeChuyenKhoa.id;
+                            }
+
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.luot_kham)] = SelectedItem.id;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tam_than)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_mat))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_mat))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_mat)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat)] = CurrentUser?.chu_ky_bac_si;
+                            }
+
+                            if (
+                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_rhm))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi))
+                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_rhm))
+                            )
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_rhm)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm)] = CurrentUser?.chu_ky_bac_si;
+                            }
+                        }
+                    }
+
+                    if (updateFields.Any())
+                    {
+                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.id)))
+                        {
+                            var result = await KhamSucKhoeChuyenKhoaService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám chuyên khoa!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeChuyenKhoaService.CreateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám chuyên khoa!", "danger");
+                                return;
+                            }
+                        }
+                    }
+                    #endregion
+
+                    #region Ket qua CLS
+                    List<dynamic> updateDynamicListObj = new List<dynamic>();
+                    List<dynamic> addDynamicListObj = new List<dynamic>();
+                    if (dynamicKhamCLSObj.Any())
+                    {
+                        foreach (var kqCLS in SelectedKhamSucKhoeKetQuaCanLamSangs)
+                        {
+                            var clsDynamicObj = dynamicKhamCLSObj.FirstOrDefault(c => c.type == kqCLS.type);
+                            if (clsDynamicObj != null)
+                            {
+                                updateFields = (IDictionary<string, object?>)clsDynamicObj;
+                                dict = dynamicTheLucObj as IDictionary<string, object?>;
+
+                                if (dict != null && dict.Count > 0)
+                                {
+                                    var props = typeof(KhamSucKhoeKetQuaCanLamSangModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                                    foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
+                                    {
+                                        updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                                    }
+
+                                    if (updateFields.Any())
+                                    {
+                                        updateFields[nameof(kqCLS.luot_kham)] = SelectedItem.id;
+
+                                        if (kqCLS.id > 0)
+                                        {
+                                            updateFields[nameof(kqCLS.id)] = kqCLS.id;
+                                            updateDynamicListObj.Add(updateDynamicObj);
+                                        }
+                                        else
+                                        {
+                                            addDynamicListObj.Add(updateDynamicObj);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (updateDynamicListObj.Any())
+                    {
+                        var result = await KhamSucKhoeTheLucService.UpdateAsync(updateDynamicListObj);
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám cận lâm sàng!", "danger");
+                            return;
+                        }
+                    }
+                    if (addDynamicListObj.Any())
+                    {
+                        var result = await KhamSucKhoeTheLucService.CreateAsync(new List<dynamic>() { updateDynamicObj });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám cận lâm sàng!", "danger");
+                            return;
+                        }
+                    }
+                    #endregion
+
+                    #region Ket luan
+                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateFields = (IDictionary<string, object?>)updateDynamicObj;
+                    dict = dynamicKetLuanObj as IDictionary<string, object?>;
+                    if (dict != null && dict.Count > 0)
+                    {
+                        var props = typeof(KhamSucKhoeKetLuanModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                        foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
+                        {
+                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                        }
+
+                        if (updateFields.Any())
+                        {
+                            if (SelectedKhamSucKhoeKetLuan.id > 0)
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeKetLuan.id)] = SelectedKhamSucKhoeKetLuan.id;
+                            }
+
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.luot_kham)] = SelectedItem.id;
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.nguoi_ket_luan)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)] = DateTime.Now;
+                            if (CurrentUser != null && CurrentUser.id != Guid.Empty)
+                            {
+                                updateFields[nameof(SelectedKhamSucKhoeKetLuan.bs_ket_luan)] = CurrentUser.id;
+                            }
+                        }
+                    }
+
+                    if (updateFields.Any())
+                    {
+                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeKetLuan.id)))
+                        {
+                            var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var result = await KhamSucKhoeKetLuanService.CreateAsync(new List<dynamic>() { updateDynamicObj });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu kết luận!", "danger");
+                                return;
+                            }
+                        }
+                    }
+                    #endregion
                 }
 
                 AlertService.ShowAlert("Lưu thông tin khám sức khỏe thành công!", "success");
+                renderKey++;
+                if (renderKey == int.MaxValue)
+                {
+                    SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
+                }
 
-                await LoadDetailData(SelectedItem.id);
+                dynamicTheLucObj = new System.Dynamic.ExpandoObject();
+                dynamicSanPhuKhoaObj = new System.Dynamic.ExpandoObject();
+                dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
+                dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
+                dynamicTienSuObj = new System.Dynamic.ExpandoObject();
             }
             catch
             {
@@ -902,7 +1431,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 SelectedItem.status = Model.Base.Status.published;
 
-                var result = await MainService.UpdateAsync(new List<SoKhamSucKhoeModel>() { SelectedItem });
+                var result = await MainService.UpdateAsync(new List<dynamic>() { SelectedItem });
                 if (result == null || !result.IsSuccess)
                 {
                     AlertService.ShowAlert("Đã có lỗi xảy ra khi kết thúc!", "danger");
@@ -931,7 +1460,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                 SelectedItem.status = Model.Base.Status.draft;
 
-                var result = await MainService.UpdateAsync(new List<SoKhamSucKhoeModel>() { SelectedItem });
+                var result = await MainService.UpdateAsync(new List<dynamic>() { SelectedItem });
                 if (result == null || !result.IsSuccess)
                 {
                     AlertService.ShowAlert("Đã có lỗi xảy ra khi hủy kết thúc!", "danger");
@@ -1245,16 +1774,98 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         {
             try
             {
+                void UpdateDynamicField(object dynamicObj, object? value, Type type, object selected)
+                {
+                    UpdateField(dynamicObj, fieldName, value, type, selected);
+                }
+
+                void HandleModelUpdate(object? value, object dynamicObj, Type type, object selected)
+                {
+                    UpdateDynamicField(dynamicObj, value, type, selected);
+                }
+
                 if (!isDate)
                 {
-                    if (e.Value == null || string.IsNullOrEmpty(e.Value.ToString()))
+                    var value = e.Value;
+                    if (value == null || string.IsNullOrEmpty(value.ToString()))
                     {
                         ReflectionHelper.SetFieldValue(this, item, fieldName, null);
+                        if (item != default)
+                        {
+                            switch (item)
+                            {
+                                case KhamSucKhoeChuyenKhoaModel:
+                                    HandleModelUpdate(null, dynamicChuyenKhoaObj, item.GetType(), item);
+                                    break;
+                                case KhamSucKhoeSanPhuKhoaModel:
+                                    HandleModelUpdate(null, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                    break;
+                                case KhamSucKhoeTheLucModel:
+                                    HandleModelUpdate(null, dynamicTheLucObj, item.GetType(), item);
+                                    break;
+                                case KhamSucKhoeKetLuanModel:
+                                    HandleModelUpdate(null, dynamicKetLuanObj, item.GetType(), item);
+                                    break;
+                                case KhamSucKhoeTienSuModel:
+                                    HandleModelUpdate(null, dynamicTienSuObj, item.GetType(), item);
+                                    break;
+                            }
+                        }
                     }
                     else
                     {
-                        var value = e.Value.ToString();
-                        ReflectionHelper.SetFieldValue(this, item, fieldName, value);
+                        var valueType = value.GetType();
+                        if (valueType.IsClass && valueType != typeof(string))
+                        {
+                            ReflectionHelper.SetFieldValue(this, item, fieldName, value);
+                            if (item != default)
+                            {
+                                switch (item)
+                                {
+                                    case KhamSucKhoeChuyenKhoaModel:
+                                        HandleModelUpdate(value, dynamicChuyenKhoaObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeSanPhuKhoaModel:
+                                        HandleModelUpdate(value, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeTheLucModel:
+                                        HandleModelUpdate(value, dynamicTheLucObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeKetLuanModel:
+                                        HandleModelUpdate(value, dynamicKetLuanObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeTienSuModel:
+                                        HandleModelUpdate(value, dynamicTienSuObj, item.GetType(), item);
+                                        break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var strValue = value.ToString();
+                            ReflectionHelper.SetFieldValue(this, item, fieldName, strValue);
+                            if (item != default)
+                            {
+                                switch (item)
+                                {
+                                    case KhamSucKhoeChuyenKhoaModel:
+                                        HandleModelUpdate(strValue, dynamicChuyenKhoaObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeSanPhuKhoaModel:
+                                        HandleModelUpdate(strValue, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeTheLucModel:
+                                        HandleModelUpdate(strValue, dynamicTheLucObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeKetLuanModel:
+                                        HandleModelUpdate(strValue, dynamicKetLuanObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeTienSuModel:
+                                        HandleModelUpdate(strValue, dynamicTienSuObj, item.GetType(), item);
+                                        break;
+                                }
+                            }
+                        }
                     }
                 }
                 else
@@ -1263,6 +1874,27 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     if (string.IsNullOrEmpty(dateStr))
                     {
                         ReflectionHelper.SetFieldValue(this, item, fieldName, null);
+                        if (item != default)
+                        {
+                            switch (item)
+                            {
+                                case KhamSucKhoeChuyenKhoaModel:
+                                    HandleModelUpdate(null, dynamicChuyenKhoaObj, item.GetType(), item);
+                                    break;
+                                case KhamSucKhoeSanPhuKhoaModel:
+                                    HandleModelUpdate(null, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                    break;
+                                case KhamSucKhoeTheLucModel:
+                                    HandleModelUpdate(null, dynamicTheLucObj, item.GetType(), item);
+                                    break;
+                                case KhamSucKhoeKetLuanModel:
+                                    HandleModelUpdate(null, dynamicKetLuanObj, item.GetType(), item);
+                                    break;
+                                case KhamSucKhoeTienSuModel:
+                                    HandleModelUpdate(null, dynamicTienSuObj, item.GetType(), item);
+                                    break;
+                            }
+                        }
                     }
                     else
                     {
@@ -1274,6 +1906,27 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         {
                             var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
                             ReflectionHelper.SetFieldValue(this, item, fieldName, date);
+                            if (item != default)
+                            {
+                                switch (item)
+                                {
+                                    case KhamSucKhoeChuyenKhoaModel:
+                                        HandleModelUpdate(date, dynamicChuyenKhoaObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeSanPhuKhoaModel:
+                                        HandleModelUpdate(date, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeTheLucModel:
+                                        HandleModelUpdate(date, dynamicTheLucObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeKetLuanModel:
+                                        HandleModelUpdate(date, dynamicKetLuanObj, item.GetType(), item);
+                                        break;
+                                    case KhamSucKhoeTienSuModel:
+                                        HandleModelUpdate(date, dynamicTienSuObj, item.GetType(), item);
+                                        break;
+                                }
+                            }
                         }
                     }
                 }
@@ -1288,13 +1941,20 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     var chieuCao = (SelectedKhamSucKhoeTheLuc.chieu_cao ?? 0) / 100;
                     var canNang = SelectedKhamSucKhoeTheLuc.can_nang ?? 0;
                     SelectedKhamSucKhoeTheLuc.bmi = chieuCao > 0 ? Math.Round(canNang / (chieuCao * chieuCao), 2) : 0;
+                    UpdateField(
+                        dynamicTheLucObj,
+                        nameof(SelectedKhamSucKhoeTheLuc.bmi),
+                        SelectedKhamSucKhoeTheLuc.bmi,
+                        SelectedKhamSucKhoeTheLuc.GetType(),
+                        SelectedKhamSucKhoeTheLuc
+                    );
                 }
                 await InvokeAsync(StateHasChanged);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                AlertService.ShowAlert($"Lỗi khi xử lý dữ liệu nhập", "danger");
+                AlertService.ShowAlert("Lỗi khi xử lý dữ liệu nhập", "danger");
             }
         }
 
@@ -1311,41 +1971,83 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 kqCLS.ket_qua = value;
                 kqCLS.kq_cls = null;
+
+                if (!dynamicKhamCLSObj.Any(c => c.type == kqCLS.type))
+                {
+                    var newObj = new ExpandoObject();
+                    var newDict = newObj as IDictionary<string, object?>;
+                    newDict[nameof(kqCLS.type)] = kqCLS.type;
+                    dynamicKhamCLSObj.Add(newObj);
+                }
+                var selectedKqCls = dynamicKhamCLSObj.FirstOrDefault(c => c.type == kqCLS.type);
+                if (selectedKqCls != null)
+                {
+                    UpdateField(selectedKqCls, nameof(kqCLS.kq_cls), null, kqCLS.GetType(), kqCLS);
+                    UpdateField(selectedKqCls, nameof(kqCLS.ket_qua), value, kqCLS.GetType(), kqCLS);
+                }
             }
         }
 
-        private async Task ContractFilterChanged(ContractModel? contract)
+        private void ContractFilterChanged(ContractModel? contract)
         {
             _contractFilter = contract;
-
-            await LoadData(true);
         }
 
-        private async Task KhamSucKhoeCongTyChanged(KhamSucKhoeCongTyModel? khamSucKhoeCongTy)
+        private void KhamSucKhoeCongTyChanged(KhamSucKhoeCongTyModel? khamSucKhoeCongTy)
         {
             _khamSucKhoeCongTyFilter = khamSucKhoeCongTy;
-
-            await LoadData(true);
         }
 
         private void OnTinhChatKinhChanged(string value)
         {
             SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh = value;
+
+            UpdateField(
+                dynamicSanPhuKhoaObj,
+                nameof(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh),
+                SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh,
+                SelectedKhamSucKhoeSanPhuKhoa.GetType(),
+                SelectedKhamSucKhoeSanPhuKhoa
+            );
         }
 
         private void OnDauBungKinhChanged(string value)
         {
             SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh = value == YesNo.Co.ToString();
+
+            UpdateField(
+                dynamicSanPhuKhoaObj,
+                nameof(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh),
+                SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh,
+                SelectedKhamSucKhoeSanPhuKhoa.GetType(),
+                SelectedKhamSucKhoeSanPhuKhoa
+            );
         }
 
         private void OnSoLanMoPhuKhoaChanged(int value)
         {
             SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa = value;
+
+            UpdateField(
+                dynamicSanPhuKhoaObj,
+                nameof(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa),
+                SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa,
+                SelectedKhamSucKhoeSanPhuKhoa.GetType(),
+                SelectedKhamSucKhoeSanPhuKhoa
+            );
         }
 
         private void OnApDungBPPTChanged(string value)
         {
             SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt = value == YesNo.Co.ToString();
+
+            UpdateField(
+                dynamicSanPhuKhoaObj,
+                nameof(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt),
+                SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt,
+                SelectedKhamSucKhoeSanPhuKhoa.GetType(),
+                SelectedKhamSucKhoeSanPhuKhoa
+            );
         }
 
         private async Task OnShowAll()
@@ -1393,6 +2095,14 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
 
             SelectedKhamSucKhoeSanPhuKhoa.para = $"{para1}|{para2}|{para3}|{para4}";
+
+            UpdateField(
+                dynamicSanPhuKhoaObj,
+                nameof(SelectedKhamSucKhoeSanPhuKhoa.para),
+                SelectedKhamSucKhoeSanPhuKhoa.para,
+                SelectedKhamSucKhoeSanPhuKhoa.GetType(),
+                SelectedKhamSucKhoeSanPhuKhoa
+            );
         }
 
         private void OnKetQuaCanLamSangChanged(KetQuaCanLamSangModel? selected, KhamSucKhoeKetQuaCanLamSangModel item)
@@ -1401,13 +2111,45 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 item.kq_cls = selected;
                 item.ket_qua = selected?.ket_luan_can_lam_sang;
+
+                if (!dynamicKhamCLSObj.Any(c => c.type == item.type))
+                {
+                    var newObj = new ExpandoObject();
+                    var newDict = newObj as IDictionary<string, object?>;
+                    newDict[nameof(item.type)] = item.type;
+                    dynamicKhamCLSObj.Add(newObj);
+                }
+                var selectedKqCls = dynamicKhamCLSObj.FirstOrDefault(c => c.type == item.type);
+                if (selectedKqCls != null)
+                {
+                    UpdateField(selectedKqCls, nameof(item.kq_cls), selected?.ket_luan_can_lam_sang, item.GetType(), item);
+                    UpdateField(selectedKqCls, nameof(item.ket_qua), selected, item.GetType(), item);
+                }
             }
             catch (Exception ex)
             {
                 AlertService.ShowAlert($"Lỗi khi xử lý dữ liệu: {ex.Message}", "danger");
             }
         }
-
+        private static void UpdateField(object dynamicObj, string fieldName, object? value, Type type, object selected)
+        {
+            var prop = type.GetProperty(fieldName);
+            var dict = dynamicObj as IDictionary<string, object>;
+            if (dict != null && fieldName != null)
+            {
+                object? selectedValue = null;
+                if (prop != null && prop.CanRead)
+                {
+                    selectedValue = prop.GetValue(selected);
+                }
+                if (dict.TryGetValue(fieldName, out var dynamicValue) && Equals(selectedValue, dynamicValue))
+                {
+                    dict.Remove(fieldName);
+                    return;
+                }
+                dict[fieldName] = value!;
+            }
+        }
 
         /// <summary>
         /// Render signature as HTML - either image or text

@@ -283,7 +283,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
                     if (createdItem != null && createdItem.Any())
                     {
-                        var detailResult = await SoKhamSucKhoeService.CreateAsync(createdItem.ToList());
+                        var detailResult = await SoKhamSucKhoeService.CreateAsync(createdItem.Cast<dynamic>().ToList());
                         if (!detailResult.IsSuccess)
                         {
                             AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
@@ -293,7 +293,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
                     if (updatedItem != null && updatedItem.Any())
                     {
-                        var detailResult = await SoKhamSucKhoeService.UpdateAsync(updatedItem.ToList());
+                        var detailResult = await SoKhamSucKhoeService.UpdateAsync(updatedItem.Cast<dynamic>().ToList());
                         if (!detailResult.IsSuccess)
                         {
                             AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi cập nhật chi tiết dữ liệu", "danger");
@@ -339,7 +339,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
                     if (addNewChiTietList.Any())
                     {
-                        var detailResult = await SoKhamSucKhoeService.CreateAsync(addNewChiTietList);
+                        var detailResult = await SoKhamSucKhoeService.CreateAsync(addNewChiTietList.Cast<dynamic>().ToList());
                         if (!detailResult.IsSuccess)
                         {
                             AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
@@ -359,7 +359,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoan
 
                     if (updateChiTietList.Any())
                     {
-                        var detailResult = await SoKhamSucKhoeService.UpdateAsync(updateChiTietList);
+                        var detailResult = await SoKhamSucKhoeService.UpdateAsync(updateChiTietList.Cast<dynamic>().ToList());
                         if (!detailResult.IsSuccess)
                         {
                             AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi cập nhật chi tiết dữ liệu", "danger");

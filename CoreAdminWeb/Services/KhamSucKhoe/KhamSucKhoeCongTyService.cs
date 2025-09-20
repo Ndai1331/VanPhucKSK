@@ -96,7 +96,8 @@ namespace CoreAdminWeb.Services
                 Ksk_status = model.Ksk_status,
                 ma_hop_dong_ksk = model.ma_hop_dong_ksk?.id,
                 chu_ky_lap_so = model.chu_ky_lap_so,
-                nguoi_lap_so = model.nguoi_lap_so?.id
+                nguoi_lap_so = model.nguoi_lap_so?.id,
+                kham_noi_vien = model.kham_noi_vien
             };
         }
 

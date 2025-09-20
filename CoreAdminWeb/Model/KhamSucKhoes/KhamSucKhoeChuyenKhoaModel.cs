@@ -79,8 +79,6 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? benh_rhm { get; set; }
         public string? bs_rhm { get; set; }
         public string? chu_ky_rhm { get; set; }
-        public string? bs_ket_luan { get; set; }
-        public string? chu_ky_ket_luan { get; set; }
         public new bool deleted { get; set; } = false;
 
         public SoKhamSucKhoeModel? luot_kham { get; set; }
@@ -165,9 +163,6 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public int? pl_rhm { get; set; }
         public string? bs_rhm { get; set; }
         public string? chu_ky_rhm { get; set; }
-        public string? bs_ket_luan { get; set; }
-        public string? chu_ky_ket_luan { get; set; }
-
         public int? luot_kham { get; set; }
         public string status { set; get; } = Status.published.ToString();
     }
