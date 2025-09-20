@@ -79,7 +79,6 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? benh_rhm { get; set; }
         public string? bs_rhm { get; set; }
         public string? chu_ky_rhm { get; set; }
-
         public new bool deleted { get; set; } = false;
 
         public SoKhamSucKhoeModel? luot_kham { get; set; }
@@ -95,49 +94,41 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public int? pl_nk_tuan_hoan { get; set; }
         public string? chu_ky_tuan_hoan { get; set; }
         public string? bs_tuan_hoan { get; set; }
-        public string? ma_bs_tuan_hoan { get; set; }
 
         public string? kq_nk_ho_hap { get; set; }
         public int? pl_nk_ho_hap { get; set; }
         public string? chu_ky_ho_hap { get; set; }
         public string? bs_ho_hap { get; set; }
-        public string? ma_bs_ho_hap { get; set; }
 
         public string? kq_nk_tieu_hoa { get; set; }
         public int? pl_nk_tieu_hoa { get; set; }
         public string? chu_ky_tieu_hoa { get; set; }
         public string? bs_tieu_hoa { get; set; }
-        public string? ma_bs_tieu_hoa { get; set; }
 
         public string? kq_nk_than_tiet_nieu { get; set; }
         public int? pl_nk_than_tiet_nieu { get; set; }
         public string? chu_ky_than_tiet_nieu { get; set; }
         public string? bs_than_tiet_nieu { get; set; }
-        public string? ma_bs_than_tiet_nieu { get; set; }
 
         public string? kq_nk_noi_tiet { get; set; }
         public int? pl_nk_noi_tiet { get; set; }
         public string? chu_ky_noi_tiet { get; set; }
         public string? bs_noi_tiet { get; set; }
-        public string? ma_bs_noi_tiet { get; set; }
 
         public string? kq_nk_co_xuong_khop { get; set; }
         public int? pl_nk_co_xuong_khop { get; set; }
         public string? chu_ky_co_xuong_khop { get; set; }
         public string? bs_co_xuong_khop { get; set; }
-        public string? ma_bs_co_xuong_khop { get; set; }
 
         public string? kq_nk_than_kinh { get; set; }
         public int? pl_nk_than_kinh { get; set; }
         public string? chu_ky_than_kinh { get; set; }
         public string? bs_than_kinh { get; set; }
-        public string? ma_bs_than_kinh { get; set; }
 
         public string? kq_nk_tam_than { get; set; }
         public int? pl_nk_tam_than { get; set; }
         public string? chu_ky_tam_than { get; set; }
         public string? bs_tam_than { get; set; }
-        public string? ma_bs_tam_than { get; set; }
 
         public string? kq_ngoai_khoa { get; set; }
         public int? pl_ngoai_khoa { get; set; }
@@ -145,7 +136,6 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public int? pl_da_lieu { get; set; }
         public string? chu_ky_ngoai_khoa { get; set; }
         public string? bs_ngoai_khoa { get; set; }
-        public string? ma_bs_ngoai_khoa { get; set; }
 
         public string? thi_luc_khong_kinh_phai { get; set; }
         public string? thi_luc_khong_kinh_trai { get; set; }
@@ -156,7 +146,6 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public int? pl_mat { get; set; }
         public string? bs_mat { get; set; }
         public string? chu_ky_mat { get; set; }
-        public string? ma_bs_mat { get; set; }
 
         public string? tmh_nt_trai { get; set; }
         public string? tmh_ntham_trai { get; set; }
@@ -167,7 +156,6 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public int? pl_tmh { get; set; }
         public string? bs_tmh { get; set; }
         public string? chu_ky_tmh { get; set; }
-        public string? ma_bs_tmh { get; set; }
 
         public string? kq_rhm_ham_tren { get; set; }
         public string? kq_rhm_ham_duoi { get; set; }
@@ -175,8 +163,6 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public int? pl_rhm { get; set; }
         public string? bs_rhm { get; set; }
         public string? chu_ky_rhm { get; set; }
-        public string? ma_bs_rhm { get; set; }
-
         public int? luot_kham { get; set; }
         public string status { set; get; } = Status.published.ToString();
     }

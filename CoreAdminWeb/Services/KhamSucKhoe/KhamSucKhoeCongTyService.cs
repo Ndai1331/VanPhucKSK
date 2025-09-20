@@ -97,20 +97,6 @@ namespace CoreAdminWeb.Services
                 ma_hop_dong_ksk = model.ma_hop_dong_ksk?.id,
                 chu_ky_lap_so = model.chu_ky_lap_so,
                 nguoi_lap_so = model.nguoi_lap_so?.id,
-                ma_bs_tuan_hoan = model.ma_bs_tuan_hoan,
-                ma_bs_san_phu_khoa = model.ma_bs_san_phu_khoa,
-                ma_bs_ket_luan = model.ma_bs_ket_luan,
-                ma_bs_rang_ham_mat = model.ma_bs_rang_ham_mat,
-                ma_bs_tai_mui_hong = model.ma_bs_tai_mui_hong,
-                ma_bs_mat = model.ma_bs_mat,
-                ma_bs_ho_hap = model.ma_bs_ho_hap,
-                ma_bs_tieu_hoa = model.ma_bs_tieu_hoa,
-                ma_bs_noi_tiet = model.ma_bs_noi_tiet,
-                ma_bs_than_tiet_nieu = model.ma_bs_than_tiet_nieu,
-                ma_bs_co_xuong_khop = model.ma_bs_co_xuong_khop,
-                ma_bs_than_kinh = model.ma_bs_than_kinh,
-                ma_bs_tam_than = model.ma_bs_tam_than,
-                ma_bs_ngoai_khoa = model.ma_bs_ngoai_khoa,
                 kham_noi_vien = model.kham_noi_vien
             };
         }

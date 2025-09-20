@@ -165,19 +165,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 bs_tmh = model.bs_tmh,
                 ma_luot_kham = model.ma_luot_kham,
                 chu_ky_ngoai_khoa = model.chu_ky_ngoai_khoa,
-                chu_ky_tmh = model.chu_ky_tmh,
-                ma_bs_co_xuong_khop = model.ma_bs_co_xuong_khop,
-                ma_bs_ho_hap = model.ma_bs_ho_hap,
-                ma_bs_mat = model.ma_bs_mat,
-                ma_bs_noi_tiet = model.ma_bs_noi_tiet,
-                ma_bs_rhm = model.ma_bs_rhm,
-                ma_bs_tam_than = model.ma_bs_tam_than,
-                ma_bs_tmh = model.ma_bs_tmh,
-                ma_bs_tuan_hoan = model.ma_bs_tuan_hoan,
-                ma_bs_than_kinh = model.ma_bs_than_kinh,
-                ma_bs_than_tiet_nieu = model.ma_bs_than_tiet_nieu,
-                ma_bs_tieu_hoa = model.ma_bs_tieu_hoa,
-                ma_bs_ngoai_khoa = model.ma_bs_ngoai_khoa
+                chu_ky_tmh = model.chu_ky_tmh
             };
         }
 

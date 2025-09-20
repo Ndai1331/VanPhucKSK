@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using MudBlazor;
+using System.Dynamic;
 
 namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 {
@@ -131,6 +132,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private dynamic dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
         private dynamic dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
         private dynamic dynamicTienSuObj = new System.Dynamic.ExpandoObject();
+        private List<dynamic> dynamicKhamCLSObj = new List<dynamic>();
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -328,6 +330,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
             dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
             dynamicTienSuObj = new System.Dynamic.ExpandoObject();
+            dynamicKhamCLSObj = new List<dynamic>();
 
             var resSoKhamSK = await MainService.GetByIdAsync(soKhamSKId.ToString());
             if (resSoKhamSK?.IsSuccess == true && resSoKhamSK.Data != null)
@@ -954,7 +957,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
                     else
                     {
-                        var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs);
+                        var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs.Cast<dynamic>().ToList());
                         if (result == null || !result.IsSuccess)
                         {
                             AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
@@ -1279,6 +1282,66 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám chuyên khoa!", "danger");
                                 return;
                             }
+                        }
+                    }
+                    #endregion
+
+                    #region Ket qua CLS
+                    List<dynamic> updateDynamicListObj = new List<dynamic>();
+                    List<dynamic> addDynamicListObj = new List<dynamic>();
+                    if (dynamicKhamCLSObj.Any())
+                    {
+                        foreach (var kqCLS in SelectedKhamSucKhoeKetQuaCanLamSangs)
+                        {
+                            var clsDynamicObj = dynamicKhamCLSObj.FirstOrDefault(c => c.type == kqCLS.type);
+                            if (clsDynamicObj != null)
+                            {
+                                updateFields = (IDictionary<string, object?>)clsDynamicObj;
+                                dict = dynamicTheLucObj as IDictionary<string, object?>;
+
+                                if (dict != null && dict.Count > 0)
+                                {
+                                    var props = typeof(KhamSucKhoeKetQuaCanLamSangModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                                    foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
+                                    {
+                                        updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                                    }
+
+                                    if (updateFields.Any())
+                                    {
+                                        updateFields[nameof(kqCLS.luot_kham)] = SelectedItem.id;
+
+                                        if (kqCLS.id > 0)
+                                        {
+                                            updateFields[nameof(kqCLS.id)] = kqCLS.id;
+                                            updateDynamicListObj.Add(updateDynamicObj);
+                                        }
+                                        else
+                                        {
+                                            addDynamicListObj.Add(updateDynamicObj);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (updateDynamicListObj.Any())
+                    {
+                        var result = await KhamSucKhoeTheLucService.UpdateAsync(updateDynamicListObj);
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám cận lâm sàng!", "danger");
+                            return;
+                        }
+                    }
+                    if (addDynamicListObj.Any())
+                    {
+                        var result = await KhamSucKhoeTheLucService.CreateAsync(new List<dynamic>() { updateDynamicObj });
+                        if (result == null || !result.IsSuccess)
+                        {
+                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám cận lâm sàng!", "danger");
+                            return;
                         }
                     }
                     #endregion
@@ -1910,6 +1973,20 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 kqCLS.ket_qua = value;
                 kqCLS.kq_cls = null;
+
+                if (!dynamicKhamCLSObj.Any(c => c.type == kqCLS.type))
+                {
+                    var newObj = new ExpandoObject();
+                    var newDict = newObj as IDictionary<string, object?>;
+                    newDict[nameof(kqCLS.type)] = kqCLS.type;
+                    dynamicKhamCLSObj.Add(newObj);
+                }
+                var selectedKqCls = dynamicKhamCLSObj.FirstOrDefault(c => c.type == kqCLS.type);
+                if (selectedKqCls != null)
+                {
+                    UpdateField(selectedKqCls, nameof(kqCLS.kq_cls), null, kqCLS.GetType(), kqCLS);
+                    UpdateField(selectedKqCls, nameof(kqCLS.ket_qua), value, kqCLS.GetType(), kqCLS);
+                }
             }
         }
 
@@ -2036,6 +2113,20 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 item.kq_cls = selected;
                 item.ket_qua = selected?.ket_luan_can_lam_sang;
+
+                if (!dynamicKhamCLSObj.Any(c => c.type == item.type))
+                {
+                    var newObj = new ExpandoObject();
+                    var newDict = newObj as IDictionary<string, object?>;
+                    newDict[nameof(item.type)] = item.type;
+                    dynamicKhamCLSObj.Add(newObj);
+                }
+                var selectedKqCls = dynamicKhamCLSObj.FirstOrDefault(c => c.type == item.type);
+                if (selectedKqCls != null)
+                {
+                    UpdateField(selectedKqCls, nameof(item.kq_cls), selected?.ket_luan_can_lam_sang, item.GetType(), item);
+                    UpdateField(selectedKqCls, nameof(item.ket_qua), selected, item.GetType(), item);
+                }
             }
             catch (Exception ex)
             {
