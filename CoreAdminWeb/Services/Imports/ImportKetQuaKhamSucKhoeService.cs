@@ -254,8 +254,8 @@ namespace CoreAdminWeb.Services.Imports
                 });
 
                 // Batch update/create users
-                await BatchExecuteAsync(updatingKLs, _khamSucKhoeKetLuanService.UpdateAsync, batchSize);
-                await BatchExecuteAsync(newKLs, _khamSucKhoeKetLuanService.CreateAsync, batchSize);
+                await BatchExecuteAsync(updatingKLs.Cast<dynamic>().ToList(), _khamSucKhoeKetLuanService.UpdateAsync, batchSize);
+                await BatchExecuteAsync(newKLs.Cast<dynamic>().ToList(), _khamSucKhoeKetLuanService.CreateAsync, batchSize);
 
                 await updateProgress.Invoke(new ProcessingModel()
                 {
@@ -287,6 +287,14 @@ namespace CoreAdminWeb.Services.Imports
                 }
             }
             return results;
+        }
+
+        static async Task BatchExecuteAsync<T, TValue>(List<T> items, Func<List<T>, Task<RequestHttpResponse<List<TValue>>>> execFunc, int batchSize = 100)
+        {
+            foreach (var batch in items.Chunk(batchSize))
+            {
+                await execFunc(batch.ToList());
+            }
         }
 
         static async Task BatchExecuteAsync<T>(List<T> items, Func<List<T>, Task<RequestHttpResponse<List<T>>>> execFunc, int batchSize = 100)

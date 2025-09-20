@@ -127,11 +127,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private int renderKey { get; set; } = 0;
 
-        private dynamic dynamicTheLucObj = new System.Dynamic.ExpandoObject();
-        private dynamic dynamicSanPhuKhoaObj = new System.Dynamic.ExpandoObject();
-        private dynamic dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
-        private dynamic dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
-        private dynamic dynamicTienSuObj = new System.Dynamic.ExpandoObject();
+        private dynamic dynamicTheLucObj = new ExpandoObject();
+        private dynamic dynamicSanPhuKhoaObj = new ExpandoObject();
+        private dynamic dynamicChuyenKhoaObj = new ExpandoObject();
+        private dynamic dynamicKetLuanObj = new ExpandoObject();
+        private dynamic dynamicTienSuObj = new ExpandoObject();
         private List<dynamic> dynamicKhamCLSObj = new List<dynamic>();
         protected override async Task OnInitializedAsync()
         {
@@ -325,11 +325,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private async Task LoadDetailData(int soKhamSKId)
         {
             Loading.Show();
-            dynamicTheLucObj = new System.Dynamic.ExpandoObject();
-            dynamicSanPhuKhoaObj = new System.Dynamic.ExpandoObject();
-            dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
-            dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
-            dynamicTienSuObj = new System.Dynamic.ExpandoObject();
+            dynamicTheLucObj = new ExpandoObject();
+            dynamicSanPhuKhoaObj = new ExpandoObject();
+            dynamicChuyenKhoaObj = new ExpandoObject();
+            dynamicKetLuanObj = new ExpandoObject();
+            dynamicTienSuObj = new ExpandoObject();
             dynamicKhamCLSObj = new List<dynamic>();
 
             var resSoKhamSK = await MainService.GetByIdAsync(soKhamSKId.ToString());
@@ -987,7 +987,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 else
                 {
                     #region Tien su
-                    dynamic updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    dynamic updateDynamicObj = new ExpandoObject();
                     var updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     var dict = dynamicTienSuObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -1034,7 +1034,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     #endregion
 
                     #region San phu khoa
-                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateDynamicObj = new ExpandoObject();
                     updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     dict = dynamicSanPhuKhoaObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -1086,7 +1086,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     #endregion
 
                     #region The luc
-                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateDynamicObj = new ExpandoObject();
                     updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     dict = dynamicTheLucObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -1133,7 +1133,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     #endregion
 
                     #region Chuyen khoa
-                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateDynamicObj = new ExpandoObject();
                     updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     dict = dynamicChuyenKhoaObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -1294,10 +1294,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         foreach (var kqCLS in SelectedKhamSucKhoeKetQuaCanLamSangs)
                         {
                             var clsDynamicObj = dynamicKhamCLSObj.FirstOrDefault(c => c.type == kqCLS.type);
+                            bool isAddEmptyValue = false;
                             if (clsDynamicObj != null)
                             {
-                                updateFields = (IDictionary<string, object?>)clsDynamicObj;
-                                dict = dynamicTheLucObj as IDictionary<string, object?>;
+                                updateDynamicObj = new ExpandoObject();
+                                updateFields = (IDictionary<string, object?>)updateDynamicObj;
+                                dict = clsDynamicObj as IDictionary<string, object?>;
 
                                 if (dict != null && dict.Count > 0)
                                 {
@@ -1321,14 +1323,35 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                             addDynamicListObj.Add(updateDynamicObj);
                                         }
                                     }
+                                    else
+                                    {
+                                        isAddEmptyValue = true;
+                                    }
                                 }
+                                else
+                                {
+                                    isAddEmptyValue = true;
+                                }
+                            }
+                            else
+                            {
+                                isAddEmptyValue = true;
+                            }
+
+                            if (isAddEmptyValue && kqCLS.id <= 0)
+                            {
+                                updateDynamicObj = new ExpandoObject();
+                                updateFields = (IDictionary<string, object?>)updateDynamicObj;
+                                updateFields[nameof(kqCLS.id)] = kqCLS.id;
+                                updateFields[nameof(kqCLS.type)] = kqCLS.type;
+                                addDynamicListObj.Add(updateDynamicObj);
                             }
                         }
                     }
 
                     if (updateDynamicListObj.Any())
                     {
-                        var result = await KhamSucKhoeTheLucService.UpdateAsync(updateDynamicListObj);
+                        var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(updateDynamicListObj);
                         if (result == null || !result.IsSuccess)
                         {
                             AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám cận lâm sàng!", "danger");
@@ -1337,7 +1360,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     }
                     if (addDynamicListObj.Any())
                     {
-                        var result = await KhamSucKhoeTheLucService.CreateAsync(new List<dynamic>() { updateDynamicObj });
+                        var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(new List<dynamic>() { updateDynamicObj });
                         if (result == null || !result.IsSuccess)
                         {
                             AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám cận lâm sàng!", "danger");
@@ -1347,7 +1370,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     #endregion
 
                     #region Ket luan
-                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateDynamicObj = new ExpandoObject();
                     updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     dict = dynamicKetLuanObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -1407,11 +1430,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
                 }
 
-                dynamicTheLucObj = new System.Dynamic.ExpandoObject();
-                dynamicSanPhuKhoaObj = new System.Dynamic.ExpandoObject();
-                dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
-                dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
-                dynamicTienSuObj = new System.Dynamic.ExpandoObject();
+                dynamicTheLucObj = new ExpandoObject();
+                dynamicSanPhuKhoaObj = new ExpandoObject();
+                dynamicChuyenKhoaObj = new ExpandoObject();
+                dynamicKetLuanObj = new ExpandoObject();
+                dynamicTienSuObj = new ExpandoObject();
             }
             catch
             {
