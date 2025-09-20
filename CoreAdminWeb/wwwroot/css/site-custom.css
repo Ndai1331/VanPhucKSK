@@ -99,7 +99,7 @@
 }
 
 
-@media (max-width: 420px) {
+@media (max-width: 645px) {
     .sm\:justify-center {
         justify-content: center;
     }
@@ -168,6 +168,12 @@
 
 .text-sky-500 {
     color: #0ea5e9;
+}
+
+@media (min-width: 425px) {
+    .sm\:grid-cols-1 {
+        grid-template-columns: repeat(1,minmax(0,1fr))
+    }
 }
 
 @media (min-width: 1024px) {
@@ -433,9 +439,15 @@
 
 
 
-.loading-backdrop{
-position: fixed; inset: 0; display:flex; align-items:center; justify-content:center;
-background: rgba(0,0,0,0.35); z-index: 9999; backdrop-filter: blur(2px);
+.loading-backdrop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.35);
+    z-index: 999999999;
+    backdrop-filter: blur(2px);
 }
 .loading-box{
 min-width: 180px; max-width: 80vw; padding: 16px 20px; border-radius: 14px;
@@ -596,4 +608,10 @@ background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align:center;
 
 .link-primary {
     color: #313de8;
+}
+
+.border-red-500 {
+    border-width: 2px;
+    border-style: solid;
+    border-color: #ef4444 !important;
 }

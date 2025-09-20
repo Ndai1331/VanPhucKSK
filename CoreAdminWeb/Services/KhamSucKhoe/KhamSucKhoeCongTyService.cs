@@ -110,7 +110,8 @@ namespace CoreAdminWeb.Services
                 ma_bs_co_xuong_khop = model.ma_bs_co_xuong_khop,
                 ma_bs_than_kinh = model.ma_bs_than_kinh,
                 ma_bs_tam_than = model.ma_bs_tam_than,
-                ma_bs_ngoai_khoa = model.ma_bs_ngoai_khoa
+                ma_bs_ngoai_khoa = model.ma_bs_ngoai_khoa,
+                kham_noi_vien = model.kham_noi_vien
             };
         }
 

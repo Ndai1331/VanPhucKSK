@@ -1,19 +1,27 @@
-﻿@using CoreAdminWeb.Helpers
+﻿@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.KhamSucKhoes
+@using Microsoft.Extensions.Caching.Memory
+@inject IMemoryCache __MemoryCache
 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mb-3">
     <div class="flex items-center gap-2">
         <span style="min-width:120px;">11. Sản PK:</span>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSSanPhuKhoa ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.ket_qua" readonly="@(onReadonly || !onReadonly && !onBSSanPhuKhoa)" />
+        <input type="text"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSSanPhuKhoa ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.ket_qua))"
+               value="@SelectedKhamSucKhoeSanPhuKhoa.ket_qua"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeSanPhuKhoa.ket_qua), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa))"
+               readonly="@(onReadonly || !onReadonly && !onBSSanPhuKhoa)" />
         <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
                  TextSelector="c => c != null ? c.name : String.Empty"
                  FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
-                 GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                 GetElementById="async (items, id, token) => items.FirstOrDefault(x => x.id.ToString() == id) ?? new PhanLoaiSucKhoeModel()"
                  Datasource="PhanLoaiSucKhoes"
-                 Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeSanPhuKhoa.phan_loai, 13, SelectedPhanLoaiSucKhoes))"
-                 OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeSanPhuKhoa.phan_loai = v, 13, SelectedPhanLoaiSucKhoes))"
+                 Value="@phanLoaiSucKhoeSanPhuKhoa"
+                 OnValueChanged="@(args => phanLoaiSucKhoeSanPhuKhoaChanged())"
+                 Cache="__MemoryCache"
                  Multiselect="false"
-                class="@((onReadonly || !onReadonly && !onBSSanPhuKhoa ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai")" />
+                 class="@((onReadonly || !onReadonly && !onBSSanPhuKhoa ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai " + dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.phan_loai)))" />
     </div>
 </div>
 
@@ -25,11 +33,21 @@
     [Parameter]
     public bool onBSSanPhuKhoa { get; set; } = false;
     [Parameter]
-    public Dictionary<int, List<PhanLoaiSucKhoeModel>> SelectedPhanLoaiSucKhoes { get; set; } = new Dictionary<int, List<PhanLoaiSucKhoeModel>>();
+    public object? dynamicObj { get; set; }
     [Parameter]
     public List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
     [Parameter]
     public Func<IEnumerable<PhanLoaiSucKhoeModel>, string?, CancellationToken, Task<List<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+    [Parameter]
+    public Func<ChangeEventArgs, string, bool, bool, object, Task>? OnValueChanged { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if ((phanLoaiSucKhoeSanPhuKhoa == null || !phanLoaiSucKhoeSanPhuKhoa.Any()) && SelectedKhamSucKhoeSanPhuKhoa.phan_loai != null)
+        {
+            phanLoaiSucKhoeSanPhuKhoa = new List<PhanLoaiSucKhoeModel> { SelectedKhamSucKhoeSanPhuKhoa.phan_loai };
+        }
+    }
 
     private async Task<List<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(IEnumerable<PhanLoaiSucKhoeModel> allItems, string filter, CancellationToken token)
     {
@@ -38,5 +56,20 @@
             return await LoadPhanLoaiSucKhoeData.Invoke(allItems, filter, token);
         }
         return new List<PhanLoaiSucKhoeModel>();
+    }
+
+    private List<PhanLoaiSucKhoeModel>? phanLoaiSucKhoeSanPhuKhoa { get; set; } = new List<PhanLoaiSucKhoeModel>();
+    private async Task phanLoaiSucKhoeSanPhuKhoaChanged()
+    {
+        SelectedKhamSucKhoeSanPhuKhoa.phan_loai = phanLoaiSucKhoeSanPhuKhoa?.FirstOrDefault();
+        await OnValueChangedHandler(new ChangeEventArgs() { Value = SelectedKhamSucKhoeSanPhuKhoa.phan_loai }, nameof(SelectedKhamSucKhoeSanPhuKhoa.phan_loai), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa);
+    }
+
+    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true, object item = default!)
+    {
+        if (OnValueChanged != null)
+        {
+            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate, item);
+        }
     }
 }

@@ -154,8 +154,6 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 pl_rhm = model.pl_rhm?.id,
                 chu_ky_rhm = model.chu_ky_rhm,
                 bs_rhm = model.bs_rhm,
-                chu_ky_ket_luan = model.chu_ky_ket_luan,
-                bs_ket_luan = model.bs_ket_luan,
                 benh_rhm = model.benh_rhm,
                 benh_tai_mui_hong = model.benh_tai_mui_hong,
                 tmh_nt_trai = model.tmh_nt_trai,
@@ -167,7 +165,19 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 bs_tmh = model.bs_tmh,
                 ma_luot_kham = model.ma_luot_kham,
                 chu_ky_ngoai_khoa = model.chu_ky_ngoai_khoa,
-                chu_ky_tmh = model.chu_ky_tmh
+                chu_ky_tmh = model.chu_ky_tmh,
+                ma_bs_co_xuong_khop = model.ma_bs_co_xuong_khop,
+                ma_bs_ho_hap = model.ma_bs_ho_hap,
+                ma_bs_mat = model.ma_bs_mat,
+                ma_bs_noi_tiet = model.ma_bs_noi_tiet,
+                ma_bs_rhm = model.ma_bs_rhm,
+                ma_bs_tam_than = model.ma_bs_tam_than,
+                ma_bs_tmh = model.ma_bs_tmh,
+                ma_bs_tuan_hoan = model.ma_bs_tuan_hoan,
+                ma_bs_than_kinh = model.ma_bs_than_kinh,
+                ma_bs_than_tiet_nieu = model.ma_bs_than_tiet_nieu,
+                ma_bs_tieu_hoa = model.ma_bs_tieu_hoa,
+                ma_bs_ngoai_khoa = model.ma_bs_ngoai_khoa
             };
         }
 
@@ -253,6 +263,100 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
             catch (Exception ex)
             {
                 return IBaseGetService<KhamSucKhoeChuyenKhoaModel>.CreateErrorResponse<bool>(ex);
+            }
+        }
+
+        /// <summary>
+        /// Sends a request to create new items in the specified collection and returns the result.
+        /// </summary>
+        /// <remarks>This method sends a POST request to the configured API endpoint to create the
+        /// specified items. If the <paramref name="model"/> parameter is <see langword="null"/>, the method returns a
+        /// response with a <see cref="HttpStatusCode.BadRequest"/> status and an error message. In case of an
+        /// exception, the method returns a response with error details.</remarks>
+        /// <param name="model">A list of dynamic objects representing the items to be created. Cannot be <see langword="null"/>.</param>
+        /// <returns>A <see cref="RequestHttpResponse{T}"/> containing a list of <see cref="KhamSucKhoeChuyenKhoaModel"/> objects if
+        /// the operation is successful. If the request fails, the response contains error details.</returns>
+        public async Task<RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>>> CreateAsync(List<dynamic> model)
+        {
+            if (model == null)
+            {
+                return new RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>>
+                {
+                    Errors = new List<ErrorResponse> { new() { Message = "Vui lòng nhập đầy đủ thông tin" } },
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
+            // Check if all items in model are of type KhamSucKhoeChuyenKhoaModel
+            bool allKhamSucKhoeChuyenKhoaModel = model.All(item => item is KhamSucKhoeChuyenKhoaModel);
+            if (allKhamSucKhoeChuyenKhoaModel)
+            {
+                var typedList = model.Cast<KhamSucKhoeChuyenKhoaModel>().ToList();
+                return await CreateAsync(typedList);
+            }
+
+            try
+            {
+                var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>>>($"items/{_collection}?fields={Fields}", model);
+
+                if (!response.IsSuccess)
+                {
+                    return new RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>> { Errors = response.Errors };
+                }
+
+                return response.Data ?? new RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>>();
+            }
+            catch (Exception ex)
+            {
+                return IBaseGetService<KhamSucKhoeChuyenKhoaModel>.CreateErrorResponse<List<KhamSucKhoeChuyenKhoaModel>>(ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates the specified list of models asynchronously.
+        /// </summary>
+        /// <remarks>This method sends a PATCH request to update the specified models. If the <paramref
+        /// name="model"/> parameter is null, empty, or contains any objects with invalid <c>id</c> values, the method
+        /// returns a response with a <see cref="HttpStatusCode.BadRequest"/> status.</remarks>
+        /// <param name="model">A list of dynamic objects representing the models to be updated. Each object must have a valid <c>id</c>
+        /// property that is not null or zero.</param>
+        /// <returns>A <see cref="RequestHttpResponse{T}"/> containing a boolean value indicating whether the update operation
+        /// was successful. If the operation fails, the response includes error details and an appropriate HTTP status
+        /// code.</returns>
+        public async Task<RequestHttpResponse<bool>> UpdateAsync(List<dynamic> model)
+        {
+            if (model == null || !model.Any() || model.Any(c => c.id == null || c.id == 0))
+            {
+                return new RequestHttpResponse<bool>
+                {
+                    Data = false,
+                    Errors = new List<ErrorResponse> { new() { Message = "Vui lòng chọn bản ghi để cập nhật" } },
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
+            // Check if all items in model are of type KhamSucKhoeChuyenKhoaModel
+            bool allKhamSucKhoeChuyenKhoaModel = model.All(item => item is KhamSucKhoeChuyenKhoaModel);
+            if (allKhamSucKhoeChuyenKhoaModel)
+            {
+                var typedList = model.Cast<KhamSucKhoeChuyenKhoaModel>().ToList();
+                return await UpdateAsync(typedList);
+            }
+
+            try
+            {
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<KhamSucKhoeChuyenKhoaModel>>>(
+                    $"items/{_collection}?fields={Fields}", model);
+
+                return new RequestHttpResponse<bool>
+                {
+                    Data = response.IsSuccess,
+                    Errors = response.Errors
+                };
+            }
+            catch (Exception ex)
+            {
+                return IBaseGetService<bool>.CreateErrorResponse<bool>(ex);
             }
         }
 

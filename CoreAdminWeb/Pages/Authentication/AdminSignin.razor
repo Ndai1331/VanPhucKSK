@@ -5,6 +5,9 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 @inject IJSRuntime JsRuntime
+@inject AlertService AlertService
+@inject IUserService UserService
+
 <div class="login-wrapper">
     <div class="floating-shapes">
         <div class="shape"></div>
@@ -23,8 +26,8 @@
         </div>
 
         <div class="login-body">
-            <form id="adminLoginForm" class="needs-validation" novalidate>
-                <div class="mb-3">
+            <form id="adminLoginForm" class="needs-validation" novalidate onsubmit="@HandleSignIn">
+                <div class="mb-2">
                     <label for="adminUsername" class="form-label">Email </label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -32,7 +35,7 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-2">
                     <label for="adminPassword" class="form-label">Mật khẩu</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-lock"></i></span>
@@ -44,9 +47,9 @@
                     <input type="checkbox" class="form-check-input" id="rememberAdmin">
                     <label class="form-check-label" for="rememberAdmin">
                         Ghi nhớ đăng nhập
-                    </label>
+                    </label>"
                 </div>
-                <button type="button" class="btn btn-login w-100 mb-3" @onclick="HandleSignIn" disabled="@isLoading">
+                <button type="submit" class="btn btn-login w-100 mb-2" disabled="@isLoading">
                     @if (isLoading)
                     {
                         <i class="fas fa-spinner fa-spin me-2"></i>
@@ -63,11 +66,7 @@
 </div>
 
 @code {
-
-    [Inject] AlertService AlertService { get; set; }
-    [Inject] IUserService UserService { get; set; }
-    private string _email, _password;
-    private bool _rememberMe = false;
+    private string _email = string.Empty, _password = string.Empty;
     private bool isLoading = false;
 
     private async Task HandleSignIn()
@@ -83,7 +82,7 @@
             if (authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
             {
                 AlertService.ShowAlert("Đăng nhập thành công!", "success");
-                Navigation.NavigateTo("/admin",forceLoad: true);
+                Navigation.NavigateTo("/admin/bao-cao-tong-doan", forceLoad: true);
             }
             else
             {

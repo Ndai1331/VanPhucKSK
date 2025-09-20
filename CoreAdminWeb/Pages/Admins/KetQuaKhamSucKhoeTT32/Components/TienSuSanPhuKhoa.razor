@@ -7,8 +7,11 @@
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
     <div class="flex flex-col items-start gap-2 md:col-span-2">
         <div class="flex items-center gap-2">
-            <input type="checkbox" class="form-check-input" id="cbx_dalapgiadinh"
-                   @bind="@SelectedKhamSucKhoeSanPhuKhoa.da_lap_gia_dinh"
+            <input type="checkbox"
+                   class="form-check-input @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.da_lap_gia_dinh))"
+                   id="cbx_dalapgiadinh"
+                   checked="@SelectedKhamSucKhoeSanPhuKhoa.da_lap_gia_dinh"
+                   @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeSanPhuKhoa.da_lap_gia_dinh), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa))"
                    disabled="@(onReadonly || !onReadonly && !onBS)">
             <label class="form-check-label rtl\:mr-3" for="cbx_dalapgiadinh">
                 Đã lập gia đình
@@ -17,7 +20,10 @@
     </div>
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Bắt đầu thấy kinh nguyệt năm bao nhiêu tuổi:</MudText>
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh))"
+               value="@SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeSanPhuKhoa.tuoi_bat_dau_kinh), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa))"
+               readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Tính chất kinh nguyệt:</MudText>
@@ -26,11 +32,13 @@
             @foreach (var item in EnumHelper.ToList<TinhChatKinh>())
             {
                 <div class="flex items-center gap-2">
-                    <input type="checkbox" class="form-check-input" id="cbx_@item.Name"
-                        value="@item.Name"
-                        @onchange="e => OnTinhChatKinhChangedHandler(item.Name)"
-                        checked="@(item.Name.Equals(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))"
-                        disabled="@(onReadonly || !onReadonly && !onBS)">
+                    <input type="checkbox"
+                           class="form-check-input @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))"
+                           id="cbx_@item.Name"
+                           value="@item.Name"
+                           @onchange="e => OnTinhChatKinhChangedHandler(item.Name)"
+                           checked="@(item.Name.Equals(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))"
+                           disabled="@(onReadonly || !onReadonly && !onBS)">
                     <label class="form-check-label rtl\:mr-3" for="cbx_@item.Name">
                         @item.Description
                     </label>
@@ -42,26 +50,33 @@
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
             Chu kỳ kinh (Ngày):
         </MudText>
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh))"
+               value="@SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeSanPhuKhoa.chu_ky_kinh), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa))"
+               readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Đau bụng kinh:</MudText>
 
         <div class="grid md:grid-cols-2 w-full items-center gap-4 h-full">
             <div class="flex items-center gap-2">
-                <input type="checkbox" class="form-check-input" id="cbx1_@YesNo.Co.ToString()"
-                    @onchange="e => OnDauBungKinhChangedHandler(YesNo.Co.ToString())"
-                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == true)"
-                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <input type="checkbox"
+                       class="form-check-input @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh))"
+                       id="cbx1_@YesNo.Co.ToString()"
+                       @onchange="e => OnDauBungKinhChangedHandler(YesNo.Co.ToString())"
+                       checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == true)"
+                       disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx1_@YesNo.Co.ToString()">
                     @YesNo.Co.GetDescription()
                 </label>
             </div>
             <div class="flex items-center gap-2">
-                <input type="checkbox" class="form-check-input" id="cbx2_@YesNo.Khong.ToString()"
-                    @onchange="e => OnDauBungKinhChangedHandler(YesNo.Khong.ToString())"
-                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == false)"
-                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <input type="checkbox"
+                       class="form-check-input @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh))"
+                       id="cbx2_@YesNo.Khong.ToString()"
+                       @onchange="e => OnDauBungKinhChangedHandler(YesNo.Khong.ToString())"
+                       checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == false)"
+                       disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx2_@YesNo.Khong.ToString()">
                     @YesNo.Khong.GetDescription()
                 </label>
@@ -72,34 +87,47 @@
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">
             Lượng kinh (Ngày):
         </MudText>
-        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.luong_kinh" readonly="@(onReadonly || !onReadonly && !onBS)" />
+        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.luong_kinh))"
+               value="@SelectedKhamSucKhoeSanPhuKhoa.luong_kinh"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeSanPhuKhoa.luong_kinh), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa))"
+               readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
     <div class="flex flex-col items-start gap-2">
         <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Số lần mổ sản phụ khoa:</MudText>
 
         <div class="grid md:grid-cols-2 w-full items-center gap-4 mt-2.5">
             <div class="flex items-center gap-2">
-                <input type="checkbox" class="form-check-input" id="cbx3_@YesNo.Co.ToString()"
-                    @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Co)"
-                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)"
-                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <input type="checkbox"
+                       class="form-check-input @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa))"
+                       id="cbx3_@YesNo.Co.ToString()"
+                       @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Co)"
+                       checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)"
+                       disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx3_@YesNo.Co.ToString()">
                     @YesNo.Co.GetDescription()
                 </label>
             </div>
             <div class="flex items-center gap-2">
-                <input type="checkbox" class="form-check-input" id="cbx4_@YesNo.Khong.ToString()"
-                    @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Khong)"
-                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Khong)"
-                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <input type="checkbox"
+                       class="form-check-input @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa))"
+                       id="cbx4_@YesNo.Khong.ToString()"
+                       @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Khong)"
+                       checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Khong)"
+                       disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx4_@YesNo.Khong.ToString()">
                     @YesNo.Khong.GetDescription()
                 </label>
             </div>
-            @if (SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co) {
+            @if (SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)
+            {
                 <div class="md:col-span-2">
                     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
-                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" rows="2" @bind="@SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)"></textarea>
+                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro))"
+                              rows="2"
+                              @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa))"
+                              readonly="@(onReadonly || !onReadonly && !onBS)">
+                            @SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro
+                            </textarea>
                 </div>
             }
         </div>
@@ -110,10 +138,22 @@
         </MudText>
 
         <div class="flex items-center gap-2">
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@para1" @onchange="e => OnParaChangedHandler(e, 0)" readonly="@(onReadonly || !onReadonly && !onBS)">
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@para2" @onchange="e => OnParaChangedHandler(e, 1)" readonly="@(onReadonly || !onReadonly && !onBS)">
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@para3" @onchange="e => OnParaChangedHandler(e, 2)" readonly="@(onReadonly || !onReadonly && !onBS)">
-            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" value="@para4" @onchange="e => OnParaChangedHandler(e, 3)" readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.para))"
+                   value="@para1"
+                   @onchange="e => OnParaChangedHandler(e, 0)"
+                   readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.para))"
+                   value="@para2"
+                   @onchange="e => OnParaChangedHandler(e, 1)"
+                   readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.para))"
+                   value="@para3"
+                   @onchange="e => OnParaChangedHandler(e, 2)"
+                   readonly="@(onReadonly || !onReadonly && !onBS)">
+            <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.para))"
+                   value="@para4"
+                   @onchange="e => OnParaChangedHandler(e, 3)"
+                   readonly="@(onReadonly || !onReadonly && !onBS)">
         </div>
     </div>
     <div class="flex flex-col items-start gap-2">
@@ -121,30 +161,38 @@
 
         <div class="grid md:grid-cols-2 w-full items-center gap-4 mt-2.5">
             <div class="flex items-center gap-2">
-                <input type="checkbox" class="form-check-input" id="cbx5_@YesNo.Co.ToString()"
-                    @onchange="e => OnApDungBPPTChangedHandler(YesNo.Co.ToString())"
-                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)"
-                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <input type="checkbox"
+                       class="form-check-input @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt))"
+                       id="cbx5_@YesNo.Co.ToString()"
+                       @onchange="e => OnApDungBPPTChangedHandler(YesNo.Co.ToString())"
+                       checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)"
+                       disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
                     @YesNo.Co.GetDescription()
                 </label>
             </div>
             <div class="flex items-center gap-2">
-                <input type="checkbox" class="form-check-input" id="cbx6_@YesNo.Khong.ToString()"
-                    @onchange="e => OnApDungBPPTChangedHandler(YesNo.Khong.ToString())"
-                    checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)"
-                    disabled="@(onReadonly || !onReadonly && !onBS)">
+                <input type="checkbox"
+                       class="form-check-input @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt))"
+                       id="cbx6_@YesNo.Khong.ToString()"
+                       @onchange="e => OnApDungBPPTChangedHandler(YesNo.Khong.ToString())"
+                       checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)"
+                       disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
                     @YesNo.Khong.GetDescription()
                 </label>
             </div>
-            
-            @if (SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true) {
+
+            @if (SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)
+            {
                 <div class="md:col-span-2">
                     <MudText Typo="Typo.body1" Class="capitalize text-slate-800 dark:text-slate-100">Ghi rõ:</MudText>
-                    @* <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)" /> *@
-                    @* <label class="block text-sm font-normal">Ghi rõ:</label> *@
-                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBS ? "" : "read-write")" rows="2" @bind="@SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro" readonly="@(onReadonly || !onReadonly && !onBS)"></textarea>
+                    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro))"
+                              rows="2"
+                              @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa))"
+                              readonly="@(onReadonly || !onReadonly && !onBS)">
+                            @SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro
+                    </textarea>
                 </div>
             }
         </div>
@@ -177,6 +225,10 @@
     public string? para3 { get; set; }
     [Parameter]
     public string? para4 { get; set; }
+    [Parameter]
+    public object? dynamicObj { get; set; }
+    [Parameter]
+    public Func<ChangeEventArgs, string, bool, bool, object, Task>? OnValueChanged { get; set; }
 
     private async Task OnTinhChatKinhChangedHandler(string value)
     {
@@ -204,5 +256,13 @@
     private async Task OnApDungBPPTChangedHandler(string value)
     {
         await OnApDungBPPTChanged.InvokeAsync(value);
+    }
+
+    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true, object item = default!)
+    {
+        if (OnValueChanged != null)
+        {
+            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate, item);
+        }
     }
 }
