@@ -60,6 +60,8 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? ma_bs_than_kinh { get; set; }
         public string? ma_bs_tam_than { get; set; }
         public string? ma_bs_ngoai_khoa { get; set; }
+
+        public bool? kham_noi_vien { get; set; }
     }
     public class KhamSucKhoeCongTyCRUDModel
     {
@@ -120,5 +122,7 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? ma_bs_than_kinh { get; set; }
         public string? ma_bs_tam_than { get; set; }
         public string? ma_bs_ngoai_khoa { get; set; }
+
+        public bool? kham_noi_vien { get; set; }
     }
 }

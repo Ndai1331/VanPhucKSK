@@ -4,8 +4,11 @@
 @using CoreAdminWeb.Model.KhamSucKhoes
 @using CoreAdminWeb.Model.User
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-start">
+<div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-4 gap-2 items-start">
     <div class="col-span-1 md:col-span-3">
+        <div class="gap-2 mb-1">
+            <MudText Typo="Typo.h4" Class="font-bold">Thông tin bệnh nhân:</MudText>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-1">
             <div class="col-span-3 md:col-span-1">Mã bệnh nhân: <span id="view-ma-benhnhan">@SelectedUser.ma_tai_khoan</span></div>
             <div class="col-span-3 md:col-span-1">Mã điều trị: <span id="view-ma-dieutri">@SelectedItem.ma_luot_kham</span></div>
@@ -20,6 +23,15 @@
             <div class="col-span-3 md:col-span-1">Thời gian khám: <span id="view-thoi-gian-kham">@SelectedItem.ngay_kham?.ToString("HH:mm dd/MM/yyyy")</span></div>
             <div class="col-span-3 md:col-span-1">Hợp đồng: <span id="view-hop-dong">@SelectedItem.MaDotKham?.ma_hop_dong_ksk?.code</span></div>
             <div class="col-span-3 md:col-span-1">Mã hồ sơ: <span id="view-ma-hoso">@SelectedItem.MaDotKham?.code</span></div>
+        </div>
+
+        <div class="gap-2 mb-1 mt-3">
+            <input type="checkbox" class="form-check-input" id="cbx5_showall"
+                   @onchange="@OnShowAllHandler"
+                   checked="@isShowOnlyMe">
+            <label class="form-check-label rtl\:mr-3" for="cbx5_showall">
+                Chỉ xem các dữ liệu được phép cập nhật
+            </label>
         </div>
     </div>
     <div class="col-span-1 md:col-span-1 flex justify-center items-start -mt-5">
@@ -39,6 +51,10 @@
     [Parameter]
     public bool onBS { get; set; } = false;
     [Parameter]
+    public bool isShowOnlyMe { get; set; } = false;
+    [Parameter]
+    public Func<Task>? OnShowAll { get; set; }
+    [Parameter]
     public Func<InputFileChangeEventArgs, Task>? HandleFileSelect { get; set; }
 
     private async Task HandleFileSelectHandler(InputFileChangeEventArgs e)
@@ -46,6 +62,14 @@
         if (HandleFileSelect != null)
         {
             await HandleFileSelect.Invoke(e);
+        }
+    }
+
+    private async Task OnShowAllHandler()
+    {
+        if (OnShowAll != null)
+        {
+            await OnShowAll.Invoke();
         }
     }
 }

@@ -13,363 +13,342 @@
 @using CoreAdminWeb.Services.BaseServices
 @using CoreAdminWeb.Shared.Base
 @using CoreAdminWeb.Shared.Components
+@using Microsoft.Extensions.Caching.Memory
 @inherits BlazorCoreBase
+@inject IMemoryCache __MemoryCache
 @layout Shared.Layout.AdminLayout
 
 <PageHeader Title="Kết quả khám sức khỏe - TT32" pTitle="Kết quả khám sức khỏe - TT32"></PageHeader>
 
 <!-- Start All Card -->
 <div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-4 py-3">
-        <div class="space-y-2 sm:col-span-1 md:col-span-1">
+    <div class="grid grid-cols-1 gap-4 py-3">
+        <div class="space-y-2 sm:col-span-1">
             <div class="card space-y-2">
-                <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Thông tin danh sách khám sức khỏe:</MudText>
-
-                <Filter _contractFilter="@_contractFilter"
-                        ContractFilterChanged="ContractFilterChanged"
-                        LoadContractData="LoadContractData"
-                        _khamSucKhoeCongTyFilter="@_khamSucKhoeCongTyFilter"
-                        KhamSucKhoeCongTyChanged="KhamSucKhoeCongTyChanged"
-                        LoadKhamSucKhoeCongTyData="LoadKhamSucKhoeCongTyData"
-                        LoadData="LoadData"
-                        _startDateFilter="@_startDateFilter"
-                        _endDateFilter="@_endDateFilter"
-                        OnValueChanged="OnValueChanged"
-                        _maDieuTriString="@_maDieuTriString"
-                        _maBenhNhanString="@_maBenhNhanString"
-                        _tenBenhNhanString="@_tenBenhNhanString" />
-
-                <div class="space-y-2 ksk">
-                    <div class="overflow-auto">
-                        <table id="example" class="display" style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>STT</th>
-                                    <th>Mã bệnh nhân</th>
-                                    <th>Mã điều trị</th>
-                                    <th>Tên khách hàng</th>
-                                    <th>SĐT</th>
-                                    <th>Ngày sinh</th>
-                                    <th>Giới tính</th>
-                                    <th>CCCD</th>
-                                    <th>Địa chỉ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
-                                {
-                                    <tr class="@(item.Data.id == SelectedItem.id ? "active-row" : "")" @onclick="@(async () => await OnRowClick(item.Data.id))">
-                                        <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                                        <td>@item.Data.ma_benh_nhan</td>
-                                        <td>@item.Data.ma_luot_kham</td>
-                                        <td>@item.Data.benh_nhan?.full_name</td>
-                                        <td>@item.Data.benh_nhan?.so_dien_thoai</td>
-                                        <td>@item.Data.benh_nhan?.ngay_sinh?.ToString("dd/MM/yyyy")</td>
-                                        <td>@item.Data.benh_nhan?.gioi_tinh?.GetDescription()</td>
-                                        <td>@item.Data.benh_nhan?.so_dinh_danh</td>
-                                        <td>@item.Data.benh_nhan?.dia_chi</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                    <CoreAdminWeb.Shared.Components.Pagination TotalItems="@TotalItems" Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" PagingConf="false" />
+                <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-4">
+                    <Filter _contractFilter="@_contractFilter"
+                            ContractFilterChanged="ContractFilterChanged"
+                            LoadContractData="LoadContractData"
+                            _khamSucKhoeCongTyFilter="@_khamSucKhoeCongTyFilter"
+                            KhamSucKhoeCongTyChanged="KhamSucKhoeCongTyChanged"
+                            LoadKhamSucKhoeCongTyData="LoadKhamSucKhoeCongTyData"
+                            LoadData="LoadData"
+                            _startDateFilter="@_startDateFilter"
+                            _endDateFilter="@_endDateFilter"
+                            OnValueChanged="OnValueChanged"
+                            _maDieuTriString="@_maDieuTriString"
+                            _maBenhNhanString="@_maBenhNhanString"
+                            _tenBenhNhanString="@_tenBenhNhanString" />
                 </div>
             </div>
         </div>
-        <div class="space-y-2 sm:col-span-1 md:col-span-3">
-            <div class="card space-y-2">
-                <MudText Typo="Typo.h4" Class="font-bold">Thông tin bệnh nhân:</MudText>
-
-                <PatientInfo HandleFileSelect="HandleFileSelect"
-                             onBS="onBS"
-                             onReadonly="onReadonly"
-                             SelectedItem="SelectedItem"
-                             SelectedUser="SelectedUser" />
-
-                <div class="flex gap-2">
-                    <input type="checkbox" class="form-check-input" id="cbx5_showall"
-                           @onchange="@OnShowAll"
-                           checked="@isShowOnlyMe">
-                    <label class="form-check-label rtl\:mr-3" for="cbx5_showall">
-                        Chỉ xem các dữ liệu được phép cập nhật
-                    </label>
+        @if (SelectedItem.id > 0)
+        {
+            <div class="space-y-2 sm:col-span-1">
+                <div class="card space-y-2">
+                    <PatientInfo HandleFileSelect="HandleFileSelect"
+                                 onBS="onBS"
+                                 onReadonly="onReadonly"
+                                 SelectedItem="SelectedItem"
+                                 SelectedUser="SelectedUser"
+                                 isShowOnlyMe="@isShowOnlyMe"
+                                 OnShowAll="OnShowAll" />
                 </div>
-            </div>
-            <div class="card space-y-2 p-0 mb-10">
-                <div class="w-full">
-                    <ul class="flex flex-wrap text-sm text-center border-b border-black/10 dark:border-darkborder">
-                        @if (!isShowOnlyMe || isShowOnlyMe && onBS)
-                        {
-                            <li>
-                                <MudLink Href="javascript:void(0);"
-                                         OnClick="@(() => {OnTabChanged("tab1");})"
-                                         Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab1" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
-                                    Tiền sử bệnh
-                                </MudLink>
-                            </li>
-                        }
-
-                        @if (!isShowOnlyMe || isShowOnlyMe && (onBS || onBSTuanHoan || onBSHoHap || onBSTieuHoa || onBSThanTietNieu || onBSNoiTiet || onBSCoXuongKhop || onBSThanKinh || onBSThanKinh || onBSTamThan || onBSNgoaiKhoa || onBSSanPhuKhoa || onBSMat || onBSTaiMuiHong || onBSRangHamMat))
-                        {
-                            <li>
-                                <MudLink Href="javascript:void(0);"
-                                         OnClick="@(() => {OnTabChanged("tab2");})"
-                                         Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab2" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
-                                    Khám chung
-                                </MudLink>
-                            </li>
-                        }
-                        @if (!isShowOnlyMe || isShowOnlyMe && onBSKetLuan)
-                        {
-                            <li>
-                                <MudLink Href="javascript:void(0);"
-                                         OnClick="@(() => {OnTabChanged("tab3");})"
-                                         Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab3" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
-                                    Khám CLS/Kết luận
-                                </MudLink>
-                            </li>
-                        }
-                    </ul>
-                    <div class="tab-content mt-3 text-[13px] px-3">
-                        <div class="overflow-auto">
-                            @switch (activeDefTab)
+                <div class="card space-y-2 p-0 mb-10">
+                    <div class="w-full">
+                        <ul class="flex flex-wrap text-sm text-center border-b border-black/10 dark:border-darkborder">
+                            @if (!isShowOnlyMe || isShowOnlyMe && onBS)
                             {
-                                case "tab1":
-                                    <div class="text-black dark:text-muted">
-                                        <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
-                                            <TienSuBenhGiaDinh onBS="onBS"
-                                                               onReadonly="onReadonly"
-                                                               SelectedKhamSucKhoeTienSu="SelectedKhamSucKhoeTienSu" />
-
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tiền sử sản phụ khoa</MudText>
-                                                <TienSuSanPhuKhoa onBS="onBS"
-                                                                  onReadonly="onReadonly"
-                                                                  SelectedKhamSucKhoeSanPhuKhoa="SelectedKhamSucKhoeSanPhuKhoa"
-                                                                  para1="@para1"
-                                                                  para2="@para2"
-                                                                  para3="@para3"
-                                                                  para4="@para4"
-                                                                  OnParaChanged="OnParaChanged"
-                                                                  OnApDungBPPTChanged="OnApDungBPPTChanged"
-                                                                  OnDauBungKinhChanged="OnDauBungKinhChanged"
-                                                                  OnSoLanMoPhuKhoaChanged="OnSoLanMoPhuKhoaChanged"
-                                                                  OnTinhChatKinhChanged="OnTinhChatKinhChanged" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    break;
-
-                                case "tab2":
-                                    <div class="text-black dark:text-muted">
-                                        <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
-                                            @if (!isShowOnlyMe || isShowOnlyMe && onBS)
-                                            {
-                                                <div class="space-y-2 md:col-span-2">
-                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. KHÁM THỂ LỰC</MudText>
-                                                    <KhamTheLuc onReadonly="onReadonly"
-                                                                onBS="onBS"
-                                                                SelectedKhamSucKhoeTheLuc="SelectedKhamSucKhoeTheLuc"
-                                                                LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes"
-                                                                OnValueChanged="OnValueChanged" />
-                                                </div>
-                                                <div class="space-y-2 md:col-span-2">
-                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KHÁM CHUYÊN KHOA:</MudText>
-                                                </div>
-                                            }
-                                            @if (!isShowOnlyMe || isShowOnlyMe && (onBSTuanHoan || onBSHoHap || onBSTieuHoa || onBSThanTietNieu || onBSNoiTiet || onBSCoXuongKhop || onBSThanKinh || onBSTamThan))
-                                            {
-                                                <KhamChuyenKhoaNoiKhoa onReadonly="onReadonly"
-                                                                       onBSTuanHoan="onBSTuanHoan"
-                                                                       onBSHoHap="onBSHoHap"
-                                                                       onBSTieuHoa="onBSTieuHoa"
-                                                                       onBSThanTietNieu="onBSThanTietNieu"
-                                                                       onBSNoiTiet="onBSNoiTiet"
-                                                                       onBSCoXuongKhop="onBSCoXuongKhop"
-                                                                       onBSThanKinh="onBSThanKinh"
-                                                                       onBSTamThan="onBSTamThan"
-                                                                       isShowOnlyMe="isShowOnlyMe"
-                                                                       SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                       LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                       PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                       SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                            }
-
-                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSNgoaiKhoa)
-                                            {
-                                                <div class="space-y-2 md:col-span-2">
-                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Ngoại khoa - Da liễu:</MudText>
-                                                    <KhamChuyenKhoaNgoaiKhoaDaLieu onReadonly="onReadonly"
-                                                                                   onBSNgoaiKhoa="onBSNgoaiKhoa"
-                                                                                   SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                                   PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                                   SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                                </div>
-                                            }
-                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSSanPhuKhoa)
-                                            {
-                                                <div class="space-y-2 md:col-span-2">
-                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Sản phụ khoa:</MudText>
-                                                    <KhamChuyenKhoaSanPhuKhoa onReadonly="onReadonly"
-                                                                              onBSSanPhuKhoa="onBSSanPhuKhoa"
-                                                                              SelectedKhamSucKhoeSanPhuKhoa="SelectedKhamSucKhoeSanPhuKhoa"
-                                                                              LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                              PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                              SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                                </div>
-                                            }
-                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSMat)
-                                            {
-                                                <div class="space-y-2 md:col-span-2">
-                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Mắt:</MudText>
-                                                    <KhamChuyenKhoaMat onReadonly="onReadonly"
-                                                                       onBSMat="onBSMat"
-                                                                       SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                       LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                       PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                       SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                                </div>
-                                            }
-                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSTaiMuiHong)
-                                            {
-                                                <div class="space-y-2 md:col-span-2">
-                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tai - mũi - họng:</MudText>
-                                                    <KhamChuyenKhoaTaiMuiHong onReadonly="onReadonly"
-                                                                              onBSTaiMuiHong="onBSTaiMuiHong"
-                                                                              SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                              LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                              PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                              SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                                </div>
-                                            }
-                                            @if (!isShowOnlyMe || isShowOnlyMe && onBSRangHamMat)
-                                            {
-                                                <div class="space-y-2 md:col-span-2">
-                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Răng - hàm - mặt:</MudText>
-                                                    <KhamChuyenKhoaRangHamMat onReadonly="onReadonly"
-                                                                              onBSRangHamMat="onBSRangHamMat"
-                                                                              SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
-                                                                              LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                                              PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                                              SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes" />
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                    break;
-
-                                case "tab3":
-                                    <div class="text-black dark:text-muted">
-                                        <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. KHÁM CẬN LÂM SÀNG</MudText>
-                                                <KhamCanLamSang onReadonly="onReadonly"
-                                                                onBSKetLuan="onBSKetLuan"
-                                                                SelectedKhamSucKhoeKetQuaCanLamSangs="SelectedKhamSucKhoeKetQuaCanLamSangs"
-                                                                OnLoadKetQuaCanLamSang="OnLoadKetQuaCanLamSang"
-                                                                OnKhamCLSChanged="OnKhamCLSChanged" />
-                                            </div>
-                                            <div class="space-y-2 md:col-span-2">
-                                                <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KẾT LUẬN</MudText>
-                                                <KetLuan LoadBacSiData="LoadDoctorSelect2"
-                                                         LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
-                                                         onBSKetLuan="onBSKetLuan"
-                                                         onReadonly="onReadonly"
-                                                         OnValueChanged="OnValueChanged"
-                                                         SelectedKhamSucKhoeKetLuan="SelectedKhamSucKhoeKetLuan"
-                                                         PhanLoaiSucKhoes="PhanLoaiSucKhoes"
-                                                         SelectedPhanLoaiSucKhoes="SelectedPhanLoaiSucKhoes"
-                                                         SelectedUsers="SelectedUsers"
-                                                         Users="Users" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    break;
-
-                                default:
-                                    <div>
-                                        <p>
-                                            Bạn không có quyền chỉnh sửa thông tin nào.
-                                        </p>
-                                    </div>
-                                    break;
+                                <li>
+                                    <MudLink Href="javascript:void(0);"
+                                             OnClick="@(() => {OnTabChanged("tab1");})"
+                                             Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab1" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
+                                        <i class="ri-history-line mr-1"></i>
+                                        Tiền sử bệnh
+                                    </MudLink>
+                                </li>
                             }
 
-                            <div class="flex items-center justify-end gap-2 py-4">
-                                @if (
-                                                                !onReadonly
-                                                                && (
-                                                                onBSHoHap
-                                                                || onBSTuanHoan
-                                                                || onBSTieuHoa
-                                                                || onBSThanTietNieu
-                                                                || onBSNoiTiet
-                                                                || onBSCoXuongKhop
-                                                                || onBSThanKinh
-                                                                || onBSTamThan
-                                                                || onBSNgoaiKhoa
-                                                                || onBSMat
-                                                                || onBSTaiMuiHong
-                                                                || onBSRangHamMat
-                                                                || onBSSanPhuKhoa
-                                                                || onBSKetLuan
-                                                                || onBS
-                                                                )
-                                                                )
+                            @if (!isShowOnlyMe || isShowOnlyMe && (onBS || onBSTuanHoan || onBSHoHap || onBSTieuHoa || onBSThanTietNieu || onBSNoiTiet || onBSCoXuongKhop || onBSThanKinh || onBSThanKinh || onBSTamThan || onBSNgoaiKhoa || onBSSanPhuKhoa || onBSMat || onBSTaiMuiHong || onBSRangHamMat))
+                            {
+                                <li>
+                                    <MudLink Href="javascript:void(0);"
+                                             OnClick="@(() => {OnTabChanged("tab2");})"
+                                             Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab2" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
+                                        <i class="ri-stethoscope-line mr-1"></i>
+                                        Khám chung
+                                    </MudLink>
+                                </li>
+                            }
+                            @if (!isShowOnlyMe || isShowOnlyMe && onBSKetLuan)
+                            {
+                                <li>
+                                    <MudLink Href="javascript:void(0);"
+                                             OnClick="@(() => {OnTabChanged("tab3");})"
+                                             Class="@($"tab inline-block p-4 rounded-t-lg {(activeDefTab == "tab3" ? "active text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
+                                        <i class="ri-clipboard-line mr-1"></i>
+                                        Khám CLS/Kết luận
+                                    </MudLink>
+                                </li>
+                            }
+                        </ul>
+                        <div class="tab-content mt-3 text-[13px] px-3">
+                            <div class="overflow-auto">
+                                @switch (activeDefTab)
                                 {
-                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
-                                               OnClick="OnValidSubmit">
-                                        <i class="ri-save-line"></i>
-                                        Lưu
-                                    </MudButton>
-                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-warning border-warning hover:bg-warning hover:text-white"
-                                               OnClick="OnEndSubmit">
-                                        <i class="ri-close-line"></i>
-                                        Kết thúc
-                                    </MudButton>
+                                    case "tab1":
+                                        <div class="text-black dark:text-muted">
+                                            <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
+                                                <TienSuBenhGiaDinh onBS="onBS"
+                                                                   onReadonly="onReadonly"
+                                                                   SelectedKhamSucKhoeTienSu="SelectedKhamSucKhoeTienSu"
+                                                                   dynamicObj="dynamicTienSuObj"
+                                                                   OnValueChanged="OnValueChanged" />
+
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tiền sử sản phụ khoa</MudText>
+                                                    <TienSuSanPhuKhoa onBS="onBS"
+                                                                      onReadonly="onReadonly"
+                                                                      SelectedKhamSucKhoeSanPhuKhoa="SelectedKhamSucKhoeSanPhuKhoa"
+                                                                      para1="@para1"
+                                                                      para2="@para2"
+                                                                      para3="@para3"
+                                                                      para4="@para4"
+                                                                      OnParaChanged="OnParaChanged"
+                                                                      OnApDungBPPTChanged="OnApDungBPPTChanged"
+                                                                      OnDauBungKinhChanged="OnDauBungKinhChanged"
+                                                                      OnSoLanMoPhuKhoaChanged="OnSoLanMoPhuKhoaChanged"
+                                                                      OnTinhChatKinhChanged="OnTinhChatKinhChanged"
+                                                                      dynamicObj="dynamicSanPhuKhoaObj"
+                                                                      OnValueChanged="OnValueChanged" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        break;
+
+                                    case "tab2":
+                                        <div class="text-black dark:text-muted">
+                                            <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
+                                                @if (!isShowOnlyMe || isShowOnlyMe && onBS)
+                                                {
+                                                    <div class="space-y-2 md:col-span-2">
+                                                        <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. KHÁM THỂ LỰC</MudText>
+                                                        <KhamTheLuc onReadonly="onReadonly"
+                                                                    onBS="onBS"
+                                                                    SelectedKhamSucKhoeTheLuc="SelectedKhamSucKhoeTheLuc"
+                                                                    LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                    PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                    dynamicObj="dynamicTheLucObj"
+                                                                    OnValueChanged="OnValueChanged" />
+                                                    </div>
+                                                    <div class="space-y-2 md:col-span-2">
+                                                        <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KHÁM CHUYÊN KHOA:</MudText>
+                                                    </div>
+                                                }
+                                                @if (!isShowOnlyMe || isShowOnlyMe && (onBSTuanHoan || onBSHoHap || onBSTieuHoa || onBSThanTietNieu || onBSNoiTiet || onBSCoXuongKhop || onBSThanKinh || onBSTamThan))
+                                                {
+                                                    <KhamChuyenKhoaNoiKhoa onReadonly="onReadonly"
+                                                                           onBSTuanHoan="onBSTuanHoan"
+                                                                           onBSHoHap="onBSHoHap"
+                                                                           onBSTieuHoa="onBSTieuHoa"
+                                                                           onBSThanTietNieu="onBSThanTietNieu"
+                                                                           onBSNoiTiet="onBSNoiTiet"
+                                                                           onBSCoXuongKhop="onBSCoXuongKhop"
+                                                                           onBSThanKinh="onBSThanKinh"
+                                                                           onBSTamThan="onBSTamThan"
+                                                                           isShowOnlyMe="isShowOnlyMe"
+                                                                           SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                           LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                           PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                           dynamicObj="dynamicChuyenKhoaObj"
+                                                                           OnValueChanged="OnValueChanged" />
+                                                }
+
+                                                @if (!isShowOnlyMe || isShowOnlyMe && onBSNgoaiKhoa)
+                                                {
+                                                    <div class="space-y-2 md:col-span-2">
+                                                        <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Ngoại khoa - Da liễu:</MudText>
+                                                        <KhamChuyenKhoaNgoaiKhoaDaLieu onReadonly="onReadonly"
+                                                                                       onBSNgoaiKhoa="onBSNgoaiKhoa"
+                                                                                       SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                                       LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                                       PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                                       dynamicObj="dynamicChuyenKhoaObj"
+                                                                                       OnValueChanged="OnValueChanged" />
+                                                    </div>
+                                                }
+                                                @if (!isShowOnlyMe || isShowOnlyMe && onBSSanPhuKhoa)
+                                                {
+                                                    <div class="space-y-2 md:col-span-2">
+                                                        <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Sản phụ khoa:</MudText>
+                                                        <KhamChuyenKhoaSanPhuKhoa onReadonly="onReadonly"
+                                                                                  onBSSanPhuKhoa="onBSSanPhuKhoa"
+                                                                                  SelectedKhamSucKhoeSanPhuKhoa="SelectedKhamSucKhoeSanPhuKhoa"
+                                                                                  LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                                  PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                                  dynamicObj="dynamicSanPhuKhoaObj"
+                                                                                  OnValueChanged="OnValueChanged" />
+                                                    </div>
+                                                }
+                                                @if (!isShowOnlyMe || isShowOnlyMe && onBSMat)
+                                                {
+                                                    <div class="space-y-2 md:col-span-2">
+                                                        <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Mắt:</MudText>
+                                                        <KhamChuyenKhoaMat onReadonly="onReadonly"
+                                                                           onBSMat="onBSMat"
+                                                                           SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                           LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                           PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                           dynamicObj="dynamicChuyenKhoaObj"
+                                                                           OnValueChanged="OnValueChanged" />
+                                                    </div>
+                                                }
+                                                @if (!isShowOnlyMe || isShowOnlyMe && onBSTaiMuiHong)
+                                                {
+                                                    <div class="space-y-2 md:col-span-2">
+                                                        <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Tai - mũi - họng:</MudText>
+                                                        <KhamChuyenKhoaTaiMuiHong onReadonly="onReadonly"
+                                                                                  onBSTaiMuiHong="onBSTaiMuiHong"
+                                                                                  SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                                  LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                                  PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                                  dynamicObj="dynamicChuyenKhoaObj"
+                                                                                  OnValueChanged="OnValueChanged" />
+                                                    </div>
+                                                }
+                                                @if (!isShowOnlyMe || isShowOnlyMe && onBSRangHamMat)
+                                                {
+                                                    <div class="space-y-2 md:col-span-2">
+                                                        <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">Răng - hàm - mặt:</MudText>
+                                                        <KhamChuyenKhoaRangHamMat onReadonly="onReadonly"
+                                                                                  onBSRangHamMat="onBSRangHamMat"
+                                                                                  SelectedKhamSucKhoeChuyenKhoa="SelectedKhamSucKhoeChuyenKhoa"
+                                                                                  LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                                                  PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                                                  dynamicObj="dynamicChuyenKhoaObj"
+                                                                                  OnValueChanged="OnValueChanged" />
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        break;
+
+                                    case "tab3":
+                                        <div class="text-black dark:text-muted">
+                                            <div class="grid grid-cols-1 mb-2 gap-4 md:grid-cols-2">
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. KHÁM CẬN LÂM SÀNG</MudText>
+                                                    <KhamCanLamSang onReadonly="onReadonly"
+                                                                    onBSKetLuan="onBSKetLuan"
+                                                                    SelectedKhamSucKhoeKetQuaCanLamSangs="SelectedKhamSucKhoeKetQuaCanLamSangs"
+                                                                    OnLoadKetQuaCanLamSang="OnLoadKetQuaCanLamSang"
+                                                                    OnKhamCLSChanged="OnKhamCLSChanged" />
+                                                </div>
+                                                <div class="space-y-2 md:col-span-2">
+                                                    <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KẾT LUẬN</MudText>
+                                                    <KetLuan LoadBacSiData="LoadDoctorSelect2"
+                                                             LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
+                                                             onBSKetLuan="onBSKetLuan"
+                                                             onReadonly="onReadonly"
+                                                             SelectedKhamSucKhoeKetLuan="SelectedKhamSucKhoeKetLuan"
+                                                             PhanLoaiSucKhoes="PhanLoaiSucKhoes"
+                                                             dynamicObj="dynamicKetLuanObj"
+                                                             OnValueChanged="OnValueChanged"
+                                                             Users="Users" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        break;
+
+                                    default:
+                                        <div>
+                                            <p>
+                                                Bạn không có quyền chỉnh sửa thông tin nào.
+                                            </p>
+                                        </div>
+                                        break;
                                 }
-                                @if (
-                                                                onReadonly
-                                                                && (
-                                                                onBSHoHap
-                                                                || onBSTuanHoan
-                                                                || onBSTieuHoa
-                                                                || onBSThanTietNieu
-                                                                || onBSNoiTiet
-                                                                || onBSCoXuongKhop
-                                                                || onBSThanKinh
-                                                                || onBSTamThan
-                                                                || onBSNgoaiKhoa
-                                                                || onBSMat
-                                                                || onBSTaiMuiHong
-                                                                || onBSRangHamMat
-                                                                || onBSSanPhuKhoa
-                                                                || onBSKetLuan
-                                                                || onBS
-                                                                )
-                                                                && SelectedItem.status == Model.Base.Status.published
-                                                                )
-                                {
-                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
-                                               OnClick="OnCancelEndSubmit">
-                                        <i class="ri-close-line"></i>
-                                        Hủy kết thúc
+
+                                <div class="flex items-center justify-end gap-2 py-4">
+                                    @if (
+                                                                    !onReadonly
+                                                                    && (
+                                                                    onBSHoHap
+                                                                    || onBSTuanHoan
+                                                                    || onBSTieuHoa
+                                                                    || onBSThanTietNieu
+                                                                    || onBSNoiTiet
+                                                                    || onBSCoXuongKhop
+                                                                    || onBSThanKinh
+                                                                    || onBSTamThan
+                                                                    || onBSNgoaiKhoa
+                                                                    || onBSMat
+                                                                    || onBSTaiMuiHong
+                                                                    || onBSRangHamMat
+                                                                    || onBSSanPhuKhoa
+                                                                    || onBSKetLuan
+                                                                    || onBS
+                                                                    )
+                                                                    )
+                                    {
+                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
+                                                   OnClick="OnValidSubmit">
+                                            <i class="ri-save-line"></i>
+                                            Lưu
+                                        </MudButton>
+                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-warning border-warning hover:bg-warning hover:text-white"
+                                                   OnClick="OnEndSubmit">
+                                            <i class="ri-close-line"></i>
+                                            Kết thúc
+                                        </MudButton>
+                                    }
+                                    @if (
+                                                                    onReadonly
+                                                                    && (
+                                                                    onBSHoHap
+                                                                    || onBSTuanHoan
+                                                                    || onBSTieuHoa
+                                                                    || onBSThanTietNieu
+                                                                    || onBSNoiTiet
+                                                                    || onBSCoXuongKhop
+                                                                    || onBSThanKinh
+                                                                    || onBSTamThan
+                                                                    || onBSNgoaiKhoa
+                                                                    || onBSMat
+                                                                    || onBSTaiMuiHong
+                                                                    || onBSRangHamMat
+                                                                    || onBSSanPhuKhoa
+                                                                    || onBSKetLuan
+                                                                    || onBS
+                                                                    )
+                                                                    && SelectedItem.status == Model.Base.Status.published
+                                                                    )
+                                    {
+                                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white"
+                                                   OnClick="OnCancelEndSubmit">
+                                            <i class="ri-close-line"></i>
+                                            Hủy kết thúc
+                                        </MudButton>
+                                    }
+                                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="ExportPDF">
+                                        <i class="ri-file-pdf-line"></i>
+                                        Export pdf
                                     </MudButton>
-                                }
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="ExportPDF">
-                                    <i class="ri-file-pdf-line"></i>
-                                    Export pdf
-                                </MudButton>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="space-y-2 sm:col-span-1">
+                <div class="card space-y-2">
+                    <h5>Không có sổ khám sức khỏe nào được chọn!</h5>
+                </div>
+            </div>
+        }
     </div>
 </div>
 @* @if (openSyncKetQuaCanLamSangModal)
@@ -444,6 +423,73 @@
     </div>
 }
  *@
+ 
+@if (openSoKhamSucKhoeModal)
+{
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseSoKhamSucKhoeModal">
+            <div class="relative w-full max-w-2xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+                <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Thông tin danh sách khám sức khỏe</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseSoKhamSucKhoeModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
+                            <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
+                        </svg>
+                    </MudButton>
+                </div>
+                <div class="p-5">
+                    <div class="text-black dark:text-muted">
+                        <div class="grid grid-cols-1 gap-4 py-3">
+                            <div class="space-y-2 ksk">
+                                <div class="overflow-auto">
+                                    <table id="example" class="display" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Mã bệnh nhân</th>
+                                                <th>Mã điều trị</th>
+                                                <th>Tên khách hàng</th>
+                                                <th>SĐT</th>
+                                                <th>Ngày sinh</th>
+                                                <th>Giới tính</th>
+                                                <th>CCCD</th>
+                                                <th>Địa chỉ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                                            {
+                                                <tr class="@(item.Data.id == SelectedItem.id ? "active-row" : "")" @onclick="@(async () => await OnRowClick(item.Data.id))">
+                                                    <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                                    <td>@item.Data.ma_benh_nhan</td>
+                                                    <td>@item.Data.ma_luot_kham</td>
+                                                    <td>@item.Data.benh_nhan?.full_name</td>
+                                                    <td>@item.Data.benh_nhan?.so_dien_thoai</td>
+                                                    <td>@item.Data.benh_nhan?.ngay_sinh?.ToString("dd/MM/yyyy")</td>
+                                                    <td>@item.Data.benh_nhan?.gioi_tinh?.GetDescription()</td>
+                                                    <td>@item.Data.benh_nhan?.so_dinh_danh</td>
+                                                    <td>@item.Data.benh_nhan?.dia_chi</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <CoreAdminWeb.Shared.Components.Pagination TotalItems="@TotalItems" Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" PagingConf="false" OneLine="true" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 py-4">
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseSoKhamSucKhoeModal">
+                            <i class="ri-close-line"></i>
+                            Đóng
+                        </MudButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 <div class="hidden">
     <PDFTemplatePrint @key="renderKey" RenderSignature="RenderSignature"
                       SelectedItem="SelectedItem"

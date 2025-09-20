@@ -1,37 +1,61 @@
-﻿@using CoreAdminWeb.Helpers
+﻿@using CoreAdminWeb.Extensions
+@using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.KhamSucKhoes
+@using Microsoft.Extensions.Caching.Memory
+@inject IMemoryCache __MemoryCache
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end mb-2">
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Trái - thường:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai))"
+               value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
+               readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
     </div>
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Trái - thầm:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai))"
+               value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
+               readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
     </div>
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Phải - thường:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai))"
+               value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
+               readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
     </div>
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Phải - thầm:</label>
-        <input type="text" class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai))"
+               value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
+               readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
     </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end mb-2"> 
     <div class="col-span-1 flex items-center gap-2">
         <span style="min-width:120px;">Bệnh về TMH:</span>
-        <input type="text" class="mr-2 form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write")" @bind-value="@SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong" readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
+        <input type="text"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong))"
+               value="@SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong"
+               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
+               readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
         <Select2 IdSelector="c => c != null ? c.id.ToString() : String.Empty"
                  TextSelector="c => c != null ? c.name : String.Empty"
                  FilterFunction="LoadPhanLoaiSucKhoeDataHandler"
-                 GetElementById="async (items, id, token) => Select2Helper.GetElementByIdGeneric<PhanLoaiSucKhoeModel, int>(items, id, c => c.id) ?? new PhanLoaiSucKhoeModel()"
+                 GetElementById="async (items, id, token) => items.FirstOrDefault(x => x.id.ToString() == id) ?? new PhanLoaiSucKhoeModel()"
                  Datasource="PhanLoaiSucKhoes"
-                 Value="@(Select2Helper.GetCurrentSelectionGeneric<PhanLoaiSucKhoeModel>(SelectedKhamSucKhoeChuyenKhoa.pl_tmh, 14, SelectedPhanLoaiSucKhoes))"
-                 OnValueChanged="@(e => Select2Helper.OnSelect2ChangedGeneric<PhanLoaiSucKhoeModel>(e, v => SelectedKhamSucKhoeChuyenKhoa.pl_tmh = v, 14, SelectedPhanLoaiSucKhoes))"
+                 Value="@phanLoaiSucKhoeTaiMuiHong"
+                 OnValueChanged="@(args => phanLoaiSucKhoeTaiMuiHongChanged())"
+                 Cache="__MemoryCache"
                  Multiselect="false"
-                 class="@((onReadonly || !onReadonly && !onBSTaiMuiHong ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai")" />
+                 class="@((onReadonly || !onReadonly && !onBSTaiMuiHong ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai " + dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_tmh)))" />
     </div>
 </div>
 
@@ -43,11 +67,21 @@
     [Parameter]
     public bool onBSTaiMuiHong { get; set; } = false;
     [Parameter]
-    public Dictionary<int, List<PhanLoaiSucKhoeModel>> SelectedPhanLoaiSucKhoes { get; set; } = new Dictionary<int, List<PhanLoaiSucKhoeModel>>();
+    public object? dynamicObj { get; set; }
     [Parameter]
     public List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
     [Parameter]
     public Func<IEnumerable<PhanLoaiSucKhoeModel>, string?, CancellationToken, Task<List<PhanLoaiSucKhoeModel>>>? LoadPhanLoaiSucKhoeData { get; set; }
+    [Parameter]
+    public Func<ChangeEventArgs, string, bool, bool, object, Task>? OnValueChanged { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if ((phanLoaiSucKhoeTaiMuiHong == null || !phanLoaiSucKhoeTaiMuiHong.Any()) && SelectedKhamSucKhoeChuyenKhoa.pl_tmh != null)
+        {
+            phanLoaiSucKhoeTaiMuiHong = new List<PhanLoaiSucKhoeModel> { SelectedKhamSucKhoeChuyenKhoa.pl_tmh };
+        }
+    }
 
     private async Task<List<PhanLoaiSucKhoeModel>> LoadPhanLoaiSucKhoeDataHandler(IEnumerable<PhanLoaiSucKhoeModel> allItems, string filter, CancellationToken token)
     {
@@ -56,5 +90,20 @@
             return await LoadPhanLoaiSucKhoeData.Invoke(allItems, filter, token);
         }
         return new List<PhanLoaiSucKhoeModel>();
+    }
+
+    private List<PhanLoaiSucKhoeModel>? phanLoaiSucKhoeTaiMuiHong { get; set; } = new List<PhanLoaiSucKhoeModel>();
+    private async Task phanLoaiSucKhoeTaiMuiHongChanged()
+    {
+        SelectedKhamSucKhoeChuyenKhoa.pl_tmh = phanLoaiSucKhoeTaiMuiHong?.FirstOrDefault();
+        await OnValueChangedHandler(new ChangeEventArgs() { Value = SelectedKhamSucKhoeChuyenKhoa.pl_tmh }, nameof(SelectedKhamSucKhoeChuyenKhoa.pl_tmh), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa);
+    }
+
+    private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true, object item = default!)
+    {
+        if (OnValueChanged != null)
+        {
+            await OnValueChanged.Invoke(e, fieldName, isFilter, isDate, item);
+        }
     }
 }

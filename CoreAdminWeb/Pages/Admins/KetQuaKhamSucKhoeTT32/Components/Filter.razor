@@ -1,8 +1,7 @@
 ﻿@using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.Contract
 @using CoreAdminWeb.Model.KhamSucKhoes
-
-<div class="space-y-2">
+<div class="space-y-2 md:col-span-2">
     <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày khám</MudText>
     <div class="flex items-center gap-2 sm:gap-4">
         <input type="text"
@@ -18,76 +17,87 @@
                @onchange="@(e => OnValueChangedHandler(e, nameof(_endDateFilter), true))" />
     </div>
 </div>
-<BlazoredTypeahead EnableDropDown="true"
-                   ShowDropDownOnFocus="true"
-                   MinimumLength="0"
-                   TItem="ContractModel"
-                   TValue="ContractModel"
-                   SearchMethod="LoadContractDataHandler"
-                   Value="_contractFilter"
-                   ValueExpression="@(() => _contractFilter)"
-                   ValueChanged="ContractFilterChangedHandler"
-                   placeholder="Chọn hơp đồng"
-                   class="form-select">
-    <SelectedTemplate Context="item">
-        @item.name
-    </SelectedTemplate>
-    <ResultTemplate Context="item">
-        @item.name
-    </ResultTemplate>
-    <NotFoundTemplate Context="item">
-        Không tìm thấy dữ liệu
-    </NotFoundTemplate>
-</BlazoredTypeahead>
-<BlazoredTypeahead EnableDropDown="true"
-                   ShowDropDownOnFocus="true"
-                   MinimumLength="0"
-                   TItem="KhamSucKhoeCongTyModel"
-                   TValue="KhamSucKhoeCongTyModel"
-                   SearchMethod="LoadKhamSucKhoeCongTyData"
-                   Value="_khamSucKhoeCongTyFilter"
-                   ValueExpression="@(() => _khamSucKhoeCongTyFilter)"
-                   ValueChanged="KhamSucKhoeCongTyChangedHandler"
-                   placeholder="Mã hồ sơ khám"
-                   class="form-select">
-    <SelectedTemplate Context="item">
-        @item.code
-    </SelectedTemplate>
-    <ResultTemplate Context="item">
-        @item.code
-    </ResultTemplate>
-    <NotFoundTemplate Context="item">
-        Không tìm thấy dữ liệu
-    </NotFoundTemplate>
-</BlazoredTypeahead>
-
 <div class="space-y-2">
-    <div class="flex items-center gap-2 sm:gap-4">
-        <input type="text"
-               class="form-input w-1/2"
-               placeholder="Mã điều trị"
-               value="@_maDieuTriString"
-               @onchange="@(e => OnValueChangedHandler(e, nameof(_maDieuTriString), true, false))" />
-        <input type="text"
-               class="form-input  w-1/2"
-               placeholder="Mã bệnh nhân"
-               value="@_maBenhNhanString"
-               @onchange="@(e => OnValueChangedHandler(e, nameof(_maBenhNhanString), true, false))" />
-    </div>
+    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Hợp đồng khám sức khỏe</MudText>
+    <BlazoredTypeahead EnableDropDown="true"
+                       ShowDropDownOnFocus="true"
+                       MinimumLength="0"
+                       TItem="ContractModel"
+                       TValue="ContractModel"
+                       SearchMethod="LoadContractDataHandler"
+                       Value="_contractFilter"
+                       ValueExpression="@(() => _contractFilter)"
+                       ValueChanged="ContractFilterChangedHandler"
+                       placeholder="Chọn hơp đồng"
+                       class="form-select">
+        <SelectedTemplate Context="item">
+            @item.name
+        </SelectedTemplate>
+        <ResultTemplate Context="item">
+            @item.name
+        </ResultTemplate>
+        <NotFoundTemplate Context="item">
+            Không tìm thấy dữ liệu
+        </NotFoundTemplate>
+    </BlazoredTypeahead>
+</div>
+<div class="space-y-2">
+    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Hồ sơ khám</MudText>
+    <BlazoredTypeahead EnableDropDown="true"
+                       ShowDropDownOnFocus="true"
+                       MinimumLength="0"
+                       TItem="KhamSucKhoeCongTyModel"
+                       TValue="KhamSucKhoeCongTyModel"
+                       SearchMethod="LoadKhamSucKhoeCongTyData"
+                       Value="_khamSucKhoeCongTyFilter"
+                       ValueExpression="@(() => _khamSucKhoeCongTyFilter)"
+                       ValueChanged="KhamSucKhoeCongTyChangedHandler"
+                       placeholder="Mã hồ sơ khám"
+                       class="form-select">
+        <SelectedTemplate Context="item">
+            @item.code
+        </SelectedTemplate>
+        <ResultTemplate Context="item">
+            @item.code
+        </ResultTemplate>
+        <NotFoundTemplate Context="item">
+            Không tìm thấy dữ liệu
+        </NotFoundTemplate>
+    </BlazoredTypeahead>
+</div>
+<div class="space-y-2">
+    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Mã điều trị</MudText>
+    <input type="text"
+           class="form-input"
+           placeholder="Mã điều trị"
+           value="@_maDieuTriString"
+           @onchange="@(e => OnValueChangedHandler(e, nameof(_maDieuTriString), false, false))"
+           @onkeydown="@(e => OnEnterKeyDown(e))" />
+</div>
+<div class="space-y-2">
+    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Mã bệnh nhân</MudText>
+    <input type="text"
+           class="form-input"
+           placeholder="Mã bệnh nhân"
+           value="@_maBenhNhanString"
+           @onchange="@(e => OnValueChangedHandler(e, nameof(_maBenhNhanString), false, false))"
+           @onkeydown="@(e => OnEnterKeyDown(e))" />
+</div>
+<div class="space-y-2">
+    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Tên bệnh nhân</MudText>
+    <input type="text"
+           class="form-input"
+           placeholder="Tên bệnh nhân"
+           value="@_tenBenhNhanString"
+           @onchange="@(e => OnValueChangedHandler(e, nameof(_tenBenhNhanString), false, false))"
+           @onkeydown="@(e => OnEnterKeyDown(e))" />
 </div>
 
-<div class="space-y-2">
-    <div class="flex items-center gap-2 sm:gap-4">
-        <input type="text"
-               class="form-input"
-               placeholder="Tên bệnh nhân"
-               value="@_tenBenhNhanString"
-               @onchange="@(e => OnValueChangedHandler(e, nameof(_tenBenhNhanString), true, false))" />
-        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap"
-                   OnClick="LoadDataHandler">
-            Tìm kiếm
-        </MudButton>
-    </div>
+<div class="flex flex-wrap items-end justify-end gap-2 col-end">
+    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white text-nowrap"
+               OnClick="LoadDataHandler">
+        Tìm kiếm
+    </MudButton>
 </div>
 
 @code {
@@ -158,5 +168,13 @@
             return await LoadKhamSucKhoeCongTyData.Invoke(search);
         }
         return Enumerable.Empty<KhamSucKhoeCongTyModel>();
+    }
+
+    private async Task OnEnterKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await LoadDataHandler();
+        }
     }
 }

@@ -101,6 +101,7 @@ OR k.code = @searchText)";
     ,k.[bs_ngoai_khoa]
     ,k.[code]
     ,k.[deleted]
+    ,k.[kham_noi_vien]
     ,k.[nguoi_lap_so]
     ,k.[ma_don_vi]
     ,k.[ma_bs_tuan_hoan]
@@ -311,6 +312,7 @@ LEFT JOIN U bskl_guid ON k.ma_bs_ket_luan IS NULL AND bskl_guid.id = k.bs_ket_lu
                             bs_than_tiet_nieu = DataSetHelper.MapUserOrNull(reader, "bs_than_tiet_nieu"),
                             bs_tieu_hoa = DataSetHelper.MapUserOrNull(reader, "bs_tieu_hoa"),
                             bs_tuan_hoan = DataSetHelper.MapUserOrNull(reader, "bs_tuan_hoan"),
+                            kham_noi_vien = DataSetHelper.ReadBool(reader, "kham_noi_vien", false),
                             code = reader["code"]?.ToString(),
                             deleted = reader["deleted"] as bool? ?? false,
                             description = reader["description"]?.ToString(),

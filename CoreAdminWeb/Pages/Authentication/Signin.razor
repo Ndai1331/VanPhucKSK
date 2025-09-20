@@ -5,6 +5,9 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 @inject IJSRuntime JsRuntime
+@inject AlertService AlertService
+@inject IUserService UserService
+
 <div class="login-wrapper">
     <div class="floating-shapes">
         <div class="shape"></div>
@@ -23,8 +26,8 @@
         </div>
 
         <div class="login-body">
-            <form id="adminLoginForm" class="needs-validation" novalidate>
-                <div class="mb-3">
+            <form id="adminLoginForm" class="needs-validation" novalidate onsubmit="@HandleSignIn">
+                <div class="mb-2">
                     <label for="adminUsername" class="form-label">Số điện thoại</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -32,7 +35,7 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-2">
                     <label for="adminPassword" class="form-label">Mật khẩu</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-lock"></i></span>
@@ -46,7 +49,7 @@
                         Ghi nhớ đăng nhập
                     </label>
                 </div>
-                <button type="button" class="btn btn-login w-100 mb-3" @onclick="HandleSignIn" disabled="@isLoading">
+                <button type="button" class="btn btn-login w-100 mb-2" disabled="@isLoading">
                     @if (isLoading)
                     {
                         <i class="fas fa-spinner fa-spin me-2"></i>
@@ -70,10 +73,7 @@
 </div>
 @code {
 
-    [Inject] AlertService AlertService { get; set; }
-    [Inject] IUserService UserService { get; set; }
-    private string _phone, _password;
-    private bool _rememberMe = false;
+    private string _phone = string.Empty, _password = string.Empty;
     private bool isLoading = false;
 
     private async Task HandleSignIn()

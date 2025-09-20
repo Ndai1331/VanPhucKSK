@@ -695,8 +695,7 @@ public class KhamSucKhoeController : ControllerBase
     , bs_ngoai_khoa_user.chu_ky_bac_si  AS chu_ky_ngoai_khoa
     , bs_mat_user.chu_ky_bac_si         AS chu_ky_mat
     , bs_tmh_user.chu_ky_bac_si         AS chu_ky_tmh
-    , bs_rhm_user.chu_ky_bac_si         AS chu_ky_rhm
-    , bs_ket_luan_user.chu_ky_bac_si    AS chu_ky_ket_luan,
+    , bs_rhm_user.chu_ky_bac_si         AS chu_ky_rhm,
 ";
                 joinClause = @"
 OUTER APPLY (SELECT TOP 1 cu.chu_ky_bac_si FROM custom_users cu WHERE cu.ma_tai_khoan = ksk.ma_bs_tuan_hoan) bs_tuan_hoan_user
@@ -711,7 +710,6 @@ OUTER APPLY (SELECT TOP 1 cu.chu_ky_bac_si FROM custom_users cu WHERE cu.ma_tai_
 OUTER APPLY (SELECT TOP 1 cu.chu_ky_bac_si FROM custom_users cu WHERE cu.ma_tai_khoan = ksk.ma_bs_mat) bs_mat_user
 OUTER APPLY (SELECT TOP 1 cu.chu_ky_bac_si FROM custom_users cu WHERE cu.ma_tai_khoan = ksk.ma_bs_tmh) bs_tmh_user
 OUTER APPLY (SELECT TOP 1 cu.chu_ky_bac_si FROM custom_users cu WHERE cu.ma_tai_khoan = ksk.ma_bs_rhm) bs_rhm_user
-OUTER APPLY (SELECT TOP 1 cu.chu_ky_bac_si FROM custom_users cu WHERE cu.ma_tai_khoan = ksk.ma_bs_ket_luan) bs_ket_luan_user
 ";
             }
             selectedField += @"
@@ -760,7 +758,6 @@ ksk.[id]
   , ksk.[benh_rhm]
   , ksk.[bs_rhm]
   , ksk.[deleted]
-  , ksk.[bs_ket_luan]
   , ksk.[luot_kham]
 
   , pl_nk_tuan_hoan_res.id   AS plsk_nk_tuan_hoan_id
@@ -1052,10 +1049,7 @@ LEFT JOIN SoKhamSucKhoe AS sksk ON sksk.id = ksk.luot_kham
                             chu_ky_rhm = DataSetHelper.ReadString(reader, "chu_ky_rhm"),
                             bs_rhm = DataSetHelper.ReadString(reader, "bs_rhm"),
                             kq_rhm_ham_tren = DataSetHelper.ReadString(reader, "kq_rhm_ham_tren"),
-                            kq_rhm_ham_duoi = DataSetHelper.ReadString(reader, "kq_rhm_ham_duoi"),
-
-                            bs_ket_luan = DataSetHelper.ReadString(reader, "bs_ket_luan"),
-                            chu_ky_ket_luan = DataSetHelper.ReadString(reader, "chu_ky_ket_luan")
+                            kq_rhm_ham_duoi = DataSetHelper.ReadString(reader, "kq_rhm_ham_duoi")
                         };
 
                         results.Add(item);
