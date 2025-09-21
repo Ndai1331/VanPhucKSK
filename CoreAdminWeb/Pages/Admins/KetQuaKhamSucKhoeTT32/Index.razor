@@ -434,11 +434,11 @@
         </div>
     </div>
 }
-@if (isShowConfirmModel)
+@if (isShowConfirmModal)
 {
     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
         <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseConfirmModal">
-            <div class="relative w-full max-w-xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+            <div class="relative w-full max-w-4xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
                 <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
                     <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Xác nhận thay đổi thông tin khám sức khỏe</MudText>
                     <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseConfirmModal">
@@ -450,7 +450,8 @@
                 </div>
                 <div class="p-5">
                     <div class="text-black dark:text-muted">
-                        <h3>Bạn có chắc chắn muốn lưu các thay đổi thông tin khám sức khỏe này không?</h3>
+                        <MudText Typo="Typo.h5" Class="text-md text-slate-800 dark:text-slate-100 mb-2">Bạn đã thay đổi các thông tin khám sức khỏe, bạn có chắc chắn muốn thực hiện lưu lại các thông tin đã thay đổi?</MudText>
+                        @((MarkupString)confirmMessage)
                     </div>
                     <div class="flex items-center justify-end gap-2 mt-2">
                         <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseConfirmModal">Huỷ</MudButton>
@@ -477,46 +478,40 @@
                     </MudButton>
                 </div>
                 <div class="p-5 py-2">
-                    <div class="text-black dark:text-muted">
-                        <div class="grid grid-cols-1 gap-4 py-2">
-                            <div class="space-y-2 ksk">
-                                <div class="overflow-auto">
-                                    <table id="example" class="display" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th>STT</th>
-                                                <th>Mã bệnh nhân</th>
-                                                <th>Mã điều trị</th>
-                                                <th>Tên khách hàng</th>
-                                                <th>SĐT</th>
-                                                <th>Ngày sinh</th>
-                                                <th>Giới tính</th>
-                                                <th>CCCD</th>
-                                                <th>Địa chỉ</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
-                                            {
-                                                <tr class="@(item.Data.id == SelectedItem.id ? "active-row" : "")" @onclick="@(async () => await OnRowClick(item.Data.id))">
-                                                    <td class="p-3 py-2">@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                                                    <td class="p-3 py-2">@item.Data.ma_benh_nhan</td>
-                                                    <td class="p-3 py-2">@item.Data.ma_luot_kham</td>
-                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.full_name</td>
-                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.so_dien_thoai</td>
-                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.ngay_sinh?.ToString("dd/MM/yyyy")</td>
-                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.gioi_tinh?.GetDescription()</td>
-                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.so_dinh_danh</td>
-                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.dia_chi</td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <CoreAdminWeb.Shared.Components.Pagination TotalItems="@TotalItems" Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" PagingConf="false" OneLine="true" />
-                            </div>
-                        </div>
+                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                        <table id="example" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã bệnh nhân</th>
+                                    <th>Mã điều trị</th>
+                                    <th>Tên khách hàng</th>
+                                    <th>SĐT</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Giới tính</th>
+                                    <th>CCCD</th>
+                                    <th>Địa chỉ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
+                                {
+                                    <tr class="@(item.Data.id == SelectedItem.id ? "active-row" : "")" @onclick="@(async () => await OnRowClick(item.Data.id))">
+                                        <td class="p-3 py-2">@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                        <td class="p-3 py-2">@item.Data.ma_benh_nhan</td>
+                                        <td class="p-3 py-2">@item.Data.ma_luot_kham</td>
+                                        <td class="p-3 py-2">@item.Data.benh_nhan?.full_name</td>
+                                        <td class="p-3 py-2">@item.Data.benh_nhan?.so_dien_thoai</td>
+                                        <td class="p-3 py-2">@item.Data.benh_nhan?.ngay_sinh?.ToString("dd/MM/yyyy")</td>
+                                        <td class="p-3 py-2">@item.Data.benh_nhan?.gioi_tinh?.GetDescription()</td>
+                                        <td class="p-3 py-2">@item.Data.benh_nhan?.so_dinh_danh</td>
+                                        <td class="p-3 py-2">@item.Data.benh_nhan?.dia_chi</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
+                    <CoreAdminWeb.Shared.Components.Pagination TotalItems="@TotalItems" Page="@Page" TotalPages="@TotalPages" PageSize="@PageSize" PageSizeChanged="OnPageSizeChanged" PageChanged="SelectedPage" PagingConf="false" OneLine="true" />
                     <div class="flex items-center justify-end gap-2 py-2">
                         <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseSoKhamSucKhoeModal">
                             <i class="ri-close-line"></i>
