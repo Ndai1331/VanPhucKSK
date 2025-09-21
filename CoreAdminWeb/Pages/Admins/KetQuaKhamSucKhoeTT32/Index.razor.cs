@@ -125,7 +125,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private dynamic dynamicKetLuanObjOriginal = new ExpandoObject();
         private dynamic dynamicTienSuObjOriginal = new ExpandoObject();
 
-        private bool isShowConfirmModel { get; set; }
+        private bool isShowConfirmModal { get; set; }
+        private string confirmMessage { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -588,14 +589,14 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private void CloseConfirmModal()
         {
-            isShowConfirmModel = false;
+            isShowConfirmModal = false;
         }
 
         private async Task OnValidSubmit(bool isConfirm = false)
         {
             try
             {
-                isShowConfirmModel = false;
+                isShowConfirmModal = false;
                 if (SelectedItem.id <= 0)
                 {
                     return;
@@ -926,9 +927,20 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 }
                 else
                 {
-                    if (!isConfirm)
+                    if (
+                        !isConfirm
+                        && (
+                            (dynamicTheLucObj as IDictionary<string, object?>)?.Count > 0
+                            || (dynamicSanPhuKhoaObj as IDictionary<string, object?>)?.Count > 0
+                            || (dynamicChuyenKhoaObj as IDictionary<string, object?>)?.Count > 0
+                            || (dynamicKetLuanObj as IDictionary<string, object?>)?.Count > 0
+                            || (dynamicTienSuObj as IDictionary<string, object?>)?.Count > 0
+                        )
+                    )
                     {
-                        isShowConfirmModel = true;
+                        confirmMessage = GenerateChangeNoteTable();
+                        isShowConfirmModal = true;
+
                         return;
                     }
 
@@ -941,7 +953,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         var props = typeof(KhamSucKhoeTienSuModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
                         foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
                         {
-                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                            updateFields[kv.Key] = kv.Value?.GetCustumFieldOrValue();
                         }
 
                         if (updateFields.Any())
@@ -988,7 +1000,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         var props = typeof(KhamSucKhoeSanPhuKhoaModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
                         foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
                         {
-                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                            updateFields[kv.Key] = kv.Value?.GetCustumFieldOrValue();
                         }
 
                         if (updateFields.Any())
@@ -1043,7 +1055,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         var props = typeof(KhamSucKhoeTheLucModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
                         foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
                         {
-                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                            updateFields[kv.Key] = kv.Value?.GetCustumFieldOrValue();
                         }
 
                         if (updateFields.Any())
@@ -1089,7 +1101,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         var props = typeof(KhamSucKhoeChuyenKhoaModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
                         foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
                         {
-                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                            updateFields[kv.Key] = kv.Value?.GetCustumFieldOrValue();
                         }
 
                         if (updateFields.Any())
@@ -1287,7 +1299,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         var props = typeof(KhamSucKhoeKetLuanModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
                         foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
                         {
-                            updateFields[kv.Key] = kv.Value?.GetIdOrValue();
+                            updateFields[kv.Key] = kv.Value?.GetCustumFieldOrValue();
                         }
 
                         if (updateFields.Any())
@@ -2160,6 +2172,52 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 Console.WriteLine($"Error cleaning up signature images: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Generate a table (HTML) showing changed fields: field name, current value, changed value.
+        /// </summary>
+        private string GenerateChangeNoteTable()
+        {
+            var tableBuilder = new System.Text.StringBuilder();
+            tableBuilder.AppendLine("<table class='table table-bordered table-sm table-fixed'><thead><tr><th style='width: 20%;'>Thông tin</th><th style='width: 40%;'>Giá trị hiện tại</th><th style='width: 40%;'>Giá trị mới</th></tr></thead><tbody>");
+
+            void AppendChangesFromDynamic(object dynamicObj, object originalObj, Type modelType, string sectionName)
+            {
+                var dict = dynamicObj as IDictionary<string, object?>;
+                if (dict == null || dict.Count == 0)
+                {
+                    return;
+                }
+
+                tableBuilder.AppendLine($"<tr><td colspan='3'><strong>{sectionName}</strong></td></tr>");
+                foreach (var kv in dict)
+                {
+                    var prop = modelType.GetProperty(kv.Key);
+                    if (prop == null)
+                    {
+                        continue;
+                    }
+
+                    var displayNameAttr = prop.GetCustomAttributes(typeof(System.ComponentModel.DisplayNameAttribute), true)
+                        .FirstOrDefault() as System.ComponentModel.DisplayNameAttribute;
+                    var displayName = displayNameAttr?.DisplayName ?? prop.Name;
+
+                    string currentValueStr = originalObj?.GetPropertyValue(kv.Key, "name")?.ToString() ?? "";
+                    string changedValueStr = kv.Value?.GetCustumFieldOrValue("name")?.ToString() ?? "";
+
+                    tableBuilder.AppendLine($"<tr><td class='whitespace-pre-wrap'>{displayName}</td><td class='whitespace-pre-wrap'>{currentValueStr}</td><td class='whitespace-pre-wrap text-danger'>{changedValueStr}</td></tr>");
+                }
+            }
+
+            AppendChangesFromDynamic(dynamicTheLucObj, dynamicTheLucObjOriginal, typeof(KhamSucKhoeTheLucModel), "Thể lực");
+            AppendChangesFromDynamic(dynamicSanPhuKhoaObj, dynamicSanPhuKhoaObjOriginal, typeof(KhamSucKhoeSanPhuKhoaModel), "Sản phụ khoa");
+            AppendChangesFromDynamic(dynamicChuyenKhoaObj, dynamicChuyenKhoaObjOriginal, typeof(KhamSucKhoeChuyenKhoaModel), "Chuyên khoa");
+            AppendChangesFromDynamic(dynamicKetLuanObj, dynamicKetLuanObjOriginal, typeof(KhamSucKhoeKetLuanModel), "Kết luận");
+            AppendChangesFromDynamic(dynamicTienSuObj, dynamicTienSuObjOriginal, typeof(KhamSucKhoeTienSuModel), "Tiền sử");
+
+            tableBuilder.AppendLine("</tbody></table>");
+            return tableBuilder.ToString();
         }
     }
 }

@@ -146,7 +146,7 @@ namespace CoreAdminWeb.Extensions
         }
 
 
-        public static object? GetPropertyValue(this object obj, string propertyName)
+        public static object? GetPropertyValue(this object obj, string propertyName, string objField = "id")
         {
             if (obj == null || string.IsNullOrEmpty(propertyName))
             {
@@ -154,22 +154,22 @@ namespace CoreAdminWeb.Extensions
             }
             if (obj is IDictionary<string, object> expandoDict && expandoDict.ContainsKey(propertyName))
             {
-                return expandoDict[propertyName].GetIdOrValue();
+                return expandoDict[propertyName].GetCustumFieldOrValue(objField);
             }
             var type = obj.GetType();
             var prop = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if (prop != null)
             {
-                return prop.GetValue(obj)?.GetIdOrValue();
+                return prop.GetValue(obj)?.GetCustumFieldOrValue(objField);
             }
             var field = type.GetField(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if (field != null)
             {
-                return field.GetValue(obj)?.GetIdOrValue();
+                return field.GetValue(obj)?.GetCustumFieldOrValue(objField);
             }
             return null;
         }
-        public static object? GetIdOrValue(this object value)
+        public static object? GetCustumFieldOrValue(this object value, string fieldGetValue = "id")
         {
             if (value == null)
             {
@@ -179,7 +179,7 @@ namespace CoreAdminWeb.Extensions
             var type = value.GetType();
             if (type.IsClass && type != typeof(string))
             {
-                var idProp = type.GetProperty("id");
+                var idProp = type.GetProperty(fieldGetValue);
                 if (idProp != null)
                 {
                     return idProp.GetValue(value);
