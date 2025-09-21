@@ -36,7 +36,7 @@
                            class="form-check-input @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))"
                            id="cbx_@item.Name"
                            value="@item.Name"
-                           @onchange="e => OnTinhChatKinhChangedHandler(item.Name)"
+                           @onchange="e => OnTinhChatKinhChangedHandler(e, item.Name)"
                            checked="@(item.Name.Equals(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh))"
                            disabled="@(onReadonly || !onReadonly && !onBS)">
                     <label class="form-check-label rtl\:mr-3" for="cbx_@item.Name">
@@ -63,7 +63,7 @@
                 <input type="checkbox"
                        class="form-check-input @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh))"
                        id="cbx1_@YesNo.Co.ToString()"
-                       @onchange="e => OnDauBungKinhChangedHandler(YesNo.Co.ToString())"
+                       @onchange="e => OnDauBungKinhChangedHandler(e, YesNo.Co.ToString())"
                        checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == true)"
                        disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx1_@YesNo.Co.ToString()">
@@ -74,7 +74,7 @@
                 <input type="checkbox"
                        class="form-check-input @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh))"
                        id="cbx2_@YesNo.Khong.ToString()"
-                       @onchange="e => OnDauBungKinhChangedHandler(YesNo.Khong.ToString())"
+                       @onchange="e => OnDauBungKinhChangedHandler(e, YesNo.Khong.ToString())"
                        checked="@(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh == false)"
                        disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx2_@YesNo.Khong.ToString()">
@@ -100,7 +100,7 @@
                 <input type="checkbox"
                        class="form-check-input @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa))"
                        id="cbx3_@YesNo.Co.ToString()"
-                       @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Co)"
+                       @onchange="e => OnSoLanMoPhuKhoaChangedHandler(e, (int)YesNo.Co)"
                        checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Co)"
                        disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx3_@YesNo.Co.ToString()">
@@ -111,7 +111,7 @@
                 <input type="checkbox"
                        class="form-check-input @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa))"
                        id="cbx4_@YesNo.Khong.ToString()"
-                       @onchange="e => OnSoLanMoPhuKhoaChangedHandler((int)YesNo.Khong)"
+                       @onchange="e => OnSoLanMoPhuKhoaChangedHandler(e, (int)YesNo.Khong)"
                        checked="@(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa == (int)YesNo.Khong)"
                        disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx4_@YesNo.Khong.ToString()">
@@ -126,8 +126,8 @@
                               rows="2"
                               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa))"
                               readonly="@(onReadonly || !onReadonly && !onBS)">
-                            @SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro
-                            </textarea>
+                                @SelectedKhamSucKhoeSanPhuKhoa.mo_san_phu_khoa_ghi_ro
+                                </textarea>
                 </div>
             }
         </div>
@@ -164,7 +164,7 @@
                 <input type="checkbox"
                        class="form-check-input @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt))"
                        id="cbx5_@YesNo.Co.ToString()"
-                       @onchange="e => OnApDungBPPTChangedHandler(YesNo.Co.ToString())"
+                       @onchange="e => OnApDungBPPTChangedHandler(e, YesNo.Co.ToString())"
                        checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == true)"
                        disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx5_@YesNo.Co.ToString()">
@@ -175,7 +175,7 @@
                 <input type="checkbox"
                        class="form-check-input @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt))"
                        id="cbx6_@YesNo.Khong.ToString()"
-                       @onchange="e => OnApDungBPPTChangedHandler(YesNo.Khong.ToString())"
+                       @onchange="e => OnApDungBPPTChangedHandler(e, YesNo.Khong.ToString())"
                        checked="@(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt == false)"
                        disabled="@(onReadonly || !onReadonly && !onBS)">
                 <label class="form-check-label rtl\:mr-3" for="cbx6_@YesNo.Khong.ToString()">
@@ -191,8 +191,8 @@
                               rows="2"
                               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro), isDate: false, item: SelectedKhamSucKhoeSanPhuKhoa))"
                               readonly="@(onReadonly || !onReadonly && !onBS)">
-                            @SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro
-                    </textarea>
+                                @SelectedKhamSucKhoeSanPhuKhoa.bptt_ghi_ro
+                        </textarea>
                 </div>
             }
         </div>
@@ -208,15 +208,15 @@
     [Parameter]
     public bool onBS { get; set; } = false;
     [Parameter]
-    public EventCallback<string> OnTinhChatKinhChanged { get; set; }
+    public Action<ChangeEventArgs, string>? OnTinhChatKinhChanged { get; set; }
     [Parameter]
-    public EventCallback<string> OnDauBungKinhChanged { get; set; }
+    public Action<ChangeEventArgs, string>? OnDauBungKinhChanged { get; set; }
     [Parameter]
     public Action<ChangeEventArgs, int>? OnParaChanged { get; set; }
     [Parameter]
-    public EventCallback<int> OnSoLanMoPhuKhoaChanged { get; set; }
+    public Action<ChangeEventArgs, int>? OnSoLanMoPhuKhoaChanged { get; set; }
     [Parameter]
-    public EventCallback<string> OnApDungBPPTChanged { get; set; }
+    public Action<ChangeEventArgs, string>? OnApDungBPPTChanged { get; set; }
     [Parameter]
     public string? para1 { get; set; }
     [Parameter]
@@ -232,14 +232,16 @@
     [Parameter]
     public Func<ChangeEventArgs, string, bool, bool, object, Task>? OnValueChanged { get; set; }
 
-    private async Task OnTinhChatKinhChangedHandler(string value)
+    private void OnTinhChatKinhChangedHandler(ChangeEventArgs args, string value)
     {
-        await OnTinhChatKinhChanged.InvokeAsync(value);
+        if (OnTinhChatKinhChanged != null)
+            OnTinhChatKinhChanged.Invoke(args, value);
     }
 
-    private async Task OnDauBungKinhChangedHandler(string value)
+    private void OnDauBungKinhChangedHandler(ChangeEventArgs args, string value)
     {
-        await OnDauBungKinhChanged.InvokeAsync(value);
+        if (OnDauBungKinhChanged != null)
+            OnDauBungKinhChanged.Invoke(args, value);
     }
 
     private void OnParaChangedHandler(ChangeEventArgs value, int indexVal)
@@ -250,14 +252,16 @@
         }
     }
 
-    private async Task OnSoLanMoPhuKhoaChangedHandler(int value)
+    private void OnSoLanMoPhuKhoaChangedHandler(ChangeEventArgs args, int value)
     {
-        await OnSoLanMoPhuKhoaChanged.InvokeAsync(value);
+        if (OnSoLanMoPhuKhoaChanged != null)
+            OnSoLanMoPhuKhoaChanged.Invoke(args, value);
     }
 
-    private async Task OnApDungBPPTChangedHandler(string value)
+    private void OnApDungBPPTChangedHandler(ChangeEventArgs args, string value)
     {
-        await OnApDungBPPTChanged.InvokeAsync(value);
+        if (OnApDungBPPTChanged != null)
+            OnApDungBPPTChanged.Invoke(args, value);
     }
 
     private async Task OnValueChangedHandler(ChangeEventArgs e, string fieldName, bool isFilter = false, bool isDate = true, object item = default!)

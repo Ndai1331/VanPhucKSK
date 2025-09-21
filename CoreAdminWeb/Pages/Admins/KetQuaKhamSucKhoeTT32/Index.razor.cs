@@ -1966,23 +1966,57 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             _khamSucKhoeCongTyFilter = khamSucKhoeCongTy;
         }
 
-        private void OnTinhChatKinhChanged(string value)
+        private void OnTinhChatKinhChanged(ChangeEventArgs args, string value)
         {
-            SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh = value;
+            bool isChecked = false;
+            if (args.Value is bool b)
+            {
+                isChecked = b;
+            }
+            else if (args.Value is string s && bool.TryParse(s, out var parsed))
+            {
+                isChecked = parsed;
+            }
+
+            if (isChecked)
+            {
+                SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh = value;
+            }
+            else
+            {
+                SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh = "";
+            }
 
             UpdateField(
-                dynamicSanPhuKhoaObj,
-                dynamicSanPhuKhoaObjOriginal,
-                nameof(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh),
-                SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh,
-                SelectedKhamSucKhoeSanPhuKhoa.GetType(),
-                SelectedKhamSucKhoeSanPhuKhoa
-            );
+                    dynamicSanPhuKhoaObj,
+                    dynamicSanPhuKhoaObjOriginal,
+                    nameof(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh),
+                    SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh,
+                    SelectedKhamSucKhoeSanPhuKhoa.GetType(),
+                    SelectedKhamSucKhoeSanPhuKhoa
+                );
         }
 
-        private void OnDauBungKinhChanged(string value)
+        private void OnDauBungKinhChanged(ChangeEventArgs args, string value)
         {
-            SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh = value == YesNo.Co.ToString();
+            bool isChecked = false;
+            if (args.Value is bool b)
+            {
+                isChecked = b;
+            }
+            else if (args.Value is string s && bool.TryParse(s, out var parsed))
+            {
+                isChecked = parsed;
+            }
+
+            if (isChecked)
+            {
+                SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh = value == YesNo.Co.ToString();
+            }
+            else
+            {
+                SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh = null;
+            }
 
             UpdateField(
                 dynamicSanPhuKhoaObj,
@@ -1994,9 +2028,26 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             );
         }
 
-        private void OnSoLanMoPhuKhoaChanged(int value)
+        private void OnSoLanMoPhuKhoaChanged(ChangeEventArgs args, int value)
         {
-            SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa = value;
+            bool isChecked = false;
+            if (args.Value is bool b)
+            {
+                isChecked = b;
+            }
+            else if (args.Value is string s && bool.TryParse(s, out var parsed))
+            {
+                isChecked = parsed;
+            }
+
+            if (isChecked)
+            {
+                SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa = value;
+            }
+            else
+            {
+                SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa = null;
+            }
 
             UpdateField(
                 dynamicSanPhuKhoaObj,
@@ -2008,9 +2059,26 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             );
         }
 
-        private void OnApDungBPPTChanged(string value)
+        private void OnApDungBPPTChanged(ChangeEventArgs args, string value)
         {
-            SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt = value == YesNo.Co.ToString();
+            bool isChecked = false;
+            if (args.Value is bool b)
+            {
+                isChecked = b;
+            }
+            else if (args.Value is string s && bool.TryParse(s, out var parsed))
+            {
+                isChecked = parsed;
+            }
+
+            if (isChecked)
+            {
+                SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt = value == YesNo.Co.ToString();
+            }
+            else
+            {
+                SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt = null;
+            }
 
             UpdateField(
                 dynamicSanPhuKhoaObj,

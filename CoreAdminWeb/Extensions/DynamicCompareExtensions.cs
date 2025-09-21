@@ -130,7 +130,7 @@ namespace CoreAdminWeb.Extensions
             object? originalValue = originalObj?.GetPropertyValue(propertyName);
 
             // So sánh giá trị
-            if (originalValue == null)
+            if (originalValue == null && changedValue != null)
             {
                 return highlightClass;
             }
@@ -174,18 +174,33 @@ namespace CoreAdminWeb.Extensions
             }
             if (obj is IDictionary<string, object> expandoDict && expandoDict.ContainsKey(propertyName))
             {
-                return expandoDict[propertyName].GetCustumFieldOrValue(objField);
+                var val = expandoDict[propertyName].GetCustumFieldOrValue(objField);
+                if (val is string str && string.IsNullOrEmpty(str))
+                {
+                    return null;
+                }
+                return val;
             }
             var type = obj.GetType();
             var prop = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if (prop != null)
             {
-                return prop.GetValue(obj)?.GetCustumFieldOrValue(objField);
+                var val = prop.GetValue(obj)?.GetCustumFieldOrValue(objField);
+                if (val is string str && string.IsNullOrEmpty(str))
+                {
+                    return null;
+                }
+                return val;
             }
             var field = type.GetField(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if (field != null)
             {
-                return field.GetValue(obj)?.GetCustumFieldOrValue(objField);
+                var val = field.GetValue(obj)?.GetCustumFieldOrValue(objField);
+                if (val is string str && string.IsNullOrEmpty(str))
+                {
+                    return null;
+                }
+                return val;
             }
             return null;
         }
