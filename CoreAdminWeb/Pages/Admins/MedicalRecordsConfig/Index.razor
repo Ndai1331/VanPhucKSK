@@ -241,7 +241,7 @@
                                            placeholder="Chọn ngày"
                                            value="@(SelectedItem.ngay_ket_thuc?.ToString("dd/MM/yyyy"))"
                                            @onchange="@(e => OnDateChanged(e, nameof(SelectedItem.ngay_ket_thuc)))" required readonly="@readOnly" />
-                                </div>>
+                                </div>
                                 <div class="space-y-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                                     <div class="flex gap-2">
                                         <input type="checkbox" class="form-check-input" id="cbx_kham_noi_vien"
