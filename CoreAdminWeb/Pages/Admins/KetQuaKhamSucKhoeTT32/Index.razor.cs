@@ -1866,14 +1866,14 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         {
             try
             {
-                void UpdateDynamicField(object dynamicObj, object? value, Type type, object selected)
+                void UpdateDynamicField(object dynamicObj, object dynamicObjOriginal, object? value, Type type, object selected)
                 {
-                    UpdateField(dynamicObj, fieldName, value, type, selected);
+                    UpdateField(dynamicObj, dynamicObjOriginal, fieldName, value, type, selected);
                 }
 
-                void HandleModelUpdate(object? value, object dynamicObj, Type type, object selected)
+                void HandleModelUpdate(object? value, object dynamicObj, object dynamicObjOriginal, Type type, object selected)
                 {
-                    UpdateDynamicField(dynamicObj, value, type, selected);
+                    UpdateDynamicField(dynamicObj, dynamicObjOriginal, value, type, selected);
                 }
 
                 if (!isDate)
@@ -1887,19 +1887,19 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             switch (item)
                             {
                                 case KhamSucKhoeChuyenKhoaModel:
-                                    HandleModelUpdate(null, dynamicChuyenKhoaObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicChuyenKhoaObj, dynamicChuyenKhoaObjOriginal, item.GetType(), item);
                                     break;
                                 case KhamSucKhoeSanPhuKhoaModel:
-                                    HandleModelUpdate(null, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicSanPhuKhoaObj, dynamicSanPhuKhoaObjOriginal, item.GetType(), item);
                                     break;
                                 case KhamSucKhoeTheLucModel:
-                                    HandleModelUpdate(null, dynamicTheLucObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicTheLucObj, dynamicTheLucObjOriginal, item.GetType(), item);
                                     break;
                                 case KhamSucKhoeKetLuanModel:
-                                    HandleModelUpdate(null, dynamicKetLuanObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicKetLuanObj, dynamicKetLuanObjOriginal, item.GetType(), item);
                                     break;
                                 case KhamSucKhoeTienSuModel:
-                                    HandleModelUpdate(null, dynamicTienSuObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicTienSuObj, dynamicTienSuObjOriginal, item.GetType(), item);
                                     break;
                             }
                         }
@@ -1915,19 +1915,19 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 switch (item)
                                 {
                                     case KhamSucKhoeChuyenKhoaModel:
-                                        HandleModelUpdate(value, dynamicChuyenKhoaObj, item.GetType(), item);
+                                        HandleModelUpdate(value, dynamicChuyenKhoaObj, dynamicChuyenKhoaObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeSanPhuKhoaModel:
-                                        HandleModelUpdate(value, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                        HandleModelUpdate(value, dynamicSanPhuKhoaObj, dynamicSanPhuKhoaObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeTheLucModel:
-                                        HandleModelUpdate(value, dynamicTheLucObj, item.GetType(), item);
+                                        HandleModelUpdate(value, dynamicTheLucObj, dynamicTheLucObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeKetLuanModel:
-                                        HandleModelUpdate(value, dynamicKetLuanObj, item.GetType(), item);
+                                        HandleModelUpdate(value, dynamicKetLuanObj, dynamicKetLuanObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeTienSuModel:
-                                        HandleModelUpdate(value, dynamicTienSuObj, item.GetType(), item);
+                                        HandleModelUpdate(value, dynamicTienSuObj, dynamicTienSuObjOriginal, item.GetType(), item);
                                         break;
                                 }
                             }
@@ -1941,19 +1941,19 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 switch (item)
                                 {
                                     case KhamSucKhoeChuyenKhoaModel:
-                                        HandleModelUpdate(strValue, dynamicChuyenKhoaObj, item.GetType(), item);
+                                        HandleModelUpdate(strValue, dynamicChuyenKhoaObj, dynamicChuyenKhoaObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeSanPhuKhoaModel:
-                                        HandleModelUpdate(strValue, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                        HandleModelUpdate(strValue, dynamicSanPhuKhoaObj, dynamicSanPhuKhoaObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeTheLucModel:
-                                        HandleModelUpdate(strValue, dynamicTheLucObj, item.GetType(), item);
+                                        HandleModelUpdate(strValue, dynamicTheLucObj, dynamicTheLucObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeKetLuanModel:
-                                        HandleModelUpdate(strValue, dynamicKetLuanObj, item.GetType(), item);
+                                        HandleModelUpdate(strValue, dynamicKetLuanObj, dynamicKetLuanObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeTienSuModel:
-                                        HandleModelUpdate(strValue, dynamicTienSuObj, item.GetType(), item);
+                                        HandleModelUpdate(strValue, dynamicTienSuObj, dynamicTienSuObjOriginal, item.GetType(), item);
                                         break;
                                 }
                             }
@@ -1971,19 +1971,19 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             switch (item)
                             {
                                 case KhamSucKhoeChuyenKhoaModel:
-                                    HandleModelUpdate(null, dynamicChuyenKhoaObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicChuyenKhoaObj, dynamicChuyenKhoaObjOriginal, item.GetType(), item);
                                     break;
                                 case KhamSucKhoeSanPhuKhoaModel:
-                                    HandleModelUpdate(null, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicSanPhuKhoaObj, dynamicSanPhuKhoaObjOriginal, item.GetType(), item);
                                     break;
                                 case KhamSucKhoeTheLucModel:
-                                    HandleModelUpdate(null, dynamicTheLucObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicTheLucObj, dynamicTheLucObjOriginal, item.GetType(), item);
                                     break;
                                 case KhamSucKhoeKetLuanModel:
-                                    HandleModelUpdate(null, dynamicKetLuanObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicKetLuanObj, dynamicKetLuanObjOriginal, item.GetType(), item);
                                     break;
                                 case KhamSucKhoeTienSuModel:
-                                    HandleModelUpdate(null, dynamicTienSuObj, item.GetType(), item);
+                                    HandleModelUpdate(null, dynamicTienSuObj, dynamicTienSuObjOriginal, item.GetType(), item);
                                     break;
                             }
                         }
@@ -2003,19 +2003,19 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 switch (item)
                                 {
                                     case KhamSucKhoeChuyenKhoaModel:
-                                        HandleModelUpdate(date, dynamicChuyenKhoaObj, item.GetType(), item);
+                                        HandleModelUpdate(date, dynamicChuyenKhoaObj, dynamicChuyenKhoaObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeSanPhuKhoaModel:
-                                        HandleModelUpdate(date, dynamicSanPhuKhoaObj, item.GetType(), item);
+                                        HandleModelUpdate(date, dynamicSanPhuKhoaObj, dynamicSanPhuKhoaObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeTheLucModel:
-                                        HandleModelUpdate(date, dynamicTheLucObj, item.GetType(), item);
+                                        HandleModelUpdate(date, dynamicTheLucObj, dynamicTheLucObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeKetLuanModel:
-                                        HandleModelUpdate(date, dynamicKetLuanObj, item.GetType(), item);
+                                        HandleModelUpdate(date, dynamicKetLuanObj, dynamicKetLuanObjOriginal, item.GetType(), item);
                                         break;
                                     case KhamSucKhoeTienSuModel:
-                                        HandleModelUpdate(date, dynamicTienSuObj, item.GetType(), item);
+                                        HandleModelUpdate(date, dynamicTienSuObj, dynamicTienSuObjOriginal, item.GetType(), item);
                                         break;
                                 }
                             }
@@ -2035,6 +2035,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     SelectedKhamSucKhoeTheLuc.bmi = chieuCao > 0 ? Math.Round(canNang / (chieuCao * chieuCao), 2) : 0;
                     UpdateField(
                         dynamicTheLucObj,
+                        dynamicTheLucObjOriginal,
                         nameof(SelectedKhamSucKhoeTheLuc.bmi),
                         SelectedKhamSucKhoeTheLuc.bmi,
                         SelectedKhamSucKhoeTheLuc.GetType(),
@@ -2096,6 +2097,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             UpdateField(
                 dynamicSanPhuKhoaObj,
+                dynamicSanPhuKhoaObjOriginal,
                 nameof(SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh),
                 SelectedKhamSucKhoeSanPhuKhoa.tinh_chat_kinh,
                 SelectedKhamSucKhoeSanPhuKhoa.GetType(),
@@ -2109,6 +2111,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             UpdateField(
                 dynamicSanPhuKhoaObj,
+                dynamicSanPhuKhoaObjOriginal,
                 nameof(SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh),
                 SelectedKhamSucKhoeSanPhuKhoa.dau_bung_kinh,
                 SelectedKhamSucKhoeSanPhuKhoa.GetType(),
@@ -2122,6 +2125,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             UpdateField(
                 dynamicSanPhuKhoaObj,
+                dynamicSanPhuKhoaObjOriginal,
                 nameof(SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa),
                 SelectedKhamSucKhoeSanPhuKhoa.so_lan_mo_san_phu_khoa,
                 SelectedKhamSucKhoeSanPhuKhoa.GetType(),
@@ -2135,6 +2139,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             UpdateField(
                 dynamicSanPhuKhoaObj,
+                dynamicSanPhuKhoaObjOriginal,
                 nameof(SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt),
                 SelectedKhamSucKhoeSanPhuKhoa.ap_dung_bptt,
                 SelectedKhamSucKhoeSanPhuKhoa.GetType(),
@@ -2190,6 +2195,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
             UpdateField(
                 dynamicSanPhuKhoaObj,
+                dynamicSanPhuKhoaObjOriginal,
                 nameof(SelectedKhamSucKhoeSanPhuKhoa.para),
                 SelectedKhamSucKhoeSanPhuKhoa.para,
                 SelectedKhamSucKhoeSanPhuKhoa.GetType(),
@@ -2223,23 +2229,43 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 AlertService.ShowAlert($"Lỗi khi xử lý dữ liệu: {ex.Message}", "danger");
             }
         }
-        private static void UpdateField(object dynamicObj, string fieldName, object? value, Type type, object selected)
+        private static void UpdateField(object dynamicObj, object dynamicOriginal, string fieldName, object? value, Type type, object selected)
         {
             var prop = type.GetProperty(fieldName);
             var dict = dynamicObj as IDictionary<string, object>;
             if (dict != null && fieldName != null)
             {
                 object? selectedValue = null;
-                if (prop != null && prop.CanRead)
+                object? convertedValue = value;
+                if (prop != null)
                 {
-                    selectedValue = prop.GetValue(selected);
+                    if (prop.CanRead)
+                    {
+                        selectedValue = prop.GetValue(selected);
+                    }
+
+                    if (selectedValue != null && value != null && value.GetType() != selectedValue.GetType())
+                    {
+                        try
+                        {
+                            var targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                            convertedValue = Convert.ChangeType(value, targetType);
+                        }
+                        catch
+                        {
+                            convertedValue = value;
+                        }
+                    }
                 }
-                if (dict.TryGetValue(fieldName, out var dynamicValue) && Equals(selectedValue, dynamicValue))
+                if (
+                    dict.ContainsKey(fieldName)
+                    && Equals(dynamicOriginal.GetPropertyValue(fieldName), convertedValue)
+                )
                 {
                     dict.Remove(fieldName);
                     return;
                 }
-                dict[fieldName] = value!;
+                dict[fieldName] = convertedValue!;
             }
         }
 
@@ -2324,6 +2350,9 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         /// </summary>
         private string GenerateChangeNoteTable()
         {
+            string yesVal = YesNo.Co.GetDescription();
+            string noVal = YesNo.Khong.GetDescription();
+
             var tableBuilder = new System.Text.StringBuilder();
             tableBuilder.AppendLine("<table class='table table-bordered table-sm table-fixed'><thead style='position:sticky;top:0;background: aliceblue;' class='whitespace-pre-wrap'><tr><th style='width: 20%;'>Thông tin</th><th style='width: 40%;' class='whitespace-pre-wrap'>Giá trị hiện tại</th><th style='width: 40%;' class='whitespace-pre-wrap'>Giá trị mới</th></tr></thead><tbody>");
 
@@ -2348,8 +2377,64 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         .FirstOrDefault() as System.ComponentModel.DisplayNameAttribute;
                     var displayName = displayNameAttr?.DisplayName ?? prop.Name;
 
-                    string currentValueStr = originalObj?.GetPropertyValue(kv.Key, "name")?.ToString() ?? "";
-                    string changedValueStr = kv.Value?.GetCustumFieldOrValue("name")?.ToString() ?? "";
+                    object? currentValueObj = originalObj?.GetPropertyValue(kv.Key, "name");
+                    object? changedValueObj = kv.Value?.GetCustumFieldOrValue("name");
+
+                    string currentValueStr = "";
+                    string changedValueStr = "";
+
+                    if (kv.Key == "tinh_chat_kinh")
+                    {
+                        currentValueStr = currentValueObj?.ToString()?.GetDescriptionFromString<TinhChatKinh>() ?? "";
+                        changedValueStr = changedValueObj?.ToString()?.GetDescriptionFromString<TinhChatKinh>() ?? "";
+                    }
+                    else if (kv.Key == "so_lan_mo_san_phu_khoa")
+                    {
+                        int currVal;
+                        if (int.TryParse(currentValueObj?.ToString(), out currVal))
+                        {
+                            currentValueStr = currVal == 1 ? yesVal : noVal;
+                        }
+
+                        if (int.TryParse(changedValueObj?.ToString(), out currVal))
+                        {
+                            changedValueStr = currVal == 1 ? yesVal : noVal;
+                        }
+                    }
+                    else if (kv.Key == "para")
+                    {
+                        currentValueStr = currentValueObj?.ToString()?.Replace("|", "").Replace("-", "") ?? "";
+                        changedValueStr = changedValueObj?.ToString()?.Replace("|", "").Replace("-", "") ?? "";
+                    }
+                    else if (prop.PropertyType == typeof(bool) || prop.PropertyType == typeof(bool?))
+                    {
+                        bool? currentBool = null;
+                        bool? changedBool = null;
+                        if (currentValueObj is bool b1 || bool.TryParse(currentValueObj?.ToString(), out b1))
+                        {
+                            currentBool = b1;
+                        }
+
+                        if (changedValueObj is bool b2 || bool.TryParse(changedValueObj?.ToString(), out b2))
+                        {
+                            changedBool = b2;
+                        }
+
+                        if (currentBool != null)
+                        {
+                            currentValueStr = currentBool == true ? yesVal : noVal;
+                        }
+
+                        if (changedBool != null)
+                        {
+                            changedValueStr = changedBool == true ? yesVal : noVal;
+                        }
+                    }
+                    else
+                    {
+                        currentValueStr = currentValueObj?.ToString() ?? "";
+                        changedValueStr = changedValueObj?.ToString() ?? "";
+                    }
 
                     tableBuilder.AppendLine($"<tr><td class='whitespace-pre-wrap'>{displayName}</td><td class='whitespace-pre-wrap'>{currentValueStr}</td><td class='whitespace-pre-wrap text-danger'>{changedValueStr}</td></tr>");
                 }
