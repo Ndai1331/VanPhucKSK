@@ -1,5 +1,6 @@
 ﻿@page "/admin-signin"
 @using CoreAdminWeb.Services
+@using CoreAdminWeb.Services.Menus
 @using CoreAdminWeb.Services.Users
 @layout CoreAdminWeb.Shared.Layout.AuthLayout
 @inject AuthenticationStateProvider AuthStateProvider
@@ -7,6 +8,7 @@
 @inject IJSRuntime JsRuntime
 @inject AlertService AlertService
 @inject IUserService UserService
+@inject IMenuService MenuService
 
 <div class="login-wrapper">
     <div class="floating-shapes">
@@ -47,7 +49,7 @@
                     <input type="checkbox" class="form-check-input" id="rememberAdmin">
                     <label class="form-check-label" for="rememberAdmin">
                         Ghi nhớ đăng nhập
-                    </label>"
+                    </label>
                 </div>
                 <button type="submit" class="btn btn-login w-100 mb-2" disabled="@isLoading">
                     @if (isLoading)
@@ -82,7 +84,15 @@
             if (authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
             {
                 AlertService.ShowAlert("Đăng nhập thành công!", "success");
-                Navigation.NavigateTo("/admin/bao-cao-tong-doan", forceLoad: true);
+                var menusResponse = await MenuService.GetMenusAsync("&filter[_and][][url][_eq]=/admin/bao-cao-tong-doan");
+                if (menusResponse != null && menusResponse.Data != null && menusResponse.Data.Count > 0)
+                {
+                    Navigation.NavigateTo("/admin/bao-cao-tong-doan", forceLoad: true);
+                }
+                else
+                {
+                    Navigation.NavigateTo("/admin", forceLoad: true);
+                }
             }
             else
             {

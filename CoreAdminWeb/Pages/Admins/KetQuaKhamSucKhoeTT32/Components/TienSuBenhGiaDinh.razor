@@ -5,7 +5,7 @@
 <div class="space-y-2 md:col-span-2">
     <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">I. Tiền sử bệnh tật gia đình:</MudText>
     <textarea rows="2"
-              class="form-input form-textarea @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTienSu.tien_su_gia_dinh))"
+              class="form-input form-textarea @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTienSu.tien_su_gia_dinh))"
               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTienSu.tien_su_gia_dinh), isDate: false, item: SelectedKhamSucKhoeTienSu))"
               readonly="@(onReadonly || !onReadonly && !onBS)">
         @SelectedKhamSucKhoeTienSu.tien_su_gia_dinh
@@ -27,25 +27,25 @@
             <tbody>
                 <tr>
                     <td>
-                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTienSu.ten_benh))"
+                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTienSu.ten_benh))"
                                value="@SelectedKhamSucKhoeTienSu.ten_benh"
                                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTienSu.ten_benh), isDate: false, item: SelectedKhamSucKhoeTienSu))"
                                readonly="@(onReadonly || !onReadonly && !onBS)" />
                     </td>
                     <td>
-                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTienSu.nam_phat_hien))"
+                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTienSu.nam_phat_hien))"
                                value="@SelectedKhamSucKhoeTienSu.nam_phat_hien"
                                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTienSu.nam_phat_hien), isDate: false, item: SelectedKhamSucKhoeTienSu))"
                                readonly="@(onReadonly || !onReadonly && !onBS)" />
                     </td>
                     <td>
-                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTienSu.benh_nghe_nghiep))"
+                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTienSu.benh_nghe_nghiep))"
                                value="@SelectedKhamSucKhoeTienSu.benh_nghe_nghiep"
                                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTienSu.benh_nghe_nghiep), isDate: false, item: SelectedKhamSucKhoeTienSu))"
                                readonly="@(onReadonly || !onReadonly && !onBS)" />
                     </td>
                     <td>
-                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep))"
+                        <input class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep))"
                                value="@SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep"
                                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTienSu.nam_phat_hien_benh_nghe_nghiep), isDate: false, item: SelectedKhamSucKhoeTienSu))"
                                readonly="@(onReadonly || !onReadonly && !onBS)" />
@@ -65,6 +65,8 @@
     public bool onBS { get; set; } = false;
     [Parameter]
     public object? dynamicObj { get; set; }
+    [Parameter]
+    public object? dynamicObjOriginal { get; set; }
     [Parameter]
     public Func<ChangeEventArgs, string, bool, bool, object, Task>? OnValueChanged { get; set; }
 

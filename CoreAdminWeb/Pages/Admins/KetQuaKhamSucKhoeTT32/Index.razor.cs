@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using MudBlazor;
+using System.Dynamic;
 
 namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 {
@@ -112,11 +113,20 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
         private int renderKey { get; set; } = 0;
 
-        private dynamic dynamicTheLucObj = new System.Dynamic.ExpandoObject();
-        private dynamic dynamicSanPhuKhoaObj = new System.Dynamic.ExpandoObject();
-        private dynamic dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
-        private dynamic dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
-        private dynamic dynamicTienSuObj = new System.Dynamic.ExpandoObject();
+        private dynamic dynamicTheLucObj = new ExpandoObject();
+        private dynamic dynamicSanPhuKhoaObj = new ExpandoObject();
+        private dynamic dynamicChuyenKhoaObj = new ExpandoObject();
+        private dynamic dynamicKetLuanObj = new ExpandoObject();
+        private dynamic dynamicTienSuObj = new ExpandoObject();
+
+        private dynamic dynamicTheLucObjOriginal = new ExpandoObject();
+        private dynamic dynamicSanPhuKhoaObjOriginal = new ExpandoObject();
+        private dynamic dynamicChuyenKhoaObjOriginal = new ExpandoObject();
+        private dynamic dynamicKetLuanObjOriginal = new ExpandoObject();
+        private dynamic dynamicTienSuObjOriginal = new ExpandoObject();
+
+        private bool isShowConfirmModel { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -431,6 +441,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_rhm);
                 }
+
+                dynamicTheLucObjOriginal = SelectedKhamSucKhoeTheLuc.DeepClone();
+                dynamicSanPhuKhoaObjOriginal = SelectedKhamSucKhoeSanPhuKhoa.DeepClone();
+                dynamicChuyenKhoaObjOriginal = SelectedKhamSucKhoeChuyenKhoa.DeepClone();
+                dynamicKetLuanObjOriginal = SelectedKhamSucKhoeKetLuan.DeepClone();
+                dynamicTienSuObjOriginal = SelectedKhamSucKhoeTienSu.DeepClone();
             }
             else
             {
@@ -570,10 +586,16 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             openSoKhamSucKhoeModal = false;
         }
 
-        private async Task OnValidSubmit()
+        private void CloseConfirmModal()
+        {
+            isShowConfirmModel = false;
+        }
+
+        private async Task OnValidSubmit(bool isConfirm = false)
         {
             try
             {
+                isShowConfirmModel = false;
                 if (SelectedItem.id <= 0)
                 {
                     return;
@@ -904,8 +926,14 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 }
                 else
                 {
+                    if (!isConfirm)
+                    {
+                        isShowConfirmModel = true;
+                        return;
+                    }
+
                     #region Tien su
-                    dynamic updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    dynamic updateDynamicObj = new ExpandoObject();
                     var updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     var dict = dynamicTienSuObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -952,7 +980,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     #endregion
 
                     #region San phu khoa
-                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateDynamicObj = new ExpandoObject();
                     updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     dict = dynamicSanPhuKhoaObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -967,22 +995,25 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         {
                             if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
                             {
-                                updateFields["id"] = SelectedKhamSucKhoeSanPhuKhoa.id;
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.id)] = SelectedKhamSucKhoeSanPhuKhoa.id;
                             }
-                            updateFields["luot_kham"] = SelectedItem.id;
-                            updateFields["ma_luot_kham"] = SelectedItem.ma_luot_kham ?? string.Empty;
+
+                            updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.luot_kham)] = SelectedItem.id;
+                            updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
 
                             if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.phan_loai)) || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.ket_qua)))
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.chu_ky)] = null;
+                                SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan)] = SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan;
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.chu_ky)] = SelectedKhamSucKhoeSanPhuKhoa.chu_ky;
                             }
                         }
                     }
 
                     if (updateFields.Any())
                     {
-                        if (updateFields.ContainsKey("id"))
+                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.id)))
                         {
                             var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
                             if (result == null || !result.IsSuccess)
@@ -1004,7 +1035,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     #endregion
 
                     #region The luc
-                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateDynamicObj = new ExpandoObject();
                     updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     dict = dynamicTheLucObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -1019,17 +1050,16 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         {
                             if (SelectedKhamSucKhoeTheLuc.id > 0)
                             {
-                                updateFields["id"] = SelectedKhamSucKhoeTheLuc.id;
+                                updateFields[nameof(SelectedKhamSucKhoeTheLuc.id)] = SelectedKhamSucKhoeTheLuc.id;
                             }
-
-                            updateFields["luot_kham"] = SelectedItem.id;
-                            updateFields["ma_luot_kham"] = SelectedItem.ma_luot_kham ?? string.Empty;
+                            updateFields[nameof(SelectedKhamSucKhoeTheLuc.luot_kham)] = SelectedItem.id;
+                            updateFields[nameof(SelectedKhamSucKhoeTheLuc.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
                         }
                     }
 
                     if (updateFields.Any())
                     {
-                        if (updateFields.ContainsKey("id"))
+                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeTheLuc.id)))
                         {
                             var result = await KhamSucKhoeTheLucService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
                             if (result == null || !result.IsSuccess)
@@ -1051,7 +1081,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     #endregion
 
                     #region Chuyen khoa
-                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateDynamicObj = new ExpandoObject();
                     updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     dict = dynamicChuyenKhoaObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -1066,135 +1096,168 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         {
                             if (SelectedKhamSucKhoeChuyenKhoa.id > 0)
                             {
-                                updateFields["id"] = SelectedKhamSucKhoeChuyenKhoa.id;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.id)] = SelectedKhamSucKhoeChuyenKhoa.id;
                             }
 
-                            updateFields["luot_kham"] = SelectedItem.id;
-                            updateFields["ma_luot_kham"] = SelectedItem.ma_luot_kham ?? string.Empty;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.luot_kham)] = SelectedItem.id;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_tuan_hoan)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tuan_hoan))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_tuan_hoan = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_tuan_hoan)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_tuan_hoan;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan)] = SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_ho_hap)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_ho_hap))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_ho_hap = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_ho_hap)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_ho_hap;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap)] = SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_tieu_hoa)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tieu_hoa))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_tieu_hoa = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_tieu_hoa)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_tieu_hoa;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa)] = SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_than_tiet_nieu)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_tiet_nieu))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_than_tiet_nieu = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_than_tiet_nieu)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_than_tiet_nieu;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu)] = SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_noi_tiet)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_noi_tiet))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_noi_tiet = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_noi_tiet)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_noi_tiet;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet)] = SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_co_xuong_khop)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_co_xuong_khop))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_co_xuong_khop = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_co_xuong_khop)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_co_xuong_khop;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop)] = SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_than_kinh)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_than_kinh))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_than_kinh = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_than_kinh)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_than_kinh;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh)] = SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_tam_than)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tam_than)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_nk_tam_than))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_tam_than = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_tam_than = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_tam_than)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_tam_than;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tam_than)] = SelectedKhamSucKhoeChuyenKhoa.bs_tam_than;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_ngoai_khoa)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_ngoai_khoa))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_ngoai_khoa))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_da_lieu))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_ngoai_khoa = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_ngoai_khoa)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_ngoai_khoa;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa)] = SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_mat))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_mat))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_mat)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_mat)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_mat))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_mat))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_phai))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_khong_kinh_trai))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_phai))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_mat = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_mat = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_mat)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_mat;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_mat)] = SelectedKhamSucKhoeChuyenKhoa.bs_mat;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat;
+                        }
 
-                            if (
-                                updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_rhm))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi))
-                                || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_rhm))
-                            )
-                            {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_rhm)] = CurrentUser?.ma_tai_khoan;
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_rhm)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm)] = null;
-                            }
+                        if (
+                            updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_rhm))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi))
+                            || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_rhm))
+                        )
+                        {
+                            SelectedKhamSucKhoeChuyenKhoa.ma_bs_rhm = CurrentUser?.ma_tai_khoan;
+                            SelectedKhamSucKhoeChuyenKhoa.bs_rhm = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm = null;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.ma_bs_rhm)] = SelectedKhamSucKhoeChuyenKhoa.ma_bs_rhm;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_rhm)] = SelectedKhamSucKhoeChuyenKhoa.bs_rhm;
+                            updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm;
                         }
                     }
 
                     if (updateFields.Any())
                     {
-                        if (updateFields.ContainsKey("id"))
+                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeTheLuc.id)))
                         {
                             var result = await KhamSucKhoeChuyenKhoaService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
                             if (result == null || !result.IsSuccess)
@@ -1216,7 +1279,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     #endregion
 
                     #region Ket luan
-                    updateDynamicObj = new System.Dynamic.ExpandoObject();
+                    updateDynamicObj = new ExpandoObject();
                     updateFields = (IDictionary<string, object?>)updateDynamicObj;
                     dict = dynamicKetLuanObj as IDictionary<string, object?>;
                     if (dict != null && dict.Count > 0)
@@ -1233,21 +1296,22 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             {
                                 updateFields["id"] = SelectedKhamSucKhoeKetLuan.id;
                             }
-
-                            updateFields["luot_kham"] = SelectedItem.id;
-                            updateFields["ma_luot_kham"] = SelectedItem.ma_luot_kham ?? string.Empty;
-                            updateFields["nguoi_ket_luan"] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                            updateFields["ngay_ket_luan"] = DateTime.Now;
+                            SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.luot_kham)] = SelectedItem.id;
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.nguoi_ket_luan)] = SelectedKhamSucKhoeKetLuan.nguoi_ket_luan;
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)] = SelectedKhamSucKhoeKetLuan.ngay_ket_luan;
                             if (CurrentUser != null && CurrentUser.id != Guid.Empty)
                             {
-                                updateFields["bs_ket_luan"] = CurrentUser.id;
+                                SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
+                                updateFields[nameof(SelectedKhamSucKhoeKetLuan.bs_ket_luan)] = CurrentUser.id;
                             }
                         }
                     }
 
                     if (updateFields.Any())
                     {
-                        if (updateFields.ContainsKey("id"))
+                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeKetLuan.id)))
                         {
                             var result = await KhamSucKhoeKetLuanService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
                             if (result == null || !result.IsSuccess)
@@ -1276,11 +1340,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     renderKey = 0;
                 }
 
-                dynamicTheLucObj = new System.Dynamic.ExpandoObject();
-                dynamicSanPhuKhoaObj = new System.Dynamic.ExpandoObject();
-                dynamicChuyenKhoaObj = new System.Dynamic.ExpandoObject();
-                dynamicKetLuanObj = new System.Dynamic.ExpandoObject();
-                dynamicTienSuObj = new System.Dynamic.ExpandoObject();
+                dynamicTheLucObj = new ExpandoObject();
+                dynamicSanPhuKhoaObj = new ExpandoObject();
+                dynamicChuyenKhoaObj = new ExpandoObject();
+                dynamicKetLuanObj = new ExpandoObject();
+                dynamicTienSuObj = new ExpandoObject();
             }
             catch
             {

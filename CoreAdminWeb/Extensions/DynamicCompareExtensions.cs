@@ -69,18 +69,6 @@ namespace CoreAdminWeb.Extensions
 
             return !value.Equals(dynamicValue);
         }
-        /// <summary>
-        /// Trả về class CSS nếu giá trị bị thay đổi so với dynamicObj.
-        /// </summary>
-        /// <param name="value">Giá trị hiện tại</param>
-        /// <param name="dynamicObj">Đối tượng dynamic để so sánh</param>
-        /// <param name="propertyName">Tên property cần so sánh</param>
-        /// <param name="highlightClass">Tên class highlight (mặc định: "border-red-500")</param>
-        /// <returns>Chuỗi class CSS</returns>
-        public static string GetHighlightClassIfChanged(this object? value, object? dynamicObj, string propertyName, string highlightClass = "border-red-500")
-        {
-            return value.IsValueChanged(dynamicObj, propertyName) ? highlightClass : string.Empty;
-        }
 
         /// <summary>
         /// Trả về class CSS nếu tồn tại property trong dynamicObj.
@@ -119,6 +107,68 @@ namespace CoreAdminWeb.Extensions
             return string.Empty;
         }
 
+        /// <summary>
+        /// Trả về class CSS nếu giá trị property giữa hai dynamicObj bị thay đổi.
+        /// </summary>
+        /// <param name="changedObj">Đối tượng dynamic thứ nhất</param>
+        /// <param name="originalObj">Đối tượng dynamic thứ hai</param>
+        /// <param name="propertyName">Tên property cần so sánh</param>
+        /// <param name="highlightClass">Tên class highlight (mặc định: "border-red-500")</param>
+        /// <returns>Chuỗi class CSS</returns>
+        public static string GetHighlightClassIfChanged(
+            this object? changedObj,
+            object? originalObj,
+            string propertyName,
+            string highlightClass = "border-red-500")
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                return string.Empty;
+            }
+
+            object? changedValue = changedObj?.GetPropertyValue(propertyName);
+            object? originalValue = originalObj?.GetPropertyValue(propertyName);
+
+            // So sánh giá trị
+            if (changedValue == null)
+            {
+                return string.Empty;
+            }
+            if (originalValue == null)
+            {
+                return highlightClass;
+            }
+            if (!changedValue.Equals(originalValue))
+            {
+                return highlightClass;
+            }
+            return string.Empty;
+        }
+
+
+        public static object? GetPropertyValue(this object obj, string propertyName)
+        {
+            if (obj == null || string.IsNullOrEmpty(propertyName))
+            {
+                return null;
+            }
+            if (obj is IDictionary<string, object> expandoDict && expandoDict.ContainsKey(propertyName))
+            {
+                return expandoDict[propertyName].GetIdOrValue();
+            }
+            var type = obj.GetType();
+            var prop = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null)
+            {
+                return prop.GetValue(obj)?.GetIdOrValue();
+            }
+            var field = type.GetField(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (field != null)
+            {
+                return field.GetValue(obj)?.GetIdOrValue();
+            }
+            return null;
+        }
         public static object? GetIdOrValue(this object value)
         {
             if (value == null)

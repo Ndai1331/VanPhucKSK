@@ -17,12 +17,12 @@
                  OnValueChanged="@(args => PhanLoaiSucKhoeKetLuanChanged())"
                  Cache="__MemoryCache"
                  Multiselect="false"
-                 class="@((onReadonly || !onReadonly && !onBSKetLuan ? "select2-disabled " : "select2-read-write ") + dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe)))" />
+                 class="@((onReadonly || !onReadonly && !onBSKetLuan ? "select2-disabled " : "select2-read-write ") + dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeKetLuan.phan_loai_suc_khoe)))" />
     </div>
 
     <div class="flex items-center gap-2 mt-5">
         <input type="checkbox"
-               class="form-check-input @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeKetLuan.isAbnormal))"
+               class="form-check-input @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeKetLuan.isAbnormal))"
                id="cbx_bat_thuong"
                checked="@SelectedKhamSucKhoeKetLuan.isAbnormal"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeKetLuan.isAbnormal), isDate: false, item: SelectedKhamSucKhoeKetLuan))"
@@ -34,7 +34,7 @@
 </div>
 <div class="mb-2">
     <label class="block text-sm font-normal">Bệnh tật (nếu có):</label>
-    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan))"
+    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan))"
               rows="5"
               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeKetLuan.benh_tat_ket_luan), isDate: false, item: SelectedKhamSucKhoeKetLuan))"
               readonly="@(onReadonly || !onReadonly && !onBSKetLuan)">
@@ -43,7 +43,7 @@
 </div>
 <div class="mb-2">
     <label class="block text-sm font-normal">Đề nghị:</label>
-    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeKetLuan.de_nghi))"
+    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeKetLuan.de_nghi))"
               rows="5"
               @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeKetLuan.de_nghi), isDate: false, item: SelectedKhamSucKhoeKetLuan))"
               readonly="@(onReadonly || !onReadonly && !onBSKetLuan)">
@@ -54,7 +54,7 @@
     <div>
         <label class="block text-sm font-normal">Ngày kết luận</label>
         <input type="text"
-               class="form-input @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "date-picker read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan))"
+               class="form-input @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "date-picker read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan))"
                placeholder="Chọn ngày"
                value="@(SelectedKhamSucKhoeKetLuan.ngay_ket_luan?.ToString("dd/MM/yyyy"))"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan), item: SelectedKhamSucKhoeKetLuan))"
@@ -79,6 +79,8 @@
     public bool onBSKetLuan { get; set; } = false;
     [Parameter]
     public object? dynamicObj { get; set; }
+    [Parameter]
+    public object? dynamicObjOriginal { get; set; }
     [Parameter]
     public Func<ChangeEventArgs, string, bool, bool, object, Task>? OnValueChanged { get; set; }
     [Parameter]

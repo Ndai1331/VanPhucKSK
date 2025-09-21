@@ -8,7 +8,7 @@
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Trái - thường:</label>
         <input type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai))"
                value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_trai), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
                readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
@@ -16,7 +16,7 @@
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Trái - thầm:</label>
         <input type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai))"
                value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_trai), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
                readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
@@ -24,7 +24,7 @@
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Phải - thường:</label>
         <input type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai))"
                value="@SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_nt_phai), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
                readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
@@ -32,7 +32,7 @@
     <div class="col-span-1 flex items-center gap-2">
         <label class="mb-0 flex-shrink-0 text-sm" style="min-width:120px;white-space:nowrap;">Phải - thầm:</label>
         <input type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai))"
                value="@SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.tmh_ntham_phai), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
                readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
@@ -42,7 +42,7 @@
     <div class="col-span-1 flex items-center gap-2">
         <span style="min-width:120px;">Bệnh về TMH:</span>
         <input type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSTaiMuiHong ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong))"
                value="@SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.benh_tai_mui_hong), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
                readonly="@(onReadonly || !onReadonly && !onBSTaiMuiHong)" />
@@ -55,7 +55,7 @@
                  OnValueChanged="@(args => phanLoaiSucKhoeTaiMuiHongChanged())"
                  Cache="__MemoryCache"
                  Multiselect="false"
-                 class="@((onReadonly || !onReadonly && !onBSTaiMuiHong ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai " + dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_tmh)))" />
+                 class="@((onReadonly || !onReadonly && !onBSTaiMuiHong ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai " + dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.pl_tmh)))" />
     </div>
 </div>
 
@@ -68,6 +68,8 @@
     public bool onBSTaiMuiHong { get; set; } = false;
     [Parameter]
     public object? dynamicObj { get; set; }
+    [Parameter]
+    public object? dynamicObjOriginal { get; set; }
     [Parameter]
     public List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
     [Parameter]

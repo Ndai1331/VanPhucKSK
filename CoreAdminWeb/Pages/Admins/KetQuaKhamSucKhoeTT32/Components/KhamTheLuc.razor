@@ -9,7 +9,7 @@
         <label class="block text-sm mb-1" for="chieu-cao">Chiều cao (cm):</label>
         <input id="chieu-cao"
                type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTheLuc.chieu_cao))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTheLuc.chieu_cao))"
                value="@SelectedKhamSucKhoeTheLuc.chieu_cao?.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.chieu_cao), isDate: false, item: SelectedKhamSucKhoeTheLuc))"
                readonly="@(onReadonly || !onReadonly && !onBS)" />
@@ -18,7 +18,7 @@
         <label class="block text-sm mb-1" for="can-nang">Cân nặng (kg):</label>
         <input id="can-nang"
                type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTheLuc.can_nang))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTheLuc.can_nang))"
                value="@SelectedKhamSucKhoeTheLuc.can_nang?.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.can_nang), isDate: false, item: SelectedKhamSucKhoeTheLuc))"
                readonly="@(onReadonly || !onReadonly && !onBS)" />
@@ -27,7 +27,7 @@
         <label class="block text-sm mb-1" for="bmi">BMI:</label>
         <input id="bmi"
                type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTheLuc.bmi))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTheLuc.bmi))"
                value="@SelectedKhamSucKhoeTheLuc.bmi?.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)"
                readonly />
     </div>
@@ -35,7 +35,7 @@
         <label class="block text-sm mb-1" for="abi">ABI:</label>
         <input id="abi"
                type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTheLuc.abi))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTheLuc.abi))"
                value="@SelectedKhamSucKhoeTheLuc.abi?.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.abi), isDate: false, item: SelectedKhamSucKhoeTheLuc))"
                readonly="@(onReadonly || !onReadonly && !onBS)" />
@@ -44,7 +44,7 @@
         <label class="block text-sm mb-1" for="mach">Mạch (nhịp/phút):</label>
         <input id="mach"
                type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTheLuc.mach))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTheLuc.mach))"
                value="@SelectedKhamSucKhoeTheLuc.mach?.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.mach), isDate: false, item: SelectedKhamSucKhoeTheLuc))"
                readonly="@(onReadonly || !onReadonly && !onBS)" />
@@ -52,7 +52,7 @@
     <div>
         <label class="block text-sm mb-1" for="huyet-ap">Huyết áp (mmHg):</label>
         <input id="huyet-ap" type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTheLuc.huyet_ap))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTheLuc.huyet_ap))"
                value="@SelectedKhamSucKhoeTheLuc.huyet_ap"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.huyet_ap), isDate: false, item: SelectedKhamSucKhoeTheLuc))"
                readonly="@(onReadonly || !onReadonly && !onBS)" />
@@ -61,7 +61,7 @@
         <label class="block text-sm mb-1" for="nhip-tho">Nhịp thở (lần/phút):</label>
         <input id="nhip-tho"
                type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTheLuc.nhip_tho))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-right text-sm @(onReadonly || !onReadonly && !onBS ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTheLuc.nhip_tho))"
                value="@SelectedKhamSucKhoeTheLuc.nhip_tho?.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeTheLuc.nhip_tho), isDate: false, item: SelectedKhamSucKhoeTheLuc))" readonly="@(onReadonly || !onReadonly && !onBS)" />
     </div>
@@ -76,7 +76,7 @@
                  OnValueChanged="@(args => phanLoaiSucKhoeTheLucChanged())"
                  Cache="__MemoryCache"
                  Multiselect="false"
-                 class="@((onReadonly || !onReadonly && !onBS ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai " + dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeTheLuc.phan_loai)))" />
+                 class="@((onReadonly || !onReadonly && !onBS ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai " + dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeTheLuc.phan_loai)))" />
     </div>
 </div>
 
@@ -89,6 +89,8 @@
     public bool onBS { get; set; } = false;
     [Parameter]
     public object? dynamicObj { get; set; }
+    [Parameter]
+    public object? dynamicObjOriginal { get; set; }
     [Parameter]
     public List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
     [Parameter]

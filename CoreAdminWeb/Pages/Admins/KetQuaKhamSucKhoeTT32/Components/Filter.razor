@@ -3,23 +3,23 @@
 @using CoreAdminWeb.Model.KhamSucKhoes
 @inject IJSRuntime JsRuntime
 <div class="space-y-2 md:col-span-2">
-    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày khám</MudText>
+    <MudText Typo="Typo.h4" Class="font-semibold capitalize text-slate-800 dark:text-slate-100">Ngày khám</MudText>
     <div class="flex items-center gap-2 sm:gap-4">
         <input type="text"
                class="form-input date-picker w-1/2"
                placeholder="Chọn ngày bắt đầu"
                value="@(_startDateFilter?.ToString("dd/MM/yyyy"))"
-               @onchange="@(e => OnValueChangedHandler(e, nameof(_startDateFilter), true))" />
+               @onchange="@(e => OnValueChangedHandler(e, nameof(_startDateFilter)))" />
         <span class="mx-2 flex items-center text-gray-500">-</span>
         <input type="text"
                class="form-input date-picker w-1/2"
                placeholder="Chọn ngày kết thúc"
                value="@(_endDateFilter?.ToString("dd/MM/yyyy"))"
-               @onchange="@(e => OnValueChangedHandler(e, nameof(_endDateFilter), true))" />
+               @onchange="@(e => OnValueChangedHandler(e, nameof(_endDateFilter)))" />
     </div>
 </div>
 <div class="space-y-2">
-    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Hợp đồng khám sức khỏe</MudText>
+    <MudText Typo="Typo.h4" Class="font-semibold capitalize text-slate-800 dark:text-slate-100">Hợp đồng khám sức khỏe</MudText>
     <BlazoredTypeahead EnableDropDown="true"
                        ShowDropDownOnFocus="true"
                        MinimumLength="0"
@@ -43,7 +43,7 @@
     </BlazoredTypeahead>
 </div>
 <div class="space-y-2">
-    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Hồ sơ khám</MudText>
+    <MudText Typo="Typo.h4" Class="font-semibold capitalize text-slate-800 dark:text-slate-100">Hồ sơ khám</MudText>
     <BlazoredTypeahead EnableDropDown="true"
                        ShowDropDownOnFocus="true"
                        MinimumLength="0"
@@ -67,28 +67,34 @@
     </BlazoredTypeahead>
 </div>
 <div class="space-y-2">
-    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Mã điều trị</MudText>
+    <MudText Typo="Typo.h4" Class="font-semibold capitalize text-slate-800 dark:text-slate-100">Mã điều trị</MudText>
     <input type="text"
            class="form-input"
            placeholder="Mã điều trị"
            value="@_maDieuTriString"
-           @onkeydown="@(e => OnEnterKeyDown(e, _maDieuTriString, nameof(_maDieuTriString)))" />
+           @oninput="@(e => OnInputChanged(e, nameof(_maDieuTriString)))"
+           @onchange="@(e => OnInputChanged(e, nameof(_maDieuTriString)))"
+           @onkeydown="@OnKeyDownHandler" />
 </div>
 <div class="space-y-2">
-    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Mã bệnh nhân</MudText>
+    <MudText Typo="Typo.h4" Class="font-semibold capitalize text-slate-800 dark:text-slate-100">Mã bệnh nhân</MudText>
     <input type="text"
            class="form-input"
            placeholder="Mã bệnh nhân"
            value="@_maBenhNhanString"
-           @onkeydown="@(e => OnEnterKeyDown(e, _maBenhNhanString, nameof(_maBenhNhanString)))" />
+           @oninput="@(e => OnInputChanged(e, nameof(_maBenhNhanString)))"
+           @onchange="@(e => OnInputChanged(e, nameof(_maBenhNhanString)))"
+           @onkeydown="@OnKeyDownHandler" />
 </div>
 <div class="space-y-2">
-    <MudText Typo="Typo.h4" Class="mb-4 font-semibold capitalize text-slate-800 dark:text-slate-100">Tên bệnh nhân</MudText>
+    <MudText Typo="Typo.h4" Class="font-semibold capitalize text-slate-800 dark:text-slate-100">Tên bệnh nhân</MudText>
     <input type="text"
            class="form-input"
            placeholder="Tên bệnh nhân"
            value="@_tenBenhNhanString"
-           @onkeydown="@(e => OnEnterKeyDown(e, _tenBenhNhanString, nameof(_tenBenhNhanString)))" />
+           @oninput="@(e => OnInputChanged(e, nameof(_tenBenhNhanString)))"
+           @onchange="@(e => OnInputChanged(e, nameof(_tenBenhNhanString)))"
+           @onkeydown="@OnKeyDownHandler" />
 </div>
 
 <div class="flex flex-wrap items-end justify-end gap-2 col-end">
@@ -168,45 +174,17 @@
         return Enumerable.Empty<KhamSucKhoeCongTyModel>();
     }
 
-    bool isSelectAll = false;
-    private async Task OnEnterKeyDown(KeyboardEventArgs e, string? oldValue, string fieldName)
+
+    private async Task OnInputChanged(ChangeEventArgs e, string fieldName)
+    {
+        await OnValueChangedHandler(e, fieldName, isDate: false);
+    }
+
+    private async Task OnKeyDownHandler(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
             await LoadDataHandler();
-        }
-        else
-        {
-            string newValue = oldValue ?? string.Empty;
-            // Handle Ctrl+A (Select All) + Backspace or Delete to clear the string
-            if ((e.Key == "Backspace" || e.Key == "Delete") && (e.CtrlKey || isSelectAll))
-            {
-                newValue = string.Empty;
-            }
-            // Only process single character keys, ignore all key combinations (Ctrl, Alt, Shift, etc.)
-            else if (e.CtrlKey && (e.Key == "a" || e.Key == "A"))
-            {
-                isSelectAll = true;
-            }
-            // Only process single character keys, ignore all key combinations (Ctrl, Alt, Shift, etc.)
-            else if (e.Key == "Backspace")
-            {
-                if (newValue.Length > 0)
-                    newValue = newValue.Substring(0, newValue.Length - 1);
-            }
-            else if (e.Key.Length == 1 && !e.CtrlKey && !e.AltKey && !e.MetaKey)
-            {
-                newValue += e.Key;
-            }
-            // Handle Ctrl+V (Paste)
-            else if (e.CtrlKey && (e.Key == "v" || e.Key == "V"))
-            {
-                if (isSelectAll)
-                    newValue = string.Empty;
-                newValue += await JsRuntime.InvokeAsync<string>("navigator.clipboard.readText");
-            }
-            // Ignore all other keys (including combinations)
-            await OnValueChangedHandler(new ChangeEventArgs() { Value = newValue }, fieldName, isDate: false);
         }
     }
 }
