@@ -2325,7 +2325,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private string GenerateChangeNoteTable()
         {
             var tableBuilder = new System.Text.StringBuilder();
-            tableBuilder.AppendLine("<table class='table table-bordered table-sm table-fixed'><thead><tr><th style='width: 20%;'>Thông tin</th><th style='width: 40%;'>Giá trị hiện tại</th><th style='width: 40%;'>Giá trị mới</th></tr></thead><tbody>");
+            tableBuilder.AppendLine("<table class='table table-bordered table-sm table-fixed'><thead style='position:sticky;top:0;background: aliceblue;' class='whitespace-pre-wrap'><tr><th style='width: 20%;'>Thông tin</th><th style='width: 40%;' class='whitespace-pre-wrap'>Giá trị hiện tại</th><th style='width: 40%;' class='whitespace-pre-wrap'>Giá trị mới</th></tr></thead><tbody>");
 
             void AppendChangesFromDynamic(object dynamicObj, object? originalObj, Type modelType, string sectionName)
             {
