@@ -373,6 +373,8 @@ namespace CoreAdminWeb.Services.Exports
 
                                                 doc.ReplaceText(new Dictionary<string, string>
                                                 {
+                                                    { "<<STT_KSK>>", $"{item.sort}" },
+                                                    { "<<MaLuotKham>>", $"{item.ma_luot_kham}" },
                                                     { "<<HoVaTen>>", $"{item.benh_nhan?.full_name}" },
                                                     { "<<GioiTinh>>", $"{item.benh_nhan?.gioi_tinh?.GetDescription()}" },
                                                     { "<<CongTy>>", $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.code}" },
@@ -380,6 +382,8 @@ namespace CoreAdminWeb.Services.Exports
                                                     { "<<ChieuCao>>", $"{theLuc?.chieu_cao}" },
                                                     { "<<CanNang>>", $"{theLuc?.can_nang}" },
                                                     { "<<BMI>>", $"{theLuc?.bmi}" },
+                                                    { "<<Mach>>", $"{theLuc?.mach}" },
+                                                    { "<<HuyetAp>>", $"{theLuc?.huyet_ap}" },
                                                     { "<<kq_tuanhoan>>", $"{cls?.kq_nk_tuan_hoan}" },
                                                     { "<<kq_hohap>>", $"{cls?.kq_nk_ho_hap}" },
                                                     { "<<kq_tieuhoa>>", $"{cls?.kq_nk_tieu_hoa}" },
@@ -395,7 +399,9 @@ namespace CoreAdminWeb.Services.Exports
                                                     { "<<kq_tamthan>>", $"{cls?.kq_nk_tam_than}" },
                                                     { "<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}" },
                                                     { "<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}" },
-                                                    { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" }
+                                                    { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" },
+                                                    { "<<MaTaiKhoan>>", $"{item.benh_nhan?.ma_tai_khoan}" },
+                                                    { "<<TenCongTy>>", $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.name}" }
                                                 });
 
                                                 doc.ReplaceText(new Dictionary<string, string>
