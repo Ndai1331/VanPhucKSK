@@ -1504,6 +1504,13 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 dynamicKetLuanObj = new ExpandoObject();
                 dynamicTienSuObj = new ExpandoObject();
                 dynamicKhamCLSObj = new List<dynamic>();
+
+                dynamicTheLucObjOriginal = SelectedKhamSucKhoeTheLuc.DeepClone();
+                dynamicSanPhuKhoaObjOriginal = SelectedKhamSucKhoeSanPhuKhoa.DeepClone();
+                dynamicChuyenKhoaObjOriginal = SelectedKhamSucKhoeChuyenKhoa.DeepClone();
+                dynamicKetLuanObjOriginal = SelectedKhamSucKhoeKetLuan.DeepClone();
+                dynamicTienSuObjOriginal = SelectedKhamSucKhoeTienSu.DeepClone();
+                dynamicKhamCLSObjOriginal = SelectedKhamSucKhoeKetQuaCanLamSangs.DeepClone().Cast<dynamic>().ToList();
             }
             catch
             {
@@ -2405,6 +2412,25 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     {
                         currentValueStr = currentValueObj?.ToString()?.Replace("|", "").Replace("-", "") ?? "";
                         changedValueStr = changedValueObj?.ToString()?.Replace("|", "").Replace("-", "") ?? "";
+                    }
+                    else if (kv.Key == "ngay_ket_luan")
+                    {
+                        if (currentValueObj is DateTime currentDate)
+                        {
+                            currentValueStr = currentDate.ToString("dd/MM/yyyy");
+                        }
+                        else
+                        {
+                            currentValueStr = currentValueObj?.ToString() ?? "";
+                        }
+                        if (changedValueObj is DateTime changedDate)
+                        {
+                            changedValueStr = changedDate.ToString("dd/MM/yyyy");
+                        }
+                        else
+                        {
+                            changedValueStr = changedValueObj?.ToString() ?? "";
+                        }
                     }
                     else if (prop.PropertyType == typeof(bool) || prop.PropertyType == typeof(bool?))
                     {
