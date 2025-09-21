@@ -2075,8 +2075,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 var selectedKqCls = dynamicKhamCLSObj.FirstOrDefault(c => c.type == kqCLS.type);
                 if (selectedKqCls != null)
                 {
-                    UpdateField(selectedKqCls, nameof(kqCLS.kq_cls), null, kqCLS.GetType(), kqCLS);
-                    UpdateField(selectedKqCls, nameof(kqCLS.ket_qua), value, kqCLS.GetType(), kqCLS);
+                    UpdateField(selectedKqCls, dynamicKhamCLSObjOriginal.FirstOrDefault(c => c.type == kqCLS.type), nameof(kqCLS.kq_cls), null, kqCLS.GetType(), kqCLS);
+                    UpdateField(selectedKqCls, dynamicKhamCLSObjOriginal.FirstOrDefault(c => c.type == kqCLS.type), nameof(kqCLS.ket_qua), value, kqCLS.GetType(), kqCLS);
                 }
             }
         }
@@ -2220,8 +2220,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 var selectedKqCls = dynamicKhamCLSObj.FirstOrDefault(c => c.type == item.type);
                 if (selectedKqCls != null)
                 {
-                    UpdateField(selectedKqCls, nameof(item.kq_cls), selected?.ket_luan_can_lam_sang, item.GetType(), item);
-                    UpdateField(selectedKqCls, nameof(item.ket_qua), selected, item.GetType(), item);
+                    UpdateField(selectedKqCls, dynamicKhamCLSObjOriginal.FirstOrDefault(c => c.type == item.type), nameof(item.kq_cls), selected?.ket_luan_can_lam_sang, item.GetType(), item);
+                    UpdateField(selectedKqCls, dynamicKhamCLSObjOriginal.FirstOrDefault(c => c.type == item.type), nameof(item.ket_qua), selected, item.GetType(), item);
                 }
             }
             catch (Exception ex)
