@@ -134,6 +134,7 @@ namespace CoreAdminWeb.Extensions
             {
                 return highlightClass;
             }
+
             if (changedValue == null)
             {
                 if (changedObj == null)
@@ -158,6 +159,7 @@ namespace CoreAdminWeb.Extensions
 
                 return string.Empty;
             }
+
             if (!changedValue.Equals(originalValue))
             {
                 return highlightClass;
@@ -172,6 +174,7 @@ namespace CoreAdminWeb.Extensions
             {
                 return null;
             }
+
             if (obj is IDictionary<string, object> expandoDict && expandoDict.ContainsKey(propertyName))
             {
                 var val = expandoDict[propertyName].GetCustumFieldOrValue(objField);
@@ -181,6 +184,7 @@ namespace CoreAdminWeb.Extensions
                 }
                 return val;
             }
+
             var type = obj.GetType();
             var prop = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if (prop != null)
@@ -192,6 +196,7 @@ namespace CoreAdminWeb.Extensions
                 }
                 return val;
             }
+
             var field = type.GetField(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if (field != null)
             {
