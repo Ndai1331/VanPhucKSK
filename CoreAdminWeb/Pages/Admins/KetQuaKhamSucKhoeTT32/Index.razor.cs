@@ -2120,7 +2120,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 }
                 if (
                     dict.ContainsKey(fieldName)
-                    && Equals(dynamicOriginal.GetPropertyValue(fieldName), convertedValue)
+                    && Equals(dynamicOriginal.GetPropertyValue(fieldName), selected.GetPropertyValue(fieldName))
                 )
                 {
                     dict.Remove(fieldName);

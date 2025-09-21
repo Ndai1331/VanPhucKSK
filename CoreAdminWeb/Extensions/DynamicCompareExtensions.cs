@@ -130,13 +130,33 @@ namespace CoreAdminWeb.Extensions
             object? originalValue = originalObj?.GetPropertyValue(propertyName);
 
             // So sánh giá trị
-            if (changedValue == null)
-            {
-                return string.Empty;
-            }
             if (originalValue == null)
             {
                 return highlightClass;
+            }
+            if (changedValue == null)
+            {
+                if (changedObj == null)
+                {
+                    return string.Empty;
+                }
+                var changedType = changedObj.GetType();
+                bool hasProperty = false;
+                if (changedObj is IDictionary<string, object> changedDict)
+                {
+                    hasProperty = changedDict.ContainsKey(propertyName);
+                }
+                else
+                {
+                    hasProperty = changedType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase) != null
+                        || changedType.GetField(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase) != null;
+                }
+                if (hasProperty)
+                {
+                    return highlightClass;
+                }
+
+                return string.Empty;
             }
             if (!changedValue.Equals(originalValue))
             {
