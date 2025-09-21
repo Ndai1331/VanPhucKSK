@@ -1445,7 +1445,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             updateFields[nameof(SelectedKhamSucKhoeKetLuan.luot_kham)] = SelectedItem.id;
                             updateFields[nameof(SelectedKhamSucKhoeKetLuan.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
                             updateFields[nameof(SelectedKhamSucKhoeKetLuan.nguoi_ket_luan)] = SelectedKhamSucKhoeKetLuan.nguoi_ket_luan;
-                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)] = DateTime.Now;
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)] = SelectedKhamSucKhoeKetLuan.ngay_ket_luan;
                             if (CurrentUser != null && CurrentUser.id != Guid.Empty)
                             {
                                 updateFields[nameof(SelectedKhamSucKhoeKetLuan.bs_ket_luan)] = CurrentUser.id;
