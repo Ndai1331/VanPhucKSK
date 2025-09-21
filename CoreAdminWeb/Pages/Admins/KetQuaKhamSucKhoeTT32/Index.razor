@@ -451,7 +451,9 @@
                 <div class="p-5">
                     <div class="text-black dark:text-muted">
                         <MudText Typo="Typo.h5" Class="text-md text-slate-800 dark:text-slate-100 mb-2">Bạn đã thay đổi các thông tin khám sức khỏe, bạn có chắc chắn muốn thực hiện lưu lại các thông tin đã thay đổi?</MudText>
-                        @((MarkupString)confirmMessage)
+                        <div style="max-height:calc(100vh - 350px);overflow-y:auto;display:block;position:relative;">
+                            @((MarkupString)confirmMessage)
+                        </div>
                     </div>
                     <div class="flex items-center justify-end gap-2 mt-2">
                         <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseConfirmModal">Huỷ</MudButton>
@@ -462,6 +464,7 @@
         </div>
     </div>
 }
+
 @if (openSoKhamSucKhoeModal)
 {
     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
