@@ -8,7 +8,7 @@
     <div class="flex items-center gap-2">
         <span style="min-width:120px;">Hàm trên:</span>
         <input type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSRangHamMat ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSRangHamMat ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren))"
                value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_tren), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
                readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
@@ -16,7 +16,7 @@
     <div class="flex items-center gap-2">
         <span style="min-width:120px;">Hàm dưới:</span>
         <input type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSRangHamMat ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSRangHamMat ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi))"
                value="@SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.kq_rhm_ham_duoi), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
                readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
@@ -26,7 +26,7 @@
     <div class="flex items-center gap-2">
         <span style="min-width:120px;">Bệnh về RHM:</span>
         <input type="text"
-               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSRangHamMat ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_rhm))"
+               class="form-input border border-gray-300 rounded-md px-3 py-1 text-sm @(onReadonly || !onReadonly && !onBSRangHamMat ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.benh_rhm))"
                value="@SelectedKhamSucKhoeChuyenKhoa.benh_rhm"
                @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeChuyenKhoa.benh_rhm), isDate: false, item: SelectedKhamSucKhoeChuyenKhoa))"
                readonly="@(onReadonly || !onReadonly && !onBSRangHamMat)" />
@@ -39,7 +39,7 @@
                  OnValueChanged="@(args => phanLoaiSucKhoeRangHamMatChanged())"
                  Cache="__MemoryCache"
                  Multiselect="false"
-                 class="@((onReadonly || !onReadonly && !onBSRangHamMat ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai " + dynamicObj.GetHighlightClassIfChanged(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_rhm)))" />
+                 class="@((onReadonly || !onReadonly && !onBSRangHamMat ? "select2-disabled " : "select2-read-write ") + "select2-phan-loai " + dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeChuyenKhoa.pl_rhm)))" />
     </div>
 </div>
 
@@ -52,6 +52,8 @@
     public bool onBSRangHamMat { get; set; } = false;
     [Parameter]
     public object? dynamicObj { get; set; }
+    [Parameter]
+    public object? dynamicObjOriginal { get; set; }
     [Parameter]
     public List<PhanLoaiSucKhoeModel> PhanLoaiSucKhoes { get; set; } = new();
     [Parameter]

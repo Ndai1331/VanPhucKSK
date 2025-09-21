@@ -1,6 +1,5 @@
 using CoreAdminWeb.Model.Menus;
 using CoreAdminWeb.Model.RequestHttps;
-using CoreAdminWeb.Http;
 using CoreAdminWeb.Services.Http;
 
 namespace CoreAdminWeb.Services.Menus
@@ -8,6 +7,7 @@ namespace CoreAdminWeb.Services.Menus
     public interface IMenuService
     {
         Task<RequestHttpResponse<List<MenuResponse>>> GetMenusAsync();
+        Task<RequestHttpResponse<List<MenuResponse>>> GetMenusAsync(string filter);
     }
 
     public class MenuService : IMenuService
@@ -29,7 +29,32 @@ namespace CoreAdminWeb.Services.Menus
                 if (result.IsSuccess && result.Data != null)
                 {
                     response.Data = result.Data.Data ?? new List<MenuResponse>();
-                }else{
+                }
+                else
+                {
+                    response.Errors = result.Errors;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = ex.Message } };
+            }
+            return response;
+        }
+
+        public async Task<RequestHttpResponse<List<MenuResponse>>> GetMenusAsync(string filter)
+        {
+            string url = $"items/Menu?fields=id,status,sort,code,name,parent_id,icon,url&sort=sort" + filter;
+            var response = new RequestHttpResponse<List<MenuResponse>>();
+            try
+            {
+                var result = await _httpClientService.GetAPIAsync<RequestHttpResponse<List<MenuResponse>>>(url);
+                if (result.IsSuccess && result.Data != null)
+                {
+                    response.Data = result.Data.Data ?? new List<MenuResponse>();
+                }
+                else
+                {
                     response.Errors = result.Errors;
                 }
             }
@@ -40,4 +65,4 @@ namespace CoreAdminWeb.Services.Menus
             return response;
         }
     }
-} 
+}

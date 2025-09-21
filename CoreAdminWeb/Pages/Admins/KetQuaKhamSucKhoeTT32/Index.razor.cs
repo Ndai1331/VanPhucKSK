@@ -133,6 +133,16 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private dynamic dynamicKetLuanObj = new ExpandoObject();
         private dynamic dynamicTienSuObj = new ExpandoObject();
         private List<dynamic> dynamicKhamCLSObj = new List<dynamic>();
+
+        private dynamic dynamicTheLucObjOriginal = new ExpandoObject();
+        private dynamic dynamicSanPhuKhoaObjOriginal = new ExpandoObject();
+        private dynamic dynamicChuyenKhoaObjOriginal = new ExpandoObject();
+        private dynamic dynamicKetLuanObjOriginal = new ExpandoObject();
+        private dynamic dynamicTienSuObjOriginal = new ExpandoObject();
+        private List<dynamic> dynamicKhamCLSObjOriginal = new List<dynamic>();
+
+        private bool isShowConfirmModel { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -480,6 +490,13 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 {
                     PhanLoaiSucKhoes.Add(SelectedKhamSucKhoeChuyenKhoa.pl_rhm);
                 }
+
+                dynamicTheLucObjOriginal = SelectedKhamSucKhoeTheLuc.DeepClone();
+                dynamicSanPhuKhoaObjOriginal = SelectedKhamSucKhoeSanPhuKhoa.DeepClone();
+                dynamicChuyenKhoaObjOriginal = SelectedKhamSucKhoeChuyenKhoa.DeepClone();
+                dynamicKetLuanObjOriginal = SelectedKhamSucKhoeKetLuan.DeepClone();
+                dynamicTienSuObjOriginal = SelectedKhamSucKhoeTienSu.DeepClone();
+                dynamicKhamCLSObjOriginal = SelectedKhamSucKhoeKetQuaCanLamSangs.DeepClone().Cast<dynamic>().ToList();
             }
             else
             {
@@ -645,10 +662,16 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             openSoKhamSucKhoeModal = false;
         }
 
-        private async Task OnValidSubmit()
+        private void CloseConfirmModal()
+        {
+            isShowConfirmModel = false;
+        }
+
+        private async Task OnValidSubmit(bool isConfirm = false)
         {
             try
             {
+                isShowConfirmModel = false;
                 if (SelectedItem.id <= 0)
                 {
                     return;
@@ -986,6 +1009,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 }
                 else
                 {
+                    if (!isConfirm)
+                    {
+                        isShowConfirmModel = true;
+                        return;
+                    }
+
                     #region Tien su
                     dynamic updateDynamicObj = new ExpandoObject();
                     var updateFields = (IDictionary<string, object?>)updateDynamicObj;
@@ -1056,8 +1085,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
 
                             if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.phan_loai)) || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.ket_qua)))
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.chu_ky)] = null;
+                                SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan)] = SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan;
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.chu_ky)] = SelectedKhamSucKhoeSanPhuKhoa.chu_ky;
                             }
                         }
                     }
@@ -1159,8 +1190,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tuan_hoan))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan)] = SelectedKhamSucKhoeChuyenKhoa.bs_tuan_hoan;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_tuan_hoan;
                             }
 
                             if (
@@ -1168,8 +1201,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_ho_hap))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap)] = SelectedKhamSucKhoeChuyenKhoa.bs_ho_hap;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_ho_hap;
                             }
 
                             if (
@@ -1177,8 +1212,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tieu_hoa))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa)] = SelectedKhamSucKhoeChuyenKhoa.bs_tieu_hoa;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_tieu_hoa;
                             }
 
                             if (
@@ -1186,8 +1223,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_tiet_nieu))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu)] = SelectedKhamSucKhoeChuyenKhoa.bs_than_tiet_nieu;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_tiet_nieu;
                             }
 
                             if (
@@ -1195,8 +1234,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_noi_tiet))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet)] = SelectedKhamSucKhoeChuyenKhoa.bs_noi_tiet;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_noi_tiet;
                             }
 
                             if (
@@ -1204,8 +1245,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_co_xuong_khop))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop)] = SelectedKhamSucKhoeChuyenKhoa.bs_co_xuong_khop;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_co_xuong_khop;
                             }
 
                             if (
@@ -1213,8 +1256,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_than_kinh))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh)] = SelectedKhamSucKhoeChuyenKhoa.bs_than_kinh;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_than_kinh;
                             }
 
                             if (
@@ -1222,8 +1267,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_nk_tam_than))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tam_than)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_tam_than = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_tam_than)] = SelectedKhamSucKhoeChuyenKhoa.bs_tam_than;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_tam_than;
                             }
 
                             if (
@@ -1233,8 +1280,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.pl_da_lieu))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa)] = SelectedKhamSucKhoeChuyenKhoa.bs_ngoai_khoa;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_ngoai_khoa;
                             }
 
                             if (
@@ -1246,8 +1295,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.thi_luc_co_kinh_trai))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_mat)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_mat = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_mat)] = SelectedKhamSucKhoeChuyenKhoa.bs_mat;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_mat;
                             }
 
                             if (
@@ -1257,8 +1308,10 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeChuyenKhoa.benh_rhm))
                             )
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_rhm)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm)] = CurrentUser?.chu_ky_bac_si;
+                                SelectedKhamSucKhoeChuyenKhoa.bs_rhm = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm = CurrentUser?.chu_ky_bac_si;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.bs_rhm)] = SelectedKhamSucKhoeChuyenKhoa.bs_rhm;
+                                updateFields[nameof(SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm)] = SelectedKhamSucKhoeChuyenKhoa.chu_ky_rhm;
                             }
                         }
                     }
@@ -1388,13 +1441,15 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                                 updateFields[nameof(SelectedKhamSucKhoeKetLuan.id)] = SelectedKhamSucKhoeKetLuan.id;
                             }
 
+                            SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                             updateFields[nameof(SelectedKhamSucKhoeKetLuan.luot_kham)] = SelectedItem.id;
                             updateFields[nameof(SelectedKhamSucKhoeKetLuan.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
-                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.nguoi_ket_luan)] = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                            updateFields[nameof(SelectedKhamSucKhoeKetLuan.nguoi_ket_luan)] = SelectedKhamSucKhoeKetLuan.nguoi_ket_luan;
                             updateFields[nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)] = DateTime.Now;
                             if (CurrentUser != null && CurrentUser.id != Guid.Empty)
                             {
                                 updateFields[nameof(SelectedKhamSucKhoeKetLuan.bs_ket_luan)] = CurrentUser.id;
+                                SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
                             }
                         }
                     }
@@ -1427,7 +1482,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 renderKey++;
                 if (renderKey == int.MaxValue)
                 {
-                    SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
+                    renderKey = 0;
                 }
 
                 dynamicTheLucObj = new ExpandoObject();
@@ -1435,6 +1490,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 dynamicChuyenKhoaObj = new ExpandoObject();
                 dynamicKetLuanObj = new ExpandoObject();
                 dynamicTienSuObj = new ExpandoObject();
+                dynamicKhamCLSObj = new List<dynamic>();
             }
             catch
             {

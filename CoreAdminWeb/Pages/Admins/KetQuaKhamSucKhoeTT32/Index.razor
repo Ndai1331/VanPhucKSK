@@ -103,6 +103,7 @@
                                                                    onReadonly="onReadonly"
                                                                    SelectedKhamSucKhoeTienSu="SelectedKhamSucKhoeTienSu"
                                                                    dynamicObj="dynamicTienSuObj"
+                                                                   dynamicObjOriginal="dynamicTienSuObjOriginal"
                                                                    OnValueChanged="OnValueChanged" />
 
                                                 <div class="space-y-2 md:col-span-2">
@@ -120,6 +121,7 @@
                                                                       OnSoLanMoPhuKhoaChanged="OnSoLanMoPhuKhoaChanged"
                                                                       OnTinhChatKinhChanged="OnTinhChatKinhChanged"
                                                                       dynamicObj="dynamicSanPhuKhoaObj"
+                                                                      dynamicObjOriginal="dynamicSanPhuKhoaObjOriginal"
                                                                       OnValueChanged="OnValueChanged" />
                                                 </div>
                                             </div>
@@ -139,6 +141,7 @@
                                                                     LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                                     PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                                     dynamicObj="dynamicTheLucObj"
+                                                                    dynamicObjOriginal="dynamicTheLucObjOriginal"
                                                                     OnValueChanged="OnValueChanged" />
                                                     </div>
                                                     <div class="space-y-2 md:col-span-2">
@@ -161,6 +164,7 @@
                                                                            LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                                            PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                                            dynamicObj="dynamicChuyenKhoaObj"
+                                                                           dynamicObjOriginal="dynamicChuyenKhoaObjOriginal"
                                                                            OnValueChanged="OnValueChanged" />
                                                 }
 
@@ -174,6 +178,7 @@
                                                                                        LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                                                        PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                                                        dynamicObj="dynamicChuyenKhoaObj"
+                                                                                       dynamicObjOriginal="dynamicChuyenKhoaObjOriginal"
                                                                                        OnValueChanged="OnValueChanged" />
                                                     </div>
                                                 }
@@ -187,6 +192,7 @@
                                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                                                   PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                                                   dynamicObj="dynamicSanPhuKhoaObj"
+                                                                                  dynamicObjOriginal="dynamicSanPhuKhoaObjOriginal"
                                                                                   OnValueChanged="OnValueChanged" />
                                                     </div>
                                                 }
@@ -200,6 +206,7 @@
                                                                            LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                                            PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                                            dynamicObj="dynamicChuyenKhoaObj"
+                                                                           dynamicObjOriginal="dynamicChuyenKhoaObjOriginal"
                                                                            OnValueChanged="OnValueChanged" />
                                                     </div>
                                                 }
@@ -213,6 +220,7 @@
                                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                                                   PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                                                   dynamicObj="dynamicChuyenKhoaObj"
+                                                                                  dynamicObjOriginal="dynamicChuyenKhoaObjOriginal"
                                                                                   OnValueChanged="OnValueChanged" />
                                                     </div>
                                                 }
@@ -226,6 +234,7 @@
                                                                                   LoadPhanLoaiSucKhoeData="LoadPhanLoaiSucKhoeSelect2"
                                                                                   PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                                                   dynamicObj="dynamicChuyenKhoaObj"
+                                                                                  dynamicObjOriginal="dynamicChuyenKhoaObjOriginal"
                                                                                   OnValueChanged="OnValueChanged" />
                                                     </div>
                                                 }
@@ -243,7 +252,8 @@
                                                                     SelectedKhamSucKhoeKetQuaCanLamSangs="SelectedKhamSucKhoeKetQuaCanLamSangs"
                                                                     OnLoadKetQuaCanLamSang="OnLoadKetQuaCanLamSang"
                                                                     OnKhamCLSChanged="OnKhamCLSChanged"
-                                                                    dynamicListObj="dynamicKhamCLSObj" />
+                                                                    dynamicListObj="dynamicKhamCLSObj"
+                                                                    dynamicListObjOriginal="dynamicKhamCLSObjOriginal" />
                                                 </div>
                                                 <div class="space-y-2 md:col-span-2">
                                                     <MudText Typo="Typo.body1" Class="mb-4 font-bold capitalize text-slate-800 dark:text-slate-100">II. KẾT LUẬN</MudText>
@@ -254,6 +264,7 @@
                                                              SelectedKhamSucKhoeKetLuan="SelectedKhamSucKhoeKetLuan"
                                                              PhanLoaiSucKhoes="PhanLoaiSucKhoes"
                                                              dynamicObj="dynamicKetLuanObj"
+                                                             dynamicObjOriginal="dynamicKetLuanObjOriginal"
                                                              OnValueChanged="OnValueChanged"
                                                              Users="Users" />
                                                 </div>
@@ -293,7 +304,7 @@
                                                                     )
                                     {
                                         <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-success border-success hover:bg-success hover:text-white"
-                                                   OnClick="OnValidSubmit">
+                                                   OnClick="() => OnValidSubmit(false)">
                                             <i class="ri-save-line"></i>
                                             Lưu
                                         </MudButton>
@@ -423,15 +434,14 @@
         </div>
     </div>
 }
- 
-@if (openSoKhamSucKhoeModal)
+@if (isShowConfirmModel)
 {
     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
-        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseSoKhamSucKhoeModal">
-            <div class="relative w-full max-w-2xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseConfirmModal">
+            <div class="relative w-full max-w-xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
                 <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
-                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Thông tin danh sách khám sức khỏe</MudText>
-                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseSoKhamSucKhoeModal">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Xác nhận thay đổi thông tin khám sức khỏe</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseConfirmModal">
                         <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
                             <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
@@ -440,7 +450,35 @@
                 </div>
                 <div class="p-5">
                     <div class="text-black dark:text-muted">
-                        <div class="grid grid-cols-1 gap-4 py-3">
+                        <h3>Bạn có chắc chắn muốn lưu các thay đổi thông tin khám sức khỏe này không?</h3>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 mt-2">
+                        <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseConfirmModal">Huỷ</MudButton>
+                        <MudButton OnClick="() => OnValidSubmit(true)" Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white">Xác nhận</MudButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+ 
+@if (openSoKhamSucKhoeModal)
+{
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
+        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseSoKhamSucKhoeModal">
+            <div class="relative w-full max-w-2xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
+                <div class="flex items-center justify-between px-5 py-2 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
+                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Thông tin danh sách khám sức khỏe</MudText>
+                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseSoKhamSucKhoeModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
+                            <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
+                        </svg>
+                    </MudButton>
+                </div>
+                <div class="p-5 py-2">
+                    <div class="text-black dark:text-muted">
+                        <div class="grid grid-cols-1 gap-4 py-2">
                             <div class="space-y-2 ksk">
                                 <div class="overflow-auto">
                                     <table id="example" class="display" style="width:100%">
@@ -461,15 +499,15 @@
                                             @foreach (var item in MainModels.Select((v, i) => new { Data = v, Index = i }))
                                             {
                                                 <tr class="@(item.Data.id == SelectedItem.id ? "active-row" : "")" @onclick="@(async () => await OnRowClick(item.Data.id))">
-                                                    <td>@(((Page - 1) * PageSize) + item.Index + 1)</td>
-                                                    <td>@item.Data.ma_benh_nhan</td>
-                                                    <td>@item.Data.ma_luot_kham</td>
-                                                    <td>@item.Data.benh_nhan?.full_name</td>
-                                                    <td>@item.Data.benh_nhan?.so_dien_thoai</td>
-                                                    <td>@item.Data.benh_nhan?.ngay_sinh?.ToString("dd/MM/yyyy")</td>
-                                                    <td>@item.Data.benh_nhan?.gioi_tinh?.GetDescription()</td>
-                                                    <td>@item.Data.benh_nhan?.so_dinh_danh</td>
-                                                    <td>@item.Data.benh_nhan?.dia_chi</td>
+                                                    <td class="p-3 py-2">@(((Page - 1) * PageSize) + item.Index + 1)</td>
+                                                    <td class="p-3 py-2">@item.Data.ma_benh_nhan</td>
+                                                    <td class="p-3 py-2">@item.Data.ma_luot_kham</td>
+                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.full_name</td>
+                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.so_dien_thoai</td>
+                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.ngay_sinh?.ToString("dd/MM/yyyy")</td>
+                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.gioi_tinh?.GetDescription()</td>
+                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.so_dinh_danh</td>
+                                                    <td class="p-3 py-2">@item.Data.benh_nhan?.dia_chi</td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -479,7 +517,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center justify-end gap-2 py-4">
+                    <div class="flex items-center justify-end gap-2 py-2">
                         <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseSoKhamSucKhoeModal">
                             <i class="ri-close-line"></i>
                             Đóng
