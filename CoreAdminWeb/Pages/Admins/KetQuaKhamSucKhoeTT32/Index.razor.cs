@@ -2083,7 +2083,9 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 if (selectedKqCls != null)
                 {
                     UpdateField(selectedKqCls, dynamicKhamCLSObjOriginal.FirstOrDefault(c => c.type == kqCLS.type), nameof(kqCLS.kq_cls), null, kqCLS.GetType(), kqCLS);
-                    UpdateField(selectedKqCls, dynamicKhamCLSObjOriginal.FirstOrDefault(c => c.type == kqCLS.type), nameof(kqCLS.ket_qua), value, kqCLS.GetType(), kqCLS);
+                    UpdateField(selectedKqCls, dynamicKhamCLSObjOriginal.FirstOrDefault(c => c.type == kqCLS.type), nameof(kqCLS.ket_qua), kqCLS.ket_qua, kqCLS.GetType(), kqCLS);
+
+                    InvokeAsync(StateHasChanged);
                 }
             }
         }
@@ -2303,8 +2305,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             {
                 AlertService.ShowAlert($"Lỗi khi xử lý dữ liệu: {ex.Message}", "danger");
             }
+            finally
+            {
+                InvokeAsync(StateHasChanged);
+            }
         }
-        private static void UpdateField(object dynamicObj, object dynamicOriginal, string fieldName, object? value, Type type, object selected)
+        private void UpdateField(object dynamicObj, object dynamicOriginal, string fieldName, object? value, Type type, object selected)
         {
             var prop = type.GetProperty(fieldName);
             var dict = dynamicObj as IDictionary<string, object>;
@@ -2337,7 +2343,15 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     && Equals(dynamicOriginal.GetPropertyValue(fieldName), selected.GetPropertyValue(fieldName))
                 )
                 {
-                    dict.Remove(fieldName);
+                    if (dynamicOriginal is KhamSucKhoeKetQuaCanLamSangModel && fieldName.Equals(nameof(KhamSucKhoeKetQuaCanLamSangModel.ket_qua)))
+                    {
+                        dynamicKhamCLSObj = dynamicKhamCLSObj.Where(c => c.type != ((dynamic)dynamicObj).type).ToList();
+                    }
+                    else
+                    {
+                        dict.Remove(fieldName);
+                    }
+
                     return;
                 }
                 dict[fieldName] = convertedValue!;
