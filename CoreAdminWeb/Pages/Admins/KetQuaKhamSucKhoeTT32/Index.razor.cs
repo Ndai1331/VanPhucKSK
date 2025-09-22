@@ -892,6 +892,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         SelectedKhamSucKhoeKetLuan.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
                         SelectedKhamSucKhoeKetLuan.chu_ky = CurrentUser?.chu_ky_bac_si;
                         SelectedKhamSucKhoeKetLuan.bs_ket_luan = CurrentUser;
+                        SelectedKhamSucKhoeKetLuan.ngay_ket_luan ??= DateTime.Now;
                     }
 
                     if (SelectedKhamSucKhoeTienSu.id > 0)
@@ -1459,6 +1460,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                             updateFields[nameof(SelectedKhamSucKhoeKetLuan.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
                             updateFields[nameof(SelectedKhamSucKhoeKetLuan.nguoi_ket_luan)] = SelectedKhamSucKhoeKetLuan.nguoi_ket_luan;
                             updateFields[nameof(SelectedKhamSucKhoeKetLuan.ngay_ket_luan)] = SelectedKhamSucKhoeKetLuan.ngay_ket_luan;
+                            SelectedKhamSucKhoeKetLuan.ngay_ket_luan ??= DateTime.Now;
                             if (CurrentUser != null && CurrentUser.id != Guid.Empty)
                             {
                                 updateFields[nameof(SelectedKhamSucKhoeKetLuan.bs_ket_luan)] = CurrentUser.id;

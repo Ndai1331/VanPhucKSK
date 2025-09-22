@@ -7,6 +7,7 @@ using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.KhamSucKhoeApi;
 using CoreAdminWeb.Services.PDFService;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -28,6 +29,7 @@ namespace CoreAdminWeb.Services.Exports
         private readonly IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> _khamSucKhoeKetQuaCanLamSangService;
         private readonly IBaseDetailService<KhamSucKhoeNgheNghiepModel> _khamSucKhoeNgheNghiepService;
         private readonly IBaseDetailService<KhamSucKhoeTienSuModel> _khamSucKhoeTienSuService;
+        private readonly IKhamSucKhoeAPIService<KetQuaCLSChiTietModel> _khamSucKhoeKQCLSDetailService;
         private readonly IPdfService _pdfService;
         public ExportKSKDataService(IServiceScopeFactory serviceScopeFactory, IMemoryCache memoryCache)
         {
@@ -42,6 +44,7 @@ namespace CoreAdminWeb.Services.Exports
                 _khamSucKhoeKetQuaCanLamSangService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel>>();
                 _khamSucKhoeNgheNghiepService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeNgheNghiepModel>>();
                 _khamSucKhoeTienSuService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeTienSuModel>>();
+                _khamSucKhoeKQCLSDetailService = scope.ServiceProvider.GetRequiredService<IKhamSucKhoeAPIService<KetQuaCLSChiTietModel>>();
                 _pdfService = scope.ServiceProvider.GetRequiredService<IPdfService>();
             }
         }
@@ -207,6 +210,7 @@ namespace CoreAdminWeb.Services.Exports
                 List<KhamSucKhoeKetQuaCanLamSangModel>? khamSucKhoeKetQuaCanLamSangs = null;
                 List<KhamSucKhoeNgheNghiepModel>? khamSucKhoeNgheNghieps = null;
                 List<KhamSucKhoeTienSuModel>? khamSucKhoeTienSus = null;
+                List<KetQuaCLSChiTietModel>? ketQuaCLSChiTiets = null;
 
                 // Lấy dữ liệu chính theo batch lớn
                 List<SoKhamSucKhoeModel> soKhamSucKhoes = await BatchQueryAsync(
@@ -224,6 +228,8 @@ namespace CoreAdminWeb.Services.Exports
                     });
                     return;
                 }
+
+                var maLuotKhams = soKhamSucKhoes.Where(c => !string.IsNullOrEmpty(c.ma_luot_kham)).Select(c => c.ma_luot_kham!).ToList();
 
                 // Lấy dữ liệu liên quan song song (nếu cần)
                 if (exportType == HoSoKhamSucKhoeExportType.ConsultationSlip || exportType == HoSoKhamSucKhoeExportType.HealthCheckupBook)
@@ -256,8 +262,12 @@ namespace CoreAdminWeb.Services.Exports
                         ids => _khamSucKhoeTienSuService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
+                    var kqCLSCTTask = BatchQueryAsync(
+                        ids => _khamSucKhoeKQCLSDetailService.GetAllAsync($"KhamSucKhoeKQCLS/get-ket-qua-chi-tiet?{string.Join("&", ids.Select(c => $"maLuotKhams={c}"))}&loaiCLS=4"),
+                        maLuotKhams, batchSize
+                    );
 
-                    await Task.WhenAll(chuyenKhoaTask, sanPhuKhoaTask, ketLuanTask, theLucTask, kqCLSTask, ngheNghiepTask, tienSuTask);
+                    await Task.WhenAll(chuyenKhoaTask, sanPhuKhoaTask, ketLuanTask, theLucTask, kqCLSTask, ngheNghiepTask, tienSuTask, kqCLSCTTask);
 
                     khamSucKhoeChuyenKhoas = chuyenKhoaTask.Result;
                     khamSucKhoeSanPhuKhoas = sanPhuKhoaTask.Result;
@@ -266,6 +276,7 @@ namespace CoreAdminWeb.Services.Exports
                     khamSucKhoeKetQuaCanLamSangs = kqCLSTask.Result;
                     khamSucKhoeNgheNghieps = ngheNghiepTask.Result;
                     khamSucKhoeTienSus = tienSuTask.Result;
+                    ketQuaCLSChiTiets = kqCLSCTTask.Result;
                 }
 
                 // Chuẩn bị thư mục lưu file
@@ -384,61 +395,178 @@ namespace CoreAdminWeb.Services.Exports
                                                     { "<<BMI>>", $"{theLuc?.bmi}" },
                                                     { "<<Mach>>", $"{theLuc?.mach}" },
                                                     { "<<HuyetAp>>", $"{theLuc?.huyet_ap}" },
-                                                    { "<<kq_tuanhoan>>", $"{cls?.kq_nk_tuan_hoan}" },
-                                                    { "<<kq_hohap>>", $"{cls?.kq_nk_ho_hap}" },
-                                                    { "<<kq_tieuhoa>>", $"{cls?.kq_nk_tieu_hoa}" },
-                                                    { "<<kq_noitiet>>", $"{cls?.kq_nk_noi_tiet}" },
-                                                    { "<<kq_thantietnieu>>", $"{cls?.kq_nk_than_tiet_nieu}" },
-                                                    { "<<kq_coxuongkhop>>", $"{cls?.kq_nk_co_xuong_khop}" },
-                                                    { "<<kq_thankinh>>", $"{cls?.kq_nk_than_kinh}" },
-                                                    { "<<kq_ngoaikhoa>>", $"{cls?.kq_ngoai_khoa}" },
-                                                    { "<<kq_taimuihong>>", $"{cls?.benh_tai_mui_hong}" },
-                                                    { "<<kq_dalieu>>", $"{cls?.kq_da_lieu}" },
-                                                    { "<<kq_mat>>", $"{cls?.benh_mat}" },
-                                                    { "<<kq_ranghammat>>", $"{cls?.benh_rhm}" },
-                                                    { "<<kq_tamthan>>", $"{cls?.kq_nk_tam_than}" },
-                                                    { "<<kl_phanloai>>", $"{ketLuan?.phan_loai_suc_khoe?.name}" },
-                                                    { "<<kl_ketluan>>", $"{ketLuan?.benh_tat_ket_luan}" },
-                                                    { "<<kl_denghi>>", $"{ketLuan?.de_nghi}" },
                                                     { "<<MaTaiKhoan>>", $"{item.benh_nhan?.ma_tai_khoan}" },
-                                                    { "<<TenCongTy>>", $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.name}" }
+                                                    { "<<TenCongTy>>", $"{item.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.name}" },
+                                                    { "<<BSKetLuan>>", $"{ketLuan?.nguoi_ket_luan}" },
+                                                    { "<<PhanLoaiSucKhoe>>", $"{ketLuan?.phan_loai_suc_khoe?.name}" },
+                                                    { "<<KetLuan>>", $"{ketLuan?.benh_tat_ket_luan}" },
+                                                    { "<<TuVan>>", $"{ketLuan?.tu_van}" },
+                                                    { "<<NgayKham>>", $"{ketLuan?.ngay_ket_luan:dd}" },
+                                                    { "<<ThangKham>>", $"{ketLuan?.ngay_ket_luan:MM}" },
+                                                    { "<<NamKham>>", $"{ketLuan?.ngay_ket_luan:yyyy}" }
                                                 });
 
+                                                StringBuilder stringBuilder = new StringBuilder();
+                                                if (!string.IsNullOrEmpty(cls?.kq_nk_tuan_hoan) && cls.kq_nk_tuan_hoan != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_nk_tuan_hoan);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.kq_nk_ho_hap) && cls.kq_nk_ho_hap != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_nk_ho_hap);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.kq_nk_tieu_hoa) && cls.kq_nk_tieu_hoa != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_nk_tieu_hoa);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.kq_nk_noi_tiet) && cls.kq_nk_noi_tiet != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_nk_noi_tiet);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.kq_nk_than_tiet_nieu) && cls.kq_nk_than_tiet_nieu != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_nk_than_tiet_nieu);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.kq_nk_co_xuong_khop) && cls.kq_nk_co_xuong_khop != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_nk_co_xuong_khop);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.kq_nk_than_kinh) && cls.kq_nk_than_kinh != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_nk_than_kinh);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.kq_ngoai_khoa) && cls.kq_ngoai_khoa != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_ngoai_khoa);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.benh_tai_mui_hong) && cls.benh_tai_mui_hong != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.benh_tai_mui_hong);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.kq_da_lieu) && cls.kq_da_lieu != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_da_lieu);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.benh_mat) && cls.benh_mat != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.benh_mat);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.benh_rhm) && cls.benh_rhm != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.benh_rhm);
+                                                }
+                                                if (!string.IsNullOrEmpty(cls?.kq_nk_tam_than) && cls.kq_nk_tam_than != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(cls.kq_nk_tam_than);
+                                                }
+                                                if (!string.IsNullOrEmpty(sanPhuKhoa?.ket_qua) && sanPhuKhoa?.ket_qua != setting.ket_qua_ksk_mac_dinh)
+                                                {
+                                                    if (stringBuilder.Length > 0)
+                                                    {
+                                                        stringBuilder.Append("\n");
+                                                    }
+                                                    stringBuilder.Append(sanPhuKhoa?.ket_qua);
+                                                }
                                                 doc.ReplaceText(new Dictionary<string, string>
                                                 {
-                                                    { "<<kq_sanphukhoa>>",$"{sanPhuKhoa?.ket_qua}" }
+                                                    { "<<KhamTongQuat>>",stringBuilder.ToString() }
                                                 });
 
+                                                stringBuilder.Clear();
+                                                var cdhatdcn = kqcls?.FirstOrDefault(c => c.type == KetQuaCanLamSang.CDHATDCN.ToString());
+                                                stringBuilder.AppendLine($"{cdhatdcn?.ket_qua}");
+                                                doc.ReplaceText(new Dictionary<string, string>
+                                                {
+                                                    { "<<KetQuaCDHATDCN>>",stringBuilder.ToString() }
+                                                });
+
+
+                                                List<dynamic> kqxn = new List<dynamic>();
                                                 if (kqcls != null && kqcls.Any())
                                                 {
-                                                    var items_kqcls = kqcls.Select(c => new CanLamSangItem(c.type?.GetDescriptionFromString<KetQuaCanLamSang>() ?? string.Empty, c.ket_qua ?? string.Empty)).ToList();
-                                                    StringBuilder chiDinhFormatted = new StringBuilder();
-                                                    for (int i = 0; i < items_kqcls.Count; i++)
+                                                    var kqxnMau = kqcls.FirstOrDefault(c => c.type == KetQuaCanLamSang.XNCongThucMau.ToString());
+                                                    if (kqxnMau != null && kqxnMau.ket_qua != null)
                                                     {
-                                                        var text = $"{i + 1} - {items_kqcls[i].TenChiDinh}:\n";
-                                                        chiDinhFormatted.AppendLine(text);
-                                                    }
-                                                    StringBuilder ketQuaFormatted = new StringBuilder();
-                                                    for (int i = 0; i < items_kqcls.Count; i++)
-                                                    {
-                                                        var text = $"Kết quả {items_kqcls[i].TenChiDinh} :{items_kqcls[i].KetQua}\n";
-                                                        ketQuaFormatted.AppendLine(text);
+                                                        kqxn.Add(new { TenXetNghiem = "Xét nghiệm công thức máu", KetQua = kqxnMau.ket_qua, ThamChieu = "Bình thường" });
                                                     }
 
-                                                    doc.ReplaceText(new Dictionary<string, string>
+                                                    var kqxnNuocTieu = kqcls.FirstOrDefault(c => c.type == KetQuaCanLamSang.XNNuocTieu.ToString());
+                                                    if (kqxnNuocTieu != null && kqxnNuocTieu.ket_qua != null)
                                                     {
-                                                        { "<<TenChiDinh>>",$"{chiDinhFormatted}" },
-                                                        { "<<kq_canlamsang>>",$"{ketQuaFormatted}" }
-                                                    });
+                                                        kqxn.Add(new { TenXetNghiem = "Xét nghiệm nước tiểu", KetQua = kqxnNuocTieu.ket_qua, ThamChieu = "Bình thường" });
+                                                    }
                                                 }
-                                                else
+
+                                                var kqCLSCTs = ketQuaCLSChiTiets?.Where(x => x.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua_chi_so)).ToList();
+                                                if (kqCLSCTs != null && kqCLSCTs.Any())
                                                 {
-                                                    doc.ReplaceText(new Dictionary<string, string>
+                                                    foreach (var kq in kqCLSCTs)
                                                     {
-                                                        { "<<TenChiDinh>>", "" },
-                                                        { "<<kq_canlamsang>>", "" }
-                                                    });
+                                                        kqxn.Add(new
+                                                        {
+                                                            TenXetNghiem = kq.ten_cls,
+                                                            KetQua = kq.ket_qua_chi_so,
+                                                            ThamChieu = kq.gia_tri
+                                                        });
+                                                    }
                                                 }
+                                                if (!kqxn.Any())
+                                                {
+                                                    kqxn.Add(new { TenXetNghiem = "", KetQua = "", ThamChieu = "" });
+                                                }
+                                                doc.ReplaceTableRowsWithKqxn(kqxn);
                                             }
                                             catch (Exception ex)
                                             {

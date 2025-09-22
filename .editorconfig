@@ -2,3 +2,6 @@
 
 # S101: Types should be named in PascalCase
 dotnet_diagnostic.S101.severity = none
+
+# S3220: Method calls should not resolve ambiguously to overloads with "params"
+dotnet_diagnostic.S3220.severity = none

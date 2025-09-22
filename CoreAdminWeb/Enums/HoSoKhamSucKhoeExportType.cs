@@ -4,7 +4,7 @@ namespace CoreAdminWeb.Enums
 {
     public enum HoSoKhamSucKhoeExportType
     {
-        [Description("Checklist KSK")]
+        [Description("Phiếu khám sức khỏe")]
         CheckListKsk = 1,
         [Description("Sổ KSK - TT32")]
         HealthCheckupBook,

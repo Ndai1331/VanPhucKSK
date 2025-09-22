@@ -280,6 +280,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                     "phan_loai_suc_khoe",
                     "benh_tat_ket_luan",
                     "de_nghi",
+                    "tu_van",
                 };
                 var labels = new List<string>()
                 {
@@ -313,6 +314,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                     "Phân loại sức khỏe",
                     "Các bệnh tật",
                     "Đề nghị",
+                    "Tư vấn",
                 };
 
                 var result = await MainService.GetAllAsync(BuilderQuery);
@@ -351,6 +353,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
                             phan_loai_suc_khoe = item.phan_loai_suc_khoe,
                             benh_tat_ket_luan = item.benh_tat_ket_luan,
                             de_nghi = item.de_nghi,
+                            tu_van = item.tu_van,
                         }
                     ).ToList() ?? new List<dynamic>();
 

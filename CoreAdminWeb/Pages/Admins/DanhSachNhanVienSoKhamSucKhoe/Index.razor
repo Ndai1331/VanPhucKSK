@@ -142,6 +142,7 @@
                             <th>Phân loại sức khỏe</th>
                             <th>Các bệnh tật</th>
                             <th>Đề nghị</th>
+                            <th>Tư vấn</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -294,6 +295,13 @@
                                     @if (item.Data.de_nghi?.Trim().Length > 100)
                                     {
                                         <span @onclick:stopPropagation="true"><MudLink Class="link-primary" OnClick="@(e => showDetail("Đề nghị", item.Data.de_nghi))"> Xem thêm</MudLink></span>
+                                    }
+                                </td>
+                                <td class="wrap-long-content">
+                                    @(item.Data.tu_van?.Trim().Length > 100 ? item.Data.tu_van.Trim().Substring(0, 100) + "…" : item.Data.tu_van?.Trim())
+                                    @if (item.Data.tu_van?.Trim().Length > 100)
+                                    {
+                                        <span @onclick:stopPropagation="true"><MudLink Class="link-primary" OnClick="@(e => showDetail("Tư vấn", item.Data.tu_van))"> Xem thêm</MudLink></span>
                                     }
                                 </td>
                             </tr>

@@ -90,7 +90,7 @@ public class DanhSachDoanController : ControllerBase
                 ck.kq_nk_tuan_hoan, ck.kq_nk_ho_hap, ck.kq_nk_tieu_hoa, ck.kq_nk_than_tiet_nieu, ck.kq_nk_noi_tiet,
                 ck.kq_nk_co_xuong_khop, ck.kq_nk_than_kinh, ck.kq_nk_tam_than, ck.kq_ngoai_khoa,
                 spk.ket_qua, ck.benh_mat, ck.benh_tai_mui_hong, ck.benh_rhm, ck.kq_da_lieu,
-                kl.benh_tat_ket_luan, kl.de_nghi, CONVERT(VARCHAR(10), kl.ngay_ket_luan, 103) ngay_ket_luan, plsk.name as phan_loai_suc_khoe,
+                kl.benh_tat_ket_luan, kl.de_nghi,  kl.tu_van, CONVERT(VARCHAR(10), kl.ngay_ket_luan, 103) ngay_ket_luan, plsk.name as phan_loai_suc_khoe,
                 -- Gộp tất cả kết quả cận lâm sàng thành một cột, phân cách bằng dấu |
                 (SELECT STRING_AGG(
                     CASE 
@@ -224,6 +224,7 @@ public class DanhSachDoanController : ControllerBase
 
                             benh_tat_ket_luan = reader["benh_tat_ket_luan"]?.ToString(),
                             de_nghi = reader["de_nghi"]?.ToString(),
+                            tu_van = reader["tu_van"]?.ToString(),
                             phan_loai_suc_khoe = reader["phan_loai_suc_khoe"]?.ToString(),
                             can_lam_sang_results = reader["can_lam_sang_results"]?.ToString(),
                             ngay_ket_luan = reader["ngay_ket_luan"]?.ToString(),

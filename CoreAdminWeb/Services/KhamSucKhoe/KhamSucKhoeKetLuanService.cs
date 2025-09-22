@@ -98,7 +98,8 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 ma_luot_kham = model.ma_luot_kham,
                 ngay_ket_luan = model.ngay_ket_luan,
                 nguoi_ket_luan = model.nguoi_ket_luan,
-                isAbnormal = model.isAbnormal
+                isAbnormal = model.isAbnormal,
+                tu_van = model.tu_van
             };
         }
 

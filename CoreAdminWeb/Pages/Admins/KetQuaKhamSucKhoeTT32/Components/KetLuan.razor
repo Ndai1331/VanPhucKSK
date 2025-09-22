@@ -50,6 +50,15 @@
               @SelectedKhamSucKhoeKetLuan.de_nghi
     </textarea>
 </div>
+<div class="mb-2">
+    <label class="block text-sm font-normal">Tư vấn:</label>
+    <textarea class="form-input form-textarea w-full border border-gray-300 rounded-md px-3 py-2 @(onReadonly || !onReadonly && !onBSKetLuan ? "" : "read-write") @dynamicObj.GetHighlightClassIfChanged(dynamicObjOriginal, nameof(SelectedKhamSucKhoeKetLuan.tu_van))"
+              rows="5"
+              @onchange="@(e => OnValueChangedHandler(e, nameof(SelectedKhamSucKhoeKetLuan.tu_van), isDate: false, item: SelectedKhamSucKhoeKetLuan))"
+              readonly="@(onReadonly || !onReadonly && !onBSKetLuan)">
+              @SelectedKhamSucKhoeKetLuan.tu_van
+    </textarea>
+</div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center mb-2">
     <div>
         <label class="block text-sm font-normal">Ngày kết luận</label>

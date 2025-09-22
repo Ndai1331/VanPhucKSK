@@ -77,7 +77,8 @@ namespace CoreAdminWeb.Services.Imports
                             PhanLoaiSucKhoe = colCount > 27 ? worksheet.Cells[row, 28].Text : string.Empty,
                             CacLoaiBenhTat = colCount > 28 ? worksheet.Cells[row, 29].Text : string.Empty,
                             DeNghi = colCount > 29 ? worksheet.Cells[row, 30].Text : string.Empty,
-                            NgayKetLuan = colCount > 30 ? worksheet.Cells[row, 31].Text : string.Empty
+                            TuVan = colCount > 30 ? worksheet.Cells[row, 31].Text : string.Empty,
+                            NgayKetLuan = colCount > 31 ? worksheet.Cells[row, 32].Text : string.Empty
                         };
 
                         var validate = ValidateImportData(model);
@@ -204,6 +205,7 @@ namespace CoreAdminWeb.Services.Imports
                     if (existingUserMap.TryGetValue(item.MaLuotKham, out var existingUser))
                     {
                         existingUser.de_nghi = item.DeNghi;
+                        existingUser.tu_van = item.TuVan;
                         existingUser.benh_tat_ket_luan = item.CacLoaiBenhTat;
                         existingUser.phan_loai_suc_khoe = phanLoaiSucKhoes.FirstOrDefault(c => c.name == item.PhanLoaiSucKhoe);
                         existingUser.ngay_ket_luan = ngayKetLuan;
@@ -217,6 +219,7 @@ namespace CoreAdminWeb.Services.Imports
                         {
                             benh_tat_ket_luan = item.CacLoaiBenhTat,
                             de_nghi = item.DeNghi,
+                            tu_van = item.TuVan,
                             ma_luot_kham = item.MaLuotKham,
                             phan_loai_suc_khoe = phanLoaiSucKhoes.FirstOrDefault(c => c.name == item.PhanLoaiSucKhoe),
                             status = Status.draft,

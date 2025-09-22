@@ -20,6 +20,7 @@ using CoreAdminWeb.Services.IDanhSachDoanSoKhamSucKhoeService;
 using CoreAdminWeb.Services.IDashboardService;
 using CoreAdminWeb.Services.Imports;
 using CoreAdminWeb.Services.KhamSucKhoe;
+using CoreAdminWeb.Services.KhamSucKhoeApi;
 using CoreAdminWeb.Services.Menus;
 using CoreAdminWeb.Services.PDFService;
 using CoreAdminWeb.Services.Posts;
@@ -85,6 +86,8 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped(typeof(ImportSoKhamSucKhoeService));
             services.AddScoped(typeof(ImportKetQuaKhamSucKhoeService));
             services.AddScoped(typeof(ExportKSKDataService));
+
+            services.AddScoped<IKhamSucKhoeAPIService<KetQuaCLSChiTietModel>, KhamSucKhoeKQCLSAPIService>();
         }
     }
 }

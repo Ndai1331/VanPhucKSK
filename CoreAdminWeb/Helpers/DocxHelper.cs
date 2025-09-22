@@ -264,6 +264,62 @@ namespace CoreAdminWeb.Helpers
             mp.Document.Save();
         }
 
+        public static void ReplaceTableRowsWithKqxn(this WordprocessingDocument doc, List<dynamic> kqxn)
+        {
+            if (doc.MainDocumentPart == null)
+            {
+                return;
+            }
+
+            var body = doc.MainDocumentPart.Document.Body;
+
+            if (body == null)
+            {
+                return;
+            }
+
+            var table = body.Descendants<Table>()
+                .FirstOrDefault(t => t.InnerText.Contains("<<TenXetNghiem>>"));
+
+            if (table == null)
+            {
+                return;
+            }
+
+            // Find the template row (the one with placeholders)
+            var templateRow = table.Descendants<TableRow>()
+                .FirstOrDefault(r => r.InnerText.Contains("<<TenXetNghiem>>"));
+
+            if (templateRow == null)
+            {
+                return;
+            }
+
+            // Insert new rows for each kqxn item
+            foreach (var item in kqxn)
+            {
+                var newRow = (TableRow)templateRow.CloneNode(true);
+                foreach (var cell in newRow.Descendants<TableCell>())
+                {
+                    var text = cell.InnerText;
+                    cell.RemoveAllChildren<Paragraph>();
+                    var cellPara = new Paragraph();
+                    var innerParaRuner = new Run();
+                    var innerText = new Text(text.Replace("<<TenXetNghiem>>", item.TenXetNghiem)
+                            .Replace("<<KetQua>>", item.KetQua)
+                            .Replace("<<ThamChieu>>", item.ThamChieu));
+                    innerParaRuner.AppendChild(innerText);
+                    cellPara.AppendChild(innerParaRuner);
+
+                    cell.AppendChild(cellPara);
+                }
+                table.InsertBefore(newRow, templateRow);
+            }
+
+            // Remove the template row
+            templateRow.Remove();
+        }
+
         // ===== Utilities =====
 
         // Xây "view" tuyến tính của Paragraph + map ngược về Text element
