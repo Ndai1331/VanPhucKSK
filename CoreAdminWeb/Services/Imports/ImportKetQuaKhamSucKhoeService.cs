@@ -209,7 +209,7 @@ namespace CoreAdminWeb.Services.Imports
                         existingUser.benh_tat_ket_luan = item.CacLoaiBenhTat;
                         existingUser.phan_loai_suc_khoe = phanLoaiSucKhoes.FirstOrDefault(c => c.name == item.PhanLoaiSucKhoe);
                         existingUser.ngay_ket_luan = ngayKetLuan;
-                        existingUser.nguoi_ket_luan = $"{selectedDotKham?.bs_ket_luan?.first_name} {selectedDotKham?.bs_ket_luan?.last_name}";
+                        existingUser.nguoi_ket_luan = $"{selectedDotKham?.bs_ket_luan?.chuc_danh} {selectedDotKham?.bs_ket_luan?.full_name}";
 
                         updatingKLs.Add(existingUser);
                     }
@@ -230,7 +230,7 @@ namespace CoreAdminWeb.Services.Imports
                             deleted = false,
                             luot_kham = selectedSoKham,
                             ngay_ket_luan = ngayKetLuan,
-                            nguoi_ket_luan = $"{selectedDotKham?.bs_ket_luan?.first_name} {selectedDotKham?.bs_ket_luan?.last_name}"
+                            nguoi_ket_luan = $"{selectedDotKham?.bs_ket_luan?.chuc_danh} {selectedDotKham?.bs_ket_luan?.full_name}"
                         });
                     }
 
