@@ -1507,6 +1507,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 dynamicTienSuObj = new ExpandoObject();
                 dynamicKhamCLSObj = new List<dynamic>();
 
+                await LoadDetailData(SelectedItem.id);
+
                 dynamicTheLucObjOriginal = SelectedKhamSucKhoeTheLuc.DeepClone();
                 dynamicSanPhuKhoaObjOriginal = SelectedKhamSucKhoeSanPhuKhoa.DeepClone();
                 dynamicChuyenKhoaObjOriginal = SelectedKhamSucKhoeChuyenKhoa.DeepClone();
