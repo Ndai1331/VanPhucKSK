@@ -14,7 +14,7 @@
 
 <!-- Start Main Content -->
 <div class="bg-white  flex flex-col gap-4 min-h-[calc(100vh-212px)]"
-     tabindex="0"
+     tabindex="0" 
      @onmousemove="@(_ => ResetIdleTimer())"
      @onkeydown="@(_ => ResetIdleTimer())"
      @onclick="@(_ => ResetIdleTimer())"
@@ -28,7 +28,7 @@
                     <p>Bước 1: Nhập mã bệnh nhân vào ô tìm kiếm để tìm hoá đơn điện tử tương ứng</p>
                     <p>Bước 2: Chọn hoá đơn điện tử cần tra cứu và click vào nút Tra Cứu sẽ dẫn qua hệ thống hoá đơn điện tử</p>
                     <p>Bước 3: Nhập <strong>Mã số thuế bên bán</strong>  vào ô MST bên bán </p>
-                    <p>Bước 4: Nhập <strong>Số hoá đơn</strong> vào ô Mã số bí mật</p>
+                    <p>Bước 4: Nhập <strong>Mã số bí mật</strong> vào ô Mã số bí mật</p>
                     <p>Bước 5: Nhấn nút Tìm kiếm từ hệ thống Hoá đơn và xem kết quả</p>
                 </div>
             </div>
@@ -91,7 +91,8 @@
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">STT</MudTh>
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã lượt khám</MudTh>
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã số thuế bên bán</MudTh>
-                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Số hoá đơn (Mã số bí mật)</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Số hoá đơn</MudTh>
+                                    <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã số bí mật</MudTh>
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Ngày hoá đơn</MudTh>
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Mã giao dịch</MudTh>
                                     <MudTh Class="bg-gray-50 dark:bg-gray-700 font-semibold">Tra cứu</MudTh>
@@ -100,7 +101,8 @@
                                     <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
                                     <MudTd DataLabel="Mã lượt khám">@context.ma_luot_kham</MudTd>
                                     <MudTd DataLabel="Mã số thuế bên bán">@context.ma_so_thue</MudTd>
-                                    <MudTd DataLabel="Số hoá đơn (Mã số bí mật)">@context.so_hoa_don</MudTd>
+                                    <MudTd DataLabel="Số hoá đơn">@context.so_hoa_don</MudTd>
+                                    <MudTd DataLabel="Mã số bí mật">@context.ma_hoa_don</MudTd>
                                     <MudTd DataLabel="Ngày hoá đơn">@context.ngay_hoa_don?.ToString("dd/MM/yyyy")</MudTd>
                                     <MudTd DataLabel="Mã giao dịch">@context.ma_giao_dich</MudTd>
                                     <MudTd DataLabel="Thao tác">
