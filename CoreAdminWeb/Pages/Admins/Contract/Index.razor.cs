@@ -4,6 +4,7 @@ using CoreAdminWeb.Helpers;
 using CoreAdminWeb.Model;
 using CoreAdminWeb.Model.Contract;
 using CoreAdminWeb.Model.User;
+using CoreAdminWeb.Services;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.Contract;
 using CoreAdminWeb.Services.Files;
@@ -23,7 +24,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         IBaseService<ContractTypeModel> ContractTypeService,
         IBaseService<DinhMucModel> DinhMucService,
         IFileService _fileService,
-        IUserService UserService
+        IUserService UserService,
+        IExportExcelService<dynamic> ExportExcelService
     ) : BlazorCoreBase
     {
         private List<TrangThaiHopDong> TrangThaiHopDongList { get; set; } = Enum.GetValues(typeof(TrangThaiHopDong)).Cast<TrangThaiHopDong>().ToList();
@@ -1067,5 +1069,72 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         }
 
         #endregion
+
+        private async Task OnExcelExport()
+        {
+            try
+            {
+                Loading.Show();
+
+                var fields = new List<string>()
+                {
+                    "stt",
+                    "dinh_muc",
+                    "so_luong",
+                    "don_gia_tt",
+                    "thanh_tien_tt",
+                    "don_gia_dm",
+                    "thanh_tien_dm",
+                    "chi_phi_thuc_te",
+                    "description",
+                };
+                var labels = new List<string>()
+                {
+                    "STT",
+                    "Tên định mức",
+                    "Số lượng",
+                    "Đơn giá TT (VNĐ)",
+                    "Thành tiền TT (VNĐ)",
+                    "Đơn giá ĐM (VNĐ)",
+                    "Thành tiền ĐM (VNĐ)",
+                    "Chi phí thực tế",
+                    "Ghi chú",
+                };
+                var sumFields = new List<string>() {
+                    "so_luong",
+                    "thanh_tien_tt",
+                    "thanh_tien_dm",
+                    "chi_phi_thuc_te"
+                };
+
+                var prepareData = SelectedItemsDetail?.Select(item =>
+                    (dynamic)new
+                    {
+                        stt = SelectedItemsDetail.IndexOf(item) + 1,
+                        dinh_muc = $"{item.MaDinhMuc?.name}{(item.MaDinhMuc?.DonGia != null ? " - " + FormatCurrency(item.MaDinhMuc?.DonGia) : "")}",
+                        item.so_luong,
+                        item.don_gia_tt,
+                        item.thanh_tien_tt,
+                        item.don_gia_dm,
+                        item.thanh_tien_dm,
+                        item.chi_phi_thuc_te,
+                        item.description,
+                    }
+                ).ToList() ?? new List<dynamic>();
+
+                var fileBytes = await ExportExcelService.ExportToExcelAsync(prepareData, fields, labels, sumFields: sumFields);
+
+                var fileName = $"{"ChiTietDinhMuc"}_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                await JsRuntime.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+            }
+            catch
+            {
+                AlertService.ShowAlert("Lỗi khi xuất excel", "danger");
+            }
+            finally
+            {
+                Loading.Hide();
+            }
+        }
     }
 }
