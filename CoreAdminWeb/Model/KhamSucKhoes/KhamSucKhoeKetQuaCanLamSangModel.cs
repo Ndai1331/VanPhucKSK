@@ -7,7 +7,7 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public string? ket_qua { get; set; }
         public string? type { get; set; }
 
-        public new DateTime? date_created { get; set; }
+        public new DateTime? date_created { get; set; } = DateTime.Now;
 
         public KhamSucKhoeCanLamSangModel? ket_qua_cls { get; set; }
         public KetQuaCanLamSangModel? kq_cls { get; set; }
