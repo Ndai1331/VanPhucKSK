@@ -3,7 +3,7 @@
 @using CoreAdminWeb.Model
 @using CoreAdminWeb.Model.KhamSucKhoes
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-    @foreach (var kqcls in SelectedKhamSucKhoeKetQuaCanLamSangs)
+    @foreach (var kqcls in SelectedKhamSucKhoeKetQuaCanLamSangs.OrderBy(c => c.sort))
     {
         object? dynamicObj = dynamicListObj?.FirstOrDefault(c => ((dynamic)c).type == kqcls.type);
         object? dynamicObjOriginal = dynamicListObjOriginal?.FirstOrDefault(c => ((dynamic)c).type == kqcls.type);

@@ -382,7 +382,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeTienSuService, query, r => SelectedKhamSucKhoeTienSu = r ?? new KhamSucKhoeTienSuModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeCongTyService, $"filter[_and][][id][_eq]={SelectedItem.MaDotKham?.id}", r => SelectedKhamSucKhoeCongTy = r ?? new KhamSucKhoeCongTyModel()),
                     BaseServiceHelper.LoadSingleRecordAsync(KhamSucKhoeNgheNghiepService, query, r => SelectedKhamSucKhoeNgheNghiep = r ?? new KhamSucKhoeNgheNghiepModel()),
-                    BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, $"filter[_and][][luot_kham][_eq]={SelectedItem.id}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KhamSucKhoeKetQuaCanLamSangModel>()),
+                    BaseServiceHelper.LoadMultipleRecordAsync(KhamSucKhoeKetQuaCanLamSangService, $"filter[_and][][ma_luot_kham][_eq]={SelectedItem.ma_luot_kham}", r => SelectedKhamSucKhoeKetQuaCanLamSangs = r ?? new List<KhamSucKhoeKetQuaCanLamSangModel>()),
                 };
 
                 await Task.WhenAll(tasks);
@@ -392,15 +392,25 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     SelectedItem.nguoi_lap = SelectedKhamSucKhoeCongTy.nguoi_lap_so?.full_name;
                 }
 
-                if (!SelectedKhamSucKhoeKetQuaCanLamSangs.Any())
-                {
-                    SelectedKhamSucKhoeKetQuaCanLamSangs = new List<KhamSucKhoeKetQuaCanLamSangModel>
+                var ketQuas = new List<KhamSucKhoeKetQuaCanLamSangModel>
                     {
                         new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.CDHATDCN.ToString(), sort = 0 },
                         new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNCongThucMau.ToString(), sort = 1 },
                         new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNNuocTieu.ToString(), sort = 2 },
                         new KhamSucKhoeKetQuaCanLamSangModel { type = KetQuaCanLamSang.XNKhac.ToString(), sort = 3 }
                     };
+
+                foreach (var item in ketQuas)
+                {
+                    var existing = SelectedKhamSucKhoeKetQuaCanLamSangs.FirstOrDefault(c => c.type == item.type);
+                    if (existing == null)
+                    {
+                        SelectedKhamSucKhoeKetQuaCanLamSangs.Add(item);
+                    }
+                    else
+                    {
+                        existing.sort = item.sort;
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(SelectedKhamSucKhoeSanPhuKhoa.para))
