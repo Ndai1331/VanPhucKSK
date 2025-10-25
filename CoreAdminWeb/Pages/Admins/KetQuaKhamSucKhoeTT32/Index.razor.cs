@@ -421,6 +421,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     {
                         paraSplit = SelectedKhamSucKhoeSanPhuKhoa.para.SplitStringByTwoChars();
                     }
+
                     para1 = paraSplit.Length > 0 ? paraSplit[0].Trim() : string.Empty;
                     para2 = paraSplit.Length > 1 ? paraSplit[1].Trim() : string.Empty;
                     para3 = paraSplit.Length > 2 ? paraSplit[2].Trim() : string.Empty;
