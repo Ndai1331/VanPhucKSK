@@ -982,18 +982,21 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         }
                     }
 
-                    if (SelectedKhamSucKhoeKetQuaCanLamSangs.Any(c => c.id > 0))
+                    var updateCls = SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => c.id > 0);
+                    var addCls = SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => c.id == 0 && !string.IsNullOrEmpty(c.ket_qua));
+
+                    if (updateCls != null && updateCls.Count() > 0)
                     {
-                        var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs.Cast<dynamic>().ToList());
+                        var result = await KhamSucKhoeKetQuaCanLamSangService.UpdateAsync(updateCls.Cast<dynamic>().ToList());
                         if (result == null || !result.IsSuccess)
                         {
                             AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
                             return;
                         }
                     }
-                    else
+                    if (addCls != null && addCls.Count() > 0)
                     {
-                        var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(SelectedKhamSucKhoeKetQuaCanLamSangs.Cast<dynamic>().ToList());
+                        var result = await KhamSucKhoeKetQuaCanLamSangService.CreateAsync(addCls.Cast<dynamic>().ToList());
                         if (result == null || !result.IsSuccess)
                         {
                             AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu khám cận lâm sàng!", "danger");
