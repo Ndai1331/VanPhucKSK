@@ -88,6 +88,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
                 ket_qua_cls = model.ket_qua_cls?.id,
                 kq_cls = model.kq_cls?.id,
                 type = model.type,
+                ma_luot_kham = model.ma_luot_kham,
             };
         }
 
@@ -113,7 +114,7 @@ namespace CoreAdminWeb.Services.KhamSucKhoe
 
             try
             {
-                await _httpClientService.DeleteAPIAsync<List<KhamSucKhoeKetQuaCanLamSangModel>>($"items/{_collection}?filter[luot_kham][_eq]={model.FirstOrDefault()?.luot_kham?.id}&force=true");
+                await _httpClientService.DeleteAPIAsync<List<KhamSucKhoeKetQuaCanLamSangModel>>($"items/{_collection}?filter[ma_luot_kham][_eq]={model.FirstOrDefault()?.ma_luot_kham}&filter[type][_in]={string.Join(",", model.Select(c => c.type))}&force=true");
 
                 var createModel = model.Select(c => MapToCRUDModel(c)).ToList();
                 var response = await _httpClientService.PostAPIAsync<RequestHttpResponse<List<KhamSucKhoeKetQuaCanLamSangModel>>>($"items/{_collection}?fields={Fields}", createModel);

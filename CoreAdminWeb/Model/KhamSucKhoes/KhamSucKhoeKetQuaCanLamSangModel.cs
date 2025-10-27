@@ -4,6 +4,7 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
 {
     public class KhamSucKhoeKetQuaCanLamSangModel : BaseModel<int>
     {
+        public string? ma_luot_kham { get; set; }
         public string? ket_qua { get; set; }
         public string? type { get; set; }
 
@@ -19,6 +20,7 @@ namespace CoreAdminWeb.Model.KhamSucKhoes
         public bool? deleted { get; set; } = false;
         public int? sort { get; set; } = 0;
         public string status { set; get; } = Status.published.ToString();
+        public string? ma_luot_kham { get; set; }
         public string? ket_qua { get; set; }
         public string? type { get; set; }
 

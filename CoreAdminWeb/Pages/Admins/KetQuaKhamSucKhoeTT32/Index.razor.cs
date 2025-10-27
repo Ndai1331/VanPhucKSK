@@ -887,6 +887,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     SelectedKhamSucKhoeKetQuaCanLamSangs = SelectedKhamSucKhoeKetQuaCanLamSangs.Select(c =>
                             {
                                 c.luot_kham = SelectedItem;
+                                c.ma_luot_kham = SelectedItem.ma_luot_kham;
 
                                 return c;
                             }).ToList();
@@ -982,8 +983,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         }
                     }
 
-                    var updateCls = SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => c.id > 0);
-                    var addCls = SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => c.id == 0 && !string.IsNullOrEmpty(c.ket_qua));
+                    var updateCls = SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => c.id > 0).ToList();
+                    var addCls = SelectedKhamSucKhoeKetQuaCanLamSangs.Where(c => c.id == 0 && !string.IsNullOrEmpty(c.ket_qua)).ToList();
 
                     if (updateCls != null && updateCls.Count() > 0)
                     {
