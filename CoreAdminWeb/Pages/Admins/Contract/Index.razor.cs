@@ -282,7 +282,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             openDetailDeleteModal = true;
         }
 
-        private void OnDetailDelete()
+        private async Task OnDetailDelete()
         {
             if (SelectedItemDetail == null)
             {
@@ -300,8 +300,6 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
             SelectedItemDetail = default;
 
-            openDetailDeleteModal = false;
-
             if (!SelectedItemsDetail.Any(c => c.deleted == null || c.deleted == false))
             {
                 SelectedItemsDetail.Add(new ContractDinhMucModel()
@@ -313,7 +311,9 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 });
             }
 
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
+
+            openDetailDeleteModal = false;
         }
 
         private void CloseDetailDeleteModal()
@@ -1107,10 +1107,11 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                     "chi_phi_thuc_te"
                 };
 
-                var prepareData = SelectedItemsDetail?.Select(item =>
+                var selectedItems = SelectedItemsDetail.Where(c => c.deleted == null || c.deleted == false).ToList() ?? new List<ContractDinhMucModel>();
+                var prepareData = selectedItems.Select(item =>
                     (dynamic)new
                     {
-                        stt = SelectedItemsDetail.IndexOf(item) + 1,
+                        stt = selectedItems.IndexOf(item) + 1,
                         dinh_muc = $"{item.MaDinhMuc?.name}{(item.MaDinhMuc?.DonGia != null ? " - " + FormatCurrency(item.MaDinhMuc?.DonGia) : "")}",
                         item.so_luong,
                         item.don_gia_tt,
