@@ -100,9 +100,9 @@
                                 <RowTemplate>
                                     <MudTd DataLabel="STT">@(MainModels.IndexOf(context) + 1)</MudTd>
                                     <MudTd DataLabel="Mã lượt khám">@context.ma_luot_kham</MudTd>
-                                    <MudTd DataLabel="Mã số thuế bên bán">@context.ma_so_thue</MudTd>
+                                    <MudTd DataLabel="Mã số thuế bên bán" @onclick="() => CopyToClipboard(context.ma_so_thue)">@context.ma_so_thue</MudTd>
                                     <MudTd DataLabel="Số hoá đơn">@context.so_hoa_don</MudTd>
-                                    <MudTd DataLabel="Mã số bí mật">@context.ma_hoa_don</MudTd>
+                                    <MudTd DataLabel="Mã số bí mật" @onclick="() => CopyToClipboard(context.ma_hoa_don)">@context.ma_hoa_don</MudTd>
                                     <MudTd DataLabel="Ngày hoá đơn">@context.ngay_hoa_don?.ToString("dd/MM/yyyy")</MudTd>
                                     <MudTd DataLabel="Mã giao dịch">@context.ma_giao_dich</MudTd>
                                     <MudTd DataLabel="Thao tác">
@@ -296,6 +296,25 @@
         }
         _idleTimer.Stop();
         _idleTimer.Start();
+    }
+
+    private async Task CopyToClipboard(string? text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            AlertService.ShowAlert("Không có nội dung để sao chép", "warning");
+            return;
+        }
+
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+            AlertService.ShowAlert("Đã sao chép vào clipboard", "success");
+        }
+        catch
+        {
+            AlertService.ShowAlert("Không thể sao chép vào clipboard", "danger");
+        }
     }
 
     public void Dispose()
