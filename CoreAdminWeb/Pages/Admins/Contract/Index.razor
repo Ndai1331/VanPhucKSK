@@ -433,6 +433,7 @@
                                                                         <th class="flex items-center gap-2">Tác vụ</th>
                                                                     </tr>
                                                                 </thead>
+
                                                                 <tbody>
                                                                     @foreach (var item in SelectedItemsDetail.Where(c => c.deleted == null || c.deleted == false).Select((v, i) => new { Data = v, Index = i }))
                                                                     {
