@@ -125,6 +125,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private List<UserModel> Users { get; set; } = new();
         private string currentFilterPhanLoaiSucKhoe { get; set; } = string.Empty;
 
+        
+        
         private int renderKey { get; set; } = 0;
 
         private dynamic dynamicTheLucObj = new ExpandoObject();
