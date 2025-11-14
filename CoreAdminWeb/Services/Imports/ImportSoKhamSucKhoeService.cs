@@ -58,10 +58,21 @@ namespace CoreAdminWeb.Services.Imports
                     rowCount = worksheet.Dimension.Rows;
                     colCount = worksheet.Dimension.Columns;
 
-                    result = new List<ImportDoanKhamModel>(rowCount - 2);
+                    int startRow = 3;
+                    for (int r = 3; r <= rowCount; r++)
+                    {
+                        var cellText = worksheet.Cells[r, 2].Text?.Trim();
+                        if (!string.IsNullOrEmpty(cellText) && int.TryParse(cellText, out _))
+                        {
+                            startRow = r;
+                            break;
+                        }
+                    }
+
+                    result = new List<ImportDoanKhamModel>(Math.Max(0, rowCount - startRow + 1));
 
                     // Đọc dữ liệu theo batch để giảm memory pressure
-                    for (int row = 3; row <= rowCount; row++)
+                    for (int row = startRow; row <= rowCount; row++)
                     {
                         bool isEmptyRow = true;
                         for (int col = 1; col <= colCount; col++)
@@ -115,7 +126,9 @@ namespace CoreAdminWeb.Services.Imports
                         }
                         result.Add(model);
 
-                        int nextPercent = (int)Math.Round((double)(row - 2) * 100 / (rowCount - 2));
+                        int totalDataRows = Math.Max(1, rowCount - startRow + 1);
+                        int processedIndex = row - startRow + 1;
+                        int nextPercent = (int)Math.Round((double)processedIndex * 100 / totalDataRows);
                         if (nextPercent != percent)
                         {
                             percent = nextPercent;
