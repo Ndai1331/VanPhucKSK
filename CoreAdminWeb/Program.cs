@@ -1,6 +1,7 @@
 using Blazored.LocalStorage;
 using CoreAdminWeb.Commons;
 using CoreAdminWeb.DIInjections;
+using CoreAdminWeb.Extensions;
 using CoreAdminWeb.Http;
 using CoreAdminWeb.Model.Configuration;
 using CoreAdminWeb.Models;
@@ -118,7 +119,7 @@ builder.Services.AddResponseCompression(options =>
 builder.Services
     .AddControllers();
 
-
+builder.Services.AddLibreOfficeUnoConversion();
 
 var app = builder.Build();
 

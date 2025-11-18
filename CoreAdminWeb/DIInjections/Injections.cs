@@ -51,6 +51,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseGetService<PostModel>, PostService>();
             services.AddScoped<IBaseGetService<HoaDonDienTuModel>, ElectronicInvoiceService>();
             services.AddScoped<IBaseGetService<KetQuaCanLamSangModel>, KetQuaCanLamSangService>();
+            services.AddScoped<IBaseGetService<KetQuaCanLamSangFileModel>, KetQuaCanLamSangFileService>();
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IBaseService<LoaiDinhMucModel>, LoaiDinhMucService>();
             services.AddScoped<IBaseService<DinhMucModel>, DinhMucService>();
