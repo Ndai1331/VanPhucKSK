@@ -9,6 +9,7 @@ services:
       - DrCoreApi__BaseUrl=https://core.benhvien199.vn/
       - DrCoreApi__BaseUrlImage=http://localhost:8056/
       - LocalApi__BaseUrl=http://localhost:8056/api/
+      - LibreOffice__SofficePath=soffice
     restart: unless-stopped
     networks:
       - drcore-network
