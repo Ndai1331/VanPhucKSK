@@ -304,6 +304,18 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 {
                     BuilderQuery += $"&congTy={_selectedCongTyFilter.id}";
                 }
+                if (!string.IsNullOrEmpty(_searchMaDieuTriString))
+                {
+                    BuilderQuery += $"&maDieuTri={_searchMaDieuTriString}";
+                }
+                if (_searchFromNumber.HasValue)
+                {
+                    BuilderQuery += $"&fromNumber={_searchFromNumber}";
+                }
+                if (_searchToNumber.HasValue)
+                {
+                    BuilderQuery += $"&toNumber={_searchToNumber}";
+                }
                 if (_selectedKhamSucKhoeCongTyFilter != null)
                 {
                     BuilderQuery += $"&maDotKham={_selectedKhamSucKhoeCongTyFilter.id}";
@@ -507,6 +519,7 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
         }
         private async Task ExportFileSubmit()
         {
+            isDisabledExport = true;
             List<int> ids = selectedSoKhamSucKhoes.Where(c => c.id.HasValue).Select(c => c.id ?? 0).Distinct().ToList();
 
             bool isAllRowsActuallySelected = MainModels != null && MainModels.Count > 0 &&
@@ -515,6 +528,9 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
 
             if (isAllRowsActuallySelected)
             {
+                exportProcessingMessage = "Đang chuẩn bị dữ liệu...";
+                await InvokeAsync(StateHasChanged);
+
                 BuilderQuery = $"DanhSachDoan/medical-data?limit={int.MaxValue}&offset=0";
 
                 if (_fromDate.HasValue)
@@ -528,6 +544,18 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachDoanSoKhamSucKhoe
                 if (_selectedCongTyFilter != null)
                 {
                     BuilderQuery += $"&congTy={_selectedCongTyFilter.id}";
+                }
+                if (!string.IsNullOrEmpty(_searchMaDieuTriString))
+                {
+                    BuilderQuery += $"&maDieuTri={_searchMaDieuTriString}";
+                }
+                if (_searchFromNumber.HasValue)
+                {
+                    BuilderQuery += $"&fromNumber={_searchFromNumber}";
+                }
+                if (_searchToNumber.HasValue)
+                {
+                    BuilderQuery += $"&toNumber={_searchToNumber}";
                 }
                 if (_selectedKhamSucKhoeCongTyFilter != null)
                 {

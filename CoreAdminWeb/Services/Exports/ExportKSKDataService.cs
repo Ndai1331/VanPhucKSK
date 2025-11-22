@@ -219,192 +219,91 @@ namespace CoreAdminWeb.Services.Exports
                         break;
 
                     case HoSoKhamSucKhoeExportType.MedicalExamination:
-                        decimal processPercent = 0;
-                        await updateProgress.Invoke(new ProcessingModel()
                         {
-                            ProcessId = connectionId,
-                            Status = TrangThaiXuLyNen.Processing,
-                            Value = $"Đang xuất dữ liệu {processPercent}%"
-                        });
-
-                        foreach (var batch in prepareData.SoKhamSucKhoes.Chunk(batchSize))
-                        {
-                            var batchList = batch.ToList();
-                            var tasks = batchList.Select(async item =>
+                            decimal processPercent = 0;
+                            await updateProgress.Invoke(new ProcessingModel()
                             {
-                                if (cancellationToken.IsCancellationRequested)
-                                {
-                                    await updateProgress.Invoke(new ProcessingModel()
-                                    {
-                                        ProcessId = connectionId,
-                                        Status = TrangThaiXuLyNen.Error,
-                                        Value = "Xuất dữ liệu đã bị hủy."
-                                    });
-                                    return;
-                                }
+                                ProcessId = connectionId,
+                                Status = TrangThaiXuLyNen.Processing,
+                                Value = $"Đang xuất dữ liệu {processPercent}%"
+                            });
 
-                                var usingDocTemplate = item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? prepareTemplate.FemaleDocument : prepareTemplate.MaleDocument;
-                                if (usingDocTemplate == null)
-                                {
-                                    await updateProgress.Invoke(new ProcessingModel()
-                                    {
-                                        ProcessId = connectionId,
-                                        Status = TrangThaiXuLyNen.Error,
-                                        Value = $"Không tìm thấy mẫu xuất cho giới tính {item.benh_nhan?.gioi_tinh?.GetDescription()}."
-                                    });
-                                    return;
-                                }
-
-                                // Khởi tạo file PDF từ template HTML trước
-                                string filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf".ToUnsign(spaceReplacement: "-");
-                                var pdfBytes = await ProcessingHtmlData(prepareTemplate.TemplateContent, filename, item, prepareData);
-
-                                // Tạo file tạm cho mẫu Word
-                                var tempTemplatePath = Path.Combine(Path.GetTempPath(), $"{item.ma_luot_kham}_temp.docx");
-                                await File.WriteAllBytesAsync(tempTemplatePath, usingDocTemplate, cancellationToken);
-
-                                // Xử lý file Word
-                                using (var doc = WordprocessingDocument.Open(tempTemplatePath, true))
-                                {
-                                    var consultationSlipResult = await ProcessingConsultationSlipDocumentReplacement(doc, item, setting, prepareData, connectionId, updateProgress, cancellationToken);
-                                    if (!consultationSlipResult)
-                                        return;
-                                }
-
-                                // Chuyển Word đã điền dữ liệu sang PDF
-                                var pdfContent = await _docxToPdfConverter.ConvertFileAsync(tempTemplatePath, cancellationToken);
-                                if (File.Exists(tempTemplatePath))
-                                {
-                                    File.Delete(tempTemplatePath);
-                                }
-
-                                // --- New: merge generated pdfBytes with pdfContent from Word export ---
-                                if (pdfContent != null && pdfContent.Length > 0)
+                            var maxParallel = Math.Clamp(Environment.ProcessorCount / 2, 2, 6);
+                            using var semaphore = new SemaphoreSlim(maxParallel, maxParallel);
+                            var tasks = new List<Task>(prepareData.SoKhamSucKhoes.Count);
+                            foreach (var item in prepareData.SoKhamSucKhoes)
+                            {
+                                await semaphore.WaitAsync(cancellationToken);
+                                var t = Task.Run(async () =>
                                 {
                                     try
                                     {
-                                        using var mergedDoc = new PdfDocument();
-                                        // Append original generated PDF first
-                                        using (var msMain = new MemoryStream(pdfBytes))
+                                        if (cancellationToken.IsCancellationRequested)
                                         {
-                                            var mainDoc = PdfReader.Open(msMain, PdfDocumentOpenMode.Import);
-                                            for (int p = 0; p < mainDoc.PageCount; p++)
+                                            await updateProgress.Invoke(new ProcessingModel()
                                             {
-                                                mergedDoc.AddPage(mainDoc.Pages[p]);
-                                            }
+                                                ProcessId = connectionId,
+                                                Status = TrangThaiXuLyNen.Error,
+                                                Value = "Xuất dữ liệu đã bị hủy."
+                                            });
+                                            return;
                                         }
 
-                                        // Only try to import if bytes look like a PDF (starts with %PDF)
-                                        if (pdfContent.Length >= 4 && pdfContent[0] == '%' && pdfContent[1] == 'P' && pdfContent[2] == 'D' && pdfContent[3] == 'F')
+                                        var usingDocTemplate = item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? prepareTemplate.FemaleDocument : prepareTemplate.MaleDocument;
+                                        if (usingDocTemplate == null)
                                         {
-                                            using var msExtra = new MemoryStream(pdfContent);
+                                            await updateProgress.Invoke(new ProcessingModel()
+                                            {
+                                                ProcessId = connectionId,
+                                                Status = TrangThaiXuLyNen.Error,
+                                                Value = $"Không tìm thấy mẫu xuất cho giới tính {item.benh_nhan?.gioi_tinh?.GetDescription()}."
+                                            });
+                                            return;
+                                        }
+
+                                        // Khởi tạo file PDF từ template HTML trước
+                                        string filename = $"{item.benh_nhan?.full_name}_{item.ma_luot_kham}_{exportType.GetDescription()}_{(item.benh_nhan?.gioi_tinh == GioiTinh.Nam ? "Nam" : "Nu")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf".ToUnsign(spaceReplacement: "-");
+                                        var pdfBytes = await ProcessingHtmlData(prepareTemplate.TemplateContent, filename, item, prepareData);
+
+                                        // Tạo file tạm cho mẫu Word
+                                        var tempTemplatePath = Path.Combine(Path.GetTempPath(), $"{item.ma_luot_kham}_temp.docx");
+                                        await File.WriteAllBytesAsync(tempTemplatePath, usingDocTemplate, cancellationToken);
+
+                                        // Xử lý file Word
+                                        using (var doc = WordprocessingDocument.Open(tempTemplatePath, true))
+                                        {
+                                            var consultationSlipResult = await ProcessingConsultationSlipDocumentReplacement(doc, item, setting, prepareData, connectionId, updateProgress, cancellationToken);
+                                            if (!consultationSlipResult)
+                                                return;
+                                        }
+
+                                        // Chuyển Word đã điền dữ liệu sang PDF
+                                        var pdfContent = await _docxToPdfConverter.ConvertFileAsync(tempTemplatePath, cancellationToken);
+                                        if (File.Exists(tempTemplatePath))
+                                        {
+                                            File.Delete(tempTemplatePath);
+                                        }
+
+                                        // --- New: merge generated pdfBytes with pdfContent from Word export ---
+                                        if (pdfContent != null && pdfContent.Length > 0)
+                                        {
                                             try
                                             {
-                                                var extraDoc = PdfReader.Open(msExtra, PdfDocumentOpenMode.Import);
-                                                for (int p = 0; p < extraDoc.PageCount; p++)
+                                                using var mergedDoc = new PdfDocument();
+                                                // Append original generated PDF first
+                                                using (var msMain = new MemoryStream(pdfBytes))
                                                 {
-                                                    mergedDoc.AddPage(extraDoc.Pages[p]);
-                                                }
-                                            }
-                                            catch
-                                            {
-                                                // skip corrupt/unreadable PDF
-                                            }
-                                        }
-
-                                        // Save merged PDF back to pdfBytes
-                                        using var outMs = new MemoryStream();
-                                        mergedDoc.Save(outMs);
-                                        pdfBytes = outMs.ToArray();
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // Log or ignore and continue with original pdfBytes
-                                        Console.WriteLine($"Warning: failed to merge related PDFs for {item.ma_luot_kham}: {ex.Message}");
-                                    }
-                                }
-
-                                // --- New: download related PDF files from ketQuaCLSFiles and merge into generated pdfBytes ---
-                                var matchingFiles = new List<KetQuaCanLamSangFileModel>();
-                                if (!string.IsNullOrEmpty(item.ma_luot_kham))
-                                {
-                                    matchingFiles = prepareData.KetQuaCLSFiles?
-                                        .Where(f => !string.IsNullOrEmpty(f.url_file) && f.url_file!.Contains(item.ma_luot_kham!))
-                                        .ToList();
-                                }
-                                if (matchingFiles != null && matchingFiles.Any())
-                                {
-                                    try
-                                    {
-                                        using var mergedDoc = new PdfDocument();
-                                        // Append original generated PDF first
-                                        using (var msMain = new MemoryStream(pdfBytes))
-                                        {
-                                            var mainDoc = PdfReader.Open(msMain, PdfDocumentOpenMode.Import);
-                                            for (int p = 0; p < mainDoc.PageCount; p++)
-                                            {
-                                                mergedDoc.AddPage(mainDoc.Pages[p]);
-                                            }
-                                        }
-
-                                        using var httpClient = new HttpClient();
-                                        foreach (var fileModel in matchingFiles)
-                                        {
-                                            if (string.IsNullOrEmpty(fileModel.url_file)) continue;
-
-                                            byte[] fileBytes = null!;
-                                            var fileUrl = fileModel.url_file!.Trim();
-
-                                            // data URI?
-                                            if (fileUrl.StartsWith("data:application/pdf;base64", StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                var idx = fileUrl.IndexOf("base64,", StringComparison.OrdinalIgnoreCase);
-                                                if (idx >= 0)
-                                                {
-                                                    var b64 = fileUrl.Substring(idx + 7);
-                                                    fileBytes = Convert.FromBase64String(b64);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                // Build absolute url if relative
-                                                string fullUrl = fileUrl;
-                                                if (!Uri.IsWellFormedUriString(fullUrl, UriKind.Absolute))
-                                                {
-                                                    try
+                                                    var mainDoc = PdfReader.Open(msMain, PdfDocumentOpenMode.Import);
+                                                    for (int p = 0; p < mainDoc.PageCount; p++)
                                                     {
-                                                        var baseUri = new Uri(baseUrl.EndsWith("/") ? baseUrl : baseUrl + "/");
-                                                        fullUrl = new Uri(baseUri, fileUrl.TrimStart('/')).ToString();
-                                                    }
-                                                    catch
-                                                    { // fallback to fileUrl as-is }
-                                                    }
-
-                                                    try
-                                                    {
-                                                        fileBytes = await httpClient.GetByteArrayAsync(fullUrl);
-                                                    }
-                                                    catch
-                                                    {
-                                                        // try again with original fileUrl if different
-                                                        try
-                                                        {
-                                                            fileBytes = await httpClient.GetByteArrayAsync(fileUrl);
-                                                        }
-                                                        catch
-                                                        {
-                                                            // ignore this file if cannot download
-                                                            continue;
-                                                        }
+                                                        mergedDoc.AddPage(mainDoc.Pages[p]);
                                                     }
                                                 }
-
-                                                if (fileBytes == null || fileBytes.Length == 0) continue;
 
                                                 // Only try to import if bytes look like a PDF (starts with %PDF)
-                                                if (fileBytes.Length >= 4 && fileBytes[0] == '%' && fileBytes[1] == 'P' && fileBytes[2] == 'D' && fileBytes[3] == 'F')
+                                                if (pdfContent.Length >= 4 && pdfContent[0] == '%' && pdfContent[1] == 'P' && pdfContent[2] == 'D' && pdfContent[3] == 'F')
                                                 {
-                                                    using var msExtra = new MemoryStream(fileBytes);
+                                                    using var msExtra = new MemoryStream(pdfContent);
                                                     try
                                                     {
                                                         var extraDoc = PdfReader.Open(msExtra, PdfDocumentOpenMode.Import);
@@ -416,46 +315,159 @@ namespace CoreAdminWeb.Services.Exports
                                                     catch
                                                     {
                                                         // skip corrupt/unreadable PDF
-                                                        continue;
                                                     }
                                                 }
-                                            }
 
-                                            // Save merged PDF back to pdfBytes
-                                            using var outMs = new MemoryStream();
-                                            mergedDoc.Save(outMs);
-                                            pdfBytes = outMs.ToArray();
+                                                // Save merged PDF back to pdfBytes
+                                                using var outMs = new MemoryStream();
+                                                mergedDoc.Save(outMs);
+                                                pdfBytes = outMs.ToArray();
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                // Log or ignore and continue with original pdfBytes
+                                                Console.WriteLine($"Warning: failed to merge related PDFs for {item.ma_luot_kham}: {ex.Message}");
+                                            }
+                                        }
+
+                                        // --- New: download related PDF files from ketQuaCLSFiles and merge into generated pdfBytes ---
+                                        var matchingFiles = new List<KetQuaCanLamSangFileModel>();
+                                        if (!string.IsNullOrEmpty(item.ma_luot_kham))
+                                        {
+                                            matchingFiles = prepareData.KetQuaCLSFiles?
+                                                .Where(f => !string.IsNullOrEmpty(f.url_file) && f.url_file!.Contains(item.ma_luot_kham!))
+                                                .ToList();
+                                        }
+                                        if (matchingFiles != null && matchingFiles.Any())
+                                        {
+                                            try
+                                            {
+                                                using var mergedDoc = new PdfDocument();
+                                                // Append original generated PDF first
+                                                using (var msMain = new MemoryStream(pdfBytes))
+                                                {
+                                                    var mainDoc = PdfReader.Open(msMain, PdfDocumentOpenMode.Import);
+                                                    for (int p = 0; p < mainDoc.PageCount; p++)
+                                                    {
+                                                        mergedDoc.AddPage(mainDoc.Pages[p]);
+                                                    }
+                                                }
+
+                                                using var httpClient = new HttpClient();
+                                                foreach (var fileModel in matchingFiles)
+                                                {
+                                                    if (string.IsNullOrEmpty(fileModel.url_file)) continue;
+
+                                                    byte[] fileBytes = null!;
+                                                    var fileUrl = fileModel.url_file!.Trim();
+
+                                                    // data URI?
+                                                    if (fileUrl.StartsWith("data:application/pdf;base64", StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        var idx = fileUrl.IndexOf("base64,", StringComparison.OrdinalIgnoreCase);
+                                                        if (idx >= 0)
+                                                        {
+                                                            var b64 = fileUrl.Substring(idx + 7);
+                                                            fileBytes = Convert.FromBase64String(b64);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        // Build absolute url if relative
+                                                        string fullUrl = fileUrl;
+                                                        if (!Uri.IsWellFormedUriString(fullUrl, UriKind.Absolute))
+                                                        {
+                                                            try
+                                                            {
+                                                                var baseUri = new Uri(baseUrl.EndsWith("/") ? baseUrl : baseUrl + "/");
+                                                                fullUrl = new Uri(baseUri, fileUrl.TrimStart('/')).ToString();
+                                                            }
+                                                            catch
+                                                            { // fallback to fileUrl as-is }
+                                                            }
+
+                                                            try
+                                                            {
+                                                                fileBytes = await httpClient.GetByteArrayAsync(fullUrl);
+                                                            }
+                                                            catch
+                                                            {
+                                                                // try again with original fileUrl if different
+                                                                try
+                                                                {
+                                                                    fileBytes = await httpClient.GetByteArrayAsync(fileUrl);
+                                                                }
+                                                                catch
+                                                                {
+                                                                    // ignore this file if cannot download
+                                                                    continue;
+                                                                }
+                                                            }
+                                                        }
+
+                                                        if (fileBytes == null || fileBytes.Length == 0) continue;
+
+                                                        // Only try to import if bytes look like a PDF (starts with %PDF)
+                                                        if (fileBytes.Length >= 4 && fileBytes[0] == '%' && fileBytes[1] == 'P' && fileBytes[2] == 'D' && fileBytes[3] == 'F')
+                                                        {
+                                                            using var msExtra = new MemoryStream(fileBytes);
+                                                            try
+                                                            {
+                                                                var extraDoc = PdfReader.Open(msExtra, PdfDocumentOpenMode.Import);
+                                                                for (int p = 0; p < extraDoc.PageCount; p++)
+                                                                {
+                                                                    mergedDoc.AddPage(extraDoc.Pages[p]);
+                                                                }
+                                                            }
+                                                            catch
+                                                            {
+                                                                // skip corrupt/unreadable PDF
+                                                                continue;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                // Save merged PDF back to pdfBytes
+                                                using var outMs = new MemoryStream();
+                                                mergedDoc.Save(outMs);
+                                                pdfBytes = outMs.ToArray();
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                // Log or ignore and continue with original pdfBytes
+                                                Console.WriteLine($"Warning: failed to merge related PDFs for {item.ma_luot_kham}: {ex.Message}");
+                                            }
+                                        }
+                                        // --- End merge logic ---
+
+                                        string fullFilePath = Path.Combine(savePath, filename);
+                                        await File.WriteAllBytesAsync(fullFilePath, pdfBytes, cancellationToken);
+                                        fileNames.Add(filename);
+
+                                        processed++;
+                                        // Chỉ gửi progress mỗi 50 bản ghi
+
+                                        var tempPercent = Math.Round(processed / (decimal)totalRecords * 100, 2);
+                                        if (processPercent != tempPercent)
+                                        {
+                                            processPercent = tempPercent;
+                                            await updateProgress.Invoke(new ProcessingModel()
+                                            {
+                                                ProcessId = connectionId,
+                                                Status = TrangThaiXuLyNen.Processing,
+                                                Value = $"Đang xuất dữ liệu {processPercent}%"
+                                            });
                                         }
                                     }
-                                    catch (Exception ex)
+                                    finally
                                     {
-                                        // Log or ignore and continue with original pdfBytes
-                                        Console.WriteLine($"Warning: failed to merge related PDFs for {item.ma_luot_kham}: {ex.Message}");
+                                        semaphore.Release();
                                     }
-                                }
-                                // --- End merge logic ---
+                                }, cancellationToken);
+                                tasks.Add(t);
+                            }
 
-                                string fullFilePath = Path.Combine(savePath, filename);
-                                await File.WriteAllBytesAsync(fullFilePath, pdfBytes, cancellationToken);
-                                fileNames.Add(filename);
-
-                                processed++;
-                                // Chỉ gửi progress mỗi 50 bản ghi
-
-                                var tempPercent = Math.Round(processed / (decimal)totalRecords * 100, 2);
-                                if (processPercent != tempPercent)
-                                {
-                                    processPercent = tempPercent;
-                                    await updateProgress.Invoke(new ProcessingModel()
-                                    {
-                                        ProcessId = connectionId,
-                                        Status = TrangThaiXuLyNen.Processing,
-                                        Value = $"Đang xuất dữ liệu {processPercent}%"
-                                    });
-                                }
-                            });
-
-                            // Chạy song song trong batch nhỏ (giới hạn số lượng để tránh quá tải IO)
                             await Task.WhenAll(tasks);
                         }
                         break;
@@ -589,49 +601,49 @@ namespace CoreAdminWeb.Services.Exports
                 tasks.Add(Task.Run(async () =>
                 {
                     chuyenKhoas = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     sanPhuKhoas = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     ketLuans = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     theLucs = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     kqCLSs = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     ngheNghieps = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeNgheNghiepService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeNgheNghiepService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     tienSus = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeTienSuService.GetAllAsync($"filter[_and][][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeTienSuService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
                         soKSKIds, batchSize
                     );
                 }));
@@ -914,11 +926,11 @@ namespace CoreAdminWeb.Services.Exports
         {
             try
             {
-                var theLuc = prepareData.TheLucs?.FirstOrDefault(x => x.luot_kham?.id == soKhamSucKhoe.id);
-                var cls = prepareData.ChuyenKhoas?.FirstOrDefault(x => x.luot_kham?.id == soKhamSucKhoe.id);
-                var sanPhuKhoa = prepareData.SanPhuKhoas?.FirstOrDefault(x => x.luot_kham?.id == soKhamSucKhoe.id);
-                var kqcls = prepareData.KetQuaCanLamSangs?.Where(x => x.luot_kham?.id == soKhamSucKhoe.id && !string.IsNullOrEmpty(x.ket_qua)).ToList();
-                var ketLuan = prepareData.KetLuans?.FirstOrDefault(x => x.luot_kham?.id == soKhamSucKhoe.id);
+                var theLuc = prepareData.TheLucs?.FirstOrDefault(x => x.ma_luot_kham == soKhamSucKhoe.ma_luot_kham);
+                var cls = prepareData.ChuyenKhoas?.FirstOrDefault(x => x.ma_luot_kham == soKhamSucKhoe.ma_luot_kham);
+                var sanPhuKhoa = prepareData.SanPhuKhoas?.FirstOrDefault(x => x.ma_luot_kham == soKhamSucKhoe.ma_luot_kham);
+                var kqcls = prepareData.KetQuaCanLamSangs?.Where(x => x.ma_luot_kham == soKhamSucKhoe.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua)).ToList();
+                var ketLuan = prepareData.KetLuans?.FirstOrDefault(x => x.ma_luot_kham == soKhamSucKhoe.ma_luot_kham);
 
                 doc.ReplaceText(new Dictionary<string, string>
                                             {
@@ -1130,13 +1142,13 @@ namespace CoreAdminWeb.Services.Exports
 
         private async Task<byte[]> ProcessingHtmlData(string template, string filename, SoKhamSucKhoeModel item, PrepareDataModel prepareData)
         {
-            var theLuc = prepareData.TheLucs?.FirstOrDefault(x => x.luot_kham?.id == item.id);
-            var cls = prepareData.ChuyenKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
-            var sanPhuKhoa = prepareData.SanPhuKhoas?.FirstOrDefault(x => x.luot_kham?.id == item.id);
-            var kqcls = prepareData.KetQuaCanLamSangs?.Where(x => x.luot_kham?.id == item.id && !string.IsNullOrEmpty(x.ket_qua)).ToList();
-            var ketLuan = prepareData.KetLuans?.FirstOrDefault(x => x.luot_kham?.id == item.id);
-            var ngheNghiep = prepareData.NgheNghieps?.FirstOrDefault(x => x.luot_kham?.id == item.id);
-            var tienSu = prepareData.TienSus?.FirstOrDefault(x => x.luot_kham?.id == item.id);
+            var theLuc = prepareData.TheLucs?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
+            var cls = prepareData.ChuyenKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
+            var sanPhuKhoa = prepareData.SanPhuKhoas?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
+            var kqcls = prepareData.KetQuaCanLamSangs?.Where(x => x.ma_luot_kham == item.ma_luot_kham && !string.IsNullOrEmpty(x.ket_qua)).ToList();
+            var ketLuan = prepareData.KetLuans?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
+            var ngheNghiep = prepareData.NgheNghieps?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
+            var tienSu = prepareData.TienSus?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
 
             var tempTempalte = template
                 .Replace("{{TenBenhNhan}}", $"{item.benh_nhan?.full_name.ToUpper()}")
