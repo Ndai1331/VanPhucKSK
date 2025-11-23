@@ -11,15 +11,14 @@ RUN apt-get update && \
         unoconv \
         python3 \
         fonts-dejavu \
-    	fonts-dejavu-core \
-    	fonts-dejavu-extra \
-    	ttf-mscorefonts-installer \
-    	fonts-liberation \
-    	fonts-noto \
-    	fonts-noto-cjk \
+        fonts-dejavu-core \
+        fonts-dejavu-extra \
+        fonts-liberation \
+        fonts-noto \
+        fonts-noto-cjk \
         fontconfig && \
-    	fc-cache -f -v && \
-   	rm -rf /var/lib/apt/lists/*
+    fc-cache -f -v && \
+    rm -rf /var/lib/apt/lists/*
 
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
