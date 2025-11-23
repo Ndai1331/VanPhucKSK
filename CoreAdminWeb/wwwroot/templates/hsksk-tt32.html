@@ -12,14 +12,14 @@
 			body {
 				height: 100%;
 			}
-			body {
-				margin: 0;
-				font-family: Arial, Helvetica, sans-serif;
-				font-size: 10pt;
-				color: #111;
-				-webkit-print-color-adjust: exact;
-				print-color-adjust: exact;
-			}
+            body {
+                margin: 0;
+                font-family: Arial, Helvetica, "Liberation Sans", "Noto Sans", "DejaVu Sans", "Times New Roman", "Times", sans-serif, serif;
+                font-size: 10pt;
+                color: #111;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
 			@page {
 				size: A4;
 				margin: 0;
@@ -229,6 +229,15 @@
 			.fixed-width {
 				width: 150px;
 			}
+
+            .cls-section thead {
+                display: table-header-group;
+                page-break-inside: avoid;
+            }
+
+            .cls-section tr {
+                page-break-inside: avoid;
+            }
 		</style>
 	</head>
 	<body>
@@ -907,12 +916,18 @@
         </tr>
     </table>
 
-    <div class="title mt-3">IV. KHÁM CẬN LÂM SÀNG</div>
-    <table>
+    <table class="cls-section">
         <colgroup>
             <col style="width: 80%" />
             <col style="width: 20%" />
         </colgroup>
+        <thead>
+            <tr>
+                <th colspan="2" class="title mt-3" style="border: none !important; ">
+                    IV. KHÁM CẬN LÂM SÀNG
+                </th>
+            </tr>
+        </thead>
         <tbody>
             {{KetQuaCLS}}
         </tbody>
