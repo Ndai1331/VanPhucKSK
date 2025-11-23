@@ -23,6 +23,7 @@ namespace CoreAdminWeb.Services.Exports
     public class ExportKSKDataService
     {
         private readonly IMemoryCache _memoryCache;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IBaseDetailService<SoKhamSucKhoeModel> _soKhamSucKhoeService;
         private readonly IBaseDetailService<KhamSucKhoeChuyenKhoaModel> _khamSucKhoeChuyenKhoaService;
         private readonly IBaseDetailService<KhamSucKhoeSanPhuKhoaModel> _khamSucKhoeSanPhuKhoaService;
@@ -35,9 +36,10 @@ namespace CoreAdminWeb.Services.Exports
         private readonly IBaseGetService<KetQuaCanLamSangFileModel> _ketQuaCanLamSangFileService;
         private readonly IPdfService _pdfService;
         private readonly IDocxToPdfConverter _docxToPdfConverter;
-        public ExportKSKDataService(IServiceScopeFactory serviceScopeFactory, IMemoryCache memoryCache)
+        public ExportKSKDataService(IServiceScopeFactory serviceScopeFactory, IMemoryCache memoryCache, IHttpClientFactory httpClientFactory)
         {
             _memoryCache = memoryCache;
+            _httpClientFactory = httpClientFactory;
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 _soKhamSucKhoeService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<SoKhamSucKhoeModel>>();
@@ -330,116 +332,15 @@ namespace CoreAdminWeb.Services.Exports
                                             }
                                         }
 
-                                        // --- New: download related PDF files from ketQuaCLSFiles and merge into generated pdfBytes ---
-                                        var matchingFiles = new List<KetQuaCanLamSangFileModel>();
-                                        if (!string.IsNullOrEmpty(item.ma_luot_kham))
-                                        {
-                                            matchingFiles = prepareData.KetQuaCLSFiles?
-                                                .Where(f => !string.IsNullOrEmpty(f.url_file) && f.url_file!.Contains(item.ma_luot_kham!))
-                                                .ToList();
-                                        }
-                                        if (matchingFiles != null && matchingFiles.Any())
-                                        {
-                                            try
-                                            {
-                                                using var mergedDoc = new PdfDocument();
-                                                // Append original generated PDF first
-                                                using (var msMain = new MemoryStream(pdfBytes))
-                                                {
-                                                    var mainDoc = PdfReader.Open(msMain, PdfDocumentOpenMode.Import);
-                                                    for (int p = 0; p < mainDoc.PageCount; p++)
-                                                    {
-                                                        mergedDoc.AddPage(mainDoc.Pages[p]);
-                                                    }
-                                                }
-
-                                                using var httpClient = new HttpClient();
-                                                foreach (var fileModel in matchingFiles)
-                                                {
-                                                    if (string.IsNullOrEmpty(fileModel.url_file)) continue;
-
-                                                    byte[] fileBytes = null!;
-                                                    var fileUrl = fileModel.url_file!.Trim();
-
-                                                    // data URI?
-                                                    if (fileUrl.StartsWith("data:application/pdf;base64", StringComparison.OrdinalIgnoreCase))
-                                                    {
-                                                        var idx = fileUrl.IndexOf("base64,", StringComparison.OrdinalIgnoreCase);
-                                                        if (idx >= 0)
-                                                        {
-                                                            var b64 = fileUrl.Substring(idx + 7);
-                                                            fileBytes = Convert.FromBase64String(b64);
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        // Build absolute url if relative
-                                                        string fullUrl = fileUrl;
-                                                        if (!Uri.IsWellFormedUriString(fullUrl, UriKind.Absolute))
-                                                        {
-                                                            try
-                                                            {
-                                                                var baseUri = new Uri(baseUrl.EndsWith("/") ? baseUrl : baseUrl + "/");
-                                                                fullUrl = new Uri(baseUri, fileUrl.TrimStart('/')).ToString();
-                                                            }
-                                                            catch
-                                                            { // fallback to fileUrl as-is }
-                                                            }
-
-                                                            try
-                                                            {
-                                                                fileBytes = await httpClient.GetByteArrayAsync(fullUrl);
-                                                            }
-                                                            catch
-                                                            {
-                                                                // try again with original fileUrl if different
-                                                                try
-                                                                {
-                                                                    fileBytes = await httpClient.GetByteArrayAsync(fileUrl);
-                                                                }
-                                                                catch
-                                                                {
-                                                                    // ignore this file if cannot download
-                                                                    continue;
-                                                                }
-                                                            }
-                                                        }
-
-                                                        if (fileBytes == null || fileBytes.Length == 0) continue;
-
-                                                        // Only try to import if bytes look like a PDF (starts with %PDF)
-                                                        if (fileBytes.Length >= 4 && fileBytes[0] == '%' && fileBytes[1] == 'P' && fileBytes[2] == 'D' && fileBytes[3] == 'F')
-                                                        {
-                                                            using var msExtra = new MemoryStream(fileBytes);
-                                                            try
-                                                            {
-                                                                var extraDoc = PdfReader.Open(msExtra, PdfDocumentOpenMode.Import);
-                                                                for (int p = 0; p < extraDoc.PageCount; p++)
-                                                                {
-                                                                    mergedDoc.AddPage(extraDoc.Pages[p]);
-                                                                }
-                                                            }
-                                                            catch
-                                                            {
-                                                                // skip corrupt/unreadable PDF
-                                                                continue;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
-                                                // Save merged PDF back to pdfBytes
-                                                using var outMs = new MemoryStream();
-                                                mergedDoc.Save(outMs);
-                                                pdfBytes = outMs.ToArray();
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                // Log or ignore and continue with original pdfBytes
-                                                Console.WriteLine($"Warning: failed to merge related PDFs for {item.ma_luot_kham}: {ex.Message}");
-                                            }
-                                        }
-                                        // --- End merge logic ---
+                                        var httpClient = _httpClientFactory.CreateClient();
+                                        pdfBytes = await MergeWithRelatedPdfsAsync(
+                                            pdfBytes,
+                                            prepareData,
+                                            item,
+                                            baseUrl,
+                                            httpClient,
+                                            cancellationToken
+                                        );
 
                                         string fullFilePath = Path.Combine(savePath, filename);
                                         await File.WriteAllBytesAsync(fullFilePath, pdfBytes, cancellationToken);
@@ -1267,6 +1168,173 @@ namespace CoreAdminWeb.Services.Exports
             });
 
             return pdfBytes;
+        }
+
+        private static async Task<byte[]?> DownloadPdfBytesAsync(
+            KetQuaCanLamSangFileModel fileModel,
+            string baseUrl,
+            HttpClient http,
+            CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(fileModel.url_file))
+                return null;
+
+            var fileUrl = fileModel.url_file.Trim();
+
+            // Trường hợp data URI
+            if (fileUrl.StartsWith("data:application/pdf;base64", StringComparison.OrdinalIgnoreCase))
+            {
+                var idx = fileUrl.IndexOf("base64,", StringComparison.OrdinalIgnoreCase);
+                if (idx < 0) return null;
+
+                var b64 = fileUrl[(idx + 7)..];
+                try
+                {
+                    return Convert.FromBase64String(b64);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            // Trường hợp URL
+            string fullUrl = fileUrl;
+            if (!Uri.IsWellFormedUriString(fullUrl, UriKind.Absolute))
+            {
+                try
+                {
+                    var baseUri = new Uri(baseUrl.EndsWith("/") ? baseUrl : baseUrl + "/");
+                    fullUrl = new Uri(baseUri, fileUrl.TrimStart('/')).ToString();
+                }
+                catch
+                {
+                    // nếu build baseUrl fail thì vẫn dùng nguyên fileUrl
+                    fullUrl = fileUrl;
+                }
+            }
+
+            try
+            {
+                return await http.GetByteArrayAsync(fullUrl, ct);
+            }
+            catch
+            {
+                // fallback thử lại với url gốc nếu khác
+                if (!fullUrl.Equals(fileUrl, StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        return await http.GetByteArrayAsync(fileUrl, ct);
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        private static async Task<byte[]?> DownloadPdfBytesWithLimitAsync(
+            KetQuaCanLamSangFileModel fileModel,
+            string baseUrl,
+            HttpClient http,
+            SemaphoreSlim limiter,
+            CancellationToken ct = default)
+        {
+            await limiter.WaitAsync(ct);
+            try
+            {
+                return await DownloadPdfBytesAsync(fileModel, baseUrl, http, ct);
+            }
+            finally
+            {
+                limiter.Release();
+            }
+        }
+
+        public async Task<byte[]> MergeWithRelatedPdfsAsync(
+            byte[] pdfBytes,
+            PrepareDataModel prepareData,
+            SoKhamSucKhoeModel item,
+            string baseUrl,
+            HttpClient httpClient,
+            CancellationToken ct = default)
+        {
+            // Tìm các file liên quan
+            List<KetQuaCanLamSangFileModel> matchingFiles = new();
+            if (!string.IsNullOrEmpty(item.ma_luot_kham))
+            {
+                matchingFiles = prepareData.KetQuaCLSFiles?
+                    .Where(f => !string.IsNullOrEmpty(f.url_file) &&
+                                f.url_file!.Contains(item.ma_luot_kham!, StringComparison.OrdinalIgnoreCase))
+                    .ToList()
+                    ?? new List<KetQuaCanLamSangFileModel>();
+            }
+
+            if (matchingFiles.Count == 0)
+                return pdfBytes; // không có file kèm thì trả về nguyên bản
+
+            try
+            {
+                var maxParallel = Math.Clamp(Environment.ProcessorCount / 2, 2, 6);
+                var limiter = new SemaphoreSlim(maxParallel);
+                var downloadTasks = matchingFiles.Select(f => DownloadPdfBytesWithLimitAsync(f, baseUrl, httpClient, limiter, ct));
+                var downloaded = await Task.WhenAll(downloadTasks);
+
+                // Lọc các file hợp lệ và là PDF
+                var pdfExtraBytes = downloaded
+                    .Where(b => b != null && b.Length > 4 && b[0] == '%' && b[1] == 'P' && b[2] == 'D' && b[3] == 'F')
+                    .Cast<byte[]>()
+                    .ToList();
+
+                if (pdfExtraBytes.Count == 0)
+                    return pdfBytes;
+
+                // 2. Merge: main PDF + các PDF tải được
+                using var mergedDoc = new PdfSharp.Pdf.PdfDocument();
+
+                // main
+                using (var msMain = new MemoryStream(pdfBytes, writable: false))
+                {
+                    var mainDoc = PdfSharp.Pdf.IO.PdfReader.Open(msMain, PdfSharp.Pdf.IO.PdfDocumentOpenMode.Import);
+                    for (int p = 0; p < mainDoc.PageCount; p++)
+                    {
+                        mergedDoc.AddPage(mainDoc.Pages[p]);
+                    }
+                }
+
+                // extra (duyệt tuần tự để tránh issues thread-unsafe của PdfSharp)
+                foreach (var extraBytes in pdfExtraBytes)
+                {
+                    using var msExtra = new MemoryStream(extraBytes, writable: false);
+                    try
+                    {
+                        var extraDoc = PdfSharp.Pdf.IO.PdfReader.Open(msExtra, PdfSharp.Pdf.IO.PdfDocumentOpenMode.Import);
+                        for (int p = 0; p < extraDoc.PageCount; p++)
+                        {
+                            mergedDoc.AddPage(extraDoc.Pages[p]);
+                        }
+                    }
+                    catch
+                    {
+                        // skip file lỗi
+                        continue;
+                    }
+                }
+
+                using var outMs = new MemoryStream();
+                mergedDoc.Save(outMs);
+                return outMs.ToArray();
+            }
+            catch (Exception ex)
+            {
+                // log và fallback về pdf gốc
+                Console.WriteLine($"Warning: failed to merge related PDFs for {item.ma_luot_kham}: {ex.Message}");
+                return pdfBytes;
+            }
         }
     }
 }
