@@ -230,7 +230,8 @@ namespace CoreAdminWeb.Services.Exports
                                 Value = $"Đang xuất dữ liệu {processPercent}%"
                             });
 
-                            var maxParallel = Math.Clamp(Environment.ProcessorCount / 2, 2, 6);
+                            var cpuCount = Environment.ProcessorCount;
+                            var maxParallel = Math.Clamp(Math.Min(cpuCount * 2, 16), 4, 16);
                             using var semaphore = new SemaphoreSlim(maxParallel, maxParallel);
                             var tasks = new List<Task>(prepareData.SoKhamSucKhoes.Count);
                             foreach (var item in prepareData.SoKhamSucKhoes)
@@ -459,7 +460,7 @@ namespace CoreAdminWeb.Services.Exports
             {
                 // Lấy dữ liệu chính theo batch lớn
                 List<SoKhamSucKhoeModel> soKhamSucKhoes = await ExportKSKHelpers.BatchQueryAsync(
-                    ids => _soKhamSucKhoeService.GetAllAsync($"filter[_and][][id][_in]={string.Join(",", ids)}"),
+                    ids => _soKhamSucKhoeService.GetAllAsync($"filter[_and][][id][_in]={string.Join(",", ids)}&limit={batchSize}"),
                     soKSKIds, batchSize
                 );
 
@@ -502,49 +503,49 @@ namespace CoreAdminWeb.Services.Exports
                 tasks.Add(Task.Run(async () =>
                 {
                     chuyenKhoas = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     sanPhuKhoas = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     ketLuans = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     theLucs = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     kqCLSs = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     ngheNghieps = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeNgheNghiepService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeNgheNghiepService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"),
                         soKSKIds, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     tienSus = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeTienSuService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}"),
+                        ids => _khamSucKhoeTienSuService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"),
                         soKSKIds, batchSize
                     );
                 }));
@@ -558,7 +559,7 @@ namespace CoreAdminWeb.Services.Exports
                 tasks.Add(Task.Run(async () =>
                 {
                     kqCLSFiles = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _ketQuaCanLamSangFileService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}"),
+                        ids => _ketQuaCanLamSangFileService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&limit={batchSize}"),
                         soKSKIds, batchSize
                     );
                 }));
@@ -1279,7 +1280,8 @@ namespace CoreAdminWeb.Services.Exports
 
             try
             {
-                var maxParallel = Math.Clamp(Environment.ProcessorCount / 2, 2, 6);
+                var cpuCount = Environment.ProcessorCount;
+                var maxParallel = Math.Clamp(Math.Min(cpuCount * 2, 16), 4, 16);
                 var limiter = new SemaphoreSlim(maxParallel);
                 var downloadTasks = matchingFiles.Select(f => DownloadPdfBytesWithLimitAsync(f, baseUrl, httpClient, limiter, ct));
                 var downloaded = await Task.WhenAll(downloadTasks);

@@ -3,22 +3,22 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 
 # Cài thư viện Linux cần thiết (LibreOffice + font + unoconv)
-RUN apt-get update && \
-    apt-get install -y \
-        libfontconfig1 \
-        libfreetype6 \
-        libreoffice \
-        unoconv \
-        python3 \
-        fonts-dejavu \
-        fonts-dejavu-core \
-        fonts-dejavu-extra \
-        fonts-liberation \
-        fonts-noto \
-        fonts-noto-cjk \
-        fontconfig && \
-    fc-cache -f -v && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    libreoffice \
+    libreoffice-writer \
+    libreoffice-core \
+    python3 \
+    python3-uno \
+    unoconv \
+    fonts-dejavu \
+    fonts-dejavu-core \
+    fonts-dejavu-extra \
+    fonts-noto \
+    fonts-noto-cjk \
+    fontconfig \
+    libfreetype6 \
+    libfontconfig1 \
+ && rm -rf /var/lib/apt/lists/*
 
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build

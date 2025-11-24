@@ -10,6 +10,8 @@ services:
       - DrCoreApi__BaseUrlImage=http://localhost:8056/
       - LocalApi__BaseUrl=http://localhost:8056/api/
       - LibreOffice__SofficePath=soffice
+      - LibreOffice__UnoconvPath=unoconv
+      - LibreOffice__UnoPort=2002
     restart: unless-stopped
     networks:
       - drcore-network

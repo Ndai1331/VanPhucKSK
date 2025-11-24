@@ -246,15 +246,15 @@ namespace CoreAdminWeb.Services.Imports
 
                 // Chạy các truy vấn batch song song
                 var userTask = BatchQueryAsync(
-                    ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", ids)}"),
+                    ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", ids)}&limit={batchSize}"),
                     maBenhNhans, batchSize
                 );
                 var tinhTask = BatchQueryAsync(
-                    ids => _tinhService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}"),
+                    ids => _tinhService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}&limit={batchSize}"),
                     maTinhs, batchSize
                 );
                 var xaTask = BatchQueryAsync(
-                    ids => _xaService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}"),
+                    ids => _xaService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}&limit={batchSize}"),
                     maXas, batchSize
                 );
 
@@ -264,7 +264,8 @@ namespace CoreAdminWeb.Services.Imports
                 var existingTinhs = tinhTask.Result;
                 var existingXas = xaTask.Result;
 
-                var existingUserMap = existingUsers.DistinctBy(c => c.ma_tai_khoan).ToDictionary(c => c.ma_tai_khoan, c => c);
+                var existingUserMap = existingUsers.DistinctBy(c => c.ma_tai_khoan).ToDictionary(c => c.ma_tai_khoan.Trim(), c => c);
+                var existingUserEmailWithOutMaTaiKhoanMap = existingUsers.Where(c => string.IsNullOrWhiteSpace(c.ma_tai_khoan)).DistinctBy(c => c.email).ToDictionary(c => c.email.Trim().ToLowerInvariant(), c => c);
                 var tinhMap = existingTinhs.DistinctBy(c => c.ma).ToDictionary(c => c.ma ?? "", c => c.id);
                 var xaMap = existingXas.DistinctBy(c => $"{c.ma}|{c.tinh?.ma}").ToDictionary(c => $"{c.ma}|{c.tinh?.ma}", c => c.id);
 
@@ -277,8 +278,14 @@ namespace CoreAdminWeb.Services.Imports
                 foreach (var item in result)
                 {
                     var splitName = StringExtension.SplitName(item.TenBenhNhan ?? string.Empty);
-
-                    if (existingUserMap.TryGetValue(item.MaBenhNhan, out var existingUser))
+                    UserModel? existingUser;
+                    if (
+                        (
+                            existingUserMap.TryGetValue(item.MaBenhNhan.Trim(), out existingUser)
+                            || !string.IsNullOrWhiteSpace(item.Email) && existingUserEmailWithOutMaTaiKhoanMap.TryGetValue(item.Email.Trim().ToLowerInvariant(), out existingUser)
+                        )
+                        && existingUser != null
+                    )
                     {
                         existingUser.first_name = splitName.FirstName;
                         existingUser.last_name = splitName.LastName;
@@ -302,6 +309,8 @@ namespace CoreAdminWeb.Services.Imports
                         existingUser.tinh = tinhMap.TryGetValue(item.MaTinh ?? "", out var tinhId) ? tinhId : null;
                         existingUser.xa = xaMap.TryGetValue($"{item.MaXa}|{item.MaTinh}", out var xaId) ? xaId : null;
                         existingUser.role = settings.patient_role_id ?? string.Empty;
+                        if (string.IsNullOrWhiteSpace(existingUser.ma_tai_khoan))
+                            existingUser.ma_tai_khoan = item.MaBenhNhan;
 
                         updatingUsers.Add(existingUser);
                     }
@@ -356,7 +365,7 @@ namespace CoreAdminWeb.Services.Imports
 
                 var existingRecordsOthers = await BatchQueryAsync(
                     ids => _soKhamSucKhoeService.GetAllAsync(
-                        $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_neq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
+                        $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_neq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"
                     ),
                     maLuotKhams, batchSize
                 );
@@ -383,7 +392,7 @@ namespace CoreAdminWeb.Services.Imports
                 if (newUsers.Any())
                 {
                     var existingByEmail = await BatchQueryAsync(
-                        ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][email][_in]={string.Join(",", ids)}"),
+                        ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][email][_in]={string.Join(",", ids)}&limit={batchSize}"),
                         newUsers.Select(c => c.email).Distinct().ToList(), batchSize
                     );
 
@@ -407,7 +416,7 @@ namespace CoreAdminWeb.Services.Imports
                 if (newUsers.Any())
                 {
                     existingUsers = await BatchQueryAsync(
-                        ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", ids)}"),
+                        ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", ids)}&limit={batchSize}"),
                         maBenhNhans, batchSize
                     );
                 }
@@ -416,7 +425,7 @@ namespace CoreAdminWeb.Services.Imports
 
                 var existingRecords = await BatchQueryAsync(
                     ids => _soKhamSucKhoeService.GetAllAsync(
-                        $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_eq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"
+                        $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_eq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"
                     ),
                     maLuotKhams, batchSize
                 );

@@ -1,5 +1,7 @@
 ﻿using CoreAdminWeb.Helpers;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace CoreAdminWeb.Services.DocxToPdfConverter
@@ -8,9 +10,13 @@ namespace CoreAdminWeb.Services.DocxToPdfConverter
     {
         private readonly ILogger<LibreOfficeDocxToPdfConverter> _logger;
         private readonly string _sofficePath;
+        private readonly string _unoconvPath;
+        private readonly string _unoHost;
+        private readonly int _unoPort;
 
         // Giới hạn tối đa số process LibreOffice chạy song song
-        private static readonly SemaphoreSlim _globalSemaphore = new(initialCount: 1, maxCount: 32);
+        private readonly SemaphoreSlim _globalSemaphore;
+        private bool _unoconvAvailable = false;
 
         public LibreOfficeDocxToPdfConverter(
             IConfiguration config,
@@ -19,6 +25,49 @@ namespace CoreAdminWeb.Services.DocxToPdfConverter
             _logger = logger;
 
             _sofficePath = LibreOfficePathResolver.GetSofficePath(config, logger);
+            _unoconvPath = config["LibreOffice:UnoconvPath"] ?? "/usr/bin/unoconv";
+            _unoHost = config["LibreOffice:UnoHost"] ?? "127.0.0.1";
+            _unoPort = config.GetValue("LibreOffice:UnoPort", 2002);
+
+            // Attempt to detect if unoconv is executable
+            try
+            {
+                var start = new ProcessStartInfo
+                {
+                    FileName = _unoconvPath,
+                    Arguments = "--version",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                using var proc = Process.Start(start);
+                proc?.WaitForExit(1500);
+                if (proc?.ExitCode == 0)
+                {
+                    _unoconvAvailable = true;
+                    _logger.LogInformation("unoconv found. Using UNO mode.");
+                }
+                else
+                {
+                    _logger.LogWarning("unoconv executable test failed. Fallback to soffice.");
+                }
+            }
+            catch (Win32Exception)
+            {
+                _logger.LogWarning("unoconv missing. Fallback to soffice.");
+            }
+
+            // Adjust concurrency dynamically
+            var cpuCount = Environment.ProcessorCount;
+            var maxParallel = _unoconvAvailable && RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                ? Math.Clamp(Math.Min(cpuCount * 2, 16), 4, 16)  // concurrency allowed
+                : 1;
+
+            _globalSemaphore = new SemaphoreSlim(maxParallel, maxParallel);
+
+            _logger.LogInformation("LibreOffice converter configured with maxParallel={maxParallel}, unoconvAvailable={unoconvAvailable}",
+                maxParallel, _unoconvAvailable);
         }
 
         public async Task<byte[]> ConvertFileAsync(string inputDocxPath, CancellationToken ct = default)
@@ -32,7 +81,18 @@ namespace CoreAdminWeb.Services.DocxToPdfConverter
             await _globalSemaphore.WaitAsync(ct).ConfigureAwait(false);
             try
             {
-                return await ConvertInternalAsync(inputDocxPath, ct).ConfigureAwait(false);
+                if (_unoconvAvailable)
+                    try
+                    {
+                        return await ConvertWithUnoconvAsync(inputDocxPath, ct);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "unoconv convert failed, falling back to soffice for file: {File}", inputDocxPath);
+                    }
+
+                // Mặc định / Windows
+                return await ConvertWithSofficeAsync(inputDocxPath, ct).ConfigureAwait(false);
             }
             finally
             {
@@ -40,7 +100,7 @@ namespace CoreAdminWeb.Services.DocxToPdfConverter
             }
         }
 
-        private async Task<byte[]> ConvertInternalAsync(string inputDocxPath, CancellationToken ct)
+        private async Task<byte[]> ConvertWithSofficeAsync(string inputDocxPath, CancellationToken ct)
         {
             var inputFullPath = Path.GetFullPath(inputDocxPath);
 
@@ -58,7 +118,7 @@ namespace CoreAdminWeb.Services.DocxToPdfConverter
                 var psi = new ProcessStartInfo
                 {
                     FileName = _sofficePath,
-                    Arguments = $"--headless --convert-to pdf --outdir \"{tempDir}\" \"{inputFullPath}\"",
+                    Arguments = $"--headless --nologo --nodefault --norestore --nolockcheck --nofirststartwizard --convert-to pdf --outdir \"{tempDir}\" \"{inputFullPath}\"",
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
@@ -123,6 +183,101 @@ namespace CoreAdminWeb.Services.DocxToPdfConverter
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Failed to cleanup LibreOffice temp directory: {TempDir}", tempDir);
+                }
+            }
+        }
+
+        private async Task<byte[]> ConvertWithUnoconvAsync(string inputDocxPath, CancellationToken ct)
+        {
+            var inputFullPath = Path.GetFullPath(inputDocxPath);
+
+            var tempRoot = Path.Combine(Path.GetTempPath(), "lo-convert");
+            Directory.CreateDirectory(tempRoot);
+
+            var outputPdfPath = Path.Combine(
+                tempRoot,
+                $"{Path.GetFileNameWithoutExtension(inputFullPath)}-{Guid.NewGuid():N}.pdf");
+
+            _logger.LogDebug(
+                "Converting DOCX to PDF (unoconv/UNO): {Input} -> {Output} via {Host}:{Port}",
+                inputFullPath, outputPdfPath, _unoHost, _unoPort);
+
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = _unoconvPath,
+                    Arguments =
+                        $"--server {_unoHost} --port {_unoPort} " +
+                        $"-f pdf -o \"{outputPdfPath}\" \"{inputFullPath}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+
+                using var process = new Process { StartInfo = psi };
+                var stdout = new StringBuilder();
+                var stderr = new StringBuilder();
+
+                process.OutputDataReceived += (_, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                        stdout.AppendLine(e.Data);
+                };
+                process.ErrorDataReceived += (_, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                        stderr.AppendLine(e.Data);
+                };
+
+                if (!process.Start())
+                    throw new InvalidOperationException("Failed to start unoconv process.");
+
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
+                await WaitForExitAsync(process, ct).ConfigureAwait(false);
+
+                if (process.ExitCode != 0)
+                {
+                    _logger.LogError(
+                        "unoconv exited with code {ExitCode}. StdOut: {StdOut} StdErr: {StdErr}",
+                        process.ExitCode, stdout.ToString(), stderr.ToString());
+
+                    if (process.ExitCode == 251)
+                    {
+                        throw new InvalidOperationException(
+                            $"unoconv failed with exit code 251 (cannot connect UNO listener at {_unoHost}:{_unoPort}). " +
+                            "Check that soffice UNO listener is running and reachable from this container.");
+                    }
+
+                    throw new InvalidOperationException(
+                        $"unoconv convert failed (exit code {process.ExitCode}). Error: {stderr}");
+                }
+
+                if (!File.Exists(outputPdfPath))
+                {
+                    _logger.LogError(
+                        "PDF output not found after unoconv convert. Input: {Input}. StdOut: {StdOut}. StdErr: {StdErr}",
+                        inputFullPath, stdout.ToString(), stderr.ToString());
+
+                    throw new FileNotFoundException("PDF output not found after conversion.");
+                }
+
+                var bytes = await File.ReadAllBytesAsync(outputPdfPath, ct).ConfigureAwait(false);
+                return bytes;
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(outputPdfPath))
+                        File.Delete(outputPdfPath);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to cleanup LibreOffice temp PDF file: {Pdf}", outputPdfPath);
                 }
             }
         }
