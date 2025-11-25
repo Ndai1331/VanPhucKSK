@@ -1097,54 +1097,57 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                     #endregion
 
                     #region San phu khoa
-                    updateDynamicObj = new ExpandoObject();
-                    updateFields = (IDictionary<string, object?>)updateDynamicObj;
-                    dict = dynamicSanPhuKhoaObj as IDictionary<string, object?>;
-                    if (dict != null && dict.Count > 0)
+                    if (SelectedUser.gioi_tinh == GioiTinh.Nu)
                     {
-                        var props = typeof(KhamSucKhoeSanPhuKhoaModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-                        foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
+                        updateDynamicObj = new ExpandoObject();
+                        updateFields = (IDictionary<string, object?>)updateDynamicObj;
+                        dict = dynamicSanPhuKhoaObj as IDictionary<string, object?>;
+                        if (dict != null && dict.Count > 0)
                         {
-                            updateFields[kv.Key] = kv.Value?.GetCustumFieldOrValue();
+                            var props = typeof(KhamSucKhoeSanPhuKhoaModel).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                            foreach (var kv in dict.Where(kv => props.Contains(kv.Key)))
+                            {
+                                updateFields[kv.Key] = kv.Value?.GetCustumFieldOrValue();
+                            }
+
+                            if (updateFields.Any())
+                            {
+                                if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
+                                {
+                                    updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.id)] = SelectedKhamSucKhoeSanPhuKhoa.id;
+                                }
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.luot_kham)] = SelectedItem.id;
+                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
+
+                                if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.phan_loai)) || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.ket_qua)))
+                                {
+                                    SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
+                                    SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
+                                    updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan)] = SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan;
+                                    updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.chu_ky)] = SelectedKhamSucKhoeSanPhuKhoa.chu_ky;
+                                }
+                            }
                         }
 
                         if (updateFields.Any())
                         {
-                            if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
+                            if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.id)))
                             {
-                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.id)] = SelectedKhamSucKhoeSanPhuKhoa.id;
+                                var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
+                                if (result == null || !result.IsSuccess)
+                                {
+                                    AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
+                                    return;
+                                }
                             }
-                            updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.luot_kham)] = SelectedItem.id;
-                            updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.ma_luot_kham)] = SelectedItem.ma_luot_kham ?? string.Empty;
-
-                            if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.phan_loai)) || updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.ket_qua)))
+                            else
                             {
-                                SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan = $"{CurrentUser?.chuc_danh} {CurrentUser?.full_name}";
-                                SelectedKhamSucKhoeSanPhuKhoa.chu_ky = CurrentUser?.chu_ky_bac_si;
-                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan)] = SelectedKhamSucKhoeSanPhuKhoa.nguoi_ket_luan;
-                                updateFields[nameof(SelectedKhamSucKhoeSanPhuKhoa.chu_ky)] = SelectedKhamSucKhoeSanPhuKhoa.chu_ky;
-                            }
-                        }
-                    }
-
-                    if (updateFields.Any())
-                    {
-                        if (updateFields.ContainsKey(nameof(SelectedKhamSucKhoeSanPhuKhoa.id)))
-                        {
-                            var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<dynamic>() { updateDynamicObj });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<dynamic>() { updateDynamicObj });
-                            if (result == null || !result.IsSuccess)
-                            {
-                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
-                                return;
+                                var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<dynamic>() { updateDynamicObj });
+                                if (result == null || !result.IsSuccess)
+                                {
+                                    AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
+                                    return;
+                                }
                             }
                         }
                     }
