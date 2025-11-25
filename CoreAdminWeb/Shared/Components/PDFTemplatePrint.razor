@@ -299,7 +299,7 @@
                         <table class="auto mt-0">
                             <tr>
                                 @{
-                                    var tuoiBatDauKinhs = SelectedKhamSucKhoeSanPhuKhoa?.tuoi_bat_dau_kinh?.ToString().PadLeft(2, '0').ToCharArray();
+                                    var tuoiBatDauKinhs = IsFemale ? SelectedKhamSucKhoeSanPhuKhoa?.tuoi_bat_dau_kinh?.ToString().PadLeft(2, '0').ToCharArray() : Array.Empty<char>();
                                     if (tuoiBatDauKinhs == null || tuoiBatDauKinhs.Length < 2)
                                     {
                                         tuoiBatDauKinhs = new char[] { ' ', ' ' }; // Default to "00" if not set
@@ -321,9 +321,9 @@
                 - Tính chất kinh nguyệt:
             </span>
             <span class="gap"></span>
-            Đều @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.Deu.ToString() ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            Đều @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.Deu.ToString() ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
             <span class="gap"></span>
-            Không đều @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.KhongDeu.ToString() ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            Không đều @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.KhongDeu.ToString() ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
         </div>
 
         <div class="row">
@@ -338,7 +338,7 @@
                         <table class="auto mt-0">
                             <tr>
                                 @{
-                                    var chuKyKinhs = @SelectedKhamSucKhoeSanPhuKhoa?.chu_ky_kinh?.PadLeft(2, ' ').ToCharArray();
+                                    var chuKyKinhs = IsFemale ? SelectedKhamSucKhoeSanPhuKhoa?.chu_ky_kinh?.PadLeft(2, ' ').ToCharArray() : Array.Empty<char>();
                                     if (chuKyKinhs == null || chuKyKinhs.Length < 2)
                                     {
                                         chuKyKinhs = new char[] { ' ', ' ' }; // Default to "00" if not set
@@ -365,7 +365,7 @@
                         <table class="auto mt-0">
                             <tr>
                                 @{
-                                    var luongKinhs = @SelectedKhamSucKhoeSanPhuKhoa?.luong_kinh?.PadLeft(2, ' ').ToCharArray();
+                                    var luongKinhs = IsFemale ? SelectedKhamSucKhoeSanPhuKhoa?.luong_kinh?.PadLeft(2, ' ').ToCharArray() : Array.Empty<char>();
                                     if (luongKinhs == null || luongKinhs.Length < 2)
                                     {
                                         luongKinhs = new char[] { ' ', ' ' }; // Default to "00" if not set
@@ -392,18 +392,18 @@
                 - Đau bụng kinh:
             </span>
             <span class="gap"></span>
-            Có @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.dau_bung_kinh == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            Có @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.dau_bung_kinh == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
             <span class="gap"></span>
-            Không @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.dau_bung_kinh == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            Không @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.dau_bung_kinh == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
         </div>
         <div class="row">
             <span>
                 - Đã lập gia đình:
             </span>
             <span class="gap"></span>
-            Có @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.da_lap_gia_dinh == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            Có @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.da_lap_gia_dinh == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
             <span class="gap"></span>
-            Chưa @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.da_lap_gia_dinh == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            Chưa @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.da_lap_gia_dinh == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
         </div>
 
         <div class="row">
@@ -418,8 +418,7 @@
                         <table class="auto mt-0">
                             <tr>
                                 @{
-                                    var paras = SelectedKhamSucKhoeSanPhuKhoa?.para?
-                                    .Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                                    var paras = IsFemale ? SelectedKhamSucKhoeSanPhuKhoa?.para?.Split(new[] { '|', '-' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>() : Array.Empty<string>();
                                     if (paras.Length == 1)
                                     {
                                         paras = SelectedKhamSucKhoeSanPhuKhoa?.para?.SplitStringByTwoChars();
@@ -454,20 +453,20 @@
             <span>
                 - Số lần mổ sản, phụ khoa:
             </span>
-            <span class="ml-2">Có</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Co ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="ml-2">Có</span> @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Co ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
             <span class="ml-2">Ghi rõ</span>
-            <span class="dotted-ruled" style="width: 80mm">@SelectedKhamSucKhoeSanPhuKhoa?.mo_san_phu_khoa_ghi_ro</span>
-            <span class="ml-2">Không</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Khong ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="dotted-ruled" style="width: 80mm">@(IsFemale ? SelectedKhamSucKhoeSanPhuKhoa?.mo_san_phu_khoa_ghi_ro : "")</span>
+            <span class="ml-2">Không</span> @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.so_lan_mo_san_phu_khoa == (int)YesNo.Khong ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
         </div>
 
         <div class="row">
             <span>
                 - Có đang áp dụng BPTT không?
             </span>
-            <span class="ml-2">Có</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.ap_dung_bptt == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="ml-2">Có</span> @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.ap_dung_bptt == true ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
             <span class="ml-2">Ghi rõ</span>
-            <span class="dotted-ruled" style="width: 80mm">@SelectedKhamSucKhoeSanPhuKhoa?.bptt_ghi_ro</span>
-            <span class="ml-2">Không</span> @((MarkupString)(SelectedKhamSucKhoeSanPhuKhoa?.ap_dung_bptt == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
+            <span class="dotted-ruled" style="width: 80mm">@(IsFemale ? SelectedKhamSucKhoeSanPhuKhoa?.bptt_ghi_ro : "")</span>
+            <span class="ml-2">Không</span> @((MarkupString)(IsFemale && SelectedKhamSucKhoeSanPhuKhoa?.ap_dung_bptt == false ? "<span class=\"cb\" checked aria-hidden=\"true\"></span>" : "<span class=\"cb\" aria-hidden=\"true\"></span>"))
         </div>
 
         <div class="title mt-3">II. KHÁM THỂ LỰC</div>
@@ -673,11 +672,11 @@
                 <td class="v-middle bold">3.</td>
                 <td colspan="2">
                     <div class="row">
-                        <b>Sản phụ khoa:</b> @(!string.IsNullOrEmpty(SelectedKhamSucKhoeChuyenKhoa?.kq_nk_tam_than) ? SelectedKhamSucKhoeChuyenKhoa?.kq_nk_tam_than : "Chi tiết nội dung khám theo danh mục tại phụ lục XXV ban hành kèm theo Thông tư này.")
+                        <b>Sản phụ khoa:</b> @(IsFemale && !string.IsNullOrEmpty(SelectedKhamSucKhoeSanPhuKhoa?.ket_qua) ? SelectedKhamSucKhoeSanPhuKhoa?.ket_qua : "Chi tiết nội dung khám theo danh mục tại phụ lục XXV ban hành kèm theo Thông tư này.")
                     </div>
                     <div class="row">
                         <span>Phân loại:</span>
-                        <span class="dotted-ruled" style="width: 120mm">@CoreHelpers.GetSafeString(SelectedKhamSucKhoeSanPhuKhoa?.phan_loai?.name)</span>
+                        <span class="dotted-ruled" style="width: 120mm">@(IsFemale ? CoreHelpers.GetSafeString(SelectedKhamSucKhoeSanPhuKhoa?.phan_loai?.name) : "")</span>
                     </div>
                 </td>
                 <td class="center v-middle">
@@ -969,6 +968,8 @@
     public string _logoPath { get; set; } = string.Empty;
     [Parameter]
     public string _profileImageUrl { get; set; } = string.Empty;
+    [Parameter]
+    public bool IsFemale { get; set; } = false;
     [Parameter]
     public SoKhamSucKhoeModel SelectedItem { get; set; } = new SoKhamSucKhoeModel();
     [Parameter]

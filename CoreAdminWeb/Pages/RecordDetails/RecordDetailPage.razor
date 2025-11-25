@@ -1,5 +1,6 @@
 @page "/record-detail-page/{ma_luot_kham}"
 @using System.Linq
+@using CoreAdminWeb.Enums
 @using CoreAdminWeb.Extensions
 @using CoreAdminWeb.Helpers
 @using CoreAdminWeb.Model
@@ -146,6 +147,7 @@
                               SelectedKhamSucKhoeSanPhuKhoa="KhamSucKhoeSanPhuKhoaModel"
                               SelectedKhamSucKhoeTheLuc="KhamSucKhoeTheLucModel"
                               SelectedKhamSucKhoeTienSu="KhamSucKhoeTienSuModel"
+                              IsFemale="isFemale"
                               _logoPath="@LogoImage"
                               _profileImageUrl="@_profileImageUrl" />
         }
@@ -196,6 +198,8 @@
     private string _so_dinh_danh = string.Empty;
     private bool _expired_result_page = false;
     private bool _isPublic = false;
+
+    private bool isFemale => CurrentUser?.gioi_tinh == GioiTinh.Nu;
 
     #endregion
 

@@ -84,6 +84,8 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         private string para3 { get; set; } = string.Empty;
         private string para4 { get; set; } = string.Empty;
 
+        private bool isFemale => SelectedUser.gioi_tinh == GioiTinh.Nu;
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();

@@ -115,7 +115,7 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private bool onBSRangHamMat => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_rang_ham_mat?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
         private bool onBSSanPhuKhoa => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_san_phu_khoa?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
         private bool onBSKetLuan => CurrentUser != null && SelectedKhamSucKhoeCongTy.bs_ket_luan?.id == CurrentUser.id || SelectedKhamSucKhoeCongTy.kham_noi_vien == true && onBS;
-
+        private bool isFemale => SelectedUser.gioi_tinh == GioiTinh.Nu;
         private string imageWebRootPath { get; set; } = string.Empty;
 
         private Dictionary<int, List<PhanLoaiSucKhoeModel>> SelectedPhanLoaiSucKhoes { get; set; } = new();
