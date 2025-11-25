@@ -125,8 +125,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private List<UserModel> Users { get; set; } = new();
         private string currentFilterPhanLoaiSucKhoe { get; set; } = string.Empty;
 
-        
-        
+
+
         private int renderKey { get; set; } = 0;
 
         private dynamic dynamicTheLucObj = new ExpandoObject();
@@ -928,22 +928,25 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                         }
                     }
 
-                    if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
+                    if (SelectedUser.gioi_tinh == GioiTinh.Nu)
                     {
-                        var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<dynamic>() { SelectedKhamSucKhoeSanPhuKhoa });
-                        if (result == null || !result.IsSuccess)
+                        if (SelectedKhamSucKhoeSanPhuKhoa.id > 0)
                         {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
-                            return;
+                            var result = await KhamSucKhoeSanPhuKhoaService.UpdateAsync(new List<dynamic>() { SelectedKhamSucKhoeSanPhuKhoa });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
+                                return;
+                            }
                         }
-                    }
-                    else
-                    {
-                        var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<dynamic>() { SelectedKhamSucKhoeSanPhuKhoa });
-                        if (result == null || !result.IsSuccess)
+                        else
                         {
-                            AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
-                            return;
+                            var result = await KhamSucKhoeSanPhuKhoaService.CreateAsync(new List<dynamic>() { SelectedKhamSucKhoeSanPhuKhoa });
+                            if (result == null || !result.IsSuccess)
+                            {
+                                AlertService.ShowAlert("Đã có lỗi xảy ra khi lưu thông tin khám phụ khoa!", "danger");
+                                return;
+                            }
                         }
                     }
 
