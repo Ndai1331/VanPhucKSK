@@ -793,7 +793,7 @@ namespace CoreAdminWeb.Services.Exports
                                                 { "<<SoDinhDanh>>", $"{soKhamSucKhoe.benh_nhan?.so_dinh_danh}" },
                                                 { "<<SoDienThoai>>", $"{soKhamSucKhoe.benh_nhan?.so_dien_thoai}" }
                                             });
-                doc.ReplaceImage("<<QR>>", qrCode, 500000, 500000);
+                doc.ReplaceImage("<<QR>>", qrCode, null, 500000, 500000);
             }
             catch (Exception ex)
             {
@@ -849,14 +849,29 @@ namespace CoreAdminWeb.Services.Exports
                                                 { "<<HuyetAp>>", $"{theLuc?.huyet_ap}" },
                                                 { "<<MaTaiKhoan>>", $"{soKhamSucKhoe.benh_nhan?.ma_tai_khoan}" },
                                                 { "<<TenCongTy>>", $"{soKhamSucKhoe.MaDotKham?.ma_hop_dong_ksk?.cong_ty?.name}" },
-                                                { "<<BSKetLuan>>", $"{ketLuan?.nguoi_ket_luan}" },
                                                 { "<<PhanLoaiSucKhoe>>", $"{ketLuan?.phan_loai_suc_khoe?.name}" },
                                                 { "<<KetLuan>>", $"{ketLuan?.benh_tat_ket_luan}" },
                                                 { "<<TuVan>>", $"{ketLuan?.tu_van}" },
-                                                { "<<NgayKham>>", $"{ketLuan?.ngay_ket_luan:dd}" },
-                                                { "<<ThangKham>>", $"{ketLuan?.ngay_ket_luan:MM}" },
-                                                { "<<NamKham>>", $"{ketLuan?.ngay_ket_luan:yyyy}" }
+                                                { "<<NgayKham>>", $"{soKhamSucKhoe.ngay_kham ?? soKhamSucKhoe.ngay_lap_so:dd}" },
+                                                { "<<ThangKham>>", $"{soKhamSucKhoe.ngay_kham ?? soKhamSucKhoe.ngay_lap_so:MM}" },
+                                                { "<<NamKham>>", $"{soKhamSucKhoe.ngay_kham ?? soKhamSucKhoe.ngay_lap_so:yyyy}" }
                                             });
+
+                byte[]? signImg = null;
+                string? chuKyBS = ketLuan?.bs_ket_luan?.chu_ky_bac_si ?? ketLuan?.chu_ky;
+                if (!string.IsNullOrEmpty(chuKyBS))
+                {
+                    try
+                    {
+                        signImg = Convert.FromBase64String(chuKyBS);
+                    }
+                    catch { }
+                }
+
+                string fullNameBSKL = $"{ketLuan?.bs_ket_luan?.chuc_danh} {ketLuan?.bs_ket_luan?.full_name}";
+                if (string.IsNullOrWhiteSpace(fullNameBSKL))
+                    fullNameBSKL = $"{ketLuan?.nguoi_ket_luan}";
+                doc.ReplaceImage("<<BSKetLuan>>", signImg, fullNameBSKL, 900000, 500000);
 
                 StringBuilder stringBuilder = new StringBuilder();
                 if (!string.IsNullOrEmpty(cls?.kq_nk_tuan_hoan) && cls.kq_nk_tuan_hoan != setting.ket_qua_ksk_mac_dinh)
@@ -1052,6 +1067,10 @@ namespace CoreAdminWeb.Services.Exports
             var ngheNghiep = prepareData.NgheNghieps?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
             var tienSu = prepareData.TienSus?.FirstOrDefault(x => x.ma_luot_kham == item.ma_luot_kham);
 
+            string fullNameBSKL = $"{ketLuan?.bs_ket_luan?.chuc_danh} {ketLuan?.bs_ket_luan?.full_name}";
+            if (string.IsNullOrWhiteSpace(fullNameBSKL))
+                fullNameBSKL = $"{ketLuan?.nguoi_ket_luan}";
+
             var tempTempalte = template
                 .Replace("{{TenBenhNhan}}", $"{item.benh_nhan?.full_name.ToUpper()}")
                 .Replace("{{GioiTinh_Nam}}", ExportKSKHelpers.CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nam))
@@ -1075,7 +1094,7 @@ namespace CoreAdminWeb.Services.Exports
                 .Replace("{{ThoiGianLapSo_Ngay}}", $"{item.ngay_lap_so ?? DateTime.Now:dd}")
                 .Replace("{{ThoiGianLapSo_Thang}}", $"{item.ngay_lap_so ?? DateTime.Now:MM}")
                 .Replace("{{ThoiGianLapSo_Nam}}", $"{item.ngay_lap_so ?? DateTime.Now:yyyy}")
-                .Replace("{{NguoiLapSo}}", $"{item.nguoi_lap}")
+                .Replace("{{NguoiLapSo}}", ExportKSKHelpers.RenderSignature(item.chu_ky_nls ?? string.Empty, "<div style=\"height: 20mm\"></div>", 100, 50) + $"<br/><span class=\"bold\">{item.nguoi_lap}</span>")
                 .Replace("{{NamBatDauKinhNguyet}}", ExportKSKHelpers.TableTdHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu ? sanPhuKhoa?.tuoi_bat_dau_kinh?.ToString() : ""))
                 .Replace("{{KinhNguyet_Deu}}", ExportKSKHelpers.CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.Deu.ToString()))
                 .Replace("{{KinhNguyet_KhongDeu}}", ExportKSKHelpers.CheckBoxHtmlBuilder(item.benh_nhan?.gioi_tinh == GioiTinh.Nu && sanPhuKhoa?.tinh_chat_kinh == TinhChatKinh.KhongDeu.ToString()))
@@ -1149,13 +1168,13 @@ namespace CoreAdminWeb.Services.Exports
                 .Replace("{{KetQuaCLS_RangHamMat_ChuKy}}", ExportKSKHelpers.RenderSignature(cls?.chu_ky_rhm ?? string.Empty, "", 100, 50) + $"<br/>{cls?.bs_rhm}")
                 .Replace("{{KetQuaCLS_RangHamMat_Benh}}", $"{cls?.benh_rhm}")
                 .Replace("{{KetQuaCLS_RangHamMat_PhanLoai}}", $"{cls?.pl_rhm?.name}")
-                .Replace("{{KetQuaCLS}}", ExportKSKHelpers.RenderKQCLS(kqcls?.Where(c => !string.IsNullOrEmpty(c.ket_qua)).ToList(), ExportKSKHelpers.RenderSignature(ketLuan?.bs_ket_luan?.chu_ky_bac_si ?? string.Empty, "", 100, 50) + $"<br/>{ketLuan?.bs_ket_luan?.chuc_danh} {ketLuan?.bs_ket_luan?.full_name}"))
+                .Replace("{{KetQuaCLS}}", ExportKSKHelpers.RenderKQCLS(kqcls?.Where(c => !string.IsNullOrEmpty(c.ket_qua)).ToList(), ExportKSKHelpers.RenderSignature(ketLuan?.bs_ket_luan?.chu_ky_bac_si ?? ketLuan?.chu_ky ?? string.Empty, "", 100, 50) + $"<br/>{fullNameBSKL}"))
                 .Replace("{{KetQuaCLS_CLS_PhanLoaiSucKhoe}}", $"{ketLuan?.phan_loai_suc_khoe?.name}")
                 .Replace("{{KetLuan}}", ExportKSKHelpers.MultilineSpanHtmlBuilder(ketLuan?.benh_tat_ket_luan ?? string.Empty))
                 .Replace("{{NgayKetLuan_Ngay}}", $"{ketLuan?.ngay_ket_luan:dd}")
                 .Replace("{{NgayKetLuan_Thang}}", $"{ketLuan?.ngay_ket_luan:MM}")
                 .Replace("{{NgayKetLuan_Nam}}", $"{ketLuan?.ngay_ket_luan:yyyy}")
-                .Replace("{{NguoiKetLuan}}", ExportKSKHelpers.RenderSignature(ketLuan?.bs_ket_luan?.chu_ky_bac_si ?? string.Empty, "<div style=\"height: 20mm\"></div>", 100, 50) + $"<br/><span class=\"bold\">{ketLuan?.bs_ket_luan?.chuc_danh} {ketLuan?.bs_ket_luan?.full_name}</span>");
+                .Replace("{{NguoiKetLuan}}", ExportKSKHelpers.RenderSignature(ketLuan?.bs_ket_luan?.chu_ky_bac_si ?? ketLuan?.chu_ky ?? string.Empty, "<div style=\"height: 20mm\"></div>", 100, 50) + $"<br/><span class=\"bold\">{fullNameBSKL}</span>");
 
             var pdfBytes = _pdfService.GeneratePdfFromHtml(tempTempalte, new PdfSettings
             {

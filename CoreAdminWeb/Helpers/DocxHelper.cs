@@ -134,8 +134,8 @@ namespace CoreAdminWeb.Helpers
             mp.Document.Save();
         }
 
-        public static void ReplaceImage(this WordprocessingDocument doc, string placeholder, byte[] imageBytes,
-                                        int widthEmu = 990000, int heightEmu = 792000)
+        public static void ReplaceImage(this WordprocessingDocument doc, string placeholder, byte[]? imageBytes,
+                                        string? appendText = null, int widthEmu = 990000, int heightEmu = 792000)
         {
             if (string.IsNullOrEmpty(placeholder))
             {
@@ -143,14 +143,21 @@ namespace CoreAdminWeb.Helpers
             }
 
             var mp = doc.MainDocumentPart ?? throw new InvalidOperationException("Invalid document: no MainDocumentPart");
+            bool hasImage = imageBytes != null && imageBytes.Length > 0;
+            bool hasAppendText = !string.IsNullOrEmpty(appendText);
 
-            var imgPart = mp.AddImagePart(ImagePartType.Png);
-            using (var ms = new MemoryStream(imageBytes))
+            ImagePart? imgPart = null;
+            string? relId = null;
+            if (hasImage)
             {
-                imgPart.FeedData(ms);
-            }
+                imgPart = mp.AddImagePart(ImagePartType.Png);
+                using (var ms = new MemoryStream(imageBytes!))
+                {
+                    imgPart.FeedData(ms);
+                }
 
-            string relId = mp.GetIdOfPart(imgPart);
+                relId = mp.GetIdOfPart(imgPart);
+            }
 
             var scopes = EnumerateSearchScopes(doc);
 
@@ -211,52 +218,133 @@ namespace CoreAdminWeb.Helpers
                         int lastRunIdx = affected[affected.Count - 1].RunIndex;
                         var lastRunRPr = runs[lastRunIdx].RunProperties?.CloneNode(true) as RunProperties;
 
-                        var imageRun = new Run();
+                        RunProperties? baseRPr = null;
                         if (innerRPr != null)
                         {
-                            imageRun.RunProperties = innerRPr;
+                            baseRPr = innerRPr;
                         }
                         else if (lastRunRPr != null)
                         {
-                            imageRun.RunProperties = (RunProperties)lastRunRPr.CloneNode(true);
+                            baseRPr = (RunProperties)lastRunRPr.CloneNode(true);
                         }
 
-                        imageRun.AppendChild(BuildInlineImage(relId, widthEmu, heightEmu));
-
-                        if (sameTextEl)
+                        // CASE 1: không có appendText => giữ nguyên behavior cũ: chỉ chèn image + giữ lastTail như code gốc
+                        if (!hasAppendText)
                         {
-                            // Chèn image rồi suffix ngay sau image để bảo toàn thứ tự
-                            anchorRun.Parent!.InsertAfter(imageRun, anchorRun);
-
-                            if (lastTail.Length > 0)
+                            if (!hasImage || relId == null)
                             {
-                                var suffixRun = new Run();
-                                if (innerRPr != null)
+                                // Không ảnh, không appendText: coi như xóa placeholder (đã clear ở trên).
+                                // Nếu muốn giữ suffix cũ thì set lại lastTail.
+                                if (!sameTextEl && lastTail.Length > 0)
                                 {
-                                    suffixRun.RunProperties = (RunProperties)innerRPr.CloneNode(true);
+                                    last.TextEl.Text = lastTail;
+                                    last.TextEl.Space = SpaceProcessingModeValues.Preserve;
                                 }
-                                else if (lastRunRPr != null)
-                                {
-                                    suffixRun.RunProperties = (RunProperties)lastRunRPr.CloneNode(true);
-                                }
-
-                                AppendTextWithPreservedWhitespace(suffixRun, lastTail);
-                                imageRun.Parent!.InsertAfter(suffixRun, imageRun);
-                            }
-                        }
-                        else
-                        {
-                            // Suffix ở run sau → giữ nguyên tại chỗ
-                            if (lastTail.Length > 0)
-                            {
-                                last.TextEl.Text = lastTail;
-                                last.TextEl.Space = SpaceProcessingModeValues.Preserve;
+                                break;
                             }
 
-                            anchorRun.Parent!.InsertAfter(imageRun, anchorRun);
-                        }
+                            var imageRun = new Run();
+                            if (baseRPr != null)
+                            {
+                                imageRun.RunProperties = (RunProperties)baseRPr.CloneNode(true);
+                            }
 
-                        // Find next occurrence
+                            imageRun.AppendChild(BuildInlineImage(relId, widthEmu, heightEmu));
+
+                            if (sameTextEl)
+                            {
+                                anchorRun.Parent!.InsertAfter(imageRun, anchorRun);
+
+                                if (lastTail.Length > 0)
+                                {
+                                    var suffixRun = new Run();
+                                    if (baseRPr != null)
+                                    {
+                                        suffixRun.RunProperties = (RunProperties)baseRPr.CloneNode(true);
+                                    }
+
+                                    AppendTextWithPreservedWhitespace(suffixRun, lastTail);
+                                    imageRun.Parent!.InsertAfter(suffixRun, imageRun);
+                                }
+                            }
+                            else
+                            {
+                                if (lastTail.Length > 0)
+                                {
+                                    last.TextEl.Text = lastTail;
+                                    last.TextEl.Space = SpaceProcessingModeValues.Preserve;
+                                }
+
+                                anchorRun.Parent!.InsertAfter(imageRun, anchorRun);
+                            }
+                        }
+                        // CASE 2: có appendText & có imageBytes => xóa empty line phía trên + ảnh trên, text dưới
+                        else if (hasImage && relId != null)
+                        {
+                            // Xóa các paragraph trống phía trên, giữ lại paragraph hiện tại
+                            RemoveEmptyParagraphsAbove(p);
+
+                            var para = anchorRun.Ancestors<Paragraph>().FirstOrDefault() ?? p;
+
+                            // Lấy ParagraphProperties “chuẩn” để canh giữa
+                            ParagraphProperties? basePPr = ResolveSignatureParagraphProperties(para);
+
+                            // Xóa toàn bộ run cũ trong paragraph placeholder
+                            para.RemoveAllChildren<Run>();
+
+                            // Set lại ParagraphProperties (center theo paragraph chuẩn)
+                            if (basePPr != null)
+                                para.ParagraphProperties = (ParagraphProperties)basePPr.CloneNode(true);
+
+                            // Run ảnh
+                            var imageRun = new Run();
+                            if (baseRPr != null)
+                                imageRun.RunProperties = (RunProperties)baseRPr.CloneNode(true);
+                            imageRun.AppendChild(BuildInlineImage(relId, widthEmu, heightEmu));
+
+                            // xuống dòng sau ảnh
+                            var brRun = new Run(new Break());
+
+                            // Run text (bác sĩ kết luận)
+                            var textRun = new Run();
+                            if (baseRPr != null)
+                                textRun.RunProperties = (RunProperties)baseRPr.CloneNode(true);
+
+                            AppendTextWithPreservedWhitespace(textRun, appendText!);
+
+                            // Build lại paragraph: [image][br][text]
+                            para.Append(imageRun);
+                            para.Append(brRun);
+                            para.Append(textRun);
+                        }
+                        // CASE 3: không có imageBytes => chỉ thay thế placeholder bằng appendText
+                        else // hasAppendText && !hasImage
+                        {
+                            if (sameTextEl)
+                            {
+                                // Ghép luôn head + appendText + tail vào cùng TextEl
+                                var combined = firstHead + appendText + lastTail;
+                                first.TextEl.Text = combined;
+                                first.TextEl.Space = SpaceProcessingModeValues.Preserve;
+                            }
+                            else
+                            {
+                                // Suffix ở run sau → giữ nguyên tại chỗ
+                                if (lastTail.Length > 0)
+                                {
+                                    last.TextEl.Text = lastTail;
+                                    last.TextEl.Space = SpaceProcessingModeValues.Preserve;
+                                }
+
+                                var appendRun = new Run();
+                                if (baseRPr != null)
+                                {
+                                    appendRun.RunProperties = (RunProperties)baseRPr.CloneNode(true);
+                                }
+                                AppendTextWithPreservedWhitespace(appendRun, appendText!);
+                                anchorRun.Parent!.InsertAfter(appendRun, anchorRun);
+                            }
+                        }
                     }
                 }
             }
@@ -538,6 +626,58 @@ namespace CoreAdminWeb.Helpers
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Xóa các Paragraph trống phía trên paragraph hiện tại
+        /// (Paragraph chỉ chứa whitespace / xuống dòng, không có chữ thực sự).
+        /// </summary>
+        private static void RemoveEmptyParagraphsAbove(Paragraph paragraph)
+        {
+            OpenXmlElement? prev = paragraph.PreviousSibling();
+
+            while (prev is Paragraph prevP)
+            {
+                // Có text không whitespace => dừng
+                bool hasRealText = prevP.Descendants<Text>()
+                                        .Any(t => !string.IsNullOrWhiteSpace(t.Text));
+                if (hasRealText)
+                    break;
+
+                // Không có text thật => coi như linebreak/empty line, xóa
+                var toRemove = prevP;
+                prev = prevP.PreviousSibling();
+                toRemove.Remove();
+            }
+        }
+
+        private static ParagraphProperties? ResolveSignatureParagraphProperties(Paragraph para)
+        {
+            // 1. Ưu tiên PPr hiện tại nếu đã có Justification
+            var currentPPr = para.ParagraphProperties;
+            if (currentPPr?.GetFirstChild<Justification>() != null)
+                return (ParagraphProperties)currentPPr.CloneNode(true);
+
+            // 2. Nếu chưa, tìm paragraph có chữ phía trên để mượn alignment
+            OpenXmlElement? prev = para.PreviousSibling();
+            while (prev is Paragraph prevP)
+            {
+                bool hasRealText = prevP.Descendants<Text>()
+                                        .Any(t => !string.IsNullOrWhiteSpace(t.Text));
+                if (hasRealText)
+                {
+                    if (prevP.ParagraphProperties != null)
+                        return (ParagraphProperties)prevP.ParagraphProperties.CloneNode(true);
+
+                    break;
+                }
+
+                prev = prevP.PreviousSibling();
+            }
+
+            // 3. Nếu vẫn không có, default center
+            return new ParagraphProperties(
+                new Justification { Val = JustificationValues.Center });
         }
     }
 }
