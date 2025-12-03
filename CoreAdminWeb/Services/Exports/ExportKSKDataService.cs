@@ -503,50 +503,50 @@ namespace CoreAdminWeb.Services.Exports
                 tasks.Add(Task.Run(async () =>
                 {
                     chuyenKhoas = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit=-1"),
-                        soKSKIds, batchSize
+                        pair => _khamSucKhoeChuyenKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", pair.Item2)}&filter[_or][1][luot_kham][_in]={string.Join(",", pair.Item1)}&limit=-1"),
+                        soKSKIds, maLuotKhams, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     sanPhuKhoas = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit=-1"),
-                        soKSKIds, batchSize
+                        pair => _khamSucKhoeSanPhuKhoaService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", pair.Item2)}&filter[_or][1][luot_kham][_in]={string.Join(",", pair.Item1)}&limit=-1"),
+                        soKSKIds, maLuotKhams, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     ketLuans = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit=-1"),
-                        soKSKIds, batchSize
+                        pair => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", pair.Item2)}&filter[_or][1][luot_kham][_in]={string.Join(",", pair.Item1)}&limit=-1"),
+                        soKSKIds, maLuotKhams, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     theLucs = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeTheLucService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit=-1"),
-                        soKSKIds, batchSize
+                        pair => _khamSucKhoeTheLucService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", pair.Item2)}&filter[_or][1][luot_kham][_in]={string.Join(",", pair.Item1)}&limit=-1"),
+                        soKSKIds, maLuotKhams, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     kqCLSs = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit=-1"),
-                        soKSKIds, batchSize
+                        pair => _khamSucKhoeKetQuaCanLamSangService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", pair.Item2)}&filter[_or][1][luot_kham][_in]={string.Join(",", pair.Item1)}&limit=-1"),
+                        soKSKIds, maLuotKhams, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     ngheNghieps = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeNgheNghiepService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit=-1"),
-                        soKSKIds, batchSize
+                        pair => _khamSucKhoeNgheNghiepService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", pair.Item2)}&filter[_or][1][luot_kham][_in]={string.Join(",", pair.Item1)}&limit=-1"),
+                        soKSKIds, maLuotKhams, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
                 {
                     tienSus = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _khamSucKhoeTienSuService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&filter[_or][1][luot_kham][_in]={string.Join(",", ids)}&limit=-1"),
-                        soKSKIds, batchSize
+                        pair => _khamSucKhoeTienSuService.GetAllAsync($"filter[_or][0][ma_luot_kham][_in]={string.Join(",", pair.Item2)}&filter[_or][1][luot_kham][_in]={string.Join(",", pair.Item1)}&limit=-1"),
+                        soKSKIds, maLuotKhams, batchSize
                     );
                 }));
                 tasks.Add(Task.Run(async () =>
@@ -559,8 +559,8 @@ namespace CoreAdminWeb.Services.Exports
                 tasks.Add(Task.Run(async () =>
                 {
                     kqCLSFiles = await ExportKSKHelpers.BatchQueryAsync(
-                        ids => _ketQuaCanLamSangFileService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", maLuotKhams)}&limit=-1"),
-                        soKSKIds, batchSize
+                        ids => _ketQuaCanLamSangFileService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}&limit=-1"),
+                        maLuotKhams, batchSize
                     );
                 }));
 
@@ -1288,8 +1288,7 @@ namespace CoreAdminWeb.Services.Exports
             if (!string.IsNullOrEmpty(item.ma_luot_kham))
             {
                 matchingFiles = prepareData.KetQuaCLSFiles?
-                    .Where(f => !string.IsNullOrEmpty(f.url_file) &&
-                                f.url_file!.Contains(item.ma_luot_kham!, StringComparison.OrdinalIgnoreCase))
+                    .Where(f => !string.IsNullOrEmpty(f.url_file) && f.ma_luot_kham == item.ma_luot_kham)
                     .ToList()
                     ?? new List<KetQuaCanLamSangFileModel>();
             }
@@ -1302,8 +1301,12 @@ namespace CoreAdminWeb.Services.Exports
                 var cpuCount = Environment.ProcessorCount;
                 var maxParallel = Math.Clamp(Math.Min(cpuCount * 2, 16), 4, 16);
                 var limiter = new SemaphoreSlim(maxParallel);
+
+                Console.WriteLine($"Info: downloading related PDFs for {item.ma_luot_kham}, total files: {matchingFiles.Count}, max parallel: {maxParallel}");
                 var downloadTasks = matchingFiles.Select(f => DownloadPdfBytesWithLimitAsync(f, baseUrl, httpClient, limiter, ct));
                 var downloaded = await Task.WhenAll(downloadTasks);
+
+                Console.WriteLine($"Info: downloaded {downloaded.Count(b => b != null)} related PDFs for {item.ma_luot_kham}");
 
                 // Lọc các file hợp lệ và là PDF
                 var pdfExtraBytes = downloaded
@@ -1313,6 +1316,8 @@ namespace CoreAdminWeb.Services.Exports
 
                 if (pdfExtraBytes.Count == 0)
                     return pdfBytes;
+
+                Console.WriteLine($"Info: merging {pdfExtraBytes.Count} related PDFs for {item.ma_luot_kham}");
 
                 // 2. Merge: main PDF + các PDF tải được
                 using var mergedDoc = new PdfSharp.Pdf.PdfDocument();
