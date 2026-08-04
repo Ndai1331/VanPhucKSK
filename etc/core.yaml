@@ -1,0 +1,51 @@
+services:
+  drcore:
+    image: longnguyen1331/drcore:latest
+    ports:
+      - 8010:8010
+    restart: unless-stopped
+    volumes:
+      - ./uploads:/directus/dist/uploads
+      - ./extensions:/directus/dist/extensions
+      - ./database:/directus/dist/database
+    environment:
+      # MinIO Configuration
+      STORAGE_DRIVER: "s3"
+      STORAGE_S3_DRIVER: "s3"
+      STORAGE_S3_KEY: "admin"
+      STORAGE_S3_SECRET: "Abc@123!!!@#V"
+      STORAGE_S3_ENDPOINT: "http://minio:9000"
+      STORAGE_S3_BUCKET: "vanphuc"
+      STORAGE_S3_REGION: "ap-southeast-1"
+      STORAGE_S3_FORCE_PATH_STYLE: "true"
+
+      # MinIO Environment Variables (for backward compatibility)
+      MINIO_ENDPOINT: "minio:9000"
+      MINIO_ACCESS_KEY: "admin"
+      MINIO_SECRET_KEY: "Abc@123!!!@#V"
+      MINIO_BUCKET: "hpte"
+      MINIO_USE_SSL: "true"
+      SECRET: "Randoma21n3kavg@4123"
+      NODE_ENV: "production"
+      DB_CLIENT: "mssql"
+      DB_HOST: "103.151.53.46"
+      DB_PORT: "1999"
+      DB_DATABASE: "HTL_BV199"
+      DB_USER: "sa"
+      DB_PASSWORD: "CDSL2024$12#903"
+      CACHE_ENABLED: "true"
+      CACHE_AUTO_PURGE: "true"
+      CACHE_STORE: "redis"
+      REDIS: "redis://cache:6320"
+      ADMIN_EMAIL: "admin@hpte.com"
+      ADMIN_PASSWORD: "Abc@123"
+      PUBLIC_URL: "https://core.benhvien199.vn"
+      ACCESS_TOKEN_TTL: "24h"
+      REFRESH_TOKEN_TTL: "30d"
+      PORT: "8010"
+    networks:
+      - benhvien199-hssh_drcore-network
+
+networks:
+  benhvien199-hssh_drcore-network:
+    external: true

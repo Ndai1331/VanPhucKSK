@@ -1,0 +1,35 @@
+services:
+  cache:
+    image: redis:6-alpine
+    ports:
+      - 6320:6320
+    command: ["redis-server", "--port", "6320"]
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(redis-cli -p 6320 ping) = 'PONG' ]"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_interval: 5s
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - benhvien199-hssh_drcore-network
+      
+  redis-insight:
+    image: redis/redisinsight:latest
+    restart: always
+    ports:
+      - "5520:5520"
+    volumes:
+      - redis-insight:/data
+    networks:
+      - benhvien199-hssh_drcore-network	
+    
+networks:
+  benhvien199-hssh_drcore-network:
+    external: true
+    driver: bridge
+
+volumes:
+  redis-data:
+  redis-insight:

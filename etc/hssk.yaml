@@ -1,0 +1,25 @@
+services:
+  van-phuc-web:
+    image: longnguyen1331/van-phuc-web:bv199-latest
+    ports:
+      - "8011:8011"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8011
+      - DrCoreApi__BaseUrl=https://core.benhvien199.vn/
+      - DrCoreApi__BaseUrlImage=https://hssk.benhvien199.vn/
+      - DrCoreApiReport__BaseUrl=https://api-csdl.hpte.vn/api/
+      - ConnectionStrings__UserDbConnectionString=Server=103.151.53.46,1999;Database=HTL_BV199;User Id=sa;Password=CDSL2024$12#903; TrustServerCertificate=True
+      - LocalApi__BaseUrl=https://hssk.benhvien199.vn/api/
+      - LocalApi__Timeout=30
+      - FTPConfig__Host=103.95.199.25
+      - FTPConfig__Port=21
+      - FTPConfig__Username=ftpuser
+      - FTPConfig__Password=ccxdKEdT2xLnNW4j
+      - FTPConfig__UsePassive=true
+    restart: unless-stopped
+    networks:
+      - benhvien199-hssh_drcore-network
+networks:
+  benhvien199-hssh_drcore-network:
+    driver: bridge
