@@ -80,24 +80,28 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
             }
 
             Loading.Show();
-
-            BuilderQuery = $"Dashboard/company-summary-report?companyHelthCheckId={_doanKhamFilter?.id}&fromDate={_startDateFilter:yyyy-MM-dd}&toDate={_endDateFilter:yyyy-MM-dd}";
-
-            var result = await MainService.GeDataAsync(BuilderQuery);
-            MainModel = result.Data ?? new CompanySummaryReportDashboardModel();
-
-            var chartTasks = new[]
+            try
             {
-                OnLoadTheoDoiChiPhiDoanKhamChart(),
-                OnLoadTheoDoiNhomChiPhiChart(),
-                OnLoadPhanBoChiPhiTheoNhomDinhMucChart(),
-                OnLoadTheoDoiLoiNhuanHopDongChart(),
-                OnLoadDienTienLuotKhamTheoThoiGianChart(),
-                OnLoadSoNguoiKhamTheoDonViChart()
-            };
-            await Task.WhenAll(chartTasks);
+                BuilderQuery = $"Dashboard/company-summary-report?companyHelthCheckId={_doanKhamFilter?.id}&fromDate={_startDateFilter:yyyy-MM-dd}&toDate={_endDateFilter:yyyy-MM-dd}";
 
-            Loading.Hide();
+                var result = await MainService.GeDataAsync(BuilderQuery);
+                MainModel = result.Data ?? new CompanySummaryReportDashboardModel();
+
+                var chartTasks = new[]
+                {
+                    OnLoadTheoDoiChiPhiDoanKhamChart(),
+                    OnLoadTheoDoiNhomChiPhiChart(),
+                    OnLoadPhanBoChiPhiTheoNhomDinhMucChart(),
+                    OnLoadTheoDoiLoiNhuanHopDongChart(),
+                    OnLoadDienTienLuotKhamTheoThoiGianChart(),
+                    OnLoadSoNguoiKhamTheoDonViChart()
+                };
+                await Task.WhenAll(chartTasks);
+            }
+            finally
+            {
+                Loading.Hide();
+            }
         }
 
         private async Task OnLoadTheoDoiChiPhiDoanKhamChart()

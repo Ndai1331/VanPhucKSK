@@ -348,6 +348,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 name = string.Empty
             });
             SelectedDinhMucItems.Clear();
+            StateHasChanged();
         }
 
         private async Task OpenAddOrUpdateModal(ContractModel? item)

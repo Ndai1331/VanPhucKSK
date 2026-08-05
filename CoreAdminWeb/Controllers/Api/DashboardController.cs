@@ -67,12 +67,12 @@ namespace CoreAdminWeb.Controllers.Api
                                     WHERE kkl.isAbnormal = 1
                                     AND EXISTS (SELECT 1 FROM ksk_filt f WHERE f.ksk_id = sk.MaDotKham)
                                 ) AS CaBatThuong",
-                        Action = async (object? obj) =>
+                        Action = (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
                             {
                                 response.Data.CompanyExamination = new CompanyExaminationModel();
-                                while (await reader.ReadAsync())
+                                while (reader.Read())
                                 {
                                     response.Data.CompanyExamination.ToTalExaminations = reader["SoDotKham"] as int? ?? 0;
                                     response.Data.CompanyExamination.TotalExaminationRecords = reader["SoLuotKham"] as int? ?? 0;
@@ -106,12 +106,12 @@ namespace CoreAdminWeb.Controllers.Api
                                 AND ct.cong_ty = @MaDonVi
                             )
                             AND (ksk.deleted IS NULL OR ksk.deleted = 0)",
-                        Action = async (object? obj) =>
+                        Action = (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
                             {
                                 response.Data.CompanyHealthExamination = new CompanyHealthExaminationModel();
-                                while (await reader.ReadAsync())
+                                while (reader.Read())
                                 {
                                     response.Data.CompanyHealthExamination.LastDate = reader.GetDateTime(reader.GetOrdinal("LastDate"));
                                     response.Data.CompanyHealthExamination.TotalExaminationRecords = reader["SoLuotKham"] as int?;
@@ -139,12 +139,12 @@ namespace CoreAdminWeb.Controllers.Api
                             AND CAST(kskct.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
                             AND ct.cong_ty = @MaDonVi
                             GROUP BY plsk.[name], kskct.ngay_du_kien_kham",
-                        Action = async (object? obj) =>
+                        Action = (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
                             {
                                 response.Data.HealthClassifications = [];
-                                while (await reader.ReadAsync())
+                                while (reader.Read())
                                 {
                                     response.Data.HealthClassifications.Add(new HealthClassificationModel
                                     {
@@ -174,12 +174,12 @@ namespace CoreAdminWeb.Controllers.Api
                             AND ct.cong_ty = @MaDonVi
                             GROUP BY kskkt.benh_tat_ket_luan
                             ORDER BY COUNT(1) DESC",
-                        Action = async (object? obj) =>
+                        Action = (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
                             {
                                 response.Data.CommonDiseases = [];
-                                while (await reader.ReadAsync())
+                                while (reader.Read())
                                 {
                                     response.Data.CommonDiseases.Add(new CommonDiseaseModel
                                     {
@@ -251,7 +251,8 @@ namespace CoreAdminWeb.Controllers.Api
                                         ON ct.id = kskct.ma_hop_dong_ksk
                                 WHERE (kskct.deleted IS NULL OR kskct.deleted = 0)
                                     AND (ct.deleted   IS NULL OR ct.deleted   = 0)
-                                    AND CAST(kskct.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
+                                    AND kskct.ngay_du_kien_kham >= @FromDate
+                                    AND kskct.ngay_du_kien_kham < DATEADD(DAY, 1, @ToDate)
                                     AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             ),
                             patient AS (
@@ -259,8 +260,10 @@ namespace CoreAdminWeb.Controllers.Api
                                     MaDotKham,
                                     SUM(CASE WHEN [status] = 'published'  THEN 1 ELSE 0 END) AS published_cnt,
                                     SUM(CASE WHEN [status] <> 'published' THEN 1 ELSE 0 END) AS unpublished_cnt
-                                FROM SoKhamSucKhoe
-                                GROUP BY MaDotKham
+                                FROM SoKhamSucKhoe s
+                                JOIN kskct_f f ON f.kskct_id = s.MaDotKham
+                                WHERE (s.deleted IS NULL OR s.deleted = 0)
+                                GROUP BY s.MaDotKham
                             ),
                             totals AS (
                                 SELECT
@@ -301,12 +304,12 @@ namespace CoreAdminWeb.Controllers.Api
                             FROM totals t
                             CROSS JOIN agg_costs ac
                         ",
-                        Action = async (object? obj) =>
+                        Action = (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
                             {
                                 response.Data.Summary = new CompanySummaryReportDashboardSummaryModel();
-                                while (await reader.ReadAsync())
+                                while (reader.Read())
                                 {
                                     response.Data.Summary.Count = reader["Count"] as int? ?? 0;
                                     response.Data.Summary.DoneCount = reader["DoneCount"] as int? ?? 0;
@@ -350,12 +353,12 @@ namespace CoreAdminWeb.Controllers.Api
                             FROM totals t
                             CROSS JOIN patients p
                         ",
-                        Action = async (object? obj) =>
+                        Action = (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
                             {
                                 response.Data.Feature = new CompanySummaryReportDashboardSummaryFeatureModel();
-                                while (await reader.ReadAsync())
+                                while (reader.Read())
                                 {
                                     response.Data.Feature.Count = reader["Count"] as int? ?? 0;
                                     response.Data.Feature.PatientCount = reader["PatientCount"] as int? ?? 0;
@@ -366,6 +369,16 @@ namespace CoreAdminWeb.Controllers.Api
                     new DashboardQuery
                     {
                         Sql = @"
+                            WITH kskct_f AS (
+                                SELECT DISTINCT kskct.ma_hop_dong_ksk AS contract_id
+                                FROM kham_suc_khoe_cong_ty kskct
+                                JOIN [contract] ct ON ct.id = kskct.ma_hop_dong_ksk
+                                WHERE (kskct.deleted IS NULL OR kskct.deleted = 0)
+                                    AND (ct.deleted IS NULL OR ct.deleted = 0)
+                                    AND kskct.ngay_du_kien_kham >= @FromDate
+                                    AND kskct.ngay_du_kien_kham < DATEADD(DAY, 1, @ToDate)
+                                    AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
+                            )
                             SELECT
 	                            ct.code [MaHopDong],
                                 ldm.[name] [NhomDinhMuc],
@@ -375,19 +388,18 @@ namespace CoreAdminWeb.Controllers.Api
 	                            CAST(COALESCE(SUM(kskdm.thanh_tien_dm), 0.0) AS decimal) [ChiPhiDuKien]
                             FROM kham_suc_khoe_dinh_muc_thuc_te kskdm
                             INNER JOIN [contract] ct ON ct.id = kskdm.[contract]
+                            INNER JOIN kskct_f f ON f.contract_id = ct.id
                             INNER JOIN danh_muc_dinh_muc dmdm ON dmdm.id = kskdm.MaDinhMuc
                             LEFT JOIN loai_dinh_muc ldm ON ldm.id = dmdm.loai_dinh_muc
                             WHERE (kskdm.deleted IS NULL OR kskdm.deleted = 0) AND (ct.deleted IS NULL OR ct.deleted = 0)
-                            AND CAST(ct.ngay_hieu_luc AS DATE) BETWEEN @FromDate AND @ToDate
-                            AND EXISTS(SELECT Id FROM kham_suc_khoe_cong_ty kskct WHERE kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             GROUP BY ct.code, dmdm.[name], ct.[gia_tri_hop_dong], ldm.[name]
                         ",
-                        Action = async (object? obj) =>
+                        Action = (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
                             {
                                 response.Data.Revenues = [];
-                                while (await reader.ReadAsync())
+                                while (reader.Read())
                                 {
                                     response.Data.Revenues.Add(new CompanySummaryReportDashboardRevenueModel
                                     {
@@ -414,16 +426,17 @@ namespace CoreAdminWeb.Controllers.Api
                             INNER JOIN [contract] ct ON ct.id = kskct.ma_hop_dong_ksk
                             INNER JOIN CongTy comp ON comp.id = ct.cong_ty
                             WHERE (sksk.deleted IS NULL OR sksk.deleted = 0) AND (kskct.deleted IS NULL OR kskct.deleted = 0)
-                            AND CAST(sksk.ngay_kham AS DATE) BETWEEN @FromDate AND @ToDate
+                            AND sksk.ngay_kham >= @FromDate
+                            AND sksk.ngay_kham < DATEADD(DAY, 1, @ToDate)
                             AND (kskct.id = @DoanKhamId OR @DoanKhamId IS NULL)
                             GROUP BY comp.[name], sksk.ngay_kham
                         ",
-                        Action = async (object? obj) =>
+                        Action = (object? obj) =>
                         {
                             if (obj is DbDataReader reader)
                             {
                                 response.Data.NoteSummaries = [];
-                                while (await reader.ReadAsync())
+                                while (reader.Read())
                                 {
                                     response.Data.NoteSummaries.Add(new CompanySummaryReportDashboardNoteSummaryModel
                                     {
