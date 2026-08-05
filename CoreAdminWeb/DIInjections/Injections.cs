@@ -64,7 +64,8 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseService<TinhModel>, TinhService>();
             services.AddScoped<IContractDinhMucService, ContractDinhMucService>();
             services.AddScoped<AlertService>();
-            services.AddSingleton<ILoadingService, LoadingService>();
+            // A loading state belongs to one Blazor circuit, not every visitor.
+            services.AddScoped<ILoadingService, LoadingService>();
 
             // PDF Service Configuration
             services.AddScoped<IPdfService, PdfService>();
@@ -92,4 +93,3 @@ namespace CoreAdminWeb.DIInjections
         }
     }
 }
-

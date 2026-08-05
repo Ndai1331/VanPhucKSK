@@ -143,15 +143,15 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        _hasInitialized = true;
+        await InitializePageDataAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !_hasInitialized)
+        if (firstRender)
         {
-            _hasInitialized = true;
             StartIdleTimer();
-            await InitializePageDataAsync();
         }
     }
 

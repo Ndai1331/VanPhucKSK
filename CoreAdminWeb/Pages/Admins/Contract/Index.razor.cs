@@ -61,6 +61,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private UserModel? CurrentUser { get; set; }
         private bool onKD { get; set; } = false;
         private bool onReadonly => false;
+        private bool _isSaving;
 
         protected override async Task OnInitializedAsync()
         {
@@ -290,11 +291,18 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 return;
             }
 
-            foreach (var item in SelectedItemsDetail)
+            // A new row has no database ID yet, so remove it immediately. Existing rows
+            // are retained as a deletion marker and are deleted when the form is saved.
+            if (SelectedItemDetail.id == 0)
             {
-                if (item.id > 0 && item.id == SelectedItemDetail.id || item.sort > 0 && item.sort == SelectedItemDetail.sort)
+                SelectedItemsDetail.Remove(SelectedItemDetail);
+            }
+            else
+            {
+                var persistedItem = SelectedItemsDetail.FirstOrDefault(item => item.id == SelectedItemDetail.id);
+                if (persistedItem != null)
                 {
-                    item.deleted = true;
+                    persistedItem.deleted = true;
                 }
             }
 
@@ -310,6 +318,8 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                     name = string.Empty
                 });
             }
+
+            SelectedDinhMucItems.Clear();
 
             await InvokeAsync(StateHasChanged);
 
@@ -337,6 +347,7 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                 code = string.Empty,
                 name = string.Empty
             });
+            SelectedDinhMucItems.Clear();
         }
 
         private async Task OpenAddOrUpdateModal(ContractModel? item)
@@ -379,46 +390,60 @@ namespace CoreAdminWeb.Pages.Admins.Contract
 
         private async Task OnValidSubmit()
         {
+            if (_isSaving)
+            {
+                return;
+            }
+
             if (!FormValidation())
             {
                 return;
             }
-            await UpdateImageAsync();
-            if (SelectedItem.id == 0)
-            {
-                var result = await MainService.CreateAsync(SelectedItem);
-                if (result.IsSuccess)
-                {
-                    var chiTietList = SelectedItemsDetail
-                        .Where(c => c.deleted == false || c.deleted == null)
-                        .Select(c =>
-                        {
-                            c.contract = result.Data;
-                            return c;
-                        })
-                        .ToList();
 
-                    var detailResult = await ContractDinhMucService.CreateAsync(chiTietList);
-                    if (!detailResult.IsSuccess)
+            _isSaving = true;
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+                await UpdateImageAsync();
+                if (SelectedItem.id == 0)
+                {
+                    var result = await MainService.CreateAsync(SelectedItem);
+                    if (result.IsSuccess)
                     {
-                        AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
-                        return;
+                        var chiTietList = SelectedItemsDetail
+                            .Where(c => c.deleted == false || c.deleted == null)
+                            .Select(c =>
+                            {
+                                c.contract = result.Data;
+                                return c;
+                            })
+                            .ToList();
+
+                        var detailResult = await ContractDinhMucService.CreateAsync(chiTietList);
+                        if (!detailResult.IsSuccess)
+                        {
+                            AlertService.ShowAlert(detailResult.Message ?? "Lỗi khi thêm mới chi tiết dữ liệu", "danger");
+                            return;
+                        }
+                        await LoadData();
+                        ClearDinhMucCache();
+                        openAddOrUpdateModal = false;
+                        AlertService.ShowAlert("Thêm mới thành công!", "success");
                     }
-                    await LoadData();
-                    ClearDinhMucCache(); // Clear cache after successful operation
-                    openAddOrUpdateModal = false;
-                    AlertService.ShowAlert("Thêm mới thành công!", "success");
+                    else
+                    {
+                        AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
+                    }
                 }
                 else
                 {
-                    AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
-                }
-            }
-            else
-            {
-                var result = await MainService.UpdateAsync(SelectedItem);
-                if (result.IsSuccess)
-                {
+                    var result = await MainService.UpdateAsync(SelectedItem);
+                    if (!result.IsSuccess)
+                    {
+                        AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
+                        return;
+                    }
+
                     var addNewChiTietList = SelectedItemsDetail
                         .Where(c => (c.deleted == false || c.deleted == null) && c.id == 0)
                         .Select(c =>
@@ -473,14 +498,19 @@ namespace CoreAdminWeb.Pages.Admins.Contract
                     }
 
                     await LoadData();
-                    ClearDinhMucCache(); // Clear cache after successful update
+                    ClearDinhMucCache();
                     openAddOrUpdateModal = false;
                     AlertService.ShowAlert("Cập nhật thành công!", "success");
                 }
-                else
-                {
-                    AlertService.ShowAlert(result.Errors.GetErrorMessage(), "danger");
-                }
+            }
+            catch (Exception ex)
+            {
+                AlertService.ShowAlert($"Không thể lưu dữ liệu: {ex.Message}", "danger");
+            }
+            finally
+            {
+                _isSaving = false;
+                await InvokeAsync(StateHasChanged);
             }
         }
 
@@ -838,7 +868,18 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private async Task<List<DinhMucModel>> filterDinhMucFunction(IEnumerable<DinhMucModel> allItems, string filter,
             CancellationToken token)
         {
-            DinhMucs = await LoadDataInTable(allItems, filter, token, DinhMucService, $"limit=20&offset=0&meta=filter_count");
+            var normalizedFilter = (filter ?? string.Empty).Trim().ToLowerInvariant();
+            await Task.Delay(300, token);
+            token.ThrowIfCancellationRequested();
+
+            var query = "limit=20&offset=0&meta=filter_count&filter[_and][][deleted][_eq]=false&sort=-id";
+            if (!string.IsNullOrEmpty(normalizedFilter))
+            {
+                query += $"&filter[_and][][name][_icontains]={Uri.EscapeDataString(normalizedFilter)}";
+            }
+
+            var result = await DinhMucService.GetAllAsync(query);
+            DinhMucs = result.IsSuccess ? result.Data ?? new List<DinhMucModel>() : new List<DinhMucModel>();
             StateHasChanged();
             return DinhMucs;
         }

@@ -570,10 +570,10 @@
                         </div>
 
                         <div class="flex items-center justify-end gap-2 py-4">
-                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseAddOrUpdateModal">@(onReadonly ? "Đóng" : "Huỷ")</MudButton>
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseAddOrUpdateModal" Disabled="_isSaving">@(onReadonly ? "Đóng" : "Huỷ")</MudButton>
                             @if (!onReadonly)
                             {
-                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnValidSubmit">Lưu</MudButton>
+                                <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white" OnClick="OnValidSubmit" Disabled="_isSaving">@(_isSaving ? "Đang lưu..." : "Lưu")</MudButton>
                             }
                         </div>
                     </EditForm>
@@ -635,4 +635,3 @@
         padding: .75rem 0.5rem;
     }
 </style>
-

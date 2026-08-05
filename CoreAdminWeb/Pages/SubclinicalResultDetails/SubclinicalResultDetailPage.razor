@@ -427,14 +427,12 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
+        await LoadDataAsync();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            await LoadDataAsync();
-            _logoPath = $"{Configuration["DrCoreApi:BaseUrlImage"]}/images/Logo/logo.png";
-        }
+        await Task.CompletedTask;
     }
     #endregion
 

@@ -211,22 +211,19 @@ namespace CoreAdminWeb.Services.Contract
 
             try
             {
-                var updateModel = model.Select(c =>
+                // Directus bulk PATCH applies one payload to all selected keys. Sending a
+                // different payload per row is unreliable and fails with larger lists.
+                // Update each record explicitly so every row retains its own values.
+                foreach (var item in model)
                 {
-                    string jsonStr = JsonSerializer.Serialize(MapToCRUDModel(c));
-                    JObject jObject = JObject.Parse(jsonStr);
-                    dynamic dynamicObject = jObject;
-                    dynamicObject.id = c.id;
+                    var result = await UpdateAsync(item);
+                    if (!result.IsSuccess || !result.Data)
+                    {
+                        return result;
+                    }
+                }
 
-                    return dynamicObject;
-                }).ToList();
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<ContractDinhMucModel>>>($"items/{_collection}?fields={Fields}", updateModel);
-
-                return new RequestHttpResponse<bool>
-                {
-                    Data = response.IsSuccess,
-                    Errors = response.Errors
-                };
+                return new RequestHttpResponse<bool> { Data = true };
             }
             catch (Exception ex)
             {
@@ -282,13 +279,16 @@ namespace CoreAdminWeb.Services.Contract
 
             try
             {
-                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<ContractDinhMucModel>>>($"items/{_collection}?fields={Fields}", model.Select(c => new { id = c.id, deleted = true }));
-
-                return new RequestHttpResponse<bool>
+                foreach (var item in model)
                 {
-                    Data = response.IsSuccess,
-                    Errors = response.Errors
-                };
+                    var result = await DeleteAsync(item);
+                    if (!result.IsSuccess || !result.Data)
+                    {
+                        return result;
+                    }
+                }
+
+                return new RequestHttpResponse<bool> { Data = true };
             }
             catch (Exception ex)
             {
