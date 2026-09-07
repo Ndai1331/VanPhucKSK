@@ -219,12 +219,12 @@
     private async Task LoadData(bool isReset =false)
     {
         Loading.Show();
-
-        if (isReset)
+        try
         {
-            ResetPage();
-            await Task.Delay(100);
-        }
+            if (isReset)
+            {
+                ResetPage();
+            }
 
         BuildPaginationQuery(Page, PageSize);
         BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -256,7 +256,11 @@
         {
             MainModels = new List<ContractTypeModel>();
         }
-        Loading.Hide();
+        }
+        finally
+        {
+            Loading.Hide();
+        }
     }
    
     private async Task OnPageSizeChanged(int newSize)

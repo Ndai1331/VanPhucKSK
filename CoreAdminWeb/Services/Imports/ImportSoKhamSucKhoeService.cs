@@ -9,6 +9,7 @@ using CoreAdminWeb.Model.RequestHttps;
 using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Model.User;
 using CoreAdminWeb.Services.BaseServices;
+using CoreAdminWeb.Services.Files;
 using CoreAdminWeb.Services.Users;
 using OfficeOpenXml;
 using System.Globalization;
@@ -22,15 +23,20 @@ namespace CoreAdminWeb.Services.Imports
         private readonly IUserService _userService;
         private readonly IBaseService<TinhModel> _tinhService;
         private readonly IBaseService<XaPhuongModel> _xaService;
-        public ImportSoKhamSucKhoeService(IServiceScopeFactory serviceScopeFactory)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public ImportSoKhamSucKhoeService(
+            IBaseDetailService<SoKhamSucKhoeModel> soKhamSucKhoeService,
+            IUserService userService,
+            IBaseService<TinhModel> tinhService,
+            IBaseService<XaPhuongModel> xaService,
+            IHttpClientFactory httpClientFactory)
         {
-            using (var scope = serviceScopeFactory.CreateScope())
-            {
-                _soKhamSucKhoeService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<SoKhamSucKhoeModel>>();
-                _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-                _tinhService = scope.ServiceProvider.GetRequiredService<IBaseService<TinhModel>>();
-                _xaService = scope.ServiceProvider.GetRequiredService<IBaseService<XaPhuongModel>>();
-            }
+            _soKhamSucKhoeService = soKhamSucKhoeService;
+            _userService = userService;
+            _tinhService = tinhService;
+            _xaService = xaService;
+            _httpClientFactory = httpClientFactory;
         }
 
 
@@ -43,6 +49,7 @@ namespace CoreAdminWeb.Services.Imports
         {
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 ExcelPackage.License.SetNonCommercialOrganization("NonCommercial");
 
                 List<ImportDoanKhamModel> result;
@@ -74,6 +81,7 @@ namespace CoreAdminWeb.Services.Imports
                     // Đọc dữ liệu theo batch để giảm memory pressure
                     for (int row = startRow; row <= rowCount; row++)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         bool isEmptyRow = true;
                         for (int col = 1; col <= colCount; col++)
                         {
@@ -174,6 +182,7 @@ namespace CoreAdminWeb.Services.Imports
 
                 foreach (var item in result)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (!string.IsNullOrWhiteSpace(item.Email) && !emailSet.Add(item.Email))
                     {
                         emailDuplicates.Add(item.Email);
@@ -247,15 +256,15 @@ namespace CoreAdminWeb.Services.Imports
                 // Chạy các truy vấn batch song song
                 var userTask = BatchQueryAsync(
                     ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", ids)}&limit={batchSize}"),
-                    maBenhNhans, batchSize
+                    maBenhNhans, batchSize, cancellationToken
                 );
                 var tinhTask = BatchQueryAsync(
                     ids => _tinhService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}&limit={batchSize}"),
-                    maTinhs, batchSize
+                    maTinhs, batchSize, cancellationToken
                 );
                 var xaTask = BatchQueryAsync(
                     ids => _xaService.GetAllAsync($"filter[_and][][ma][_in]={string.Join(",", ids)}&limit={batchSize}"),
-                    maXas, batchSize
+                    maXas, batchSize, cancellationToken
                 );
 
                 await Task.WhenAll(userTask, tinhTask, xaTask);
@@ -271,12 +280,14 @@ namespace CoreAdminWeb.Services.Imports
 
                 var updatingUsers = new List<UserModel>();
                 var newUsers = new List<UserModel>();
+                var newUserKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
                 percent = 0;
                 int totalRow = result.Count;
                 int rowIndex = 0;
                 foreach (var item in result)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var splitName = StringExtension.SplitName(item.TenBenhNhan ?? string.Empty);
                     UserModel? existingUser;
                     if (
@@ -314,7 +325,7 @@ namespace CoreAdminWeb.Services.Imports
 
                         updatingUsers.Add(existingUser);
                     }
-                    else if (!newUsers.Any(c => c.ma_tai_khoan == item.MaBenhNhan))
+                    else if (newUserKeys.Add(item.MaBenhNhan))
                     {
                         newUsers.Add(new UserModel
                         {
@@ -341,7 +352,7 @@ namespace CoreAdminWeb.Services.Imports
                         });
                     }
 
-                    int nextPercent = (int)Math.Round((double)(rowIndex - 1) * 100 / (totalRow - 1));
+                    int nextPercent = (int)Math.Round((double)(rowIndex + 1) * 100 / Math.Max(1, totalRow));
                     if (percent != nextPercent)
                     {
                         percent = nextPercent;
@@ -367,7 +378,7 @@ namespace CoreAdminWeb.Services.Imports
                     ids => _soKhamSucKhoeService.GetAllAsync(
                         $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_neq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"
                     ),
-                    maLuotKhams, batchSize
+                    maLuotKhams, batchSize, cancellationToken
                 );
 
                 if (existingRecordsOthers.Any())
@@ -393,7 +404,7 @@ namespace CoreAdminWeb.Services.Imports
                 {
                     var existingByEmail = await BatchQueryAsync(
                         ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][email][_in]={string.Join(",", ids)}&limit={batchSize}"),
-                        newUsers.Select(c => c.email).Distinct().ToList(), batchSize
+                        newUsers.Select(c => c.email).Distinct().ToList(), batchSize, cancellationToken
                     );
 
                     if (existingByEmail != null && existingByEmail.Any())
@@ -410,14 +421,14 @@ namespace CoreAdminWeb.Services.Imports
                 }
 
                 // Batch update/create users
-                await BatchExecuteAsync(updatingUsers, _userService.UpdateAsync, batchSize);
-                await BatchExecuteAsync(newUsers, _userService.CreateAsync, batchSize);
+                await BatchExecuteAsync(updatingUsers, _userService.UpdateAsync, batchSize, cancellationToken);
+                await BatchExecuteAsync(newUsers, _userService.CreateAsync, batchSize, cancellationToken);
 
                 if (newUsers.Any())
                 {
                     existingUsers = await BatchQueryAsync(
                         ids => _userService.GetAllAsync($"filter[_and][][status][_eq]=active&filter[_and][][ma_tai_khoan][_in]={string.Join(",", ids)}&limit={batchSize}"),
-                        maBenhNhans, batchSize
+                        maBenhNhans, batchSize, cancellationToken
                     );
                 }
 
@@ -427,7 +438,7 @@ namespace CoreAdminWeb.Services.Imports
                     ids => _soKhamSucKhoeService.GetAllAsync(
                         $"filter[_and][][deleted][_eq]=false&filter[_and][][MaDotKham][_eq]={SelectedItem.id}&filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}&limit={batchSize}"
                     ),
-                    maLuotKhams, batchSize
+                    maLuotKhams, batchSize, cancellationToken
                 );
 
                 var existingRecordKeys = new HashSet<string>(
@@ -459,7 +470,11 @@ namespace CoreAdminWeb.Services.Imports
                         chu_ky_nls = SelectedItem.nguoi_lap_so?.chu_ky_bac_si
                     }).ToList();
 
-                //await BatchExecuteAsync(medicalRecordsToCreate, _soKhamSucKhoeService.CreateAsync, batchSize);
+                foreach (var batch in medicalRecordsToCreate.Chunk(batchSize))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await _soKhamSucKhoeService.CreateAsync(batch.Cast<dynamic>().ToList());
+                }
 
                 await updateProgress.Invoke(new ProcessingModel()
                 {
@@ -483,11 +498,12 @@ namespace CoreAdminWeb.Services.Imports
             }
         }
 
-        static async Task<List<T>> BatchQueryAsync<T>(Func<List<string>, Task<RequestHttpResponse<List<T>>>> queryFunc, List<string> ids, int batchSize = 200)
+        static async Task<List<T>> BatchQueryAsync<T>(Func<List<string>, Task<RequestHttpResponse<List<T>>>> queryFunc, List<string> ids, int batchSize = 200, CancellationToken cancellationToken = default)
         {
             var results = new List<T>();
             foreach (var batch in ids.Chunk(batchSize))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var res = await queryFunc(batch.ToList());
                 if (res.IsSuccess && res.Data != null)
                 {
@@ -497,18 +513,20 @@ namespace CoreAdminWeb.Services.Imports
             return results;
         }
 
-        static async Task BatchExecuteAsync<T>(List<T> items, Func<List<T>, Task<RequestHttpResponse<List<T>>>> execFunc, int batchSize = 100)
+        static async Task BatchExecuteAsync<T>(List<T> items, Func<List<T>, Task<RequestHttpResponse<List<T>>>> execFunc, int batchSize = 100, CancellationToken cancellationToken = default)
         {
             foreach (var batch in items.Chunk(batchSize))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await execFunc(batch.ToList());
             }
         }
 
-        static async Task BatchExecuteAsync<T>(List<T> items, Func<List<T>, Task<RequestHttpResponse<bool>>> execFunc, int batchSize = 100)
+        static async Task BatchExecuteAsync<T>(List<T> items, Func<List<T>, Task<RequestHttpResponse<bool>>> execFunc, int batchSize = 100, CancellationToken cancellationToken = default)
         {
             foreach (var batch in items.Chunk(batchSize))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await execFunc(batch.ToList());
             }
         }
@@ -552,7 +570,7 @@ namespace CoreAdminWeb.Services.Imports
         {
             var importTemplate = setting.mau_import_danh_sach_doan ?? throw new Exception("Không tìm thấy mẫu import");
 
-            using var http = new HttpClient();
+            var http = _httpClientFactory.CreateClient("DrCoreApiPublic");
             return await http.GetByteArrayAsync($"{baseUrl}assets/{importTemplate.id}");
         }
     }

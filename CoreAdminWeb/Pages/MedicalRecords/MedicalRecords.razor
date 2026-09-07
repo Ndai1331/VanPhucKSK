@@ -168,13 +168,16 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        _hasInitialized = true;
-        await InitializePageDataAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await Task.CompletedTask;
+        if (firstRender && !_hasInitialized)
+        {
+            _hasInitialized = true;
+
+            await InitializePageDataAsync();
+        }
     }
 
     /// <summary>

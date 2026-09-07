@@ -36,35 +36,28 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
             {
                 await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
-                StateHasChanged();
-
-                // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
+                await InvokeAsync(StateHasChanged);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             }
         }
 
         private async Task LoadData(bool isReset = false)
         {
             Loading.Show();
-
-            if (isReset)
+            try
             {
-                ResetPage();
-                await Task.Delay(100);
-            }
+                if (isReset)
+                {
+                    ResetPage();
+                }
 
-            BuilderQuery = $"Report/contract-unit-prices?limit={PageSize}&offset={(Page - 1) * PageSize}";
+                BuilderQuery = $"Report/contract-unit-prices?limit={PageSize}&offset={(Page - 1) * PageSize}";
 
-            if (_selectedContractFilter == null)
-            {
-                AlertService.ShowAlert("Vui lòng chọn hợp đồng để xem báo cáo", "warning");
-                Loading.Hide();
-                return;
-            }
+                if (_selectedContractFilter == null)
+                {
+                    AlertService.ShowAlert("Vui lòng chọn hợp đồng để xem báo cáo", "warning");
+                    return;
+                }
 
             BuilderQuery += $"&contract={_selectedContractFilter.id}";
 
@@ -87,7 +80,11 @@ namespace CoreAdminWeb.Pages.Admins.BaoCaoTheoDoiDonGiaTheoHopDong
             {
                 MainModels = new List<ReportBaoCaoTheoDoiDonGiaTheoHopDongModel>();
             }
-            Loading.Hide();
+            }
+            finally
+            {
+                Loading.Hide();
+            }
         }
 
         private async Task OnPageSizeChanged(int newSize)

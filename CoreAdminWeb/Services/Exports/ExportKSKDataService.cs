@@ -36,25 +36,36 @@ namespace CoreAdminWeb.Services.Exports
         private readonly IBaseGetService<KetQuaCanLamSangFileModel> _ketQuaCanLamSangFileService;
         private readonly IPdfService _pdfService;
         private readonly IDocxToPdfConverter _docxToPdfConverter;
-        public ExportKSKDataService(IServiceScopeFactory serviceScopeFactory, IMemoryCache memoryCache, IHttpClientFactory httpClientFactory)
+        public ExportKSKDataService(
+            IMemoryCache memoryCache,
+            IHttpClientFactory httpClientFactory,
+            IBaseDetailService<SoKhamSucKhoeModel> soKhamSucKhoeService,
+            IBaseDetailService<KhamSucKhoeChuyenKhoaModel> khamSucKhoeChuyenKhoaService,
+            IBaseDetailService<KhamSucKhoeSanPhuKhoaModel> khamSucKhoeSanPhuKhoaService,
+            IBaseDetailService<KhamSucKhoeKetLuanModel> khamSucKhoeKetLuanService,
+            IBaseDetailService<KhamSucKhoeTheLucModel> khamSucKhoeTheLucService,
+            IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel> khamSucKhoeKetQuaCanLamSangService,
+            IBaseDetailService<KhamSucKhoeNgheNghiepModel> khamSucKhoeNgheNghiepService,
+            IBaseDetailService<KhamSucKhoeTienSuModel> khamSucKhoeTienSuService,
+            IKhamSucKhoeAPIService<KetQuaCLSChiTietModel> khamSucKhoeKQCLSDetailService,
+            IBaseGetService<KetQuaCanLamSangFileModel> ketQuaCanLamSangFileService,
+            IPdfService pdfService,
+            IDocxToPdfConverter docxToPdfConverter)
         {
             _memoryCache = memoryCache;
             _httpClientFactory = httpClientFactory;
-            using (var scope = serviceScopeFactory.CreateScope())
-            {
-                _soKhamSucKhoeService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<SoKhamSucKhoeModel>>();
-                _khamSucKhoeChuyenKhoaService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeChuyenKhoaModel>>();
-                _khamSucKhoeKetLuanService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeKetLuanModel>>();
-                _khamSucKhoeSanPhuKhoaService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeSanPhuKhoaModel>>();
-                _khamSucKhoeTheLucService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeTheLucModel>>();
-                _khamSucKhoeKetQuaCanLamSangService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeKetQuaCanLamSangModel>>();
-                _khamSucKhoeNgheNghiepService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeNgheNghiepModel>>();
-                _khamSucKhoeTienSuService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeTienSuModel>>();
-                _khamSucKhoeKQCLSDetailService = scope.ServiceProvider.GetRequiredService<IKhamSucKhoeAPIService<KetQuaCLSChiTietModel>>();
-                _ketQuaCanLamSangFileService = scope.ServiceProvider.GetRequiredService<IBaseGetService<KetQuaCanLamSangFileModel>>();
-                _pdfService = scope.ServiceProvider.GetRequiredService<IPdfService>();
-                _docxToPdfConverter = scope.ServiceProvider.GetRequiredService<IDocxToPdfConverter>();
-            }
+            _soKhamSucKhoeService = soKhamSucKhoeService;
+            _khamSucKhoeChuyenKhoaService = khamSucKhoeChuyenKhoaService;
+            _khamSucKhoeKetLuanService = khamSucKhoeKetLuanService;
+            _khamSucKhoeSanPhuKhoaService = khamSucKhoeSanPhuKhoaService;
+            _khamSucKhoeTheLucService = khamSucKhoeTheLucService;
+            _khamSucKhoeKetQuaCanLamSangService = khamSucKhoeKetQuaCanLamSangService;
+            _khamSucKhoeNgheNghiepService = khamSucKhoeNgheNghiepService;
+            _khamSucKhoeTienSuService = khamSucKhoeTienSuService;
+            _khamSucKhoeKQCLSDetailService = khamSucKhoeKQCLSDetailService;
+            _ketQuaCanLamSangFileService = ketQuaCanLamSangFileService;
+            _pdfService = pdfService;
+            _docxToPdfConverter = docxToPdfConverter;
         }
 
         public async Task ExportFromExaminationWithProgressAsync(
@@ -655,7 +666,7 @@ namespace CoreAdminWeb.Services.Exports
                 {
                     tasks.Add(Task.Run(async () =>
                     {
-                        using var http = new HttpClient();
+                        var http = _httpClientFactory.CreateClient("DrCoreApiPublic");
                         var res = await http.GetByteArrayAsync($"{baseUrl}assets/{exportTemplateNam.id}", cancellationToken);
                         docTemplate1Bytes = res;
                     }, cancellationToken));
@@ -673,7 +684,7 @@ namespace CoreAdminWeb.Services.Exports
                 {
                     tasks.Add(Task.Run(async () =>
                     {
-                        using var http = new HttpClient();
+                        var http = _httpClientFactory.CreateClient("DrCoreApiPublic");
                         var res = await http.GetByteArrayAsync($"{baseUrl}assets/{exportTemplateNu.id}", cancellationToken);
                         docTemplate2Bytes = res;
                     }, cancellationToken));

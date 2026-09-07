@@ -45,35 +45,41 @@ public class DanhSachDoanController : ControllerBase
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
 
-            var where = " WHERE (ct.deleted = 0 OR ct.deleted IS NULL) AND ct.id IS NOT NULL AND (sksk.deleted = 0 OR sksk.deleted IS NULL)";
+            var predicates = new List<string>
+            {
+                "(ct.deleted = 0 OR ct.deleted IS NULL)",
+                "ct.id IS NOT NULL",
+                "(sksk.deleted = 0 OR sksk.deleted IS NULL)"
+            };
             if (!string.IsNullOrEmpty(maDotKham))
             {
-                where += " AND sksk.MaDotKham = " + maDotKham;
+                predicates.Add("sksk.MaDotKham = @maDotKham");
             }
             if (!string.IsNullOrEmpty(congTy))
             {
-                where += " AND hd.cong_ty = " + congTy;
+                predicates.Add("hd.cong_ty = @congTy");
             }
             if (fromDate.HasValue)
             {
-                where += " AND sksk.ngay_kham >= '" + fromDate.Value.ToString("yyyy-MM-dd") + "'";
+                predicates.Add("sksk.ngay_kham >= @fromDate");
             }
             if (toDate.HasValue)
             {
-                where += " AND sksk.ngay_kham <= '" + toDate.Value.ToString("yyyy-MM-dd") + "'";
+                predicates.Add("sksk.ngay_kham < DATEADD(DAY, 1, @toDate)");
             }
             if (!string.IsNullOrEmpty(maDieuTri))
             {
-                where += " AND sksk.ma_luot_kham = '" + maDieuTri + "'";
+                predicates.Add("sksk.ma_luot_kham = @maDieuTri");
             }
             if (fromNumber.HasValue)
             {
-                where += " AND sksk.sort >= " + fromNumber;
+                predicates.Add("sksk.sort >= @fromNumber");
             }
             if (toNumber.HasValue)
             {
-                where += " AND sksk.sort <= " + toNumber;
+                predicates.Add("sksk.sort <= @toNumber");
             }
+            var where = " WHERE " + string.Join(" AND ", predicates);
 
             // Query đếm tổng số bản ghi
             var countSql = @"
@@ -132,60 +138,29 @@ public class DanhSachDoanController : ControllerBase
             var results = new List<MedicalExaminationDto>();
             int totalCount = 0;
 
-            await _context.Database.OpenConnectionAsync();
+            await _context.Database.OpenConnectionAsync(HttpContext.RequestAborted);
+            using var command = _context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = countSql + ";\n" + dataSql;
+            if (!string.IsNullOrEmpty(maDotKham)) command.Parameters.Add(new SqlParameter("@maDotKham", maDotKham));
+            if (!string.IsNullOrEmpty(congTy)) command.Parameters.Add(new SqlParameter("@congTy", congTy));
+            if (fromDate.HasValue) command.Parameters.Add(new SqlParameter("@fromDate", fromDate.Value));
+            if (toDate.HasValue) command.Parameters.Add(new SqlParameter("@toDate", toDate.Value));
+            if (!string.IsNullOrEmpty(maDieuTri)) command.Parameters.Add(new SqlParameter("@maDieuTri", maDieuTri));
+            if (fromNumber.HasValue) command.Parameters.Add(new SqlParameter("@fromNumber", fromNumber.Value));
+            if (toNumber.HasValue) command.Parameters.Add(new SqlParameter("@toNumber", toNumber.Value));
+            command.Parameters.Add(new SqlParameter("@offset", validOffset));
+            command.Parameters.Add(new SqlParameter("@limit", validLimit));
 
-            // Lấy tổng số bản ghi
-            using (var countCommand = _context.Database.GetDbConnection().CreateCommand())
+            using var reader = await command.ExecuteReaderAsync(HttpContext.RequestAborted);
+            if (await reader.ReadAsync(HttpContext.RequestAborted))
             {
-                countCommand.CommandText = countSql;
-                if (!string.IsNullOrEmpty(maDotKham))
-                {
-                    countCommand.Parameters.Add(new SqlParameter("@maDotKham", maDotKham));
-                }
-                if (!string.IsNullOrEmpty(congTy))
-                {
-                    countCommand.Parameters.Add(new SqlParameter("@congTy", congTy));
-                }
-                if (fromDate.HasValue)
-                {
-                    countCommand.Parameters.Add(new SqlParameter("@fromDate", fromDate));
-                }
-                if (toDate.HasValue)
-                {
-                    countCommand.Parameters.Add(new SqlParameter("@toDate", toDate));
-                }
-
-                var countResult = await countCommand.ExecuteScalarAsync();
-                totalCount = Convert.ToInt32(countResult ?? 0);
+                totalCount = Convert.ToInt32(reader["TotalCount"]);
             }
 
-            // Lấy dữ liệu với phân trang
-            using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
+            if (await reader.NextResultAsync(HttpContext.RequestAborted))
             {
-                dataCommand.CommandText = dataSql;
-                if (!string.IsNullOrEmpty(maDotKham))
+                while (await reader.ReadAsync(HttpContext.RequestAborted))
                 {
-                    dataCommand.Parameters.Add(new SqlParameter("@maDotKham", maDotKham));
-                }
-                if (!string.IsNullOrEmpty(congTy))
-                {
-                    dataCommand.Parameters.Add(new SqlParameter("@congTy", congTy));
-                }
-                if (fromDate.HasValue)
-                {
-                    dataCommand.Parameters.Add(new SqlParameter("@fromDate", fromDate));
-                }
-                if (toDate.HasValue)
-                {
-                    dataCommand.Parameters.Add(new SqlParameter("@toDate", toDate));
-                }
-                dataCommand.Parameters.Add(new SqlParameter("@offset", validOffset));
-                dataCommand.Parameters.Add(new SqlParameter("@limit", validLimit));
-
-                using (var reader = await dataCommand.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
                         var item = new MedicalExaminationDto
                         {
                             id = reader["id"] as int?,
@@ -233,8 +208,7 @@ public class DanhSachDoanController : ControllerBase
                                 : null)
                         };
 
-                        results.Add(item);
-                    }
+                    results.Add(item);
                 }
             }
 
@@ -247,7 +221,7 @@ public class DanhSachDoanController : ControllerBase
         {
             response.Errors.Add(CreateErrorResponse(ex));
             response.StatusCode = HttpStatusCode.InternalServerError;
-            return BadRequest(response);
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
         finally
         {

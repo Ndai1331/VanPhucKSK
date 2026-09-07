@@ -47,12 +47,12 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
         private async Task LoadData(bool isReset = false)
         {
             Loading.Show();
-
-            if (isReset)
+            try
             {
-                ResetPage();
-                await Task.Delay(100);
-            }
+                if (isReset)
+                {
+                    ResetPage();
+                }
 
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -87,7 +87,11 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             {
                 MainModels = new List<KhamSucKhoeCongTyModel>();
             }
-            Loading.Hide();
+            }
+            finally
+            {
+                Loading.Hide();
+            }
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -207,11 +211,9 @@ namespace CoreAdminWeb.Pages.Admins.MedicalRecordsConfig
             openAddOrUpdateModal = true;
 
             // Wait for modal to render
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(500);
-                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-            });
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(1);
+            await JsRuntime.InvokeVoidAsync("initializeDatePicker");
         }
 
         private async Task OnValidSubmit()

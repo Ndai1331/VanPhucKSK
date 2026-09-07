@@ -95,12 +95,12 @@ namespace CoreAdminWeb.Pages.Admins.Contract
         private async Task LoadData(bool isReset = false)
         {
             Loading.Show();
-
-            if (isReset)
+            try
             {
-                ResetPage();
-                await Task.Delay(100);
-            }
+                if (isReset)
+                {
+                    ResetPage();
+                }
 
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -132,7 +132,11 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             {
                 MainModels = new List<ContractModel>();
             }
-            Loading.Hide();
+            }
+            finally
+            {
+                Loading.Hide();
+            }
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -381,12 +385,10 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             openAddOrUpdateModal = true;
 
             // Wait for modal to render
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(500);
-                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
-            });
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(1);
+            await JsRuntime.InvokeVoidAsync("initializeDatePicker");
+            await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
         }
 
         private async Task OnValidSubmit()
@@ -637,19 +639,17 @@ namespace CoreAdminWeb.Pages.Admins.Contract
             }
         }
 
-        private void OnTabChanged(string tab)
+        private async Task OnTabChanged(string tab)
         {
             activeDefTab = tab;
 
             if (activeDefTab == "tab1")
             {
                 // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                    await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
-                });
+                await InvokeAsync(StateHasChanged);
+                await Task.Delay(1);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
+                await JsRuntime.InvokeVoidAsync("reinitializeCurrencyInputs");
             }
         }
 

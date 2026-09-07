@@ -25,8 +25,10 @@
                         <li class="menu nav-item">
                             @if (menu.sub_menus != null && menu.sub_menus.Any())
                             {
-                                <a href="javascript:;" class="items-center justify-between text-black nav-link group project-text-color @(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name ? "active" : "")"
+                                <button type="button" class="items-center justify-between text-black nav-link group project-text-color @(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name ? "active" : "")"
                                    @onclick="() => ToggleMenu(menu.name)"
+                                   aria-expanded="@(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name)"
+                                   aria-controls="menu-@menu.id"
                                    style="white-space: normal !important;">
                                     <div class="flex items-center">
                                         <span class="material-symbols-outlined block">@menu.icon</span>
@@ -38,15 +40,15 @@
                                             <path d="M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z" fill="currentColor"></path>
                                         </svg>
                                     </div>
-                                </a>
-                                <div class="@(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name ? "block" : "hidden")">
+                                </button>
+                                <div id="menu-@menu.id" class="@(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name ? "block" : "hidden")">
                                     <ul class="flex flex-col gap-1 text-black sub-menu dark:text-white/60 project-text-color">
                                         @foreach (var subMenu in menu.sub_menus)
                                         {
                                             <li>
-                                                <a href="javascript:;" class="@(activeMenus.ContainsKey(2) && activeMenus[2] == subMenu.name ? "active" : "")" @onclick="@(() => HandleRouteChange(subMenu.url,subMenu.name,2))">
+                                                <button type="button" class="w-full text-left @(activeMenus.ContainsKey(2) && activeMenus[2] == subMenu.name ? "active" : "")" @onclick="@(() => HandleRouteChange(subMenu.url,subMenu.name,2))">
                                                     @subMenu.name
-                                                </a>
+                                                </button>
                                             </li>
                                         }
                                     </ul>
@@ -54,14 +56,14 @@
                             }
                             else
                             {
-                                <a href="javascript:;" class="items-center justify-between text-black nav-link group project-text-color @(activeMenus.ContainsKey(2) && activeMenus[2] == menu.name ? "active" : "")"
+                                <button type="button" class="items-center justify-between text-black nav-link group project-text-color @(activeMenus.ContainsKey(2) && activeMenus[2] == menu.name ? "active" : "")"
                                    @onclick="@(() => HandleRouteChange(menu.url,menu.name,1))"
                                    style="white-space: normal !important;">
                                     <div class="flex items-center">
                                         <span class="material-symbols-outlined block">@menu.icon</span>
                                         <span class="ltr:pl-1.5 rtl:pr-1.5">@menu.name</span>
                                     </div>
-                                </a>
+                                </button>
                             }
                         </li>
                     }

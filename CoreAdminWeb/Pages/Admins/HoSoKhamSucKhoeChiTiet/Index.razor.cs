@@ -32,52 +32,50 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeChiTiet
             if (firstRender)
             {
                 await LoadData();
-                StateHasChanged();
-
-                // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
+                await InvokeAsync(StateHasChanged);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             }
         }
 
         private async Task LoadData()
         {
             Loading.Show();
-
-            var res = await UserService.GetUserByIdAsync(Guid.Parse(UserId ?? ""));
-            CurrentUser = res?.IsSuccess == true && res.Data != null
-                        ? res.Data
-                        : null;
-
             try
             {
-                if (CurrentUser != null)
-                {
-                    // Load medical records and latest exam date in parallel
-                    var medicalRecordsTask = LoadMedicalRecordsAsync();
-                    var latestExamTask = LoadLatestExamDateAsync();
-                    await Task.WhenAll(medicalRecordsTask, latestExamTask);
+                var res = await UserService.GetUserByIdAsync(Guid.Parse(UserId ?? ""));
+                CurrentUser = res?.IsSuccess == true && res.Data != null
+                            ? res.Data
+                            : null;
 
-                    // Only load conclusion if we have the latest exam code
-                    if (!string.IsNullOrEmpty(MaLuotKhamGanNhat))
+                try
+                {
+                    if (CurrentUser != null)
                     {
-                        await LoadKetLuanAsync();
+                        // Load medical records and latest exam date in parallel
+                        var medicalRecordsTask = LoadMedicalRecordsAsync();
+                        var latestExamTask = LoadLatestExamDateAsync();
+                        await Task.WhenAll(medicalRecordsTask, latestExamTask);
+
+                        // Only load conclusion if we have the latest exam code
+                        if (!string.IsNullOrEmpty(MaLuotKhamGanNhat))
+                        {
+                            await LoadKetLuanAsync();
+                        }
+                    }
+                    else
+                    {
+                        AlertService.ShowAlert($"Không tìm thấy bệnh nhân theo thông tin tìm kiếm!", "warning");
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    AlertService.ShowAlert($"Không tìm thấy bệnh nhân theo thông tin tìm kiếm!", "warning");
+                    AlertService.ShowAlert($"Lỗi khi tải dữ liệu hồ sơ khám sức khỏe: {ex.Message}", "danger");
                 }
             }
-            catch (Exception ex)
+            finally
             {
-                AlertService.ShowAlert($"Lỗi khi tải dữ liệu hồ sơ khám sức khỏe: {ex.Message}", "danger");
+                Loading.Hide();
             }
-
-            Loading.Hide();
         }
 
         private async Task LoadMedicalRecordsAsync()

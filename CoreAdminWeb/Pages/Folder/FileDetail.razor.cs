@@ -32,13 +32,9 @@ namespace CoreAdminWeb.Pages.Folder
                 await LoadFile(FileId);
 
 
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
-                StateHasChanged();
+                await InvokeAsync(StateHasChanged);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             }
         }
 

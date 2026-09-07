@@ -23,8 +23,9 @@ builder.Services.AddServerSideBlazor(options =>
 })
 .AddHubOptions(options =>
 {
-    // Increase SignalR message size limit for large HTML content
-    options.MaximumReceiveMessageSize = 100 * 1024 * 1024; // 100MB
+    // Keep the circuit limit aligned with the application's upload limit. A
+    // 100MB per-message allowance increases memory pressure for every circuit.
+    options.MaximumReceiveMessageSize = 32 * 1024 * 1024;
     options.StreamBufferCapacity = 20;
     options.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
     options.HandshakeTimeout = TimeSpan.FromSeconds(30);
@@ -147,6 +148,7 @@ else
 
 app.UseHttpsRedirection();
 
+app.UseResponseCompression();
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -158,6 +160,9 @@ app.MapBlazorHub();
 app.MapRazorPages();
 // Add Controllers mapping
 app.MapControllers();
+// Used by Kubernetes probes. Keep this endpoint dependency-free so a transient
+// database/API issue does not cause Kubernetes to restart a healthy web process.
+app.MapGet("/healthz", () => Results.Ok(new { status = "ok" }));
 app.MapFallbackToPage("/_Host");
 
 app.MapGet("/downloads/{ticketId}", (

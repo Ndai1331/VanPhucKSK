@@ -38,21 +38,13 @@ public class KhamSucKhoeKQCLSController : ControllerBase
             }
 
             string whereClause = string.Empty;
-            string seedValue = string.Empty;
-            if (!string.IsNullOrEmpty(maLuotKham))
-            {
-                seedValue += $"('{maLuotKham}')";
-            }
-
-            if (maLuotKhams != null && maLuotKhams.Any())
-            {
-                seedValue += string.Join(",", maLuotKhams.Select(c => $"('{c}')"));
-            }
-
-            if (string.IsNullOrEmpty(seedValue))
-            {
-                seedValue = "(NULL)";
-            }
+            var requestedVisitIds = (new[] { maLuotKham })
+                .Concat(maLuotKhams ?? Enumerable.Empty<string>())
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => value!.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            var requestedVisitIdsCsv = string.Join(",", requestedVisitIds);
 
             if (isAbnormalValue)
             {
@@ -67,20 +59,18 @@ public class KhamSucKhoeKQCLSController : ControllerBase
 
             if (!string.IsNullOrEmpty(loaiCLS))
             {
-                whereClause += (string.IsNullOrEmpty(whereClause) ? " WHERE " : " AND ") + $" kq.loai_cls = {loaiCLS}";
+                whereClause += (string.IsNullOrEmpty(whereClause) ? " WHERE " : " AND ") + " kq.loai_cls = @loaiCLS";
             }
 
             var dataSQL = @";WITH
 seed_raw AS (
-    SELECT v.ma_luot_kham
-    FROM (VALUES
-        " + seedValue + @"
-    ) AS v(ma_luot_kham)
+    SELECT LTRIM(RTRIM(value)) AS ma_luot_kham
+    FROM STRING_SPLIT(@MaLuotKhams, ',')
 ),
 lk_seed AS(
     SELECT DISTINCT LTRIM(RTRIM(ma_luot_kham)) AS ma_luot_kham
     FROM seed_raw
-    WHERE ma_luot_kham IS NOT NULL
+    WHERE NULLIF(LTRIM(RTRIM(ma_luot_kham)), '') IS NOT NULL
 ),
 lk_base AS(
     SELECT DISTINCT LTRIM(RTRIM(kq.ma_luot_kham)) AS ma_luot_kham
@@ -188,14 +178,22 @@ ORDER BY gd.ma_benh_nhan, gd.ma_luot_kham, gd.ord;
 
             var results = new List<KetQuaCLSChiTietModel>();
 
-            await _context.Database.OpenConnectionAsync();
+            await _context.Database.OpenConnectionAsync(HttpContext.RequestAborted);
 
             // Lấy dữ liệu với phân trang
             using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 dataCommand.CommandText = dataSQL;
+                dataCommand.Parameters.Add(new SqlParameter("@MaLuotKhams", SqlDbType.NVarChar, -1)
+                {
+                    Value = requestedVisitIdsCsv
+                });
+                if (!string.IsNullOrEmpty(loaiCLS))
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@loaiCLS", loaiCLS));
+                }
 
-                using (var reader = await dataCommand.ExecuteReaderAsync())
+                using (var reader = await dataCommand.ExecuteReaderAsync(HttpContext.RequestAborted))
                 {
                     while (await reader.ReadAsync())
                     {
@@ -222,7 +220,7 @@ ORDER BY gd.ma_benh_nhan, gd.ma_luot_kham, gd.ord;
         {
             response.Errors.Add(CreateErrorResponse(ex));
             response.StatusCode = HttpStatusCode.InternalServerError;
-            return BadRequest(response);
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
         finally
         {
@@ -243,14 +241,21 @@ ORDER BY gd.ma_benh_nhan, gd.ma_luot_kham, gd.ord;
 
             string whereClause = string.Empty;
             string pagingClause = string.Empty;
+            var requestedVisitIds = (new[] { maLuotKham })
+                .Concat(maLuotKhams ?? Enumerable.Empty<string>())
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => value!.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            var requestedVisitIdsCsv = string.Join(",", requestedVisitIds);
             if (!string.IsNullOrEmpty(maLuotKham))
             {
                 whereClause += " AND kq.ma_luot_kham = @maLuotKham";
             }
 
-            if (maLuotKhams != null && maLuotKhams.Any())
+            if (maLuotKhams is { Count: > 0 })
             {
-                whereClause += $" AND kq.ma_luot_kham IN ({string.Join(", ", maLuotKhams.Select((c, i) => $"@maLuotKham{i}"))}) ";
+                whereClause += " AND EXISTS (SELECT 1 FROM STRING_SPLIT(@MaLuotKhams, ',') ids WHERE LTRIM(RTRIM(ids.value)) = LTRIM(RTRIM(kq.ma_luot_kham))) ";
             }
 
             if (!string.IsNullOrEmpty(maCls))
@@ -393,11 +398,18 @@ ORDER BY
 
             var results = new List<KetQuaCLSChiTietModel>();
 
-            await _context.Database.OpenConnectionAsync();
+            await _context.Database.OpenConnectionAsync(HttpContext.RequestAborted);
 
             using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
             {
                 dataCommand.CommandText = dataSQL;
+                if (maLuotKhams is { Count: > 0 })
+                {
+                    dataCommand.Parameters.Add(new SqlParameter("@MaLuotKhams", SqlDbType.NVarChar, -1)
+                    {
+                        Value = requestedVisitIdsCsv
+                    });
+                }
                 if (!string.IsNullOrEmpty(maLuotKham))
                 {
                     dataCommand.Parameters.Add(new SqlParameter("@maLuotKham", maLuotKham));
@@ -419,15 +431,7 @@ ORDER BY
                     dataCommand.Parameters.Add(new SqlParameter("@limit", limit));
                 }
 
-                if (maLuotKhams != null && maLuotKhams.Any())
-                {
-                    for (int i = 0; i < maLuotKhams.Count; i++)
-                    {
-                        dataCommand.Parameters.Add(new SqlParameter($"@maLuotKham{i}", maLuotKhams[i]));
-                    }
-                }
-
-                using (var reader = await dataCommand.ExecuteReaderAsync())
+                using (var reader = await dataCommand.ExecuteReaderAsync(HttpContext.RequestAborted))
                 {
                     while (await reader.ReadAsync())
                     {
@@ -459,7 +463,7 @@ ORDER BY
         {
             response.Errors.Add(CreateErrorResponse(ex));
             response.StatusCode = HttpStatusCode.InternalServerError;
-            return BadRequest(response);
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
         finally
         {

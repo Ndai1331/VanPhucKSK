@@ -46,13 +46,8 @@ namespace CoreAdminWeb.Pages.Admins.GeneralGroupReportDashboard
                 _endDateFilter = new DateTime(dateNow.Year, dateNow.Month, DateTime.DaysInMonth(dateNow.Year, dateNow.Month), 0, 0, 0, DateTimeKind.Local);
 
                 await LoadData();
-                StateHasChanged();
-                // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
+                await InvokeAsync(StateHasChanged);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             }
         }
 

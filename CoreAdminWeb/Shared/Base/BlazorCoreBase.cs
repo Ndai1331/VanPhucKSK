@@ -2,9 +2,8 @@ using CoreAdminWeb.Model.Menus;
 using CoreAdminWeb.Model.Settings;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
+using CoreAdminWeb.Services.ApplicationState;
 using CoreAdminWeb.Services.BaseServices;
-using CoreAdminWeb.Services.Files;
-using CoreAdminWeb.Services.Settings;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -23,16 +22,12 @@ namespace CoreAdminWeb.Shared.Base
         protected NavigationManager? NavigationManager { get; set; }
 
         [Inject]
-        protected ISettingService SettingService { get; set; } = null!;
-
-
-        [Inject]
         protected AlertService AlertService { get; set; } = null!;
 
         [Inject]
         protected IJSRuntime JsRuntime { get; set; } = null!;
 
-        [Inject] private IFileService FileService { get; set; } = null!;
+        [Inject] protected IApplicationStateService AppState { get; set; } = null!;
 
         [Inject] public ILoadingService Loading { get; set; } = null!;
 
@@ -71,7 +66,6 @@ namespace CoreAdminWeb.Shared.Base
 
         // Cache for query building to avoid repeated string operations
         private readonly Dictionary<string, string> _queryCache = new();
-        private static readonly StringBuilder _queryBuilder = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -97,24 +91,14 @@ namespace CoreAdminWeb.Shared.Base
 
         public async Task GetSettingAsync()
         {
-            var settingResults = await SettingService.GetCurrentSettingAsync();
-            if (settingResults.IsSuccess)
+            var settings = await AppState.GetSettingsAsync();
+            CurrentSetting = settings.Setting;
+            if (!string.IsNullOrWhiteSpace(settings.Logo?.filename_disk))
             {
-                CurrentSetting = settingResults.Data ?? new SettingModel();
-                if (!string.IsNullOrEmpty(CurrentSetting.project_logo))
-                {
-                    var logoRes = await FileService.GetFileAsync(CurrentSetting.project_logo);
-                    if (
-                        logoRes.IsSuccess
-                        && logoRes.Data != null
-                        && !string.IsNullOrWhiteSpace(logoRes.Data.filename_disk)
-                    )
-                    {
-                        LogoImage = logoRes.Data.filename_disk;
-                    }
-                }
-                ExpiredResultPage = settingResults.Data?.lock_result_page_after ?? 7;
+                LogoImage = settings.Logo.filename_disk;
             }
+
+            ExpiredResultPage = settings.Setting.lock_result_page_after ?? 7;
         }
 
         /// <summary>
@@ -188,19 +172,18 @@ namespace CoreAdminWeb.Shared.Base
             }
 
             // Build query using StringBuilder for better performance
-            _queryBuilder.Clear();
-            _queryBuilder.Append($"limit={pageSize}&offset={(page - 1) * pageSize}&meta=filter_count");
+            var queryBuilder = new StringBuilder($"limit={pageSize}&offset={(page - 1) * pageSize}&meta=filter_count");
 
             if (!isAsc)
             {
-                _queryBuilder.Append($"&sort=-{sort}");
+                queryBuilder.Append($"&sort=-{sort}");
             }
             else
             {
-                _queryBuilder.Append($"&sort={sort}");
+                queryBuilder.Append($"&sort={sort}");
             }
 
-            var query = _queryBuilder.ToString();
+            var query = queryBuilder.ToString();
 
             // Cache the result (limit cache size to prevent memory issues)
             if (_queryCache.Count < 100)
@@ -319,15 +302,14 @@ namespace CoreAdminWeb.Shared.Base
         /// </summary>
         private static string BuildBaseQuery(string searchText = "")
         {
-            _queryBuilder.Clear();
-            _queryBuilder.Append("filter[_and][][deleted][_eq]=false&sort=-id");
+            var queryBuilder = new StringBuilder("filter[_and][][deleted][_eq]=false&sort=-id");
 
             if (!string.IsNullOrEmpty(searchText))
             {
-                _queryBuilder.Append($"&filter[_and][][name][_contains]={Uri.EscapeDataString(searchText)}");
+                queryBuilder.Append($"&filter[_and][][name][_contains]={Uri.EscapeDataString(searchText)}");
             }
 
-            return _queryBuilder.ToString();
+            return queryBuilder.ToString();
         }
 
         /// <summary>
@@ -336,7 +318,6 @@ namespace CoreAdminWeb.Shared.Base
         public void ClearCaches()
         {
             _queryCache?.Clear();
-            _queryBuilder?.Clear();
             _cachedIsAuthenticated = null;
             _authCacheTime = DateTime.MinValue;
         }

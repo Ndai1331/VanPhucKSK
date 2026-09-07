@@ -13,7 +13,8 @@ namespace CoreAdminWeb.Http
     public static class LocalRequestClientService
     {
         private static HttpClient? _client;
-        private static readonly CancellationTokenSource _tokenSource = new();
+        private static readonly object _tokenLock = new();
+        private static CancellationTokenSource _tokenSource = new();
         private const long UploadLimit = 25214400; // ~24MB
 
         /// <summary>
@@ -36,7 +37,26 @@ namespace CoreAdminWeb.Http
         /// </summary>
         public static void CancelToken()
         {
-            _tokenSource.Cancel();
+            CancellationTokenSource previous;
+            lock (_tokenLock)
+            {
+                previous = _tokenSource;
+                _tokenSource = new CancellationTokenSource();
+            }
+
+            previous.Cancel();
+            previous.Dispose();
+        }
+
+        private static CancellationToken RequestToken
+        {
+            get
+            {
+                lock (_tokenLock)
+                {
+                    return _tokenSource.Token;
+                }
+            }
         }
 
         /// <summary>
@@ -47,7 +67,7 @@ namespace CoreAdminWeb.Http
             try
             {
                 EnsureClientInitialized();
-                var response = await _client!.GetAsync(URL, _tokenSource.Token);
+                var response = await _client!.GetAsync(URL, RequestToken);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -80,7 +100,7 @@ namespace CoreAdminWeb.Http
                     "application/json"
                 );
 
-                var response = await _client!.PostAsync(URL, content, _tokenSource.Token);
+                using var response = await _client!.PostAsync(URL, content, RequestToken);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -112,7 +132,7 @@ namespace CoreAdminWeb.Http
                     "application/json"
                 );
 
-                var response = await _client!.PostAsync(URL, content, _tokenSource.Token);
+                using var response = await _client!.PostAsync(URL, content, RequestToken);
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorResponse = await response.Content.ReadAsStringAsync();
@@ -139,7 +159,7 @@ namespace CoreAdminWeb.Http
                 streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
                 content.Add(streamContent, "file", file.Name);
 
-                var response = await _client!.PostAsync(URL, content, _tokenSource.Token);
+                var response = await _client!.PostAsync(URL, content, RequestToken);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -205,6 +225,10 @@ namespace CoreAdminWeb.Http
                         Code = "PARSE_ERROR"
                     }
                 };
+            }
+            finally
+            {
+                response.Dispose();
             }
 
             return result;

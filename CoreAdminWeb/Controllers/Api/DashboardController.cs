@@ -41,7 +41,8 @@ namespace CoreAdminWeb.Controllers.Api
                                 FROM kham_suc_khoe_cong_ty ksk
                                 JOIN [contract] ct 
                                     ON ct.id = ksk.ma_hop_dong_ksk
-                                WHERE CAST(ksk.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
+                                WHERE ksk.ngay_du_kien_kham >= @FromDate
+                                  AND ksk.ngay_du_kien_kham < DATEADD(DAY, 1, @ToDate)
                                   AND ct.cong_ty = @MaDonVi
                                   AND ISNULL(ksk.deleted, 0) = 0
                                   AND ISNULL(ct.deleted, 0)  = 0
@@ -102,7 +103,8 @@ namespace CoreAdminWeb.Controllers.Api
 	                            FROM kham_suc_khoe_cong_ty tmpKsk
                                 JOIN [contract] ct ON ct.id = tmpKsk.ma_hop_dong_ksk
 	                            WHERE (tmpKsk.deleted IS NULL OR tmpKsk.deleted = 0)
-	                            AND CAST(tmpKsk.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
+                            AND tmpKsk.ngay_du_kien_kham >= @FromDate
+                            AND tmpKsk.ngay_du_kien_kham < DATEADD(DAY, 1, @ToDate)
                                 AND ct.cong_ty = @MaDonVi
                             )
                             AND (ksk.deleted IS NULL OR ksk.deleted = 0)",
@@ -136,7 +138,8 @@ namespace CoreAdminWeb.Controllers.Api
                             AND (kskct.deleted IS NULL OR kskct.deleted = 0)
                             AND (ct.deleted IS NULL OR ct.deleted = 0)
                             AND (sksk.deleted IS NULL OR sksk.deleted = 0)
-                            AND CAST(kskct.ngay_du_kien_kham AS DATE) BETWEEN @FromDate AND @ToDate
+                            AND kskct.ngay_du_kien_kham >= @FromDate
+                            AND kskct.ngay_du_kien_kham < DATEADD(DAY, 1, @ToDate)
                             AND ct.cong_ty = @MaDonVi
                             GROUP BY plsk.[name], kskct.ngay_du_kien_kham",
                         Action = (object? obj) =>
@@ -170,7 +173,8 @@ namespace CoreAdminWeb.Controllers.Api
                             AND (kskct.deleted IS NULL OR kskct.deleted = 0)
                             AND (ct.deleted IS NULL OR ct.deleted = 0)
                             AND (sksk.deleted IS NULL OR sksk.deleted = 0)
-                            AND kskct.ngay_du_kien_kham BETWEEN @FromDate AND @ToDate
+                            AND kskct.ngay_du_kien_kham >= @FromDate
+                            AND kskct.ngay_du_kien_kham < DATEADD(DAY, 1, @ToDate)
                             AND ct.cong_ty = @MaDonVi
                             GROUP BY kskkt.benh_tat_ket_luan
                             ORDER BY COUNT(1) DESC",
@@ -192,22 +196,25 @@ namespace CoreAdminWeb.Controllers.Api
                     }
                 };
 
-                await context.Database.OpenConnectionAsync();
-                foreach (var q in queries)
+                await context.Database.OpenConnectionAsync(HttpContext.RequestAborted);
+                var activeQueries = queries.Where(q => q.Action != null).ToArray();
+                using var command = context.Database.GetDbConnection().CreateCommand();
+                command.CommandText = string.Join(";\n", activeQueries.Select(q => q.Sql));
+                command.Parameters.Add(new SqlParameter("@FromDate", fromDate));
+                command.Parameters.Add(new SqlParameter("@ToDate", toDate));
+                command.Parameters.Add(new SqlParameter("@MaDonVi", company));
+
+                // One round trip, multiple result sets. The previous loop sent
+                // four independent commands over the same connection.
+                using var reader = await command.ExecuteReaderAsync(HttpContext.RequestAborted);
+                for (var index = 0; index < activeQueries.Length; index++)
                 {
-                    if (q.Action == null)
+                    activeQueries[index].Action!(reader);
+                    if (index < activeQueries.Length - 1 &&
+                        !await reader.NextResultAsync(HttpContext.RequestAborted))
                     {
-                        continue;
+                        break;
                     }
-
-                    using var cmd = context.Database.GetDbConnection().CreateCommand();
-                    cmd.CommandText = q.Sql;
-                    cmd.Parameters.Add(new SqlParameter("@FromDate", fromDate));
-                    cmd.Parameters.Add(new SqlParameter("@ToDate", toDate));
-                    cmd.Parameters.Add(new SqlParameter("@MaDonVi", company));
-                    using var reader = await cmd.ExecuteReaderAsync();
-
-                    q.Action(reader);
                 }
 
                 response.StatusCode = HttpStatusCode.OK;
@@ -217,7 +224,7 @@ namespace CoreAdminWeb.Controllers.Api
             {
                 response.Errors.Add(BaseServiceHelper.CreateErrorResponse(ex));
                 response.StatusCode = HttpStatusCode.InternalServerError;
-                return BadRequest(response);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
             finally
             {
@@ -450,23 +457,24 @@ namespace CoreAdminWeb.Controllers.Api
                     }
                 };
 
-                await context.Database.OpenConnectionAsync();
-                foreach (var q in queries)
+                await context.Database.OpenConnectionAsync(HttpContext.RequestAborted);
+                var activeQueries = queries.Where(q => q.Action != null).ToArray();
+                using var command = context.Database.GetDbConnection().CreateCommand();
+                command.CommandText = string.Join(";\n", activeQueries.Select(q => q.Sql));
+                command.Parameters.Add(new SqlParameter("@FromDate", fromDate));
+                command.Parameters.Add(new SqlParameter("@ToDate", toDate));
+                command.Parameters.Add(new SqlParameter("@DoanKhamId", companyHelthCheckId ?? (object)DBNull.Value));
+
+                // One round trip, five result sets for the summary dashboard.
+                using var reader = await command.ExecuteReaderAsync(HttpContext.RequestAborted);
+                for (var index = 0; index < activeQueries.Length; index++)
                 {
-                    if (q.Action == null)
+                    activeQueries[index].Action!(reader);
+                    if (index < activeQueries.Length - 1 &&
+                        !await reader.NextResultAsync(HttpContext.RequestAborted))
                     {
-                        continue;
+                        break;
                     }
-
-                    using var cmd = context.Database.GetDbConnection().CreateCommand();
-                    cmd.CommandText = q.Sql;
-                    cmd.Parameters.Add(new SqlParameter("@FromDate", fromDate));
-                    cmd.Parameters.Add(new SqlParameter("@ToDate", toDate));
-                    cmd.Parameters.Add(new SqlParameter("@DoanKhamId", companyHelthCheckId ?? (object)DBNull.Value));
-
-                    using var reader = await cmd.ExecuteReaderAsync();
-
-                    q.Action(reader);
                 }
 
                 response.StatusCode = HttpStatusCode.OK;
@@ -476,7 +484,7 @@ namespace CoreAdminWeb.Controllers.Api
             {
                 response.Errors.Add(BaseServiceHelper.CreateErrorResponse(ex));
                 response.StatusCode = HttpStatusCode.InternalServerError;
-                return BadRequest(response);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
             finally
             {

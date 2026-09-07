@@ -21,6 +21,7 @@ namespace CoreAdminWeb.Services.Http
         private readonly CancellationTokenSource _tokenSource = new();
         private const long UploadLimit = 25214400; // ~24MB
         private IUserService? _userService;
+        private string? _accessToken;
 
         // Event để thông báo khi cần logout
         public event EventHandler? OnLogoutRequired;
@@ -43,9 +44,7 @@ namespace CoreAdminWeb.Services.Http
         {
             if (!string.IsNullOrEmpty(token))
             {
-                _client.DefaultRequestHeaders.Clear();
-                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                _client.DefaultRequestHeaders.Add("Prefer", "return=minimal");
+                _accessToken = token;
             }
         }
 
@@ -54,8 +53,7 @@ namespace CoreAdminWeb.Services.Http
         /// </summary>
         public void RemoveToken()
         {
-            _client.DefaultRequestHeaders.Clear();
-            _client.DefaultRequestHeaders.Authorization = null;
+            _accessToken = null;
         }
 
         /// <summary>
@@ -78,19 +76,27 @@ namespace CoreAdminWeb.Services.Http
         /// </summary>
         private async Task EnsureTokenAttachedAsync()
         {
-            if (_client.DefaultRequestHeaders.Authorization == null)
+            if (string.IsNullOrEmpty(_accessToken))
             {
-                var token = await GetCurrentTokenAsync();
-                if (string.IsNullOrEmpty(token))
-                {
-                    token = AdminLayout.AccessToken;
-                }
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    AttachToken(token);
-                }
+                _accessToken = await GetCurrentTokenAsync() ?? AdminLayout.AccessToken;
             }
+        }
+
+        private async Task<HttpRequestMessage> CreateRequestAsync(HttpMethod method, string url, bool withAuthentication = true)
+        {
+            if (withAuthentication)
+            {
+                await EnsureTokenAttachedAsync();
+            }
+
+            var request = new HttpRequestMessage(method, url);
+            if (withAuthentication && !string.IsNullOrEmpty(_accessToken))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+            }
+
+            request.Headers.TryAddWithoutValidation("Prefer", "return=minimal");
+            return request;
         }
 
         /// <summary>
@@ -109,8 +115,8 @@ namespace CoreAdminWeb.Services.Http
         {
             try
             {
-                await EnsureTokenAttachedAsync();
-                var response = await _client.GetAsync(URL, _tokenSource.Token);
+                using var request = await CreateRequestAsync(HttpMethod.Get, URL);
+                using var response = await _client.SendAsync(request, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -126,15 +132,8 @@ namespace CoreAdminWeb.Services.Http
         {
             try
             {
-                var originalAuth = _client.DefaultRequestHeaders.Authorization;
-                RemoveToken();
-                var response = await _client.GetAsync(URL, _tokenSource.Token);
-
-                // Restore original auth header
-                if (originalAuth != null)
-                {
-                    _client.DefaultRequestHeaders.Authorization = originalAuth;
-                }
+                using var request = await CreateRequestAsync(HttpMethod.Get, URL, withAuthentication: false);
+                using var response = await _client.SendAsync(request, _tokenSource.Token);
 
                 return await ReturnApiResponse<T>(response);
             }
@@ -157,16 +156,9 @@ namespace CoreAdminWeb.Services.Http
                     "application/json"
                 );
 
-                if (URL.Contains("/signin"))
-                {
-                    RemoveToken();
-                }
-                else
-                {
-                    await EnsureTokenAttachedAsync();
-                }
-
-                var response = await _client.PostAsync(URL, content, _tokenSource.Token);
+                using var request = await CreateRequestAsync(HttpMethod.Post, URL, !URL.Contains("/signin"));
+                request.Content = content;
+                using var response = await _client.SendAsync(request, _tokenSource.Token);
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorResponse = await response.Content.ReadAsStringAsync();
@@ -192,16 +184,9 @@ namespace CoreAdminWeb.Services.Http
                     "application/json"
                 );
 
-                if (URL.Contains("/signin"))
-                {
-                    RemoveToken();
-                }
-                else
-                {
-                    await EnsureTokenAttachedAsync();
-                }
-
-                var response = await _client.PostAsync(URL, content, _tokenSource.Token);
+                using var request = await CreateRequestAsync(HttpMethod.Post, URL, !URL.Contains("/signin"));
+                request.Content = content;
+                using var response = await _client.SendAsync(request, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -217,8 +202,6 @@ namespace CoreAdminWeb.Services.Http
         {
             try
             {
-                await EnsureTokenAttachedAsync();
-
                 if (file.Size > UploadLimit)
                 {
                     throw new FileLoadException($"File size is {BytesToMB(file.Size)}MB greater than {BytesToMB(UploadLimit)}MB");
@@ -235,7 +218,9 @@ namespace CoreAdminWeb.Services.Http
                     AddFileMetadata(content, fileCRUDModel);
                 }
 
-                var response = await _client.PostAsync(URL, content, _tokenSource.Token);
+                using var request = await CreateRequestAsync(HttpMethod.Post, URL);
+                request.Content = content;
+                using var response = await _client.SendAsync(request, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -251,8 +236,6 @@ namespace CoreAdminWeb.Services.Http
         {
             try
             {
-                await EnsureTokenAttachedAsync();
-
                 using var content = new MultipartFormDataContent();
                 var streams = new List<MemoryStream>();
 
@@ -270,12 +253,9 @@ namespace CoreAdminWeb.Services.Http
                     streams.Add(ms);
                 }
 
-                var response = await _client.PostAsync(URL, content, _tokenSource.Token);
-
-                foreach (var stream in streams)
-                {
-                    stream.Dispose();
-                }
+                using var request = await CreateRequestAsync(HttpMethod.Post, URL);
+                request.Content = content;
+                using var response = await _client.SendAsync(request, _tokenSource.Token);
 
                 return await ReturnApiResponse<T>(response);
             }
@@ -292,15 +272,15 @@ namespace CoreAdminWeb.Services.Http
         {
             try
             {
-                await EnsureTokenAttachedAsync();
-
                 var content = new StringContent(
                     JsonConvert.SerializeObject(input),
                     Encoding.UTF8,
                     "application/json"
                 );
 
-                var response = await _client.PatchAsync(URL, content, _tokenSource.Token);
+                using var request = await CreateRequestAsync(HttpMethod.Patch, URL);
+                request.Content = content;
+                using var response = await _client.SendAsync(request, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -316,15 +296,15 @@ namespace CoreAdminWeb.Services.Http
         {
             try
             {
-                await EnsureTokenAttachedAsync();
-
                 var content = new StringContent(
                     JsonConvert.SerializeObject(input),
                     Encoding.UTF8,
                     "application/json"
                 );
 
-                var response = await _client.PutAsync(URL, content, _tokenSource.Token);
+                using var request = await CreateRequestAsync(HttpMethod.Put, URL);
+                request.Content = content;
+                using var response = await _client.SendAsync(request, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -340,9 +320,8 @@ namespace CoreAdminWeb.Services.Http
         {
             try
             {
-                await EnsureTokenAttachedAsync();
-
-                var response = await _client.DeleteAsync(URL, _tokenSource.Token);
+                using var request = await CreateRequestAsync(HttpMethod.Delete, URL);
+                using var response = await _client.SendAsync(request, _tokenSource.Token);
                 return await ReturnApiResponse<T>(response);
             }
             catch (Exception ex)
@@ -435,6 +414,7 @@ namespace CoreAdminWeb.Services.Http
                             var originalRequest = response.RequestMessage;
                             if (originalRequest != null)
                             {
+                                originalRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newToken);
                                 var newResponse = await _client.SendAsync(originalRequest, _tokenSource.Token);
                                 return await ReturnApiResponse<T>(newResponse, retryCount + 1);
                             }
@@ -479,6 +459,10 @@ namespace CoreAdminWeb.Services.Http
                         Code = "PARSE_ERROR"
                     }
                 };
+            }
+            finally
+            {
+                response.Dispose();
             }
 
             return result;

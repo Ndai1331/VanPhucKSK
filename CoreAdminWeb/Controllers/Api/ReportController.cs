@@ -31,12 +31,12 @@ namespace CoreAdminWeb.Controllers.Api
 
                 if (fromDate.HasValue)
                 {
-                    whereClause += $" AND ct.ngay_hop_dong >= '{fromDate:yyyy-MM-dd}'";
+                    whereClause += " AND ct.ngay_hop_dong >= @FromDate";
                 }
 
                 if (toDate.HasValue)
                 {
-                    whereClause += $" AND ct.ngay_hop_dong <= '{toDate:yyyy-MM-dd}'";
+                    whereClause += " AND ct.ngay_hop_dong < DATEADD(DAY, 1, @ToDate)";
                 }
 
                 var queries = new DashboardQuery[]
@@ -104,30 +104,45 @@ namespace CoreAdminWeb.Controllers.Api
                     }
                 };
 
-                await context.Database.OpenConnectionAsync();
-                foreach (var q in queries)
+                await context.Database.OpenConnectionAsync(HttpContext.RequestAborted);
+                var activeQueries = queries.Where(q => q.Action != null).ToArray();
+                using var command = context.Database.GetDbConnection().CreateCommand();
+                command.CommandText = string.Join(";\n", activeQueries.Select(q => q.Sql));
+                command.Parameters.Add(new SqlParameter("@Contract", contract));
+                command.Parameters.Add(new SqlParameter("@offset", validOffset));
+                command.Parameters.Add(new SqlParameter("@limit", validLimit));
+                if (fromDate.HasValue)
                 {
-                    if (q.Action == null)
-                    {
-                        continue;
-                    }
+                    command.Parameters.Add(new SqlParameter("@FromDate", fromDate.Value));
+                }
+                if (toDate.HasValue)
+                {
+                    command.Parameters.Add(new SqlParameter("@ToDate", toDate.Value));
+                }
 
-                    using var cmd = context.Database.GetDbConnection().CreateCommand();
-                    cmd.CommandText = q.Sql;
-                    cmd.Parameters.Add(new SqlParameter("@Contract", contract));
-                    cmd.Parameters.Add(new SqlParameter("@offset", validOffset));
-                    cmd.Parameters.Add(new SqlParameter("@limit", validLimit));
-
-                    if (q.IsCountQuery)
+                // Fetch the page and count in one database round trip.
+                using var reader = await command.ExecuteReaderAsync(HttpContext.RequestAborted);
+                for (var index = 0; index < activeQueries.Length; index++)
+                {
+                    var query = activeQueries[index];
+                    if (query.IsCountQuery)
                     {
-                        var reader = await cmd.ExecuteScalarAsync();
-                        q.Action(reader);
+                        object? value = null;
+                        if (await reader.ReadAsync(HttpContext.RequestAborted))
+                        {
+                            value = reader.GetValue(0);
+                        }
+                        query.Action!(value);
                     }
                     else
                     {
-                        using var reader = await cmd.ExecuteReaderAsync();
+                        query.Action!(reader);
+                    }
 
-                        q.Action(reader);
+                    if (index < activeQueries.Length - 1 &&
+                        !await reader.NextResultAsync(HttpContext.RequestAborted))
+                    {
+                        break;
                     }
                 }
 
@@ -138,7 +153,7 @@ namespace CoreAdminWeb.Controllers.Api
             {
                 response.Errors.Add(BaseServiceHelper.CreateErrorResponse(ex));
                 response.StatusCode = HttpStatusCode.InternalServerError;
-                return BadRequest(response);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
             finally
             {

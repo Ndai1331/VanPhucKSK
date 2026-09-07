@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: van-phuc-web
+  namespace: bv199
+  labels:
+    app.kubernetes.io/name: van-phuc-web
+spec:
+  # Blazor Server keeps a SignalR circuit in memory. Keep one replica unless
+  # ingress session affinity/backplane is configured deliberately.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: van-phuc-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: van-phuc-web
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: web
+          image: longnguyen1331/van-phuc-web:bv199-latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8056
+          envFrom:
+            - configMapRef:
+                name: van-phuc-web-config
+            - secretRef:
+                name: van-phuc-web-secrets
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi

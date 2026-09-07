@@ -17,15 +17,16 @@ namespace CoreAdminWeb.Services.Imports
         private readonly IBaseService<KhamSucKhoeCongTyModel> _khamSucKhoeCongTyService;
         private readonly IBaseService<PhanLoaiSucKhoeModel> _phanLoaiSucKhoeService;
         private readonly IBaseDetailService<KhamSucKhoeKetLuanModel> _khamSucKhoeKetLuanService;
-        public ImportKetQuaKhamSucKhoeService(IServiceScopeFactory serviceScopeFactory)
+        public ImportKetQuaKhamSucKhoeService(
+            IBaseDetailService<SoKhamSucKhoeModel> soKhamSucKhoeService,
+            IBaseService<KhamSucKhoeCongTyModel> khamSucKhoeCongTyService,
+            IBaseService<PhanLoaiSucKhoeModel> phanLoaiSucKhoeService,
+            IBaseDetailService<KhamSucKhoeKetLuanModel> khamSucKhoeKetLuanService)
         {
-            using (var scope = serviceScopeFactory.CreateScope())
-            {
-                _soKhamSucKhoeService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<SoKhamSucKhoeModel>>();
-                _khamSucKhoeCongTyService = scope.ServiceProvider.GetRequiredService<IBaseService<KhamSucKhoeCongTyModel>>();
-                _phanLoaiSucKhoeService = scope.ServiceProvider.GetRequiredService<IBaseService<PhanLoaiSucKhoeModel>>();
-                _khamSucKhoeKetLuanService = scope.ServiceProvider.GetRequiredService<IBaseDetailService<KhamSucKhoeKetLuanModel>>();
-            }
+            _soKhamSucKhoeService = soKhamSucKhoeService;
+            _khamSucKhoeCongTyService = khamSucKhoeCongTyService;
+            _phanLoaiSucKhoeService = phanLoaiSucKhoeService;
+            _khamSucKhoeKetLuanService = khamSucKhoeKetLuanService;
         }
 
 
@@ -37,6 +38,7 @@ namespace CoreAdminWeb.Services.Imports
         {
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 ExcelPackage.License.SetNonCommercialOrganization("NonCommercial");
 
                 List<ImportKetQuaKhamSucKhoeModel> result;
@@ -57,6 +59,7 @@ namespace CoreAdminWeb.Services.Imports
                     // Đọc dữ liệu theo batch để giảm memory pressure
                     for (int row = 2; row <= rowCount; row++)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         bool isEmptyRow = true;
                         for (int col = 1; col <= colCount; col++)
                         {
@@ -88,7 +91,7 @@ namespace CoreAdminWeb.Services.Imports
                         }
                         result.Add(model);
 
-                        int nextPercent = (int)Math.Round((double)(row - 2) * 100 / (rowCount - 2));
+                        int nextPercent = (int)Math.Round((double)(row - 1) * 100 / Math.Max(1, rowCount - 1));
                         if (nextPercent != percent)
                         {
                             percent = nextPercent;
@@ -145,15 +148,15 @@ namespace CoreAdminWeb.Services.Imports
                 // Chạy các truy vấn batch song song
                 var plSucKhoeTask = BatchQueryAsync(
                     ids => _phanLoaiSucKhoeService.GetAllAsync($"filter[_and][][name][_in]={string.Join(",", ids)}"),
-                    phanLoaiSKs, batchSize
+                    phanLoaiSKs, batchSize, cancellationToken
                 );
                 var klTask = BatchQueryAsync(
                     ids => _khamSucKhoeKetLuanService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
-                    maLuotKhams, batchSize
+                    maLuotKhams, batchSize, cancellationToken
                 );
                 var skskTask = BatchQueryAsync(
                     ids => _soKhamSucKhoeService.GetAllAsync($"filter[_and][][ma_luot_kham][_in]={string.Join(",", ids)}"),
-                    maLuotKhams, batchSize
+                    maLuotKhams, batchSize, cancellationToken
                 );
 
                 await Task.WhenAll(plSucKhoeTask, klTask, skskTask);
@@ -164,16 +167,22 @@ namespace CoreAdminWeb.Services.Imports
 
                 var existingUserMap = existingKLs
                     .DistinctBy(c => c.ma_luot_kham ?? c.luot_kham?.ma_luot_kham ?? string.Empty)
-                    .ToDictionary(c => c.ma_luot_kham ?? c.luot_kham?.ma_luot_kham ?? string.Empty, c => c);
+                    .ToDictionary(c => c.ma_luot_kham ?? c.luot_kham?.ma_luot_kham ?? string.Empty, c => c, StringComparer.OrdinalIgnoreCase);
 
-                var notExistingSKSKs = soKhamSucKhoes.Where(c => !maLuotKhams.Any(x => x == c.ma_luot_kham));
-                if (notExistingSKSKs.Any())
+                var existingVisitKeys = soKhamSucKhoes
+                    .Where(item => !string.IsNullOrWhiteSpace(item.ma_luot_kham))
+                    .Select(item => item.ma_luot_kham!.Trim())
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var missingVisitIds = maLuotKhams
+                    .Where(id => !existingVisitKeys.Contains(id.Trim()))
+                    .ToList();
+                if (missingVisitIds.Count > 0)
                 {
                     await updateProgress.Invoke(new ProcessingModel()
                     {
                         ProcessId = connectionId,
                         Status = TrangThaiXuLyNen.Error,
-                        Value = $"Không tồn tại sổ khám sức khỏe: {string.Join(", ", notExistingSKSKs.Select(c => $"'{c.ma_luot_kham}'"))}",
+                        Value = $"Không tồn tại sổ khám sức khỏe: {string.Join(", ", missingVisitIds.Select(id => $"'{id}'"))}",
                         AdditionalParams = new { ShowPopup = true }
                     });
                     return;
@@ -182,21 +191,35 @@ namespace CoreAdminWeb.Services.Imports
                 var dotKhamIds = soKhamSucKhoes.Select(c => c.MaDotKham).Where(x => x != null && x.id > 0).Select(x => (x?.id ?? 0).ToString()).Distinct().ToList();
                 var dotKhamTask = BatchQueryAsync(
                     ids => _khamSucKhoeCongTyService.GetAllAsync($"filter[_and][][id][_in]={string.Join(",", ids)}"),
-                    dotKhamIds, batchSize
+                    dotKhamIds, batchSize, cancellationToken
                 );
                 var dotKhams = await dotKhamTask;
+                var soKhamByVisitId = soKhamSucKhoes
+                    .Where(item => !string.IsNullOrWhiteSpace(item.ma_luot_kham))
+                    .GroupBy(item => item.ma_luot_kham!.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+                var dotKhamById = dotKhams
+                    .GroupBy(item => item.id)
+                    .ToDictionary(group => group.Key, group => group.First());
+                var phanLoaiByName = phanLoaiSucKhoes
+                    .Where(item => !string.IsNullOrWhiteSpace(item.name))
+                    .GroupBy(item => item.name!.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
 
                 var updatingKLs = new List<KhamSucKhoeKetLuanModel>();
                 var newKLs = new List<KhamSucKhoeKetLuanModel>();
+                var newVisitKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
                 percent = 0;
                 int totalRow = result.Count;
                 int rowIndex = 0;
                 foreach (var item in result)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     DateTime? ngayKetLuan = null;
-                    var selectedSoKham = soKhamSucKhoes.FirstOrDefault(c => c.ma_luot_kham == item.MaLuotKham);
-                    var selectedDotKham = dotKhams.FirstOrDefault(c => c.id == (selectedSoKham?.MaDotKham?.id ?? 0));
+                    soKhamByVisitId.TryGetValue(item.MaLuotKham.Trim(), out var selectedSoKham);
+                    dotKhamById.TryGetValue(selectedSoKham?.MaDotKham?.id ?? 0, out var selectedDotKham);
+                    phanLoaiByName.TryGetValue(item.PhanLoaiSucKhoe.Trim(), out var selectedPhanLoai);
                     if (!string.IsNullOrEmpty(item.NgayKetLuan) && DateTime.TryParseExact(item.NgayKetLuan, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
                     {
                         ngayKetLuan = parsedDate;
@@ -207,13 +230,13 @@ namespace CoreAdminWeb.Services.Imports
                         existingUser.de_nghi = item.DeNghi;
                         existingUser.tu_van = item.TuVan;
                         existingUser.benh_tat_ket_luan = item.CacLoaiBenhTat;
-                        existingUser.phan_loai_suc_khoe = phanLoaiSucKhoes.FirstOrDefault(c => c.name == item.PhanLoaiSucKhoe);
+                        existingUser.phan_loai_suc_khoe = selectedPhanLoai;
                         existingUser.ngay_ket_luan = ngayKetLuan;
                         existingUser.nguoi_ket_luan = $"{selectedDotKham?.bs_ket_luan?.chuc_danh} {selectedDotKham?.bs_ket_luan?.full_name}";
 
                         updatingKLs.Add(existingUser);
                     }
-                    else if (!newKLs.Any(c => c.ma_luot_kham == item.MaLuotKham))
+                    else if (newVisitKeys.Add(item.MaLuotKham.Trim()))
                     {
                         newKLs.Add(new KhamSucKhoeKetLuanModel
                         {
@@ -221,7 +244,7 @@ namespace CoreAdminWeb.Services.Imports
                             de_nghi = item.DeNghi,
                             tu_van = item.TuVan,
                             ma_luot_kham = item.MaLuotKham,
-                            phan_loai_suc_khoe = phanLoaiSucKhoes.FirstOrDefault(c => c.name == item.PhanLoaiSucKhoe),
+                            phan_loai_suc_khoe = selectedPhanLoai,
                             status = Status.draft,
                             isAbnormal = false,
                             active = true,
@@ -234,7 +257,7 @@ namespace CoreAdminWeb.Services.Imports
                         });
                     }
 
-                    int nextPercent = (int)Math.Round((double)(rowIndex - 1) * 100 / (totalRow - 1));
+                    int nextPercent = (int)Math.Round((double)(rowIndex + 1) * 100 / Math.Max(1, totalRow));
                     if (percent != nextPercent)
                     {
                         percent = nextPercent;
@@ -257,8 +280,8 @@ namespace CoreAdminWeb.Services.Imports
                 });
 
                 // Batch update/create users
-                await BatchExecuteAsync(updatingKLs.Cast<dynamic>().ToList(), _khamSucKhoeKetLuanService.UpdateAsync, batchSize);
-                await BatchExecuteAsync(newKLs.Cast<dynamic>().ToList(), _khamSucKhoeKetLuanService.CreateAsync, batchSize);
+                await BatchExecuteAsync(updatingKLs.Cast<dynamic>().ToList(), _khamSucKhoeKetLuanService.UpdateAsync, batchSize, cancellationToken);
+                await BatchExecuteAsync(newKLs.Cast<dynamic>().ToList(), _khamSucKhoeKetLuanService.CreateAsync, batchSize, cancellationToken);
 
                 await updateProgress.Invoke(new ProcessingModel()
                 {
@@ -278,11 +301,12 @@ namespace CoreAdminWeb.Services.Imports
             }
         }
 
-        static async Task<List<T>> BatchQueryAsync<T>(Func<List<string>, Task<RequestHttpResponse<List<T>>>> queryFunc, List<string> ids, int batchSize = 200)
+        static async Task<List<T>> BatchQueryAsync<T>(Func<List<string>, Task<RequestHttpResponse<List<T>>>> queryFunc, List<string> ids, int batchSize = 200, CancellationToken cancellationToken = default)
         {
             var results = new List<T>();
             foreach (var batch in ids.Chunk(batchSize))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var res = await queryFunc(batch.ToList());
                 if (res.IsSuccess && res.Data != null)
                 {
@@ -292,26 +316,29 @@ namespace CoreAdminWeb.Services.Imports
             return results;
         }
 
-        static async Task BatchExecuteAsync<T, TValue>(List<T> items, Func<List<T>, Task<RequestHttpResponse<List<TValue>>>> execFunc, int batchSize = 100)
+        static async Task BatchExecuteAsync<T, TValue>(List<T> items, Func<List<T>, Task<RequestHttpResponse<List<TValue>>>> execFunc, int batchSize = 100, CancellationToken cancellationToken = default)
         {
             foreach (var batch in items.Chunk(batchSize))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await execFunc(batch.ToList());
             }
         }
 
-        static async Task BatchExecuteAsync<T>(List<T> items, Func<List<T>, Task<RequestHttpResponse<List<T>>>> execFunc, int batchSize = 100)
+        static async Task BatchExecuteAsync<T>(List<T> items, Func<List<T>, Task<RequestHttpResponse<List<T>>>> execFunc, int batchSize = 100, CancellationToken cancellationToken = default)
         {
             foreach (var batch in items.Chunk(batchSize))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await execFunc(batch.ToList());
             }
         }
 
-        static async Task BatchExecuteAsync<T>(List<T> items, Func<List<T>, Task<RequestHttpResponse<bool>>> execFunc, int batchSize = 100)
+        static async Task BatchExecuteAsync<T>(List<T> items, Func<List<T>, Task<RequestHttpResponse<bool>>> execFunc, int batchSize = 100, CancellationToken cancellationToken = default)
         {
             foreach (var batch in items.Chunk(batchSize))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await execFunc(batch.ToList());
             }
         }

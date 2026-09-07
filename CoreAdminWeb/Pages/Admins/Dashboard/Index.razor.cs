@@ -11,7 +11,7 @@ using MudBlazor;
 
 namespace CoreAdminWeb.Pages.Admins.Dashboard
 {
-    public partial class Index(IDashboardService<GeneralDashboardModel> MainService, IUserService UserService) : BlazorCoreBase
+    public partial class Index(IDashboardService<GeneralDashboardModel> MainService) : BlazorCoreBase
     {
         private GeneralDashboardModel MainModel { get; set; } = new();
         private DateTime? _startDateFilter = default;
@@ -31,19 +31,10 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
                 _startDateFilter = new DateTime(dateNow.Year, dateNow.Month, 1, 0, 0, 0, DateTimeKind.Local);
                 _endDateFilter = new DateTime(dateNow.Year, dateNow.Month, DateTime.DaysInMonth(dateNow.Year, dateNow.Month), 0, 0, 0, DateTimeKind.Local);
 
-                var resUser = await UserService.GetCurrentUserAsync();
-                if (resUser.IsSuccess)
-                {
-                    CurrentUser = resUser.Data;
-                }
+                CurrentUser = await AppState.GetCurrentUserAsync();
                 await LoadData(true);
-                StateHasChanged();
-                // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
+                await InvokeAsync(StateHasChanged);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             }
         }
 
@@ -57,7 +48,6 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             if (isReset)
             {
                 ResetPage();
-                await Task.Delay(100);
             }
 
             DateTime dateNow = DateTime.Now;
@@ -82,13 +72,13 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             }
 
             Loading.Show();
-
-            if (!CurrentUser.ma_don_vi.HasValue || CurrentUser.ma_don_vi <= 0)
+            try
             {
-                AlertService.ShowAlert($"Không tìm thấy thông tin công ty", "danger");
-                Loading.Hide();
-                return;
-            }
+                if (!CurrentUser.ma_don_vi.HasValue || CurrentUser.ma_don_vi <= 0)
+                {
+                    AlertService.ShowAlert($"Không tìm thấy thông tin công ty", "danger");
+                    return;
+                }
 
             BuilderQuery = $"Dashboard/company-medical-data?company={CurrentUser.ma_don_vi}&fromDate={_startDateFilter:yyyy-MM-dd}&toDate={_endDateFilter:yyyy-MM-dd}";
 
@@ -173,7 +163,11 @@ namespace CoreAdminWeb.Pages.Admins.Dashboard
             {
                 AlertService.ShowAlert($"Lỗi khi tải dữ liệu biểu đồ: {ex.Message}", "danger");
             }
-            Loading.Hide();
+            }
+            finally
+            {
+                Loading.Hide();
+            }
         }
 
         private async Task OnValueChanged(ChangeEventArgs e, string fieldName)

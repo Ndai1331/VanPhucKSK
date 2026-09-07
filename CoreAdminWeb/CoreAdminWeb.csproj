@@ -18,6 +18,12 @@
     <EmbeddedResource Remove="wwwroot\images\LK0005\**" />
     <None Remove="wwwroot\images\cls\**" />
     <None Remove="wwwroot\images\LK0005\**" />
+    <!-- Vite source files are needed by the front-end toolchain but must not be
+         enumerated or published as ASP.NET static web assets. -->
+    <Content Remove="wwwroot\src\**" />
+    <None Remove="wwwroot\src\**" />
+    <Content Remove="wwwroot\**\*.map" />
+    <None Remove="wwwroot\**\*.map" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />

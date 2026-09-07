@@ -40,26 +40,20 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             {
                 await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
-                StateHasChanged();
-
-                // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
+                await InvokeAsync(StateHasChanged);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             }
         }
 
         private async Task LoadData(bool isReset = false)
         {
             Loading.Show();
-
-            if (isReset)
+            try
             {
-                ResetPage();
-                await Task.Delay(100);
-            }
+                if (isReset)
+                {
+                    ResetPage();
+                }
 
             BuilderQuery = $"DanhSachDoan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";
             if (_fromDate.HasValue)
@@ -105,9 +99,12 @@ namespace CoreAdminWeb.Pages.Admins.DanhSachNhanVienSoKhamSucKhoe
             {
                 MainModels = new List<DanhSachDoanSoKhamSucKhoeModel>();
             }
-            Loading.Hide();
-
             await InvokeAsync(StateHasChanged);
+            }
+            finally
+            {
+                Loading.Hide();
+            }
         }
 
         private async Task OnPageSizeChanged(int newSize)

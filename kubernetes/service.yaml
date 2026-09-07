@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: van-phuc-web
+  namespace: bv199
+  labels:
+    app.kubernetes.io/name: van-phuc-web
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: van-phuc-web
+  ports:
+    - name: http
+      port: 8056
+      targetPort: http

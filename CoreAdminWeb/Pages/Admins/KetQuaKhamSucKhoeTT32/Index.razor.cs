@@ -168,14 +168,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 SetProfileImagePlaceholder();
                 //await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
-                StateHasChanged();
-
-                // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
+                await InvokeAsync(StateHasChanged);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             }
         }
 
@@ -193,11 +187,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private async Task LoadData(bool isReset = false)
         {
             Loading.Show();
-
-            if (isReset)
+            try
             {
-                ResetPage();
-            }
+                if (isReset)
+                {
+                    ResetPage();
+                }
 
             BuildPaginationQuery(Page, PageSize);
             BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
@@ -261,8 +256,12 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 MainModels = new List<SoKhamSucKhoeModel>();
             }
             OnResetData();
-            Loading.Hide();
             StateHasChanged();
+            }
+            finally
+            {
+                Loading.Hide();
+            }
         }
 
         private async Task OnRowClick(int soKhamSKId)
@@ -338,6 +337,8 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
         private async Task LoadDetailData(int soKhamSKId)
         {
             Loading.Show();
+            try
+            {
             dynamicTheLucObj = new ExpandoObject();
             dynamicSanPhuKhoaObj = new ExpandoObject();
             dynamicChuyenKhoaObj = new ExpandoObject();
@@ -517,7 +518,11 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
                 AlertService.ShowAlert("Không tìm thấy thông tin khám!", "danger");
             }
 
-            Loading.Hide();
+            }
+            finally
+            {
+                Loading.Hide();
+            }
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -1822,18 +1827,16 @@ namespace CoreAdminWeb.Pages.Admins.KetQuaKhamSucKhoeTT32
             }
         }
 
-        private void OnTabChanged(string tab)
+        private async Task OnTabChanged(string tab)
         {
             activeDefTab = tab;
 
             if (activeDefTab == "tab3")
             {
                 // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
+                await InvokeAsync(StateHasChanged);
+                await Task.Delay(1);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             }
         }
 

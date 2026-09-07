@@ -98,14 +98,8 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                 await LoadData(true);
                 await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/assets/js/pages/flatpickr.js");
                 SetProfileImagePlaceholder();
-                StateHasChanged();
-
-                // Wait for modal to render
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    await JsRuntime.InvokeVoidAsync("initializeDatePicker");
-                });
+                await InvokeAsync(StateHasChanged);
+                await JsRuntime.InvokeVoidAsync("initializeDatePicker");
             }
         }
 
@@ -120,12 +114,12 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         private async Task LoadData(bool isReset = false)
         {
             Loading.Show();
-
-            if (isReset)
+            try
             {
-                ResetPage();
-                await Task.Delay(100);
-            }
+                if (isReset)
+                {
+                    ResetPage();
+                }
 
             BuilderQuery = $"CaNhan/medical-data?limit={PageSize}&offset={(Page - 1) * PageSize}";
             if (_benhNhanFilter != null)
@@ -164,7 +158,11 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
             {
                 MainModels = new List<HoSoKhamSucKhoeTT32Model>();
             }
-            Loading.Hide();
+            }
+            finally
+            {
+                Loading.Hide();
+            }
         }
 
         private async Task OnPageSizeChanged(int newSize)
@@ -273,10 +271,12 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
         private async Task LoadDetailData(HoSoKhamSucKhoeTT32Model item)
         {
             Loading.Show();
-            var resSoKhamSK = await SoKhamSucKhoeService.GetByIdAsync(item.id.ToString());
-            if (resSoKhamSK?.IsSuccess == true && resSoKhamSK.Data != null)
+            try
             {
-                SelectedItem = resSoKhamSK.Data;
+                var resSoKhamSK = await SoKhamSucKhoeService.GetByIdAsync(item.id.ToString());
+                if (resSoKhamSK?.IsSuccess == true && resSoKhamSK.Data != null)
+                {
+                    SelectedItem = resSoKhamSK.Data;
 
                 if (SelectedItem.benh_nhan == null)
                 {
@@ -346,13 +346,16 @@ namespace CoreAdminWeb.Pages.Admins.HoSoKhamSucKhoeTT32
                     para3 = paraSplit.Length > 2 ? paraSplit[2].Trim() : string.Empty;
                     para4 = paraSplit.Length > 3 ? paraSplit[3].Trim() : string.Empty;
                 }
+                }
+                else
+                {
+                    AlertService.ShowAlert("Không tìm thấy thông tin khám!", "danger");
+                }
             }
-            else
+            finally
             {
-                AlertService.ShowAlert("Không tìm thấy thông tin khám!", "danger");
+                Loading.Hide();
             }
-
-            Loading.Hide();
         }
 
         private MarkupString RenderSignature(string? signatureData, string? fallbackText = "", string? fileName = "", int maxWidth = 120, int maxHeight = 60)

@@ -38,47 +38,51 @@ namespace CoreAdminWeb.Pages.Admins.DanhMucCongTy
         private async Task LoadData(bool isReset = false)
         {
             Loading.Show();
-
-            if (isReset)
+            try
             {
-                ResetPage();
-                await Task.Delay(100);
-            }
-
-            BuildPaginationQuery(Page, PageSize);
-            BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
-            if (!string.IsNullOrEmpty(_searchString))
-            {
-                BuilderQuery += $"&filter[_and][1][_or][0][code][_contains]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][1][name][_contains]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][2][dia_chi][_contains]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][3][email][_contains]={_searchString}";
-                BuilderQuery += $"&filter[_and][1][_or][4][dien_thoai][_contains]={_searchString}";
-            }
-            if (!string.IsNullOrEmpty(_searchStatusString))
-            {
-                BuilderQuery += $"&filter[_and][2][status][_eq]={_searchStatusString}";
-            }
-            var result = await MainService.GetAllAsync(BuilderQuery);
-            if (result.IsSuccess)
-            {
-                MainModels = result.Data ?? new List<CongTyModel>();
-                if (result.Meta != null)
+                if (isReset)
                 {
-                    TotalItems = result.Meta.filter_count ?? 0;
-                    TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                    ResetPage();
+                }
 
-                    if (Page > TotalPages)
+                BuildPaginationQuery(Page, PageSize);
+                BuilderQuery += $"&filter[_and][0][deleted][_eq]=false";
+                if (!string.IsNullOrEmpty(_searchString))
+                {
+                    BuilderQuery += $"&filter[_and][1][_or][0][code][_contains]={_searchString}";
+                    BuilderQuery += $"&filter[_and][1][_or][1][name][_contains]={_searchString}";
+                    BuilderQuery += $"&filter[_and][1][_or][2][dia_chi][_contains]={_searchString}";
+                    BuilderQuery += $"&filter[_and][1][_or][3][email][_contains]={_searchString}";
+                    BuilderQuery += $"&filter[_and][1][_or][4][dien_thoai][_contains]={_searchString}";
+                }
+                if (!string.IsNullOrEmpty(_searchStatusString))
+                {
+                    BuilderQuery += $"&filter[_and][2][status][_eq]={_searchStatusString}";
+                }
+                var result = await MainService.GetAllAsync(BuilderQuery);
+                if (result.IsSuccess)
+                {
+                    MainModels = result.Data ?? new List<CongTyModel>();
+                    if (result.Meta != null)
                     {
-                        await SelectedPage(TotalPages);
+                        TotalItems = result.Meta.filter_count ?? 0;
+                        TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+
+                        if (Page > TotalPages)
+                        {
+                            await SelectedPage(TotalPages);
+                        }
                     }
                 }
+                else
+                {
+                    MainModels = new List<CongTyModel>();
+                }
             }
-            else
+            finally
             {
-                MainModels = new List<CongTyModel>();
+                Loading.Hide();
             }
-            Loading.Hide();
         }
 
         private async Task OnPageSizeChanged(int newSize)

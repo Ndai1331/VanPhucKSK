@@ -58,43 +58,33 @@ public class HoaDonDienTuController : ControllerBase
             var results = new List<HoaDonDienTuModel>();
             int totalCount = 0;
 
-            await _context.Database.OpenConnectionAsync();
+            await _context.Database.OpenConnectionAsync(HttpContext.RequestAborted);
+            using var command = _context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = countSql + ";\n" + dataSql;
+            command.Parameters.Add(new SqlParameter("@maBenhNhan", maBenhNhan));
+            command.Parameters.Add(new SqlParameter("@offset", validOffset));
+            command.Parameters.Add(new SqlParameter("@limit", validLimit));
 
-            // Lấy tổng số bản ghi
-            using (var countCommand = _context.Database.GetDbConnection().CreateCommand())
+            using var reader = await command.ExecuteReaderAsync(HttpContext.RequestAborted);
+            if (await reader.ReadAsync(HttpContext.RequestAborted))
             {
-                countCommand.CommandText = countSql;
-                countCommand.Parameters.Add(new SqlParameter("@maBenhNhan", maBenhNhan));
-                
-                var countResult = await countCommand.ExecuteScalarAsync();
-                totalCount = Convert.ToInt32(countResult ?? 0);
+                totalCount = Convert.ToInt32(reader["TotalCount"]);
             }
 
-            // Lấy dữ liệu với phân trang
-            using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
+            if (await reader.NextResultAsync(HttpContext.RequestAborted))
             {
-                dataCommand.CommandText = dataSql;
-                dataCommand.Parameters.Add(new SqlParameter("@maBenhNhan", maBenhNhan));
-                dataCommand.Parameters.Add(new SqlParameter("@offset", validOffset));
-                dataCommand.Parameters.Add(new SqlParameter("@limit", validLimit));
-                
-                using (var reader = await dataCommand.ExecuteReaderAsync())
+                while (await reader.ReadAsync(HttpContext.RequestAborted))
                 {
-                    while (await reader.ReadAsync())
+                    results.Add(new HoaDonDienTuModel
                     {
-                        var item = new HoaDonDienTuModel
-                        {
-                            ma_luot_kham = reader["ma_luot_kham"]?.ToString(),
-                            so_hoa_don = reader["so_hoa_don"]?.ToString(),
-                            ngay_hoa_don = reader["ngay_hoa_don"] as DateTime?,
-                            ma_hoa_don = reader["ma_hoa_don"]?.ToString(),
-                            ma_giao_dich = reader["ma_giao_dich"]?.ToString(),
-                            ma_so_thue = reader["ma_so_thue"]?.ToString(),
-                            url_tra_cuu = reader["url_tra_cuu"]?.ToString(),
-                        };
-                        
-                        results.Add(item);
-                    }
+                        ma_luot_kham = reader["ma_luot_kham"]?.ToString(),
+                        so_hoa_don = reader["so_hoa_don"]?.ToString(),
+                        ngay_hoa_don = reader["ngay_hoa_don"] as DateTime?,
+                        ma_hoa_don = reader["ma_hoa_don"]?.ToString(),
+                        ma_giao_dich = reader["ma_giao_dich"]?.ToString(),
+                        ma_so_thue = reader["ma_so_thue"]?.ToString(),
+                        url_tra_cuu = reader["url_tra_cuu"]?.ToString(),
+                    });
                 }
             }
 
@@ -107,7 +97,7 @@ public class HoaDonDienTuController : ControllerBase
         {
             response.Errors.Add(CreateErrorResponse(ex));
             response.StatusCode = HttpStatusCode.InternalServerError;
-            return BadRequest(response);
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
         finally
         {

@@ -71,6 +71,7 @@
 @code {
     // State management
     private bool _isLoading = true;
+    private bool _hasInitialized = false;
     
     // Data
     private List<PostModel> MainModels = new List<PostModel>();
@@ -78,7 +79,15 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await InitializePageDataAsync();
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_hasInitialized)
+        {
+            _hasInitialized = true;
+            await InitializePageDataAsync();
+        }
     }
 
     /// <summary>

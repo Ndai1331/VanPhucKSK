@@ -211,19 +211,22 @@ namespace CoreAdminWeb.Services.Contract
 
             try
             {
-                // Directus bulk PATCH applies one payload to all selected keys. Sending a
-                // different payload per row is unreliable and fails with larger lists.
-                // Update each record explicitly so every row retains its own values.
-                foreach (var item in model)
+                var updateModel = model.Select(c =>
                 {
-                    var result = await UpdateAsync(item);
-                    if (!result.IsSuccess || !result.Data)
-                    {
-                        return result;
-                    }
-                }
+                    string jsonStr = JsonSerializer.Serialize(MapToCRUDModel(c));
+                    JObject jObject = JObject.Parse(jsonStr);
+                    dynamic dynamicObject = jObject;
+                    dynamicObject.id = c.id;
 
-                return new RequestHttpResponse<bool> { Data = true };
+                    return dynamicObject;
+                }).ToList();
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<ContractDinhMucModel>>>($"items/{_collection}?fields={Fields}", updateModel);
+
+                return new RequestHttpResponse<bool>
+                {
+                    Data = response.IsSuccess,
+                    Errors = response.Errors
+                };
             }
             catch (Exception ex)
             {
@@ -279,16 +282,13 @@ namespace CoreAdminWeb.Services.Contract
 
             try
             {
-                foreach (var item in model)
-                {
-                    var result = await DeleteAsync(item);
-                    if (!result.IsSuccess || !result.Data)
-                    {
-                        return result;
-                    }
-                }
+                var response = await _httpClientService.PatchAPIAsync<RequestHttpResponse<List<ContractDinhMucModel>>>($"items/{_collection}?fields={Fields}", model.Select(c => new { id = c.id, deleted = true }));
 
-                return new RequestHttpResponse<bool> { Data = true };
+                return new RequestHttpResponse<bool>
+                {
+                    Data = response.IsSuccess,
+                    Errors = response.Errors
+                };
             }
             catch (Exception ex)
             {

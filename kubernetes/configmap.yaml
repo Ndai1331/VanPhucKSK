@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: van-phuc-web-config
+  namespace: bv199
+data:
+  ASPNETCORE_ENVIRONMENT: Production
+  ASPNETCORE_URLS: http://+:8056
+  DrCoreApi__BaseUrl: https://core.benhvien199.vn/
+  # The app calls its own API through the pod. This avoids a hairpin request
+  # through ingress/load balancers on every dashboard request.
+  LocalApi__BaseUrl: http://127.0.0.1:8056/api/
+  LibreOffice__SofficePath: soffice
+  LibreOffice__UnoconvPath: unoconv
+  LibreOffice__UnoPort: "2002"

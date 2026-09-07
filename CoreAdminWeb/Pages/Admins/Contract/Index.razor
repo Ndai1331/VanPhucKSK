@@ -163,14 +163,14 @@
                             <ul class="flex flex-wrap text-sm text-center border-b border-black/10 dark:border-darkborder">
                                 <li class="ltr:mr-2 rtl:ml-2">
                                     <MudLink Href="javascript:;"
-                                             OnClick="@(() => {OnTabChanged("tab1");})"
+                                             OnClick="@(() => OnTabChanged("tab1"))"
                                              Class="@($"inline-block p-4 rounded-t-lg {(activeDefTab == "tab1" ? "bg-purple/10 text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
                                         Thông tin hợp đồng
                                     </MudLink>
                                 </li>
                                 <li class="ltr:mr-2 rtl:ml-2">
                                     <MudLink Href="javascript:;"
-                                             OnClick="@(() => {OnTabChanged("tab2");})"
+                                             OnClick="@(() => OnTabChanged("tab2"))"
                                              Class="@($"inline-block p-4 rounded-t-lg {(activeDefTab == "tab2" ? "bg-purple/10 text-purple" : "bg-transparent font-normal text-muted dark:hover:text-purple hover:bg-purple/10 hover:text-purple")}")">
                                         Chi tiết định mức
                                     </MudLink>

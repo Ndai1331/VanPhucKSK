@@ -34,47 +34,24 @@ public class CaNhanController : ControllerBase
             // Validate parameters
             var validLimit = limit <= 0 ? 10 : limit;
             var validOffset = offset < 0 ? 0 : offset;
-            var where = "";
+            var predicates = new List<string>();
             if (!string.IsNullOrEmpty(benhNhan))
             {
-                where += " WHERE sksk.benh_nhan = '" + benhNhan + "'";
+                predicates.Add("sksk.benh_nhan = @benhNhan");
             }
             if (!string.IsNullOrEmpty(congTy))
             {
-                if (string.IsNullOrEmpty(where))
-                {
-                    where += " WHERE ";
-                }
-                else
-                {
-                    where += " AND ";
-                }
-                where += "hd.cong_ty = " + congTy;
+                predicates.Add("hd.cong_ty = @congTy");
             }
             if (fromDate.HasValue)
             {
-                if (string.IsNullOrEmpty(where))
-                {
-                    where += " WHERE ";
-                }
-                else
-                {
-                    where += " AND ";
-                }
-                where += "sksk.ngay_kham >= '" + fromDate.Value.ToString("yyyy-MM-dd") + "'";
+                predicates.Add("sksk.ngay_kham >= @fromDate");
             }
             if (toDate.HasValue)
             {
-                if (string.IsNullOrEmpty(where))
-                {
-                    where += " WHERE ";
-                }
-                else
-                {
-                    where += " AND ";
-                }
-                where += "sksk.ngay_kham <= '" + toDate.Value.ToString("yyyy-MM-dd") + "'";
+                predicates.Add("sksk.ngay_kham < DATEADD(DAY, 1, @toDate)");
             }
+            var where = predicates.Count == 0 ? string.Empty : " WHERE " + string.Join(" AND ", predicates);
 
             // Query đếm tổng số bản ghi
             var countSql = @"
@@ -87,16 +64,17 @@ public class CaNhanController : ControllerBase
             var dataSql = @"
                 select sksk.id, sksk.ma_luot_kham, sksk.ngay_kham, u.ma_tai_khoan as ma_benh_nhan, u.last_name, u.first_name,
                 kl.benh_tat_ket_luan, kl.de_nghi, kl.tu_van, plsk.name as phan_loai_suc_khoe,
-                (select top 1 name from CongTy where id = hd.cong_ty) as cong_ty
+                c.name as cong_ty
                 from SoKhamSucKhoe sksk 
                 Left join kham_suc_khoe_cong_ty ct on ct.id = sksk.MaDotKham
                 Left join contract hd on hd.id = ct.ma_hop_dong_ksk
+                Left join CongTy c on c.id = hd.cong_ty
                 Left join custom_users u on u.id = sksk.benh_nhan 
                 Left join kham_suc_khoe_ket_luan kl on kl.ma_luot_kham = sksk.ma_luot_kham
                 Left join phan_loai_suc_khoe plsk on kl.phan_loai_suc_khoe = plsk.id
                 " + where + @"
                 GROUP BY sksk.id, sksk.ma_luot_kham, sksk.ngay_kham, u.ma_tai_khoan, u.last_name, u.first_name,
-                kl.benh_tat_ket_luan, kl.de_nghi, kl.tu_van, plsk.name, hd.cong_ty
+                kl.benh_tat_ket_luan, kl.de_nghi, kl.tu_van, plsk.name, c.name
                 ORDER BY sksk.id
                 OFFSET @offset ROWS 
                 FETCH NEXT @limit ROWS ONLY";
@@ -104,61 +82,41 @@ public class CaNhanController : ControllerBase
             var results = new List<HoSoKhamSucKhoeTT32Model>();
             int totalCount = 0;
 
-            await _context.Database.OpenConnectionAsync();
+            await _context.Database.OpenConnectionAsync(HttpContext.RequestAborted);
+            using var command = _context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = countSql + ";\n" + dataSql;
+            if (!string.IsNullOrEmpty(benhNhan)) command.Parameters.Add(new SqlParameter("@benhNhan", benhNhan));
+            if (!string.IsNullOrEmpty(congTy)) command.Parameters.Add(new SqlParameter("@congTy", congTy));
+            if (fromDate.HasValue) command.Parameters.Add(new SqlParameter("@fromDate", fromDate.Value));
+            if (toDate.HasValue) command.Parameters.Add(new SqlParameter("@toDate", toDate.Value));
+            command.Parameters.Add(new SqlParameter("@offset", validOffset));
+            command.Parameters.Add(new SqlParameter("@limit", validLimit));
 
-            // Lấy tổng số bản ghi
-            using (var countCommand = _context.Database.GetDbConnection().CreateCommand())
+            // Count and page data are returned as two result sets in one round trip.
+            using var reader = await command.ExecuteReaderAsync(HttpContext.RequestAborted);
+            if (await reader.ReadAsync(HttpContext.RequestAborted))
             {
-                countCommand.CommandText = countSql;
-                if (!string.IsNullOrEmpty(benhNhan))
-                {
-                    countCommand.Parameters.Add(new SqlParameter("@benhNhan", benhNhan));
-                }
-                if (!string.IsNullOrEmpty(congTy))
-                {
-                    countCommand.Parameters.Add(new SqlParameter("@congTy", congTy));
-                }
-
-                var countResult = await countCommand.ExecuteScalarAsync();
-                totalCount = Convert.ToInt32(countResult ?? 0);
+                totalCount = Convert.ToInt32(reader["TotalCount"]);
             }
 
-            // Lấy dữ liệu với phân trang
-            using (var dataCommand = _context.Database.GetDbConnection().CreateCommand())
+            if (await reader.NextResultAsync(HttpContext.RequestAborted))
             {
-                dataCommand.CommandText = dataSql;
-                if (!string.IsNullOrEmpty(benhNhan))
+                while (await reader.ReadAsync(HttpContext.RequestAborted))
                 {
-                    dataCommand.Parameters.Add(new SqlParameter("@benhNhan", benhNhan));
-                }
-                if (!string.IsNullOrEmpty(congTy))
-                {
-                    dataCommand.Parameters.Add(new SqlParameter("@congTy", congTy));
-                }
-                dataCommand.Parameters.Add(new SqlParameter("@offset", validOffset));
-                dataCommand.Parameters.Add(new SqlParameter("@limit", validLimit));
-
-                using (var reader = await dataCommand.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
+                    results.Add(new HoSoKhamSucKhoeTT32Model
                     {
-                        var item = new HoSoKhamSucKhoeTT32Model
-                        {
-                            id = reader["id"] as int? ?? 0,
-                            ma_luot_kham = reader["ma_luot_kham"]?.ToString(),
-                            ngay_kham = reader["ngay_kham"] as DateTime?,
-                            ma_benh_nhan = reader["ma_benh_nhan"]?.ToString(),
-                            last_name = reader["last_name"]?.ToString(),
-                            first_name = reader["first_name"]?.ToString(),
-                            benh_tat_ket_luan = reader["benh_tat_ket_luan"]?.ToString(),
-                            de_nghi = reader["de_nghi"]?.ToString(),
-                            phan_loai_suc_khoe = reader["phan_loai_suc_khoe"]?.ToString(),
-                            cong_ty = reader["cong_ty"]?.ToString(),
-                            tu_van = reader["tu_van"]?.ToString(),
-                        };
-
-                        results.Add(item);
-                    }
+                        id = reader["id"] as int? ?? 0,
+                        ma_luot_kham = reader["ma_luot_kham"]?.ToString(),
+                        ngay_kham = reader["ngay_kham"] as DateTime?,
+                        ma_benh_nhan = reader["ma_benh_nhan"]?.ToString(),
+                        last_name = reader["last_name"]?.ToString(),
+                        first_name = reader["first_name"]?.ToString(),
+                        benh_tat_ket_luan = reader["benh_tat_ket_luan"]?.ToString(),
+                        de_nghi = reader["de_nghi"]?.ToString(),
+                        phan_loai_suc_khoe = reader["phan_loai_suc_khoe"]?.ToString(),
+                        cong_ty = reader["cong_ty"]?.ToString(),
+                        tu_van = reader["tu_van"]?.ToString(),
+                    });
                 }
             }
 
@@ -171,7 +129,7 @@ public class CaNhanController : ControllerBase
         {
             response.Errors.Add(CreateErrorResponse(ex));
             response.StatusCode = HttpStatusCode.InternalServerError;
-            return BadRequest(response);
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
         finally
         {

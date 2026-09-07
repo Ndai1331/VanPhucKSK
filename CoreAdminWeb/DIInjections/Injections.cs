@@ -5,6 +5,7 @@ using CoreAdminWeb.Model.KhamSucKhoes;
 using CoreAdminWeb.Model.Reports;
 using CoreAdminWeb.Providers;
 using CoreAdminWeb.Services;
+using CoreAdminWeb.Services.ApplicationState;
 using CoreAdminWeb.Services.BaseServices;
 using CoreAdminWeb.Services.CaNhanSoKhamSucKhoe;
 using CoreAdminWeb.Services.Contract;
@@ -53,6 +54,7 @@ namespace CoreAdminWeb.DIInjections
             services.AddScoped<IBaseGetService<KetQuaCanLamSangModel>, KetQuaCanLamSangService>();
             services.AddScoped<IBaseGetService<KetQuaCanLamSangFileModel>, KetQuaCanLamSangFileService>();
             services.AddScoped<IMenuService, MenuService>();
+            services.AddScoped<IApplicationStateService, ApplicationStateService>();
             services.AddScoped<IBaseService<LoaiDinhMucModel>, LoaiDinhMucService>();
             services.AddScoped<IBaseService<DinhMucModel>, DinhMucService>();
             services.AddScoped<IBaseService<ContractTypeModel>, ContractTypeService>();

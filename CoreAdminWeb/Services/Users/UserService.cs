@@ -40,6 +40,8 @@ namespace CoreAdminWeb.Services.Users
         private readonly IHttpClientService _httpClientService;
         private string? _accessToken = default;
         private string? _refreshToken = default;
+        private readonly object _currentUserLock = new();
+        private Task<RequestHttpResponse<UserModel>>? _currentUserTask;
 
         public UserService(
             ILocalStorageService localStorage,
@@ -94,6 +96,7 @@ namespace CoreAdminWeb.Services.Users
                         claim = ClaimHepler.GetListClaim(_accessToken);
                     }
 
+                    InvalidateCurrentUserCache();
                     var currentUserAsync = await GetCurrentUserAsync();
                     if (currentUserAsync.Data != null)
                     {
@@ -138,6 +141,7 @@ namespace CoreAdminWeb.Services.Users
                     _httpClientService.AttachToken(_accessToken);
                     var claim = ClaimHepler.GetListClaim(_accessToken);
 
+                    InvalidateCurrentUserCache();
                     var currentUserAsync = await GetCurrentUserAsync();
                     if (currentUserAsync.Data != null)
                     {
@@ -173,6 +177,7 @@ namespace CoreAdminWeb.Services.Users
             {
                 _accessToken = null;
                 _refreshToken = null;
+                InvalidateCurrentUserCache();
                 _httpClientService.RemoveToken();
                 await _localStorage.RemoveItemAsync("accessToken");
                 await _localStorage.RemoveItemAsync("userName");
@@ -260,6 +265,32 @@ namespace CoreAdminWeb.Services.Users
 
         public async Task<RequestHttpResponse<UserModel>> GetCurrentUserAsync()
         {
+            Task<RequestHttpResponse<UserModel>> currentUserTask;
+            lock (_currentUserLock)
+            {
+                currentUserTask = _currentUserTask ??= LoadCurrentUserAsync();
+            }
+
+            try
+            {
+                return await currentUserTask;
+            }
+            catch
+            {
+                lock (_currentUserLock)
+                {
+                    if (ReferenceEquals(_currentUserTask, currentUserTask))
+                    {
+                        _currentUserTask = null;
+                    }
+                }
+
+                throw;
+            }
+        }
+
+        private async Task<RequestHttpResponse<UserModel>> LoadCurrentUserAsync()
+        {
             var response = new RequestHttpResponse<UserModel>();
             try
             {
@@ -289,6 +320,14 @@ namespace CoreAdminWeb.Services.Users
                 response.Errors = new List<ErrorResponse> { new ErrorResponse { Message = ex.Message } };
             }
             return response;
+        }
+
+        private void InvalidateCurrentUserCache()
+        {
+            lock (_currentUserLock)
+            {
+                _currentUserTask = null;
+            }
         }
 
         public async Task<RequestHttpResponse<UserModel>> UpdateUserAsync(UserModel req)
