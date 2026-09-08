@@ -27,7 +27,7 @@
     <div class="flex mx-auto main-container">
         <div class="flex-1 main-content">
             <Topbar OnLogout="Logout" CurrentUser="currentUser" Logo="Logo" IsAuthenticated="isAuthenticated"></Topbar>
-            <main id="main-content" tabindex="-1" class="h-[calc(100vh-60px)] relative overflow-y-auto overflow-x-hidden p-4 detached-content">
+            <main id="main-content" tabindex="-1" class="public-main h-[calc(100vh-60px)] relative overflow-y-auto overflow-x-hidden p-4 detached-content" aria-busy="@(!_hasInitialized)">
              
                 @Body
 

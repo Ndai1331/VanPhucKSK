@@ -11,20 +11,33 @@
 @inject NavigationManager Navigation
 @inject IBaseGetService<PostModel> PostService 
 
-<!-- Start Main Content -->
-<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+<PageHeader Title="Hướng dẫn" pTitle="Hướng dẫn" />
+
+<div class="public-page flex flex-col gap-4">
     @if (_isLoading)
     {
-        <div class="flex justify-center items-center py-12">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div class="flex justify-center items-center py-12" role="status" aria-live="polite" aria-busy="true">
+            <div class="loading-spinner" aria-hidden="true"></div>
             <span class="ml-3 text-slate-600">Đang tải hướng dẫn...</span>
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="public-error-state" role="alert">
+            <div>
+                <p class="font-semibold">Không thể tải danh sách hướng dẫn</p>
+                <p class="mt-1">@_errorMessage</p>
+                <button type="button" class="public-action-button mt-4 rounded-lg bg-primary px-4 py-2 font-semibold text-white hover:opacity-90" @onclick="InitializePageDataAsync">
+                    Thử lại
+                </button>
+            </div>
         </div>
     }
     else
     {
         
         <div class="grid grid-cols-1 gap-4">
-            <div class="p-2 bg-white border rounded shadow-sm dark:bg-darklight dark:border-darkborder">
+            <div class="public-surface p-2 dark:bg-darklight dark:border-darkborder">
                 @if (MainModels.Any())
                 {
                     <div>
@@ -32,19 +45,19 @@
                             @foreach (var post in MainModels)
                             {
                                 <li>
-                                    <MudLink Href="#" @onclick="(e) => ViewPostDetail(post)"
-                                    Class="flex items-start gap-2 p-2 transition-all duration-300 rounded-sm bg-light/50 dark:bg-white/10 dark:hover:bg-white/10 hover:border-transparent hover:bg-light/50">
-                                        <div class="flex  flex-1 gap-2 p-1">
-                                            <div class="size-24">
-                                                <img class="flex-none object-cover overflow-hidden " src="@post.post_images?.filename_disk" alt="@post.title">
+                                    <button type="button" class="public-list-card" aria-label="Mở hướng dẫn: @post.title" @onclick="() => ViewPostDetail(post)">
+                                        <div class="flex flex-1 items-start gap-3">
+                                            <img class="public-list-image" src="@post.post_images?.filename_disk" alt="" width="96" height="96" loading="lazy" decoding="async">
+                                            <div class="min-w-0 flex-1 ltr:text-left rtl:text-right">
+                                                <h2 class="public-list-title">@post.title</h2>
+                                                <p class="public-list-summary mt-1">@((MarkupString)(post.sort_description ?? string.Empty))</p>
+                                                <div class="public-meta mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                                    <time datetime="@post.date_created.ToString("yyyy-MM-dd")">@post.date_created.ToString("dd/MM/yyyy")</time>
+                                                    <span>@(post.view_count ?? 0) lượt xem</span>
+                                                </div>
                                             </div>
-                                            <div class="flex-1 ltr:text-left rtl:text-right">
-                                                <h2 class="line-clamp-1 dark:text-white">@post.title</h2>
-                                                <p class="text-xs text-muted line-clamp-1">@((MarkupString)(post.sort_description ?? string.Empty))</p>
-                                                <p class="flex-none text-xs text-muted mb-1.5">@post.date_created.ToString("dd/MM/yyyy")</p>
-                                                <span class="inline-block items-center rounded-sm text-xs justify-center px-1.5 py-0.5 bg-primary text-white">@(post.view_count ?? 0) lượt xem</span>
-                                            </div>
-                                        </div></MudLink>
+                                        </div>
+                                    </button>
                                 </li>
                             }
                         </ul>
@@ -52,8 +65,11 @@
                 }
                 else
                 {
-                    <div class="text-center py-8">
-                        <p class="text-slate-500 dark:text-slate-400">Chưa có hướng dẫn nào</p>
+                    <div class="public-empty-state">
+                        <div>
+                            <p class="font-semibold">Chưa có hướng dẫn nào</p>
+                            <p class="mt-1 text-sm">Nội dung hướng dẫn sẽ được cập nhật tại đây.</p>
+                        </div>
                     </div>
                 }
                 
@@ -72,6 +88,7 @@
     // State management
     private bool _isLoading = true;
     private bool _hasInitialized = false;
+    private string? _errorMessage;
     
     // Data
     private List<PostModel> MainModels = new List<PostModel>();
@@ -98,10 +115,12 @@
         try
         {
             _isLoading = true;
+            _errorMessage = null;
             await LoadPostsAsync(true);
         }
         catch (Exception ex)
         {
+            _errorMessage = "Vui lòng kiểm tra kết nối và thử lại.";
             AlertService.ShowAlert("Lỗi khi tải dữ liệu: " + ex.Message, "danger");
         }
         finally
@@ -118,6 +137,7 @@
     {
         try
         {
+            _errorMessage = null;
             if (isReset)
             {
                 ResetPage();
@@ -149,10 +169,12 @@
                 MainModels = new List<PostModel>();
                 TotalItems = 0;
                 TotalPages = 0;
+                _errorMessage = "Máy chủ không trả về danh sách hướng dẫn.";
             }
         }
         catch (Exception ex)
         {
+            _errorMessage = "Vui lòng kiểm tra kết nối và thử lại.";
             AlertService.ShowAlert("Lỗi khi tải hướng dẫn: " + ex.Message, "danger");
             MainModels = new List<PostModel>();
         }

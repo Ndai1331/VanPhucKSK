@@ -1,42 +1,41 @@
 ﻿@page "/settings"
 @using CoreAdminWeb.Commons
 @inject IJSRuntime JsRuntime
-@* <PageHeader Title="Users" pTitle="Profile Settings"></PageHeader>
- *@
-<!-- Start All Card -->
-<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+<PageHeader Title="Tài khoản" pTitle="Cài đặt tài khoản" />
+
+<div class="public-page flex flex-col gap-4">
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div class="card">
+        <div class="public-surface p-5">
             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thông tin chi tiết</MudText>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div class="space-y-2">
-                    <MudText>Tên</MudText>
-                    <input type="text" class="form-input" placeholder="Tên" @bind-value="@CurrentUser.first_name" required="">
+                    <label for="profile-first-name">Tên</label>
+                    <input type="text" id="profile-first-name" name="first-name" class="form-input" placeholder="Tên" autocomplete="given-name" @bind-value="@CurrentUser.first_name" required>
                 </div>
                 <div class="space-y-2">
-                    <MudText>Họ và tên đệm</MudText>
-                    <input type="text" class="form-input" placeholder="Họ và tên đệm" @bind-value="@CurrentUser.last_name" required="">
+                    <label for="profile-last-name">Họ và tên đệm</label>
+                    <input type="text" id="profile-last-name" name="last-name" class="form-input" placeholder="Họ và tên đệm" autocomplete="family-name" @bind-value="@CurrentUser.last_name" required>
                 </div>
 
                 <div class="space-y-2 md:col-span-2">
-                    <MudText>Email</MudText>
-                    <input type="email" class="form-input" placeholder="Email" @bind-value="@CurrentUser.email" required="">
+                    <label for="profile-email">Email</label>
+                    <input type="email" id="profile-email" name="email" class="form-input" placeholder="Email" autocomplete="email" @bind-value="@CurrentUser.email" required>
                 </div>
                 <div class="space-y-2 md:col-span-2">
-                    <MudText>Vị trí</MudText>
-                    <input type="text" class="form-input" placeholder="Vị trí" @bind-value="@CurrentUser.location">
+                    <label for="profile-location">Vị trí</label>
+                    <input type="text" id="profile-location" name="location" class="form-input" placeholder="Vị trí" @bind-value="@CurrentUser.location">
                 </div>
                 <div class="space-y-2 md:col-span-2">
-                    <MudText>Chức danh</MudText>
-                    <input type="text" class="form-input" placeholder="Chức danh" @bind-value="@CurrentUser.title">
+                    <label for="profile-title">Chức danh</label>
+                    <input type="text" id="profile-title" name="title" class="form-input" placeholder="Chức danh" @bind-value="@CurrentUser.title">
                 </div>
                 <div class="space-y-2 md:col-span-2">
-                    <MudText>Mô tả</MudText>
-                    <textarea class="form-input" placeholder="Mô tả" @bind="@CurrentUser.description"></textarea>
+                    <label for="profile-description">Mô tả</label>
+                    <textarea id="profile-description" name="description" class="form-input" placeholder="Mô tả" @bind="@CurrentUser.description"></textarea>
                 </div>
                 <div class="space-y-2 md:col-span-2">
-                    <MudText>Ngôn ngữ</MudText>
-                    <input type="text" class="form-input" placeholder="Ngôn ngữ" @bind-value="@CurrentUser.language">
+                    <label for="profile-language">Ngôn ngữ</label>
+                    <input type="text" id="profile-language" name="language" class="form-input" placeholder="Ngôn ngữ" @bind-value="@CurrentUser.language">
                 </div>
                 <div class="flex flex-wrap gap-3">
                     <MudButton type="button" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]" OnClick="ChangeUserProfileAsync">Lưu</MudButton>
@@ -44,7 +43,7 @@
                 </div>
             </div>
         </div>
-        <div class="card">
+        <div class="public-surface p-5">
             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Hình ảnh</MudText>
             <div class="grid grid-cols-1 gap-4">
                 <div class="flex items-center gap-4">
@@ -88,7 +87,7 @@
                 </div>
             </div>
         </div>
-        <div class="card">
+        <div class="public-surface p-5">
             <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Thay đổi mật khẩu</MudText>
             <div class="space-y-4">
                 @* <div class="space-y-2">
@@ -96,8 +95,8 @@
                     <input type="password" class="form-input" placeholder="Current Password" required="">
                 </div> *@
                 <div class="space-y-2">
-                    <MudText>Mật khẩu mới</MudText>
-                    <input type="password" class="form-input" placeholder="Mật khẩu mới" required="" @bind-value="@CurrentUser.password">
+                    <label for="profile-password">Mật khẩu mới</label>
+                    <input type="password" id="profile-password" name="new-password" class="form-input" placeholder="Mật khẩu mới" autocomplete="new-password" required @bind-value="@CurrentUser.password">
                 </div>
                 @* <div class="space-y-2">
                     <MudText>Confirm Password</MudText>

@@ -7,17 +7,14 @@
 @layout MainLayout
 <PageHeader Title="Danh mục VBQPPL" pTitle="Danh mục VBQPPL"></PageHeader>
 
-<!-- Start All Card -->
-<div class="flex flex-col gap-4" style="
-    background: #fff;
-    border-radius: 4px;">
+<div class="public-page public-surface flex flex-col gap-4">
     <div class="relative flex flex-row items-start gap-4 p-4">
         <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-4 sm:gap-4 pb-2">
             <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                 <MudForm class="flex-1">
-                    <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Tìm kiếm</MudText>
+                    <label for="folder-search" class="mb-1 block text-base font-semibold text-slate-800 dark:text-slate-100">Tìm kiếm</label>
                     <div class="relative">
-                        <input type="text" id="search"
+                        <input type="text" id="folder-search" name="folder-search" autocomplete="off"
                                 class="border-black/10 dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30 focus:border-black/30 placeholder:text-black/50 border text-black text-sm rounded block w-full ltr:pl-3 rtl:pr-3 ltr:pr-7 rtl:pl-7 h-10 bg-[#f9fbfd] focus:ring-0 focus:outline-0"
                                 placeholder="Tìm kiếm..."
                                 required=""
@@ -25,8 +22,8 @@
                                 @bind-value:event="oninput"
                                 @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadFiles)">
 
-                        <MudButton OnClick="async e  => await LoadFiles(true)" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
+                        <MudButton OnClick="async e  => await LoadFiles(true)" type="button" aria-label="Tìm kiếm văn bản" title="Tìm kiếm văn bản" Class="public-topbar-control absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4" aria-hidden="true">
                                 <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z" fill="currentColor"></path>
                             </svg>
                         </MudButton>
@@ -36,9 +33,9 @@
 
               <div class="w-full xs:col-span-4 sm:col-span-4 md:col-span-1 xl:col-span-1">
                 <MudForm class="flex-1">
-                    <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Cơ quan ban hành</MudText>
+                    <label for="issuer-search" class="mb-1 block text-base font-semibold text-slate-800 dark:text-slate-100">Cơ quan ban hành</label>
                     <div class="relative">
-                        <input type="text" id="search"
+                        <input type="text" id="issuer-search" name="issuer-search" autocomplete="off"
                                 class="border-black/10 dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30 focus:border-black/30 placeholder:text-black/50 border text-black text-sm rounded block w-full ltr:pl-3 rtl:pr-3 ltr:pr-7 rtl:pl-7 h-10 bg-[#f9fbfd] focus:ring-0 focus:outline-0"
                                 placeholder="Cơ quan ban hành..."
                                 required=""
@@ -46,8 +43,8 @@
                                 @bind-value:event="oninput"
                                 @onkeydown="async (e) => await OnInputKeyDownSearch(e, LoadFiles)">
 
-                        <MudButton OnClick="async e => await LoadFiles(true)" type="button" Class="absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
+                        <MudButton OnClick="async e => await LoadFiles(true)" type="button" aria-label="Tìm kiếm theo cơ quan ban hành" title="Tìm kiếm theo cơ quan ban hành" Class="public-topbar-control absolute inset-y-0 flex items-center text-black ltr:right-0 rtl:left-0 ltr:pr-2 rtl:pl-2 dark:text-white/80">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4" aria-hidden="true">
                                 <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z" fill="currentColor"></path>
                             </svg>
                         </MudButton>
@@ -65,8 +62,8 @@
         <div class="sm:max-w-xs w-full bg-white flex-1 flex flex-col gap-2 border border-black/10 dark:bg-darklight dark:border-darkborder rounded">
             <div class="flex items-center justify-between gap-2 px-4 py-2 bg-light/20 dark:bg-white/5">
                 <div class="flex items-center gap-2">
-                    <MudButton OnClick="OpenCreateFolderModal" type="button" Class="flex items-center justify-center w-6 h-6 text-black transition-all duration-300 rounded sm:w-9 sm:h-9 dark:text-darkmuted dark:hover:text-white dark:hover:bg-white/5 hover:bg-light/50">
-                       <span class="material-symbols-outlined">create_new_folder</span>
+                    <MudButton OnClick="OpenCreateFolderModal" type="button" aria-label="Tạo thư mục mới" title="Tạo thư mục mới" Class="public-topbar-control flex items-center justify-center w-6 h-6 text-black transition-all duration-300 rounded sm:w-9 sm:h-9 dark:text-darkmuted dark:hover:text-white dark:hover:bg-white/5 hover:bg-light/50">
+                       <span class="material-symbols-outlined" aria-hidden="true">create_new_folder</span>
                     </MudButton>
                 </div>
             </div>
@@ -80,14 +77,15 @@
                 <div class="flex justify-between gap-3 p-3 border-b border-black/10 dark:border-darkborder">
                     <div class="flex items-center gap-2 p-1">
                         <div>
-                            <MudText Class="dark:text-white">@SelectedItem.name</MudText>
+                        <MudText Class="dark:text-white">@SelectedItem.name</MudText>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <MudButton type="button" 
                         OnClick="OpenUploadFileModal"
-                        Class="flex items-center justify-center w-6 h-6 text-black transition-all duration-300 bg-transparent rounded sm:w-9 sm:h-9 dark:text-darkmuted dark:hover:text-white dark:hover:bg-white/5 hover:bg-light/40">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
+                        aria-label="Tải file lên thư mục" title="Tải file lên thư mục"
+                        Class="public-topbar-control flex items-center justify-center w-6 h-6 text-black transition-all duration-300 bg-transparent rounded sm:w-9 sm:h-9 dark:text-darkmuted dark:hover:text-white dark:hover:bg-white/5 hover:bg-light/40">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5" aria-hidden="true">
                                 <path fill="currentColor" d="M21 15V18H24V20H21V23H19V20H16V18H19V15H21ZM21.0082 3C21.556 3 22 3.44495 22 3.9934V13H20V5H4V18.999L14 9L17 12V14.829L14 11.8284L6.827 19H14V21H2.9918C2.44405 21 2 20.5551 2 20.0066V3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082ZM8 7C9.10457 7 10 7.89543 10 9C10 10.1046 9.10457 11 8 11C6.89543 11 6 10.1046 6 9C6 7.89543 6.89543 7 8 7Z"></path>
                             </svg>
                         </MudButton>
@@ -110,13 +108,13 @@
 
 @if(openCreateFolderModal)
 {
-    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
-        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseCreateFolderModal">
+    <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90" role="dialog" aria-modal="true" aria-labelledby="create-folder-title">
+        <div class="flex items-center justify-center min-h-dvh px-4" @onclick="CloseCreateFolderModal">
             <div class="relative w-full max-w-xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
                 <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
-                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Thêm mới thư mục</MudText>
-                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseCreateFolderModal">
-                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <MudText id="create-folder-title" Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Thêm mới thư mục</MudText>
+                    <MudButton type="button" aria-label="Đóng cửa sổ thêm thư mục" title="Đóng" Class="public-topbar-control text-muted hover:text-black dark:hover:text-white" OnClick="CloseCreateFolderModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
                             <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
                         </svg>
@@ -126,13 +124,13 @@
                     <EditForm Model="@SelectedCreateItem" OnValidSubmit="CreateFolder">
                        <div class="grid grid-cols-1 mb-2 gap-4">
                             <div class="space-y-2 md:col-span-1">
-                                <label>Tên thư mục*:</label>
-                                <input type="text" class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30" placeholder="Nhập tên thư mục" @bind-value="@SelectedCreateItem.name" />
+                                <label for="new-folder-name">Tên thư mục<span aria-hidden="true">*</span>:</label>
+                                <input type="text" id="new-folder-name" name="new-folder-name" class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30" placeholder="Nhập tên thư mục" required @bind-value="@SelectedCreateItem.name" />
                             </div>
                         </div>
 
                         <div class="flex items-center justify-end gap-2 py-4">
-                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseCreateFolderModal">Huỷ</MudButton>
+                            <MudButton type="button" Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseCreateFolderModal">Huỷ</MudButton>
                             <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                                        OnClick="CreateFolder">Lưu</MudButton>
                         </div>
@@ -146,13 +144,13 @@
 
 @if(openUploadFileModal)
 {
-     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90">
-        <div class="flex items-center justify-center min-h-screen px-4" @onclick="CloseUploadFileModal">
+     <div class="fixed inset-0 bg-black/80 z-[99999] overflow-y-auto dark:bg-dark/90" role="dialog" aria-modal="true" aria-labelledby="upload-file-title">
+        <div class="flex items-center justify-center min-h-dvh px-4" @onclick="CloseUploadFileModal">
             <div class="relative w-full max-w-5xl p-0 my-8 overflow-hidden bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder" @onclick:stopPropagation>
                 <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
-                    <MudText Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Thêm mới file</MudText>
-                    <MudButton Class="text-muted hover:text-black dark:hover:text-white" OnClick="CloseUploadFileModal">
-                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <MudText id="upload-file-title" Typo="Typo.h5" Class="text-lg font-semibold text-slate-800 dark:text-slate-100">Thêm mới file</MudText>
+                    <MudButton type="button" aria-label="Đóng cửa sổ tải file" title="Đóng" Class="public-topbar-control text-muted hover:text-black dark:hover:text-white" OnClick="CloseUploadFileModal">
+                        <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
                             <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
                         </svg>  
@@ -164,8 +162,8 @@
                         <div class="grid sm:grid-cols-1 md:grid-cols-2 mb-2 gap-4">
 
                             <div class="space-y-2 sm:col-span-1 md:col-span-2">
-                                <label>Thư mục đang chọn:</label>
-                                <input type="text" disabled 
+                                <label for="selected-folder">Thư mục đang chọn:</label>
+                                <input type="text" id="selected-folder" disabled
                                 class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
                                 value="@SelectedItem.name" />
                             </div>
@@ -202,7 +200,7 @@
 
                         
                         <div class="flex items-center justify-end gap-2 py-4">
-                            <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseUploadFileModal">Huỷ</MudButton>
+                            <MudButton type="button" Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="CloseUploadFileModal">Huỷ</MudButton>
                             <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                                     OnClick="OnUploadFile">Lưu</MudButton>
                         </div>

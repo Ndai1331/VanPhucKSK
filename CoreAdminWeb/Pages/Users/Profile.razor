@@ -2,23 +2,22 @@
 @using CoreAdminWeb.Commons
 @using MudBlazor
 @inject IJSRuntime JsRuntime
-@* <PageHeader Title="Users" pTitle="Profile"></PageHeader>
- *@
-<!-- Start All Card -->
-<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+<PageHeader Title="Tài khoản" pTitle="Hồ sơ cá nhân" />
+
+<div class="public-page flex flex-col gap-4">
     <div class="grid grid-cols-1 gap-4">
-        <div class="card">
+        <div class="public-surface overflow-hidden">
             <div class="bg-cover h-72 rounded-lg bg-center"
                  style="background-image: url('@(GetBackgroundImageUrl())')">
             </div>
             <div class="relative px-10 -mt-16">
                 <div class="flex items-center justify-between gap-5">
                     <div class="relative size-32">
-                        <MudImage Src="@($"{GlobalConstant.BaseUrl}assets/{CurrentUser.avatar}")" FallbackSrc="assets/images/avatar-1.png" Class="border-8 rounded-full border-light/50" alt="" />
+                        <MudImage Src="@($"{GlobalConstant.BaseUrl}assets/{CurrentUser.avatar}")" FallbackSrc="assets/images/avatar-1.png" Class="border-8 rounded-full border-light/50" alt="@($"Ảnh đại diện của {CurrentUser.full_name}")" />
                         <span class="absolute rounded-full size-5 bg-success bottom-2 ltr:right-4 rtl:left-4"></span>
                     </div>
                     <div>
-                        <MudLink Href="/settings" Class="btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]">Chỉnh sửa</MudLink>
+                        <MudLink Href="/settings" Class="public-action-button btn bg-purple border-purple text-white hover:bg-purple/[0.85] hover:border-purple/[0.85]">Chỉnh sửa</MudLink>
                     </div>
                 </div>
                 <div class="flex flex-col items-start justify-between md:flex-row gap-7">

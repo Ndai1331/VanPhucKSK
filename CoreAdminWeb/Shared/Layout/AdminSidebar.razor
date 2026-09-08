@@ -28,11 +28,10 @@
                                 <button type="button" class="items-center justify-between text-black nav-link group project-text-color @(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name ? "active" : "")"
                                    @onclick="() => ToggleMenu(menu.name)"
                                    aria-expanded="@(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name)"
-                                   aria-controls="menu-@menu.id"
-                                   style="white-space: normal !important;">
-                                    <div class="flex items-center">
-                                        <span class="material-symbols-outlined block">@menu.icon</span>
-                                        <span class="ltr:pl-1.5 rtl:pr-1.5">@menu.name</span>
+                                   aria-controls="menu-@menu.id">
+                                    <div class="nav-link-content flex min-w-0 flex-1 items-center gap-1.5">
+                                        <span class="material-symbols-outlined block menu-icon">@menu.icon</span>
+                                        <span class="menu-label ltr:pl-1.5 rtl:pr-1.5">@menu.name</span>
                                     </div>
                                     <div class="flex items-center justify-center w-4 h-4 dropdown-icon"
                                          class:rotate-180="@(activeMenus.ContainsKey(1) && activeMenus[1] == menu.name)">
@@ -46,7 +45,7 @@
                                         @foreach (var subMenu in menu.sub_menus)
                                         {
                                             <li>
-                                                <button type="button" class="w-full text-left @(activeMenus.ContainsKey(2) && activeMenus[2] == subMenu.name ? "active" : "")" @onclick="@(() => HandleRouteChange(subMenu.url,subMenu.name,2))">
+                                                <button type="button" class="sub-menu-link w-full text-left @(activeMenus.ContainsKey(2) && activeMenus[2] == subMenu.name ? "active" : "")" @onclick="@(() => HandleRouteChange(subMenu.url,subMenu.name,2))">
                                                     @subMenu.name
                                                 </button>
                                             </li>
@@ -57,11 +56,10 @@
                             else
                             {
                                 <button type="button" class="items-center justify-between text-black nav-link group project-text-color @(activeMenus.ContainsKey(2) && activeMenus[2] == menu.name ? "active" : "")"
-                                   @onclick="@(() => HandleRouteChange(menu.url,menu.name,1))"
-                                   style="white-space: normal !important;">
-                                    <div class="flex items-center">
-                                        <span class="material-symbols-outlined block">@menu.icon</span>
-                                        <span class="ltr:pl-1.5 rtl:pr-1.5">@menu.name</span>
+                                   @onclick="@(() => HandleRouteChange(menu.url,menu.name,1))">
+                                    <div class="nav-link-content flex min-w-0 flex-1 items-center gap-1.5">
+                                        <span class="material-symbols-outlined block menu-icon">@menu.icon</span>
+                                        <span class="menu-label ltr:pl-1.5 rtl:pr-1.5">@menu.name</span>
                                     </div>
                                 </button>
                             }

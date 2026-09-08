@@ -3,29 +3,22 @@
 
 
 
-<ul style="list-style:none;">
+<ul class="folder-tree" role="tree">
     @foreach (var folder in Folders)
     {
         <li class="@(folder.id == Guid.Empty ? "" : "px-4")">
-            <span class="p-1"  @onclick="() => OnSelectFolder(folder)" style="border-radius:4px;cursor:pointer;display:flex;align-items:center;@(folder.isSelected ? "background:#e5f0ff;" : "")">
-                <span style="margin-right:4px;">
-                    <span class="material-symbols-outlined block">folder</span>
-                </span>
-                <span>@folder.name</span>
+            <div class="folder-tree-row">
+                <button type="button" class="folder-tree-select @(folder.isSelected ? "is-selected" : "")" role="treeitem" @onclick="() => OnSelectFolder(folder)" aria-label="Mở thư mục @folder.name">
+                    <span class="material-symbols-outlined" aria-hidden="true">folder</span>
+                    <span class="folder-tree-label">@folder.name</span>
+                </button>
                 @if (folder.sub_folders != null && folder.sub_folders.Any())
                 {
-                    <span @onclick:stopPropagation="true" @onclick="() => Toggle(folder)" style="margin-top: 5px;margin-left: 5px;">
-                        @if (folder.isOpen)
-                        {
-                            <span class="material-symbols-outlined" style="font-size:16px;">expand_more</span>
-                        }
-                        else
-                        {
-                            <span class="material-symbols-outlined" style="font-size:16px;">chevron_right</span>
-                        }
-                    </span>
+                    <button type="button" class="folder-tree-toggle" @onclick="() => Toggle(folder)" aria-label="@(folder.isOpen ? $"Thu gọn {folder.name}" : $"Mở rộng {folder.name}")" aria-expanded="@folder.isOpen">
+                        <span class="material-symbols-outlined" aria-hidden="true">@(folder.isOpen ? "expand_more" : "chevron_right")</span>
+                    </button>
                 }
-            </span>
+            </div>
             @if (folder.isOpen && folder.sub_folders != null && folder.sub_folders.Any())
             {
                 <FolderTree Folders="folder.sub_folders" OnSelect="OnSelect" />
@@ -48,7 +41,7 @@
             folder.isOpen = !folder.isOpen;
     }
 
-    async void OnSelectFolder(FolderModel folder)
+    private async Task OnSelectFolder(FolderModel folder)
     {
         if (OnSelect.HasDelegate)
             await OnSelect.InvokeAsync(folder);

@@ -7,11 +7,11 @@
         @foreach (var file in Files)
         {
             var fileType = file.GetFileType();
-            <div class="card p-3 relative" @onclick="() => OnSelectFile(file)">
+            <div class="card p-3 relative file-item-card" role="button" tabindex="0" @onclick="() => OnSelectFile(file)" @onkeydown="(e) => OnSelectFileKeyDown(e, file)">
                 <div class="header">
                     @if(!string.IsNullOrEmpty(fileType.Item2))
                     {
-                      <span class="material-symbols-outlined block" style="position: relative;
+                      <span class="material-symbols-outlined block" aria-hidden="true" style="position: relative;
                             z-index: 1;
                             display: flex !important;
                             align-items: center;
@@ -32,7 +32,7 @@
                         width: 100%;
                         overflow: hidden;
                         border-radius: 10px;
-                        border:none;" alt=""/>
+                        border:none;" alt="@file.title"/>
                     }
                   
                 </div>
@@ -41,8 +41,8 @@
                 </div>
                 <div class="subtitle">
                     <p class="text-muted dark:text-darkmuted">@file.type_file - @file.GetFileSize()</p>
-                    <a @onclick:stopPropagation href="@file.url_download" target="_blank" download="">
-                        <span class="text-purple material-symbols-outlined">download</span>
+                    <a @onclick:stopPropagation @onkeydown:stopPropagation="true" href="@file.url_download" target="_blank" download="" aria-label="Tải xuống @file.GetMinifiedFileName()" title="Tải xuống file">
+                        <span class="text-purple material-symbols-outlined" aria-hidden="true">download</span>
                     </a>
                 </div>
             </div>
@@ -57,10 +57,18 @@
     [Parameter]
     public EventCallback<FileModel> OnSelect { get; set; }
 
-    async void OnSelectFile(FileModel file)
+    private async Task OnSelectFile(FileModel file)
     {
         if (OnSelect.HasDelegate)
             await OnSelect.InvokeAsync(file);
+    }
+
+    private async Task OnSelectFileKeyDown(KeyboardEventArgs e, FileModel file)
+    {
+        if (e.Key is "Enter" or " ")
+        {
+            await OnSelectFile(file);
+        }
     }
 
 }

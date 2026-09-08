@@ -8,7 +8,7 @@
 
 <PageHeader Title="Chi tiết file" pTitle="Chi tiết file"></PageHeader>
 
-<div class="relative w-full p-0 my-8 bg-white border rounded-lg border-black/10 dark:bg-darklight dark:border-darkborder">
+<section class="public-page public-surface relative w-full p-0 my-8 dark:bg-darklight dark:border-darkborder">
     <div class="p-5">
         <EditForm Model="@UploadFileCRUD" OnValidSubmit="OnUploadFile">
             <div class="grid sm:grid-cols-1 md:grid-cols-2 mb-2 gap-4 py-4">
@@ -37,30 +37,29 @@
                         overflow: hidden;
                         max-height:160px;
                         border-radius: 10px;
-                        border:none;" alt=""/>
+                        border:none;" alt="@UploadFileCRUD.title"/>
                     }
                 </div>
 
                 <div class="space-y-2 sm:col-span-1 md:col-span-1">
-                    <label>Tên file:</label>
-                    <input type="text" class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
+                    <label for="file-title">Tên file:</label>
+                    <input type="text" id="file-title" name="file-title" class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
                         placeholder="Nhập tên file" 
                         value="@UploadFileCRUD.title" />
                 </div>
 
                 <div class="space-y-2 sm:col-span-1 md:col-span-1">
-                    <label>Tên file đã tải lên:</label>
-                    <input type="text" disabled class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
+                    <label for="uploaded-file-name">Tên file đã tải lên:</label>
+                    <input type="text" id="uploaded-file-name" disabled class="form-input dark:text-white/80 dark:placeholder:text-white/30 dark:border-darkborder dark:bg-dark dark:focus:border-white/30"
                         value="@UploadFileCRUD.filename_disk" />
                 </div>
 
                 <div class="flex items-center justify-end gap-2 py-4">
-                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="OnBack">Trở về</MudButton>
-                    <MudButton Class="transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
+                    <MudButton type="button" Class="public-action-button transition-all duration-300 border btn-crud rounded-md btn text-danger border-danger hover:bg-danger hover:text-white" OnClick="OnBack">Trở về</MudButton>
+                    <MudButton type="button" Class="public-action-button transition-all duration-300 border btn-crud rounded-md btn text-purple border-purple hover:bg-purple hover:text-white"
                             OnClick="OnUploadFile">Lưu</MudButton>
                 </div>
             </div>
         </EditForm>
     </div>
-</div>
-    
+</section>

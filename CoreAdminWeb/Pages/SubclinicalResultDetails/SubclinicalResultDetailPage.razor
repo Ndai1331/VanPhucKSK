@@ -22,7 +22,7 @@
 @inject IConfiguration Configuration
 @implements IDisposable
 
-<div class="flex flex-col gap-4 min-h-[calc(100vh-212px)]">
+<div class="public-page flex flex-col gap-4">
     <div class="grid grid-cols-1 gap-4 mb-10">
         <div class="group-button flex justify-between items-center mb-6">
             <div class="detail-ksk">
@@ -32,7 +32,7 @@
                 </h2>
             </div>
             <div class="flex gap-2">
-                <button class="px-4 py-2 bg-purple hover:bg-purple text-white rounded transition-colors shadow-sm" @onclick="BackToList">
+                <button type="button" class="public-action-button rounded-lg bg-purple px-4 py-2 text-white hover:bg-purple transition-colors shadow-sm" @onclick="BackToList">
                     <i class="ri-arrow-left-line me-1"></i>Quay lại
                 </button>
             </div>
@@ -40,8 +40,8 @@
 
         @if (_isLoading)
         {
-            <div class="flex justify-center items-center py-12">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div class="flex justify-center items-center py-12" role="status" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" aria-hidden="true"></div>
                 <span class="ml-3 text-slate-600">Đang tải dữ liệu...</span>
             </div>
         }
@@ -50,7 +50,7 @@
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-1 2xl:grid-cols-12">
                 <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10 2xl:col-span-4">
 
-                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">📘 Hướng dẫn</h2>
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Hướng dẫn</h2>
 
                     <ul class="mb-5">
                         <li class="mb-2">Nhập CCCD/ĐT để xem kết quả khám</li>
@@ -58,7 +58,7 @@
                         <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
                     </ul>
                     <hr>
-                    <h5 class="mt-4 mb-2">📞 Hỗ trợ khách hàng</h5>
+                    <h5 class="mt-4 mb-2">Hỗ trợ khách hàng</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Hotline:</strong> 1900 966 979</li>
                         <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Email:</strong> <a href="marketing@vanphuc.com">marketing@vanphuc.com</a></li>
@@ -73,10 +73,10 @@
                         <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Ngày khám:</strong> @CoreHelpers.FormatDate(SoKhamSucKhoeModel?.ngay_kham)</li>
                     </ul>
                     @* <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Xác thực xem kết quả KSK</h2> *@
-                    <MudText Typo="Typo.h2" Class="mb-1 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Nhập CCCD hoặc số điện thoại</MudText>
+                    <label for="subclinical-identity" class="mb-1 block text-base font-semibold text-slate-800 dark:text-slate-100">Nhập CCCD hoặc số điện thoại</label>
                     <div class="space-y-4">
                         <div class="space-y-2">
-                            <input type="text" class="form-input" placeholder="CCCD hoặc SĐT" required="" @bind-value="@_so_dinh_danh">
+                            <input type="text" id="subclinical-identity" name="subclinical-identity" class="form-input" placeholder="CCCD hoặc SĐT" autocomplete="off" inputmode="numeric" required @bind-value="@_so_dinh_danh">
                         </div>
                         <div class="flex flex-wrap gap-3">
                             <MudButton type="button" Class="btn bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700 text-white transition-colors shadow-sm" OnClick="LoadDataWithCccdAsync">Xem kết quả</MudButton>
@@ -93,7 +93,7 @@
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-1 2xl:grid-cols-12">
                 <div class="gap-6 p-5 bg-white border rounded dark:bg-darklight dark:border-darkborder border-black/10 2xl:col-span-4">
 
-                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">📘 Hướng dẫn</h2>
+                    <h2 class="mb-4 text-base font-semibold capitalize text-slate-800 dark:text-slate-100">Hướng dẫn</h2>
 
                     <ul class="mb-5">
                         <li class="mb-2">Đăng nhập để xem kết quả khám bằng thông tin được gửi qua email</li>
@@ -101,7 +101,7 @@
                         <li class="mb-2">Liên hệ hỗ trợ nếu gặp vướng mắc</li>
                     </ul>
                     <hr>
-                    <h5 class="mt-4 mb-2">📞 Hỗ trợ khách hàng</h5>
+                    <h5 class="mt-4 mb-2">Hỗ trợ khách hàng</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Hotline:</strong> 1900 966 979</li>
                         <li class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Email:</strong> <a href="marketing@vanphuc.com">marketing@vanphuc.com</a></li>
@@ -123,10 +123,10 @@
         }
         else if (!string.IsNullOrEmpty(_errorMessage))
         {
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <div class="public-error-state mb-6" role="alert">
                 <strong class="font-bold">Lỗi!</strong>
                 <span class="block sm:inline"> @_errorMessage</span>
-                <button class="float-right font-bold" @onclick="() => LoadDataAsync()">
+                <button type="button" class="public-action-button mt-3 rounded-lg border border-red-700 px-3 py-2 font-semibold" @onclick="() => LoadDataAsync()">
                     <i class="ri-refresh-line me-1"></i>Thử lại
                 </button>
             </div>
@@ -302,9 +302,9 @@
                                                             }
                                                             else if (IsFileCurrentlyDownloading(fileName))
                                                             {
-                                                                <div class="flex justify-center items-center py-12">
+                                                                <div class="flex justify-center items-center py-12" role="status" aria-live="polite" aria-busy="true">
                                                                     <div class="text-center">
-                                                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
+                                                                        <div class="loading-spinner mx-auto mb-2" aria-hidden="true"></div>
                                                                         <span class="text-gray-600 dark:text-gray-400">Đang tải từ FTP...</span>
                                                                         <div class="mt-2 text-xs text-gray-500">
                                                                             File: @fileName

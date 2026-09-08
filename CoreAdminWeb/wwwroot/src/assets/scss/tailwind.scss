@@ -154,7 +154,9 @@ File: tailwind scss files
 @media (min-width: 1024px) {
   .vertical.toggle-sidebar .sidebar .sub-menu,
   .vertical.toggle-sidebar .sidebar .nav-item a span,
+  .vertical.toggle-sidebar .sidebar .nav-item button .menu-label,
   .vertical.toggle-sidebar .sidebar .nav-item a .dropdown-icon,
+  .vertical.toggle-sidebar .sidebar .nav-item button .dropdown-icon,
   .vertical.toggle-sidebar .sidebar h2,
   .vertical.toggle-sidebar .sidebar .main-logo .logo,
   .vertical.toggle-sidebar .sidebar:hover .main-logo .logo-icon,
@@ -174,6 +176,7 @@ File: tailwind scss files
 
 @media (min-width: 1024px) {
   .vertical.toggle-sidebar .sidebar:hover .nav-item a span,
+  .vertical.toggle-sidebar .sidebar:hover .nav-item button .menu-label,
   .vertical.toggle-sidebar .sidebar:hover h2,
   .vertical.toggle-sidebar .sidebar:hover .sub-menu,
   .vertical.toggle-sidebar .sidebar .main-logo .logo-icon,
@@ -181,12 +184,18 @@ File: tailwind scss files
     display: block;
   }
 
-  .vertical.toggle-sidebar .sidebar .nav-item a {
+  .vertical.toggle-sidebar .sidebar .nav-item a,
+  .vertical.toggle-sidebar .sidebar .nav-item button {
     justify-content: center;
   }
 
-  .vertical.toggle-sidebar .sidebar:hover .nav-item a {
+  .vertical.toggle-sidebar .sidebar:hover .nav-item a,
+  .vertical.toggle-sidebar .sidebar:hover .nav-item button {
     justify-content: start;
+  }
+
+  .vertical.toggle-sidebar .sidebar:hover .nav-item button .dropdown-icon {
+    display: flex;
   }
 
   .vertical.toggle-sidebar .sidebar:hover .nav-item a .dropdown-icon {
