@@ -2,10 +2,11 @@
 @using CoreAdminWeb.Model.Settings
 @using CoreAdminWeb.Model.User
 @inject IJSRuntime JsRuntime
+@implements IDisposable
 <!-- Start Topbar -->
-<div class=" bg-white dark:bg-darklight dark:border-darkborder flex gap-4 lg:z-10 items-center justify-between px-4 h-[60px] border-b border-black/10 detached-topbar relative">
+<div class="admin-topbar bg-white dark:bg-darklight dark:border-darkborder flex gap-4 lg:z-10 items-center justify-between px-4 h-[60px] border-b border-black/10 detached-topbar relative">
     <div class="flex items-center flex-1 gap-2 sm:gap-4">
-        <MudButton type="button" Class="text-black dark:text-white/80 " @onclick="ToggleSidebar">
+        <MudButton type="button" Class="admin-topbar-control text-black dark:text-white/80" aria-label="Mở hoặc thu gọn menu" title="Mở hoặc thu gọn menu" @onclick="ToggleSidebar">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6">
                 <path d="M3 4H21V6H3V4ZM3 11H15V13H3V11ZM3 18H21V20H3V18Z" fill="currentColor"></path>
             </svg>
@@ -16,8 +17,8 @@
         </div>
     </div>
     <div class="flex items-center gap-4">
-        <div class="h-5">
-            <MudButton Class="text-black dark:text-white/80 " @onclick="ToggleFullScreen">
+        <div class="admin-topbar-slot">
+            <MudButton type="button" Class="admin-topbar-control text-black dark:text-white/80" aria-label="Chuyển chế độ toàn màn hình" title="Chuyển chế độ toàn màn hình" @onclick="ToggleFullScreen">
                 @if (!FullScreen)
                 {
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
@@ -33,22 +34,22 @@
             </MudButton>
 
         </div>
-        <div>
-            <a href="javascript:;" class="text-black " x-cloak x-show="$store.app.mode === 'light'" @click="$store.app.toggleMode('dark')">
+        <div class="admin-topbar-slot">
+            <button type="button" class="admin-topbar-control text-black dark:text-white/80" aria-label="Bật chế độ tối" title="Bật chế độ tối" x-cloak x-show="$store.app.mode === 'light'" @click="$store.app.toggleMode('dark')">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
                     <path d="M10 7C10 10.866 13.134 14 17 14C18.9584 14 20.729 13.1957 21.9995 11.8995C22 11.933 22 11.9665 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C12.0335 2 12.067 2 12.1005 2.00049C10.8043 3.27098 10 5.04157 10 7ZM4 12C4 16.4183 7.58172 20 12 20C15.0583 20 17.7158 18.2839 19.062 15.7621C18.3945 15.9187 17.7035 16 17 16C12.0294 16 8 11.9706 8 7C8 6.29648 8.08133 5.60547 8.2379 4.938C5.71611 6.28423 4 8.9417 4 12Z" fill="currentColor"></path>
                 </svg>
-            </a>
-            <a href="javascript:;" class="text-black dark:text-white/80 " x-cloak x-show="$store.app.mode === 'dark'" @click="$store.app.toggleMode('light')">
+            </button>
+            <button type="button" class="admin-topbar-control text-black dark:text-white/80" aria-label="Bật chế độ sáng" title="Bật chế độ sáng" x-cloak x-show="$store.app.mode === 'dark'" @click="$store.app.toggleMode('light')">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
                     <path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z" fill="currentColor"></path>
                 </svg>
-            </a>
+            </button>
         </div>
 
-        <div class="h-5">
+        <div class="admin-topbar-slot">
             <div x-data="modals">
-                <button class="text-black dark:text-white/80 " @click="toggle()">
+                <button type="button" class="admin-topbar-control text-black dark:text-white/80" aria-label="Mở cài đặt giao diện" title="Mở cài đặt giao diện" @click="toggle()">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -59,7 +60,7 @@
                         <div x-show="open" x-transition x-transition.duration.300 class="relative w-full max-w-lg p-0 my-8 overflow-hidden bg-white border rounded-lg shadow-3xl border-black/10 dark:bg-darklight dark:border-darkborder">
                             <div class="flex items-center justify-between px-5 py-3 bg-white border-b border-black/10 dark:bg-darklight dark:border-darkborder">
                                 <h5 class="text-lg font-semibold dark:text-white">Layout Settings</h5>
-                                <button type="button" class="text-muted hover:text-black dark:hover:text-white" @click="toggle">
+                                <button type="button" class="admin-topbar-control text-muted hover:text-black dark:hover:text-white" aria-label="Đóng cài đặt giao diện" title="Đóng cài đặt giao diện" @click="toggle">
                                     <svg class="w-5 h-5" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M24.2929 6.29289L6.29289 24.2929C6.10536 24.4804 6 24.7348 6 25C6 25.2652 6.10536 25.5196 6.29289 25.7071C6.48043 25.8946 6.73478 26 7 26C7.26522 26 7.51957 25.8946 7.70711 25.7071L25.7071 7.70711C25.8946 7.51957 26 7.26522 26 7C26 6.73478 25.8946 6.48043 25.7071 6.29289C25.5196 6.10536 25.2652 6 25 6C24.7348 6 24.4804 6.10536 24.2929 6.29289Z" fill="currentcolor" />
                                         <path d="M7.70711 6.29289C7.51957 6.10536 7.26522 6 7 6C6.73478 6 6.48043 6.10536 6.29289 6.29289C6.10536 6.48043 6 6.73478 6 7C6 7.26522 6.10536 7.51957 6.29289 7.70711L24.2929 25.7071C24.4804 25.8946 24.7348 26 25 26C25.2652 26 25.5196 25.8946 25.7071 25.7071C25.8946 25.5196 26 25.2652 26 25C26 24.7348 25.8946 24.4804 25.7071 24.2929L7.70711 6.29289Z" fill="currentcolor" />
@@ -140,8 +141,8 @@
                             focusAfter && focusAfter.focus();
                         }
                     }" x-on:keydown.escape.prevent.stop="close($refs.button)" x-on:focusin.window="!$refs.panel.contains($event.target) && close()" x-id="['dropdown-button']" class="relative profile h-[60px] flex items-center justify-center">
-                <button x-ref="button" x-on:click="toggle()" :aria-expanded="open" :aria-controls="$id('dropdown-button')" type="button" class="flex items-center gap-1.5 xl:gap-0 dark:text-white/80 ">  
-                <img class="rounded-full h-7 w-7 ltr:xl:mr-2 rtl:xl:ml-2" src="@(!string.IsNullOrEmpty(CurrentUser?.avatar) ? $"{GlobalConstant.BaseUrl}assets/{CurrentUser?.avatar}" : "assets/images/avatar-1.png")" alt="Header Avatar" />
+                <button x-ref="button" x-on:click="toggle()" :aria-expanded="open" :aria-controls="$id('dropdown-button')" type="button" class="admin-profile-control flex items-center gap-1.5 xl:gap-0 dark:text-white/80">
+                <img class="rounded-full h-7 w-7 ltr:xl:mr-2 rtl:xl:ml-2" src="@(!string.IsNullOrEmpty(CurrentUser?.avatar) ? $"{GlobalConstant.BaseUrl}assets/{CurrentUser?.avatar}" : "assets/images/avatar-1.png")" alt="Header Avatar" onerror="this.onerror=null;this.src='/assets/images/no-image-available.svg';" />
                 <span class="hidden fw-medium xl:block dark:text-white/80">@CurrentUser?.last_name @CurrentUser?.first_name</span>
                 <svg :class="{ 'transform rotate-180': open }" class="text-gray-400 transition-transform duration-300 size-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -198,11 +199,8 @@
 
     protected override void OnInitialized()
     {
-        // Add event listener for clicks outside dropdowns
-        JsRuntime.InvokeVoidAsync("addClickListener", DotNetObjectReference.Create(this));
         // Subscribe to location changed event
         NavigationManager.LocationChanged += OnLocationChanged;
-       
     }
     public async Task ToggleFullScreen()
     {
@@ -281,4 +279,9 @@
     {
         await OnLogout.InvokeAsync();
     }
-} 
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

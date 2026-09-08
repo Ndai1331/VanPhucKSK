@@ -619,10 +619,101 @@ background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align:center;
 /* Shared interaction and loading states. Keep these global so every page has
    the same feedback while its Blazor circuit is waiting on an API call. */
 :root {
-    --ui-primary: #0891b2;
-    --ui-foreground: #164e63;
-    --ui-border: #a5f3fc;
+    --ui-primary: #50cd89;
+    --ui-primary-strong: #2f9e64;
+    --ui-primary-contrast: #173b2a;
+    --ui-foreground: #173b2a;
+    --ui-border: #a7e8c3;
     --ui-surface: #ffffff;
+    --ui-surface-muted: #f1fbf5;
+    --ui-scroll-track: #e7f5ed;
+}
+
+html {
+    scrollbar-color: var(--ui-primary) var(--ui-scroll-track);
+    scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--ui-scroll-track);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--ui-primary);
+    border: 2px solid var(--ui-scroll-track);
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ui-primary-strong);
+}
+
+body.dark,
+[data-mode="dark"] {
+    --ui-foreground: #d7f7e4;
+    --ui-border: #2f9e64;
+    --ui-surface: #1f2937;
+    --ui-surface-muted: #20382b;
+    --ui-scroll-track: #17251e;
+}
+
+body {
+    color: var(--ui-foreground);
+}
+
+/* The legacy template calls its accent purple and primary cyan. Map both to
+   the single product color so admin and public pages stay visually coherent. */
+[class~="bg-primary"],
+[class~="bg-success"],
+[class~="bg-purple"] {
+    --tw-bg-opacity: 1 !important;
+    background-color: var(--ui-primary) !important;
+    border-color: var(--ui-primary) !important;
+    color: var(--ui-primary-contrast) !important;
+}
+
+[class~="text-primary"],
+[class~="text-success"],
+[class~="text-purple"] {
+    --tw-text-opacity: 1 !important;
+    color: var(--ui-primary-strong) !important;
+}
+
+[class~="border-primary"],
+[class~="border-success"],
+[class~="border-purple"] {
+    --tw-border-opacity: 1 !important;
+    border-color: var(--ui-primary) !important;
+}
+
+[class~="bg-primary-10"],
+[class~="hover:bg-primary/10"]:hover {
+    background-color: rgb(80 205 137 / 12%) !important;
+}
+
+[class~="hover:border-primary"]:hover {
+    border-color: var(--ui-primary) !important;
+}
+
+.hover\:bg-primary:hover,
+.hover\:bg-success:hover,
+.hover\:bg-purple:hover,
+[class~="hover:bg-success/[0.85]"]:hover,
+[class~="hover:bg-purple-dark"]:hover {
+    background-color: var(--ui-primary-strong) !important;
+    border-color: var(--ui-primary-strong) !important;
+    color: #ffffff !important;
+}
+
+.hover\:text-purple:hover,
+.hover\:text-primary:hover,
+.hover\:text-success:hover {
+    color: var(--ui-primary-strong) !important;
 }
 
 .skip-link {
@@ -822,6 +913,77 @@ button:not(:disabled),
     }
 }
 
+/* Admin topbar controls use one fixed box so fullscreen, theme and settings
+   icons share the same baseline and never inherit MudButton's odd padding. */
+.admin-topbar {
+    border-bottom-color: var(--ui-primary) !important;
+    box-shadow: 0 1px 0 rgb(80 205 137 / 18%);
+}
+
+.admin-topbar > div:last-child {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-topbar-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+}
+
+.admin-topbar-control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    min-height: 2.75rem !important;
+    padding: 0 !important;
+    border: 0;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--ui-foreground) !important;
+    background: transparent;
+    box-shadow: none;
+}
+
+.admin-topbar-control:hover,
+.admin-topbar-control:focus-visible {
+    color: var(--ui-primary-strong) !important;
+    background: rgb(80 205 137 / 14%) !important;
+}
+
+.admin-topbar-control svg {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.admin-profile-control {
+    min-height: 2.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.75rem;
+    line-height: 1;
+}
+
+.admin-profile-control:hover,
+.admin-profile-control:focus-visible {
+    background: rgb(80 205 137 / 14%);
+}
+
+.admin-topbar .project-text-color,
+.admin-topbar .text-black {
+    color: var(--ui-foreground) !important;
+}
+
+.topbar {
+    border-bottom-color: var(--ui-primary) !important;
+    box-shadow: 0 1px 0 rgb(80 205 137 / 18%);
+}
+
 /* Public area: shared responsive layout, content states and accessible controls. */
 .public-page {
     width: 100%;
@@ -835,6 +997,8 @@ button:not(:disabled),
 
 .public-page-header {
     margin-bottom: 1rem;
+    padding-inline-start: 0.875rem;
+    border-inline-start: 4px solid var(--ui-primary);
 }
 
 .public-page-header h1 {
@@ -877,11 +1041,11 @@ button:not(:disabled),
 }
 
 .public-stat-card--success {
-    border-top-color: #059669;
+    border-top-color: var(--ui-primary);
 }
 
 .public-stat-card--success i {
-    color: #047857;
+    color: var(--ui-primary-strong);
 }
 
 .public-stat-card--info {
@@ -933,7 +1097,7 @@ button:not(:disabled),
 .public-list-card:focus-visible {
     border-color: var(--ui-border);
     background: #ffffff;
-    box-shadow: 0 4px 12px rgb(8 145 178 / 10%);
+    box-shadow: 0 4px 12px rgb(80 205 137 / 18%);
 }
 
 .public-list-image {
@@ -995,8 +1159,8 @@ button:not(:disabled),
 }
 
 .public-empty-state {
-    color: #475569;
-    background: #f8fafc;
+    color: var(--ui-foreground);
+    background: var(--ui-surface-muted);
 }
 
 .public-error-state {
@@ -1034,7 +1198,7 @@ button:not(:disabled),
 }
 
 .public-article a {
-    color: #0369a1;
+    color: var(--ui-primary-strong);
     text-decoration: underline;
     text-underline-offset: 0.15em;
 }
@@ -1064,6 +1228,12 @@ button:not(:disabled),
     flex: 0 0 auto;
     min-height: 2.75rem;
     white-space: nowrap;
+    color: var(--ui-foreground) !important;
+}
+
+.desktop-menu a:hover,
+.desktop-menu a:focus-visible {
+    color: var(--ui-primary-strong) !important;
 }
 
 .public-alert-region {
@@ -1075,13 +1245,59 @@ button:not(:disabled),
     align-items: center;
     justify-content: center;
     min-width: 2.75rem;
+    border-radius: 0.5rem;
+}
+
+.public-topbar-control:hover,
+.public-topbar-control:focus-visible {
+    color: var(--ui-primary-strong) !important;
+    background: rgb(80 205 137 / 14%) !important;
+}
+
+.public-topbar-control svg {
+    display: block;
+}
+
+.invoice-search-action {
+    display: flex;
+    align-items: flex-start;
+    min-width: 0;
+    padding-top: 1.75rem;
+}
+
+.invoice-search-action .mud-button-root,
+.public-primary-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 2.75rem !important;
+    border: 1px solid var(--ui-primary) !important;
+    border-radius: 0.5rem;
+    background: var(--ui-primary) !important;
+    color: var(--ui-primary-contrast) !important;
+    box-shadow: none;
+    line-height: 1.25;
+}
+
+.invoice-search-action .mud-button-root:hover:not(:disabled),
+.public-primary-button:hover:not(:disabled) {
+    background: var(--ui-primary-strong) !important;
+    border-color: var(--ui-primary-strong) !important;
+    color: #ffffff !important;
+}
+
+.invoice-search-action .mud-button-root:disabled,
+.public-primary-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
 }
 
 .public-copy-button {
     min-height: 2.75rem;
     max-width: 100%;
     padding: 0.5rem 0.625rem;
-    color: #0369a1;
+    color: var(--ui-primary-strong);
     text-align: left;
     overflow-wrap: anywhere;
     border-radius: 0.375rem;
@@ -1090,7 +1306,7 @@ button:not(:disabled),
 
 .public-copy-button:hover,
 .public-copy-button:focus-visible {
-    background: #e0f2fe;
+    background: rgb(80 205 137 / 14%);
 }
 
 .folder-tree,
@@ -1129,7 +1345,7 @@ button:not(:disabled),
 .folder-tree-select.is-selected,
 .folder-tree-select:hover,
 .folder-tree-select:focus-visible {
-    background: #e0f2fe;
+    background: rgb(80 205 137 / 14%);
 }
 
 .folder-tree-label {
@@ -1149,7 +1365,7 @@ button:not(:disabled),
 
 .folder-tree-toggle:hover,
 .folder-tree-toggle:focus-visible {
-    background: #e0f2fe;
+    background: rgb(80 205 137 / 14%);
 }
 
 .file-item-card {
@@ -1161,7 +1377,7 @@ button:not(:disabled),
 .file-item-card:hover,
 .file-item-card:focus-visible {
     border-color: var(--ui-border);
-    box-shadow: 0 4px 12px rgb(8 145 178 / 10%);
+    box-shadow: 0 4px 12px rgb(80 205 137 / 18%);
 }
 
 .file-item-card > .subtitle a {
@@ -1170,6 +1386,130 @@ button:not(:disabled),
     justify-content: center;
     min-width: 2.75rem;
     min-height: 2.75rem;
+}
+
+/* Shared pagination: remove utility gaps/negative spacing that split the
+   segments apart and make every item part of one keyboard-friendly control. */
+.pagination-nav {
+    width: 100%;
+    color: var(--ui-foreground);
+}
+
+.pagination-nav .pagination-summary {
+    color: var(--ui-foreground);
+}
+
+.pagination-controls {
+    min-width: 0;
+    width: 100%;
+}
+
+.pagination-controls > div {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0.25rem 0;
+    scrollbar-width: thin;
+}
+
+.pagination-list {
+    display: inline-flex !important;
+    align-items: stretch;
+    gap: 0 !important;
+    margin: 0.5rem 0 !important;
+    padding: 0 !important;
+    list-style: none;
+    overflow: hidden;
+    border: 1px solid var(--ui-border);
+    border-radius: 0.75rem;
+    background: var(--ui-surface);
+    vertical-align: middle;
+}
+
+.pagination-list > li {
+    display: flex;
+    align-items: stretch;
+    margin: 0 !important;
+    padding: 0;
+}
+
+.pagination-list > li + li {
+    margin-inline-start: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-inline-start: 1px solid var(--ui-border);
+}
+
+.pagination-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem !important;
+    margin: 0 !important;
+    padding: 0.625rem 0.875rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: var(--ui-surface) !important;
+    color: var(--ui-foreground) !important;
+    box-shadow: none !important;
+    line-height: 1.25 !important;
+    white-space: nowrap;
+}
+
+.pagination-button--previous,
+.pagination-button--next {
+    min-width: 5rem;
+}
+
+.pagination-button:hover:not(:disabled),
+.pagination-button:focus-visible:not(:disabled) {
+    background: var(--ui-surface-muted) !important;
+    color: var(--ui-primary-strong) !important;
+}
+
+.pagination-button--active,
+.pagination-button--active:hover,
+.pagination-button--active:focus-visible {
+    background: var(--ui-primary) !important;
+    color: var(--ui-primary-contrast) !important;
+    font-weight: 700;
+}
+
+.pagination-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.52;
+}
+
+.pagination-button--active:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    color: var(--ui-foreground);
+    background: var(--ui-surface);
+    line-height: 1.25;
+}
+
+@media (max-width: 767px) {
+    .invoice-search-action {
+        align-items: stretch;
+        padding-top: 0;
+    }
+
+    .pagination-nav > .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .pagination-summary {
+        justify-content: center;
+        text-align: center;
+    }
 }
 
 @media (max-width: 640px) {

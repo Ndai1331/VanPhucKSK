@@ -59,12 +59,9 @@
                             <time datetime="@MainModels.date_created.ToString("yyyy-MM-dd")">@MainModels.date_created.ToString("dd/MM/yyyy")</time>
                             <span>@(MainModels.view_count ?? 0) lượt xem</span>
                         </div>
-                        @if (!string.IsNullOrEmpty(MainModels.post_images?.filename_disk))
-                        {
-                            <div>
-                                <img src="@MainModels.post_images.filename_disk" class="w-full max-w-3xl rounded-lg" alt="@MainModels.title" loading="eager" decoding="async">
-                            </div>
-                        }
+                        <div>
+                            <img src="@(string.IsNullOrWhiteSpace(MainModels.post_images?.filename_disk) ? "assets/images/no-image-available.svg" : MainModels.post_images.filename_disk)" class="w-full max-w-3xl rounded-lg" alt="Ảnh minh họa cho @MainModels.title" loading="eager" decoding="async" onerror="this.onerror=null;this.src='/assets/images/no-image-available.svg';">
+                        </div>
                        
                         @if (!string.IsNullOrEmpty(MainModels.description))
                         {

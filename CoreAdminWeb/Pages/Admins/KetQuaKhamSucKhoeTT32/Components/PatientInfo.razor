@@ -36,7 +36,7 @@
     </div>
     <div class="col-span-1 md:col-span-1 flex justify-center items-start -mt-5">
         <div class="avatar-container">
-            <img id="avatarPreview" src="@(!string.IsNullOrEmpty(SelectedUser.avatar) ? $"{GlobalConstant.BaseUrl}assets/{SelectedUser.avatar}" : "assets/images/avatar-1.png")" alt="Avatar Preview" class="avatar-img" />
+            <img id="avatarPreview" src="@(!string.IsNullOrEmpty(SelectedUser.avatar) ? $"{GlobalConstant.BaseUrl}assets/{SelectedUser.avatar}" : "assets/images/avatar-1.png")" alt="Avatar Preview" class="avatar-img" onerror="this.onerror=null;this.src='/assets/images/no-image-available.svg';" />
         </div>
     </div>
 </div>

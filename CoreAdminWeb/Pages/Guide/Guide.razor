@@ -47,7 +47,7 @@
                                 <li>
                                     <button type="button" class="public-list-card" aria-label="Mở hướng dẫn: @post.title" @onclick="() => ViewPostDetail(post)">
                                         <div class="flex flex-1 items-start gap-3">
-                                            <img class="public-list-image" src="@post.post_images?.filename_disk" alt="" width="96" height="96" loading="lazy" decoding="async">
+                                            <img class="public-list-image" src="@(string.IsNullOrWhiteSpace(post.post_images?.filename_disk) ? "assets/images/no-image-available.svg" : post.post_images.filename_disk)" alt="Ảnh minh họa cho @post.title" width="96" height="96" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/assets/images/no-image-available.svg';">
                                             <div class="min-w-0 flex-1 ltr:text-left rtl:text-right">
                                                 <h2 class="public-list-title">@post.title</h2>
                                                 <p class="public-list-summary mt-1">@((MarkupString)(post.sort_description ?? string.Empty))</p>
